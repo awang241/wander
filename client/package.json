@@ -14,7 +14,8 @@
     "core-js": "^3.6.4",
     "serve": "^11.3.0",
     "vue": "^2.6.11",
-    "vuejs-logger": "^1.5.4"
+    "vuejs-logger": "^1.5.4",
+    "vue-router": "latest"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.2.0",

@@ -8,7 +8,9 @@ const instance = axios.create({
   timeout: 1000  
 });  
   
-export default {  
+export default {
+
+
   // (C)reate  
   createNew: (name) => instance.post('students', {name}),  
   // (R)ead  
