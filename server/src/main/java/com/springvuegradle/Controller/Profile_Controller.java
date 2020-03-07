@@ -54,15 +54,20 @@ public class Profile_Controller {
             }
             System.out.println("Inside createProfile method: " + newProfile + " with id " + newProfile.getId());
 
-            for(PassportCountry passportCountry : newProfile.getPassport_countries()){
+            System.out.println("number of passport_countries contents before: " + newProfile.getPassport_countries().size());
+            for(PassportCountry passportCountry : newProfile.retrievePassportCountryObjects()){
                 passportCountry.addProfile(newProfile);
+                //pcRepository.save(passportCountry);
             }
-            for (PassportCountry country : newProfile.getPassport_countries()) {
+            System.out.println("number of passport_countries contents after: " + newProfile.getPassport_countries().size());
+
+            /*for (PassportCountry country : newProfile.getPassport_countries()) {
                 PassportCountry target = pcRepository.findByCountryName(country.getCountryName()).get(0);
                 target.addProfile(newProfile);
-            }
+            } */
 
             repository.save(newProfile);                      //save profile to database
+            System.out.println("number of passport_countries contents after two: " + newProfile.getPassport_countries().size());
             return new ResponseEntity("New profile has been created.", HttpStatus.CREATED);
         } else {
             return new ResponseEntity(error, HttpStatus.BAD_REQUEST);
@@ -100,14 +105,14 @@ public class Profile_Controller {
                 newProfile.getDate_of_birth() == null) {
             error += "The Date of Birth field is blank.\n";
         }
-        if (newProfile.getPassport_countries().size() >= 1 ) {
+        if (newProfile.retrievePassportCountryObjects().size() >= 1 ) {
             List<String> countries = new ArrayList<String>();
             try {
                 countries = helper.GetRESTCountries();
             } catch (java.io.IOException e) {
                 error += e.toString();
             }
-            for (PassportCountry country : newProfile.getPassport_countries()) {
+            for (PassportCountry country : newProfile.retrievePassportCountryObjects()) {
                 if (!helper.validateCountry(country, countries)) {
                     error += "That country doesn't exist.\n";
                 }
@@ -119,7 +124,7 @@ public class Profile_Controller {
             error += "The Gender field must contain either 'male', 'female' or 'non-binary'.\n";
         }
 
-        if (error == "") {
+        /*if (error == "") {
             // case nothing goes wrong
             String hashedPassword = hashPassword(newProfile.getPassword());
             if(hashedPassword != "Hash Failed") {
@@ -130,7 +135,8 @@ public class Profile_Controller {
             return "New profile has been created.";
         } else {
             return error;
-        }
+        }*/
+        return error;
     }
 
     /**
@@ -156,8 +162,9 @@ public class Profile_Controller {
     @GetMapping("/getprofile/{id}")
     public @ResponseBody ResponseEntity<Profile> getProfile(@PathVariable Long id) { //@RequestHeader('authorization') long sessionID
         //if(loginController.checkCredentials(id.intValue(), sessionID)) {
-            var profile_with_id = repository.findById(id);
+        Optional<Profile> profile_with_id = repository.findById(id);
             if (profile_with_id.isPresent()) {
+                System.out.println(profile_with_id.get().getPassport_countries().size());
                 return new ResponseEntity(profile_with_id.get(), HttpStatus.OK);
             } else {
                 return new ResponseEntity(null, HttpStatus.NOT_FOUND);
