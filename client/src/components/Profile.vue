@@ -6,19 +6,36 @@
             </li>
         </ul>
 
-        <button class="btn-light" type="button" v-on:click="editDetails()">Edit Details</button>
+
+        <AddCountry v-bind:possibleCountries="possibleCountries" v-bind:chosenCountries="chosenCountries" v-on:addCountry="addCountry"></AddCountry>
+
+        <countries v-bind:chosenCountries="chosenCountries" v-on:deleteCountry="deleteCountry"></countries>
+
     </div>
 </template>
 
 <script>
     import axios from 'axios'
+    import AddCountry from "./AddCountry";
+    import Countries from "./Countries";
 
     export default {
         name: "Profile",
+        components: {AddCountry, Countries},
         data() {
             return {
                 currentUser: null,
-                email: "bobby@google.com"
+                email: "bobby@google.com",
+                possibleCountries: [],
+                chosenCountries: []
+            }
+        },
+        methods: {
+            deleteCountry(chosenCountry){
+                this.chosenCountries = this.chosenCountries.filter(country => country != chosenCountry)
+            },
+            addCountry(newCountry){
+                this.chosenCountries = [...this.chosenCountries, newCountry.name]
             }
         },
         mounted() {
@@ -31,14 +48,21 @@
                         }
                     }
                 })
+            axios.get("https://restcountries.eu/rest/v2/all")
+                .then(response => {
+                    const data = response.data
+                    const possibleCountries = []
+                    for (let country in data){
+                        possibleCountries.push(data[country].name)
+                    }
+                    this.possibleCountries = possibleCountries;
+                })
+                .catch(error => console.log(error));
+
         },
     }
 </script>
 
 <style scoped>
-
-    button:hover {
-        opacity: 0.7;
-    }
 
 </style>
