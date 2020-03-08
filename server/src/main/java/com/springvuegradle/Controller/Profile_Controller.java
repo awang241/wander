@@ -57,17 +57,10 @@ public class Profile_Controller {
             System.out.println("number of passport_countries contents before: " + newProfile.getPassport_countries().size());
             for(PassportCountry passportCountry : newProfile.retrievePassportCountryObjects()){
                 passportCountry.addProfile(newProfile);
-                //pcRepository.save(passportCountry);
             }
             System.out.println("number of passport_countries contents after: " + newProfile.getPassport_countries().size());
 
-            /*for (PassportCountry country : newProfile.getPassport_countries()) {
-                PassportCountry target = pcRepository.findByCountryName(country.getCountryName()).get(0);
-                target.addProfile(newProfile);
-            } */
-
             repository.save(newProfile);                      //save profile to database
-            System.out.println("number of passport_countries contents after two: " + newProfile.getPassport_countries().size());
             return new ResponseEntity("New profile has been created.", HttpStatus.CREATED);
         } else {
             return new ResponseEntity(error, HttpStatus.BAD_REQUEST);
