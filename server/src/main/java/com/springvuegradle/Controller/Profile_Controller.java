@@ -70,7 +70,7 @@ public class Profile_Controller {
             System.out.println("number of passport_countries contents after two: " + newProfile.getPassport_countries().size());
             return new ResponseEntity("New profile has been created.", HttpStatus.CREATED);
         } else {
-            return new ResponseEntity(error, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity(error, HttpStatus.FORBIDDEN);
         }
     }
 
