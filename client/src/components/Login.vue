@@ -75,5 +75,19 @@
         width: 100%;
     }
 
+    form div{
+        width: 100%;
+    }
+
+    form {
+        background-color: #FFFFFF;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        padding: 0 50px;
+        text-align: left;
+    }
+
 
 </style>
