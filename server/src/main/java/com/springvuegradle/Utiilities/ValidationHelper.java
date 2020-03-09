@@ -1,6 +1,9 @@
 package com.springvuegradle.Utiilities;
 
 import com.springvuegradle.Model.PassportCountry;
+import com.springvuegradle.Model.Profile;
+import com.springvuegradle.PassportCountryRepository;
+import com.springvuegradle.ProfileRepository;
 
 import java.io.IOException;
 import java.net.ConnectException;
@@ -50,6 +53,44 @@ public class ValidationHelper {
             }
         }
         return test;
+    }
+
+    /**
+     * This method updates both the Profile repository as well as the Passport Country repository by checking against the
+     * countries imported by the REST Countries API. If the country is no longer in the API, it is removed. New countries
+     * are added to the Passport Country repository.
+     * @param pcRepository
+     * @param repository
+     * @throws IOException
+     */
+    public static void updatePassportCountryRepository(PassportCountryRepository pcRepository, ProfileRepository repository) throws IOException {
+
+        // adding new countries to the passport country repository if they do not already exist in the repository.
+        List<String> updatedAPICountries = GetRESTCountries();
+        for (String passportCountry: updatedAPICountries) {
+            if (pcRepository.findByCountryName(passportCountry).size() == 0) {
+                pcRepository.save(new PassportCountry(passportCountry));
+            }
+        }
+
+        // removing all the passport countries not part of the API from each user if they are not in the passport country repository
+        List<Profile> allProfiles = repository.findAll();
+        for (Profile profile: allProfiles) {
+            for (PassportCountry passportCountry: profile.retrievePassportCountryObjects()) {
+                // if not in API
+                if (!updatedAPICountries.contains(passportCountry.getCountryName())) {
+                    profile.removePassportCountry(passportCountry);
+                    repository.save(profile);
+                }
+            }
+        }
+        // removing all the passport countries which are in the repository but not in the API
+        for (PassportCountry passportCountry: pcRepository.findAll()) {
+            if (!updatedAPICountries.contains(passportCountry.getCountryName())) {
+                pcRepository.delete(passportCountry);
+            }
+        }
+
     }
 
 }

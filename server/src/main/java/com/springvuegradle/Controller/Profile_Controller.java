@@ -52,14 +52,9 @@ public class Profile_Controller {
             if(hashedPassword != "Hash Failed") {
                 newProfile.setPassword(hashedPassword);
             }
-            System.out.println("Inside createProfile method: " + newProfile + " with id " + newProfile.getId());
-
-            System.out.println("number of passport_countries contents before: " + newProfile.getPassport_countries().size());
             for(PassportCountry passportCountry : newProfile.retrievePassportCountryObjects()){
                 passportCountry.addProfile(newProfile);
             }
-            System.out.println("number of passport_countries contents after: " + newProfile.getPassport_countries().size());
-
             repository.save(newProfile);                      //save profile to database
             return new ResponseEntity("New profile has been created.", HttpStatus.CREATED);
         } else {
