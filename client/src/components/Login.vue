@@ -12,8 +12,8 @@
 </template>
 
 <script>
-    import axios from "axios";
-    import authenticationStore  from "../store/authentication";
+    import api from '../Api';
+    import router from "../router";
     export default {
         name: 'Login',
         data() {
@@ -26,32 +26,17 @@
                 }
             }
         },
-        mounted() {
-            axios.get("https://f91246de-53d1-425e-9b1b-5524c2b62a0e.mock.pstmn.io/getusers")
-                .then(response => this.allUsers = response.data)
-                .catch(error => console.log(error));
-        },
         methods: {
             login() {
-                let logged = false;
-                if (this.input.email != "" && this.input.password != "") {
-                    for (const user of this.allUsers.users) {
-                        console.log(user.email);
-                        if (this.input.email == user.email && this.input.password == user.password) {
-                            logged = true;
-                            authenticationStore.methods.setAuthenticated(true)
-                            this.$router.replace({ name: "profile" });
-                            break;
-                        }
-                    }
-                    if (logged == false) {
-                        this.error = true;
-                        window.alert("Incorrect email or password");
-                    }
-                    console.log();
-                } else {
-                    window.alert("A email and password must be present");
-                }
+                api.login({
+                    email: this.email,
+                    password: this.password,
+                })
+                    .then((response => {
+                        console.log(response)
+                        router.push('Profile')
+                    }))
+                    .catch(error => console.log(error))
             }
         }
     }

@@ -1,7 +1,9 @@
-import axios from 'axios'  
-  
-const SERVER_URL = "localhost:9499/";
+import axios from 'axios'
+
+
+const SERVER_URL = process.env.VUE_APP_SERVER_ADD;
 console.log(SERVER_URL + "@@@");
+
   
 const localAxiosInstance = axios.create({
   baseURL: SERVER_URL,  
@@ -13,13 +15,9 @@ export default {
 
   // (C)reate  
   // createNew: (name) => localAxiosInstance.post('/students', {name}),
-  createProfile: (user) => localAxiosInstance.post('/createprofile', user),
+  createProfile: (user) => localAxiosInstance.post('createprofile', user),
   // (R)ead  
-  getAll: () => localAxiosInstance.get('students', {
-    transformResponse: [function (data) {  
-      return data? JSON.parse(data)._embedded.students : data;  
-    }]  
-  }),  
+  login: (user) => localAxiosInstance.post('login', user),
   // (U)pdate  
   updateForId: (id, name) => localAxiosInstance.put('students/'+id, {name}),
   // (D)elete  
