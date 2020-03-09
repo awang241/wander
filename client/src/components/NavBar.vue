@@ -1,25 +1,27 @@
 <template>
-    <div class="container">
-        <nav id="main-navbar">
-            <div class="nav-left">
-                <button class="btn-light-navbar">Home</button>
-            </div>
-            <div class="nav-right">
+    <b-navbar>
+        <div class="container">
+            <nav id="main-navbar">
+                <div class="nav-left">
+                    <button class="btn-light-navbar">Home</button>
+                </div>
+                <div class="nav-right">
 
-                <router-link v-if="!authenticationStore.authenticated" to="/Registration">
-                    <button class="btn-light-navbar">Register</button>
-                </router-link>
+                    <router-link v-if="!authenticationStore.authenticated" to="/Registration">
+                        <button class="btn-light-navbar">Register</button>
+                    </router-link>
 
-                <router-link v-if="!authenticationStore.authenticated" to="/Login">
-                    <button class="btn-light-navbar">Login</button>
-                </router-link>
+                    <router-link v-if="!authenticationStore.authenticated" to="/Login">
+                        <button class="btn-light-navbar">Login</button>
+                    </router-link>
 
-                <router-link v-if="authenticationStore.authenticated" to="/Login" replace>
-                    <button class="btn-light-navbar" @click="logout" >Logout</button>
-                </router-link>
-            </div>
-        </nav>
-    </div>
+                    <router-link v-if="authenticationStore.authenticated" to="/Login" replace>
+                        <button class="btn-light-navbar" @click="logout" >Logout</button>
+                    </router-link>
+                </div>
+            </nav>
+        </div>
+    </b-navbar>
 </template>
 
 <script>
