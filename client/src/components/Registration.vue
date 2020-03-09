@@ -105,7 +105,7 @@
                     console.log(response)
                     router.push('Login')
                 }))
-                .catch(error => console.log(error))
+                .catch(error => window.alert(error.response.data))
             }
         }
     }

@@ -3,8 +3,8 @@
         <div class="form-container sign-in-container">
             <h1>Login</h1>
             <form action="" method="post" class="form-register">
-                <input type="text" name="email" v-model="input.email" placeholder="Email">
-                <input type="password" name="password" v-model="input.password" placeholder="Password"/>
+                <input type="text" name="email" v-model="email" placeholder="Email">
+                <input type="password" name="password" v-model="password" placeholder="Password"/>
                 <button class="btn-light" type="button" v-on:click="login()">Login</button>
             </form>
         </div>
@@ -14,16 +14,13 @@
 <script>
     import api from '../Api';
     import router from "../router";
+
     export default {
         name: 'Login',
         data() {
             return {
-                input: {
-                    email: "",
-                    password: "",
-                    error: false,
-                    allUsers: null
-                }
+                email: "",
+                password: "",
             }
         },
         methods: {
@@ -31,12 +28,11 @@
                 api.login({
                     email: this.email,
                     password: this.password,
-                })
-                    .then((response => {
-                        console.log(response)
-                        router.push('Profile')
-                    }))
-                    .catch(error => console.log(error))
+                }).then((response => {
+                    console.log(response)
+                    router.push('Profile')
+                }))
+                .catch(error => window.alert(error.response.data))
             }
         }
     }
@@ -60,7 +56,7 @@
         width: 100%;
     }
 
-    form div{
+    form div {
         width: 100%;
     }
 
