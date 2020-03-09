@@ -20,28 +20,42 @@
                            required>
                 </div>
                 <div class="required">
-                    <label for="dateOfBirth">Date of birth </label>
-                    <input ref="dateOfBirth" v-model="dateOfBirth" type="date" name="dateOfBirth" id="dateOfBirth"
-                           required>
+                    <b-field>
+                             <b-datepicker
+                                     placeholder="Select Date of Birth"
+                                     icon="calendar-today"
+                                     :max-date="maxDate" ref="dateOfBirth"
+                                     v-model="dateOfBirth"
+                                     type="date"
+                                     name="dateOfBirth"
+                                     id="dateOfBirth" expanded required>
+                             </b-datepicker>
+                    </b-field>
                 </div>
+
                 <div class="required">
-                    <label for="gender">Gender: </label>
-                    <select id="gender" name="gender" v-model="gender" required>
-                        <option value="female">Female</option>
-                        <option value="male">Male</option>
-                        <option value="nonBinary">Non Binary</option>
-                    </select>
+                        <b-field>
+                            <b-select size="is-default"
+                                      placeholder="Choose a gender"
+                                      id="gender"
+                                      v-model="gender" expanded required>
+                                <option value="female">Female</option>
+                                <option value="male">Male</option>
+                                <option value="nonBinary">Non Binary</option>
+                            </b-select>
+                        </b-field>
                 </div>
 
                 <div>
-                    <label for="fitness">Fitness Level: </label>
-                    <select id="fitness" name="fitness" v-model="fitness">
-                        <option value="0">Beginner: I am not active at all </option>
-                        <option value="1">Novice: I do a low level excercise (walking)</option>
-                        <option value="2">Intermediate: I work out 1-2 times per week </option>
-                        <option value="3">Advanced: I work out 3-4 times per week</option>
-                        <option value="4">Pro: I work out 5+ times per week</option>
-                    </select>
+                    <b-field>
+                        <b-select size="is-default" placeholder="Fitness Level" id="fitness" name="fitness" v-model="fitness" expanded>
+                            <option value="0">Beginner: I am not active at all </option>
+                            <option value="1">Novice: I do a low level excercise (walking)</option>
+                            <option value="2">Intermediate: I work out 1-2 times per week </option>
+                            <option value="3">Advanced: I work out 3-4 times per week</option>
+                            <option value="4">Pro: I work out 5+ times per week</option>
+                        </b-select>
+                    </b-field>
                 </div>
 
                 <div class="required">
@@ -68,6 +82,7 @@
     export default {
         name: "Registration",
         data() {
+            const today = new Date()
             return {
                 firstName: "",
                 lastName: "",
@@ -79,7 +94,9 @@
                 dateOfBirth: "",
                 gender: "",
                 fitness: "",
-                allUsers: null
+                allUsers: null,
+                date: new Date(),
+                maxDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 5)
             }
         },
         mounted() {
