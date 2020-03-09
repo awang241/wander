@@ -26,13 +26,7 @@ public class Application {
     @Bean
     CommandLineRunner init(ProfileRepository profileRepository, PassportCountryRepository passportCountryRepository) {
         return args -> {
-            List<PassportCountry> countries = new ArrayList<PassportCountry>();
-            for (String s : ValidationHelper.GetRESTCountries()) {
-                countries.add(new PassportCountry(s));
-            }
-            if (passportCountryRepository.count() == 0) {
-                passportCountryRepository.saveAll(countries);
-            }
+            ValidationHelper.updatePassportCountryRepository(passportCountryRepository, profileRepository);
             profileRepository.findAll().forEach(System.out::println); // prints all the profile objects in the repository.
         };
     }
