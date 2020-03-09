@@ -1,26 +1,35 @@
 <template>
-    <div class="container">
-        <nav id="main-navbar">
-            <div class="nav-left">
-                <button class="btn-light-navbar">Home</button>
-            </div>
-            <div class="nav-right">
-
+    <b-navbar>
+        <template slot="start">
+            <b-navbar-item href="#">
+                Home
+            </b-navbar-item>
+        </template>
+        <template slot="end">
+            <b-navbar-item tag="div">
                 <router-link v-if="!authenticationStore.authenticated" to="/Registration">
-                    <button class="btn-light-navbar">Register</button>
+                    <a class="button is-primary">
+                        <strong>Register</strong>
+                    </a>
                 </router-link>
 
                 <router-link v-if="!authenticationStore.authenticated" to="/Login">
-                    <button class="btn-light-navbar">Login</button>
+                    <a class="button is-light">
+                        Login
+                    </a>
                 </router-link>
 
                 <router-link v-if="authenticationStore.authenticated" to="/Login" replace>
-                    <button class="btn-light-navbar" @click="logout" >Logout</button>
+                    <a class="button is-light">
+                        <strong>Logout</strong>
+                    </a>
                 </router-link>
-            </div>
-        </nav>
-    </div>
+
+            </b-navbar-item>
+        </template>
+    </b-navbar>
 </template>
+
 
 <script>
     import authenticationStore  from "../store/authentication";
