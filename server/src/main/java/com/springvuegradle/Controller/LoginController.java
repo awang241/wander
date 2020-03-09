@@ -63,6 +63,7 @@ public class LoginController {
     public ResponseEntity<String> loginUser(@RequestBody LoginRequest request) {
         String body = null;
         HttpStatus status = null;
+
         List<Profile> result = profileRepository.findByEmail(request.getEmail());
         if (result.size() > 1) {
             body = "Server data error.";

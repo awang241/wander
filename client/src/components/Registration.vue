@@ -33,6 +33,17 @@
                     </select>
                 </div>
 
+                <div>
+                    <label for="fitness">Fitness Level: </label>
+                    <select id="fitness" name="fitness" v-model="fitness">
+                        <option value="0">Beginner: I am not active at all </option>
+                        <option value="1">Novice: I do a low level excercise (walking)</option>
+                        <option value="2">Intermediate: I work out 1-2 times per week </option>
+                        <option value="3">Advanced: I work out 3-4 times per week</option>
+                        <option value="4">Pro: I work out 5+ times per week</option>
+                    </select>
+                </div>
+
                 <div class="required">
                     <input v-model="password" placeholder="Password" type="password" name="password" id="password"
                            required>
@@ -67,6 +78,7 @@
                 bio: "",
                 dateOfBirth: "",
                 gender: "",
+                fitness: "",
                 allUsers: null
             }
         },
@@ -77,21 +89,23 @@
         methods: {
             createUser() {
                 api.createProfile({
-                    lastName: this.lastName,
-                    firstName: this.firstName,
-                    middleName: this.middleName,
-                    nickName: this.nickName,
+                    lastname: this.lastName,
+                    firstname: this.firstName,
+                    middlename: this.middleName,
+                    nickname: this.nickName,
                     email: this.email,
                     password: this.password,
                     bio: this.bio,
                     date_of_birth: this.dateOfBirth,
-                    gender: this.gender
+                    gender: this.gender,
+                    fitness_level: this.fitness,
+                    passport_countries: []
                 })
                 .then((response => {
                     console.log(response)
                     router.push('Login')
                 }))
-                .catch(error => console.log(error))
+                .catch(error => window.alert(error.response.data))
             }
         }
     }

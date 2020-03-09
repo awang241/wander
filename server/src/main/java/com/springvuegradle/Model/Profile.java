@@ -176,6 +176,10 @@ public class Profile {
         this.passport_countries = passport_countries;
     }
 
+    public void removePassportCountry(PassportCountry passportCountry) {
+        passport_countries.remove(passportCountry);
+    }
+
     /** Helper methods for ProfileController **/
 
     /**
