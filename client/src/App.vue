@@ -27,12 +27,13 @@
 
 <style lang="scss">
     [v-cloak] { display: none; }
+
     // Import Bulma's core
     @import "~bulma/sass/utilities/_all";
 
     // Set your colors
     $primary: #cc00cc;
-    $primary-invert: #ffff4d;
+    $primary-invert: findColorInvert($primary);
 
     // Setup $colors to use as bulma classes (e.g. 'is-twitter')
     $colors: (

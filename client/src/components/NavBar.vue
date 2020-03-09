@@ -5,27 +5,29 @@
                 Home
             </b-navbar-item>
         </template>
+
         <template slot="end">
-            <b-navbar-item tag="div">
-                <router-link v-if="!authenticationStore.authenticated" to="/Registration">
-                    <a class="button is-primary">
-                        <strong>Register</strong>
-                    </a>
-                </router-link>
+            <div class="buttons">
+                <b-button v-if="!authenticationStore.authenticated"
+                          tag="router-link"
+                          to="/Login"
+                          type="is-primary">
+                    Login
+                </b-button>
+                <b-button v-if="!authenticationStore.authenticated"
+                          tag="router-link"
+                          to="/Registration"
+                          type="is-light">
+                    Registration
+                </b-button>
+                <b-button v-if="authenticationStore.authenticated"
+                          tag="router-link"
+                          to="/Login"
+                          type="is-light">
+                    Logout
+                </b-button>
+            </div>
 
-                <router-link v-if="!authenticationStore.authenticated" to="/Login">
-                    <a class="button is-light">
-                        Login
-                    </a>
-                </router-link>
-
-                <router-link v-if="authenticationStore.authenticated" to="/Login" replace>
-                    <a class="button is-light">
-                        <strong>Logout</strong>
-                    </a>
-                </router-link>
-
-            </b-navbar-item>
         </template>
     </b-navbar>
 </template>
