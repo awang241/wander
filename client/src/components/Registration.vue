@@ -4,20 +4,25 @@
             <h1>Create Account</h1>
             <form @submit.prevent="createUser" id="formRegister">
                 <div class="required">
-                    <input v-model="firstName" type="text" placeholder="First Name" name="First Name" id="firstName" maxlength="25" required>
+                    <input v-model="firstName" type="text" placeholder="First Name" name="First Name" id="firstName"
+                           maxlength="25" required>
                 </div>
                 <div>
-                    <input v-model="middleName" type="text" placeholder="Middle Name" name="Last Name" id="middleName" maxlength="25">
+                    <input v-model="middleName" type="text" placeholder="Middle Name" name="Last Name" id="middleName"
+                           maxlength="25">
                 </div>
                 <div class="required">
-                    <input v-model="lastName" type="text" placeholder="Last Name" name="Last Name" id="lastName" maxlength="25" required>
+                    <input v-model="lastName" type="text" placeholder="Last Name" name="Last Name" id="lastName"
+                           maxlength="25" required>
                 </div>
                 <div class="required">
-                    <input v-model="email" type="email" placeholder="Email" name="email" id="email" maxlength="40" required>
+                    <input v-model="email" type="email" placeholder="Email" name="email" id="email" maxlength="40"
+                           required>
                 </div>
                 <div class="required">
                     <label for="dateOfBirth">Date of birth </label>
-                    <input ref="dateOfBirth" v-model="dateOfBirth" type="date" name="dateOfBirth" id="dateOfBirth" required>
+                    <input ref="dateOfBirth" v-model="dateOfBirth" type="date" name="dateOfBirth" id="dateOfBirth"
+                           required>
                 </div>
                 <div class="required">
                     <label for="gender">Gender: </label>
@@ -28,11 +33,24 @@
                     </select>
                 </div>
 
+                <div>
+                    <label for="fitness">Fitness Level: </label>
+                    <select id="fitness" name="fitness" v-model="fitness">
+                        <option value="0">Beginner: I am not active at all </option>
+                        <option value="1">Novice: I do a low level excercise (walking)</option>
+                        <option value="2">Intermediate: I work out 1-2 times per week </option>
+                        <option value="3">Advanced: I work out 3-4 times per week</option>
+                        <option value="4">Pro: I work out 5+ times per week</option>
+                    </select>
+                </div>
+
                 <div class="required">
-                    <input v-model="password" placeholder="Password" type="password" name="password" id="password" required>
+                    <input v-model="password" placeholder="Password" type="password" name="password" id="password"
+                           required>
                 </div>
                 <div>
-                    <input type="text" name="nickname" placeholder="Nickname" id="nickname" maxlength="25" v-model="nickName">
+                    <input type="text" name="nickname" placeholder="Nickname" id="nickname" maxlength="25"
+                           v-model="nickName">
                     <textarea v-model="bio" placeholder="Bio" id="bio" name="bio" rows="2" cols="30"></textarea>
                 </div>
                 <button class="btn btn-light" type="submit">Submit</button>
@@ -44,7 +62,7 @@
 </template>
 
 <script>
-    import axios from 'axios'
+    import api from '../Api';
     import router from '../router.js'
 
     export default {
@@ -60,43 +78,34 @@
                 bio: "",
                 dateOfBirth: "",
                 gender: "",
+                fitness: "",
                 allUsers: null
             }
         },
         mounted() {
             let today = new Date().toISOString().split('T')[0];
             this.$refs.dateOfBirth.setAttribute('max', today);
-
-            axios.get("https://f91246de-53d1-425e-9b1b-5524c2b62a0e.mock.pstmn.io/getusers")
-                .then(response => this.allUsers = response.data)
-                .catch(error => console.log(error));
-
         },
         methods: {
             createUser() {
-                let emailUsed = false;
-                for (const user of this.allUsers.users) {
-                    if (this.email == user.email) {
-                        emailUsed = true;
-                    }
-                }
-                if (emailUsed == false) {
-                    axios.post('https://f91246de-53d1-425e-9b1b-5524c2b62a0e.mock.pstmn.io/createprofile', {
-                        lastName: this.lastName,
-                        firstName: this.firstName,
-                        middleName: this.middleName,
-                        nickName: this.nickName,
-                        email: this.email,
-                        password: this.password,
-                        bio: this.bio,
-                        date_of_birth: this.dateOfBirth,
-                        gender: this.gender
-                    })
-                    router.push('Login');
-                } else {
-                    window.alert("The email you have entered is already registered. \n" +
-                        "Please enter a different email.");
-                }
+                api.createProfile({
+                    lastname: this.lastName,
+                    firstname: this.firstName,
+                    middlename: this.middleName,
+                    nickname: this.nickName,
+                    email: this.email,
+                    password: this.password,
+                    bio: this.bio,
+                    date_of_birth: this.dateOfBirth,
+                    gender: this.gender,
+                    fitness_level: this.fitness,
+                    passport_countries: []
+                })
+                .then((response => {
+                    console.log(response)
+                    router.push('Login')
+                }))
+                .catch(error => window.alert(error.response.data))
             }
         }
     }
@@ -104,7 +113,7 @@
 
 
 <style scoped>
-    .card  {
+    .card {
         min-height: 700px;
     }
 
@@ -119,7 +128,7 @@
         text-align: center;
     }
 
-    form div{
+    form div {
         width: 100%;
     }
 
@@ -132,7 +141,6 @@
         padding: 0 50px;
         text-align: left;
     }
-
 
 
 </style>

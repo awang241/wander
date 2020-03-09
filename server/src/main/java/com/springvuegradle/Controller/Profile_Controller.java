@@ -58,7 +58,7 @@ public class Profile_Controller {
             repository.save(newProfile);                      //save profile to database
             return new ResponseEntity("New profile has been created.", HttpStatus.CREATED);
         } else {
-            return new ResponseEntity(error, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity(error, HttpStatus.FORBIDDEN);
         }
     }
 
