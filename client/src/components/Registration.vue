@@ -77,15 +77,17 @@
         methods: {
             createUser() {
                 api.createProfile({
-                    lastName: this.lastName,
-                    firstName: this.firstName,
-                    middleName: this.middleName,
-                    nickName: this.nickName,
+                    lastname: this.lastName,
+                    firstname: this.firstName,
+                    middlename: this.middleName,
+                    nickname: this.nickName,
                     email: this.email,
                     password: this.password,
                     bio: this.bio,
                     date_of_birth: this.dateOfBirth,
-                    gender: this.gender
+                    gender: this.gender,
+                    fitness_level: "3",
+                    passport_countries: []
                 })
                 .then((response => {
                     console.log(response)
