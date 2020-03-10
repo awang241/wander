@@ -4,7 +4,10 @@ import VueRouter from 'vue-router'
 import router from "./router.js";
 import Buefy from 'buefy'
 
-Vue.use(Buefy)
+Vue.use(Buefy, {
+  defaultIconComponent: 'vue-fontawesome',
+  defaultIconPack: 'fas',
+});
 
 Vue.use(VueRouter)
 Vue.config.productionTip = false
