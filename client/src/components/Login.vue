@@ -62,41 +62,4 @@
 
 <style scoped>
 
-    /*h1 {*/
-    /*    padding: 1.5rem 0;*/
-    /*    font-weight: bold;*/
-    /*    margin: 0;*/
-    /*    text-align: center;*/
-    /*}*/
-
-    /*.card {*/
-    /*    min-height: 300px;*/
-    /*}*/
-
-    /*.sign-in-container {*/
-    /*    left: 0;*/
-    /*    width: 100%;*/
-    /*}*/
-
-    /*form div {*/
-    /*    width: 100%;*/
-    /*}*/
-
-    /*form {*/
-    /*    background-color: #FFFFFF;*/
-    /*    display: flex;*/
-    /*    align-items: center;*/
-    /*    justify-content: center;*/
-    /*    flex-direction: column;*/
-    /*    padding: 40px;*/
-    /*    !*margin: 100px;*!*/
-    /*    margin-left: 300px;*/
-    /*    margin-right: 300px;*/
-    /*    text-align: left;*/
-    /*    margin-top: 60px;*/
-    /*    border-radius: 10px;*/
-    /*    position: center;*/
-
-    /*}*/
-
 </style>
