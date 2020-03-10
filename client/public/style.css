@@ -6,6 +6,15 @@ body {
     padding: 0;
 }
 
+.container {
+    background-color: #FFFFFF;
+    padding: 40px;
+    /*text-align: left;*/
+    margin-top: 60px;
+    border-radius: 10px;
+    position: center;
+}
+
 /*button {*/
 /*    margin: 0;*/
 /*    padding: 0.5rem;*/
@@ -86,11 +95,11 @@ body {
 /*}*/
 
 
-.btn-light:hover,
-.btn-light-navbar:hover{
-    cursor: pointer;
-    opacity: 0.9;
-}
+/*.btn-light:hover,*/
+/*.btn-light-navbar:hover{*/
+/*    cursor: pointer;*/
+/*    opacity: 0.9;*/
+/*}*/
 
 /*.main {*/
 /*    margin-top: 30px; !* Add a top margin to avoid content overlay *!*/

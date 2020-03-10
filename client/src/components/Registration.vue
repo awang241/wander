@@ -143,13 +143,5 @@
 
 <style scoped>
 
-    .container {
-        background-color: #FFFFFF;
-        padding: 40px;
-        /*text-align: left;*/
-        margin-top: 60px;
-        border-radius: 10px;
-        position: center;
-    }
 
 </style>
