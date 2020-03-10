@@ -1,65 +1,83 @@
 <template>
-    <div class="card">
-        <div class="form-container sign-up-container">
-            <h1>Create Account</h1>
-            <form @submit.prevent="createUser" id="formRegister">
-                <div class="required">
-                    <input v-model="firstName" type="text" placeholder="First Name" name="First Name" id="firstName"
-                           maxlength="25" required>
-                </div>
-                <div>
-                    <input v-model="middleName" type="text" placeholder="Middle Name" name="Last Name" id="middleName"
-                           maxlength="25">
-                </div>
-                <div class="required">
-                    <input v-model="lastName" type="text" placeholder="Last Name" name="Last Name" id="lastName"
-                           maxlength="25" required>
-                </div>
-                <div class="required">
-                    <input v-model="email" type="email" placeholder="Email" name="email" id="email" maxlength="40"
-                           required>
-                </div>
-                <div class="required">
-                    <label for="dateOfBirth">Date of birth </label>
-                    <input ref="dateOfBirth" v-model="dateOfBirth" type="date" name="dateOfBirth" id="dateOfBirth"
-                           required>
-                </div>
-                <div class="required">
-                    <label for="gender">Gender: </label>
-                    <select id="gender" name="gender" v-model="gender" required>
-                        <option value="female">Female</option>
-                        <option value="male">Male</option>
-                        <option value="nonBinary">Non Binary</option>
-                    </select>
-                </div>
+        <div class="container">
+                <h1 class="title">Create Account</h1>
+                    <form @submit.prevent="createUser">
 
-                <div>
-                    <label for="fitness">Fitness Level: </label>
-                    <select id="fitness" name="fitness" v-model="fitness">
-                        <option value="0">Beginner: I am not active at all </option>
-                        <option value="1">Novice: I do a low level excercise (walking)</option>
-                        <option value="2">Intermediate: I work out 1-2 times per week </option>
-                        <option value="3">Advanced: I work out 3-4 times per week</option>
-                        <option value="4">Pro: I work out 5+ times per week</option>
-                    </select>
-                </div>
+                    <b-field grouped group-multiline>
+                        <b-field style="width:10em" label="First Name" expanded>
+                            <b-input v-model="firstName" placeholder="First Name" required></b-input>
+                        </b-field>
+                        <b-field style="width:10em" label="Middle Name" expanded>
+                            <b-input v-model="middleName" placeholder="Middle Name"></b-input>
+                         </b-field>
+                        <b-field style="width:10em" label="Last Name" expanded>
+                            <b-input v-model="lastName" placeholder="Last Name" required></b-input>
+                        </b-field>
+                    </b-field>
 
-                <div class="required">
-                    <input v-model="password" placeholder="Password" type="password" name="password" id="password"
-                           required>
-                </div>
-                <div>
-                    <input type="text" name="nickname" placeholder="Nickname" id="nickname" maxlength="25"
-                           v-model="nickName">
-                    <textarea v-model="bio" placeholder="Bio" id="bio" name="bio" rows="2" cols="30"></textarea>
-                </div>
-                <button class="btn btn-light" type="submit">Submit</button>
-                <p>* Indicates a required field</p>
+                    <b-field grouped group-multiline>
+                        <b-field style="width:10em" label="Email" expanded>
+                                 <b-input type="email"
+                                     v-model="email"
+                                     placeholder="Email"
+                                     maxlength="30" required>
+                                 </b-input>
+                        </b-field>
+
+                        <b-field style="width:10em" label="Nickname" expanded>
+                            <b-input v-model="nickName" type="text" placeholder="Nickname" maxlength="25"></b-input>
+                        </b-field>
+
+                        <b-field label="Date of Birth" style="width:10em" expanded>
+                                 <b-datepicker
+                                         editable="editable"
+                                         placeholder="Select Date of Birth"
+                                         :max-date="maxDate" ref="dateOfBirth"
+                                         v-model="dateOfBirth"
+                                         type="date" required>
+                                 </b-datepicker>
+                        </b-field>
+                    </b-field>
+                    <b-field grouped group-multiline>
+                        <b-field label="Gender" expanded>
+                                <b-select
+                                        placeholder="Choose a gender"
+                                       v-model="gender" required expanded>
+                                    <option value="female">Female</option>
+                                    <option value="male">Male</option>
+                                    <option value="nonBinary">Non Binary</option>
+                                </b-select>
+                        </b-field>
+
+                        <b-field label="Fitness Level" expanded >
+                            <b-select v-model="fitness" placeholder="Fitness Level" expanded>
+                                <option value="0">Beginner: I am not active at all </option>
+                                <option value="1">Novice: I do a low level excercise (walking)</option>
+                                <option value="2">Intermediate: I work out 1-2 times per week </option>
+                                <option value="3">Advanced: I work out 3-4 times per week</option>
+                                <option value="4">Pro: I work out 5+ times per week</option>
+                            </b-select>
+                        </b-field>
+                    </b-field>
+                    <b-field grouped group-multiline>
+                        <b-field label="Password" expanded>
+                            <b-input v-model="password" type="password" placeholder="Password" required></b-input>
+                        </b-field>
+
+                        <b-field label="Confirm Password" expanded>
+                            <b-input v-model="confpassword" type="confpassword" placeholder="Confirm Password" required></b-input>
+                        </b-field>
+                    </b-field>
+
+                    <b-field>
+                        <b-button native-type="submit" :disabled="isDisabled">Submit</b-button>
+                    </b-field>
             </form>
-
         </div>
-    </div>
+
 </template>
+
+
 
 <script>
     import api from '../Api';
@@ -68,6 +86,7 @@
     export default {
         name: "Registration",
         data() {
+            const today = new Date()
             return {
                 firstName: "",
                 lastName: "",
@@ -75,17 +94,27 @@
                 nickName: "",
                 email: "",
                 password: "",
+                confpassword: "",
                 bio: "",
                 dateOfBirth: "",
-                gender: "",
-                fitness: "",
-                allUsers: null
+                gender: null,
+                fitness: null,
+                allUsers: null,
+                date: new Date(),
+                maxDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 5)
             }
         },
         mounted() {
             let today = new Date().toISOString().split('T')[0];
             this.$refs.dateOfBirth.setAttribute('max', today);
         },
+
+        computed: {
+            isDisabled() {
+                return !(this.password == this.confpassword);
+            }
+        },
+
         methods: {
             createUser() {
                 api.createProfile({
@@ -113,34 +142,6 @@
 
 
 <style scoped>
-    .card {
-        min-height: 700px;
-    }
-
-    h1 {
-        padding: 1.5rem 0;
-        font-weight: bold;
-        margin: 0;
-        text-align: center;
-    }
-
-    h2 {
-        text-align: center;
-    }
-
-    form div {
-        width: 100%;
-    }
-
-    form {
-        background-color: #FFFFFF;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
-        padding: 0 50px;
-        text-align: left;
-    }
 
 
 </style>

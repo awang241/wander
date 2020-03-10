@@ -2,6 +2,12 @@ import Vue from 'vue'
 import App from './App'
 import VueRouter from 'vue-router'
 import router from "./router.js";
+import Buefy from 'buefy'
+
+Vue.use(Buefy, {
+  defaultIconComponent: 'vue-fontawesome',
+  defaultIconPack: 'fas',
+});
 
 Vue.use(VueRouter)
 Vue.config.productionTip = false

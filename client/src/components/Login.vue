@@ -1,12 +1,31 @@
 <template>
-    <div class="card">
+    <div class="container">
         <div class="form-container sign-in-container">
-            <h1>Login</h1>
-            <form action="" method="post" class="form-register">
-                <input type="text" name="email" v-model="email" placeholder="Email">
-                <input type="password" name="password" v-model="password" placeholder="Password"/>
-                <button class="btn-light" type="button" v-on:click="login()">Login</button>
-            </form>
+            <section>
+                <form action="" method="post" class="form-register">
+                    <h1 class="title">Login</h1>
+                    <b-field label="Email">
+                             <b-input placeholder="Email"
+                                      v-model="email"
+                                      type="email"
+                                      maxlength="20">
+                             </b-input>
+                    </b-field>
+
+                    <b-field label="Password">
+                        <b-input placeholder="Password"
+                                 v-model="password"
+                                 type="password"
+                                 maxlength="20">
+                        </b-input>
+                    </b-field>
+
+                    <b-button @click="login"
+                              type="is-danger">
+                        Login
+                    </b-button>
+                </form>
+            </section>
         </div>
     </div>
 </template>
@@ -14,6 +33,7 @@
 <script>
     import api from '../Api';
     import router from "../router";
+    import authenticationStore from "../store/authentication";
 
     export default {
         name: 'Login',
@@ -30,6 +50,8 @@
                     password: this.password,
                 }).then((response => {
                     console.log(response)
+                    console.log(response.data)
+                    authenticationStore.methods.setAuthenticated(true)
                     router.push('Profile')
                 }))
                 .catch(error => window.alert(error.response.data))
@@ -66,8 +88,15 @@
         align-items: center;
         justify-content: center;
         flex-direction: column;
-        padding: 0 50px;
+        padding: 40px;
+        /*margin: 100px;*/
+        margin-left: 300px;
+        margin-right: 300px;
         text-align: left;
+        margin-top: 60px;
+        border-radius: 10px;
+        position: center;
+
     }
 
 
