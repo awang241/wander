@@ -14,6 +14,7 @@
 <script>
     import api from '../Api';
     import router from "../router";
+    import authenticationStore from "../store/authentication";
 
     export default {
         name: 'Login',
@@ -30,6 +31,8 @@
                     password: this.password,
                 }).then((response => {
                     console.log(response)
+                    console.log(response.data)
+                    authenticationStore.methods.setAuthenticated(true)
                     router.push('Profile')
                 }))
                 .catch(error => window.alert(error.response.data))

@@ -21,5 +21,7 @@ export default {
   // (U)pdate  
   updateForId: (id, name) => localAxiosInstance.put('students/'+id, {name}),
   // (D)elete  
-  removeForId: (id) => localAxiosInstance.delete('students/'+id)
+  removeForId: (id) => localAxiosInstance.delete('students/'+id),
+  // (G)et
+  getProfile: (id) => localAxiosInstance.get('getprofile/'+id)
 }
