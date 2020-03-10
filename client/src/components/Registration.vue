@@ -61,11 +61,14 @@
                     </b-field>
                     <b-field grouped group-multiline>
                         <b-field label="Password" expanded>
-                            <b-input v-model="password" type="password" placeholder="Password" required></b-input>
+                            <b-input v-model="password" type="password" placeholder="Password"
+                                     required></b-input>
                         </b-field>
 
-                        <b-field label="Confirm Password" expanded>
-                            <b-input v-model="confpassword" type="confpassword" placeholder="Confirm Password" required></b-input>
+                        <b-field label="Confirm Password"
+                                 :message="[{'Passwords do not match':isDisabled}]" expanded>
+                            <b-input v-model="confpassword" type="password" placeholder="Confirm Password"
+                                     required></b-input>
                         </b-field>
                     </b-field>
 
