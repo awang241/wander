@@ -32,10 +32,10 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
-.required:after{
-    color: red;
-    content: " *";
-}
+/*.required:after{*/
+/*    color: red;*/
+/*    content: " *";*/
+/*}*/
 
 input, textarea {
     background-color: #eee;
@@ -51,24 +51,23 @@ input, textarea {
     box-shadow: 0 14px 28px rgba(0,0,0,0.25),
     0 10px 10px rgba(0,0,0,0.22);
     position: relative;
-    overflow: hidden;
-    width: 500px;
+    /*overflow: hidden;*/
+    width: 600px;
     max-width: 100%;
     margin: auto;
     margin-top: 60px;
-
 }
 
-.form-container {
-    position: absolute;
-    top: 0;
-    height: 100%;
-}
+/*.form-container {*/
+/*    position: absolute;*/
+/*    top: 0;*/
+/*    height: 100%;*/
+/*}*/
 
-.sign-up-container {
-    left: 0;
-    width: 100%;
-}
+/*.sign-up-container {*/
+/*    left: 0;*/
+/*    width: 100%;*/
+/*}*/
 
 .btn-light {
     border-radius: 20px;
