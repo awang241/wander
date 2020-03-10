@@ -6,44 +6,44 @@ body {
     padding: 0;
 }
 
-button {
-    margin: 0;
-    padding: 0.5rem;
-    border: 0;
-    background: none;
-    font-size: 100%;
-    vertical-align: baseline;
-    font-family: inherit;
-    font-weight: inherit;
-    color: inherit;
-    -webkit-appearance: none;
-    appearance: none;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-}
+/*button {*/
+/*    margin: 0;*/
+/*    padding: 0.5rem;*/
+/*    border: 0;*/
+/*    background: none;*/
+/*    font-size: 100%;*/
+/*    vertical-align: baseline;*/
+/*    font-family: inherit;*/
+/*    font-weight: inherit;*/
+/*    color: inherit;*/
+/*    -webkit-appearance: none;*/
+/*    appearance: none;*/
+/*    -webkit-font-smoothing: antialiased;*/
+/*    -moz-osx-font-smoothing: grayscale;*/
+/*}*/
 
-body {
-    font: 14px Arial, sans-serif;
-    line-height: 1.4em;
-    /*background: #f5f5f5;*/
-    color: #4d4d4d;
-    margin: 0 auto;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-}
+/*body {*/
+/*    font: 14px Arial, sans-serif;*/
+/*    line-height: 1.4em;*/
+/*    !*background: #f5f5f5;*!*/
+/*    color: #4d4d4d;*/
+/*    margin: 0 auto;*/
+/*    -webkit-font-smoothing: antialiased;*/
+/*    -moz-osx-font-smoothing: grayscale;*/
+/*}*/
 
 /*.required:after{*/
 /*    color: red;*/
 /*    content: " *";*/
 /*}*/
 
-input, textarea {
-    background-color: #eee;
-    border: none;
-    padding: 12px 15px;
-    margin: 8px 0;
-    width: 97%;
-}
+/*input, textarea {*/
+/*    background-color: #eee;*/
+/*    border: none;*/
+/*    padding: 12px 15px;*/
+/*    margin: 8px 0;*/
+/*    width: 97%;*/
+/*}*/
 
 /*.card {*/
 /*    background-color: #fff;*/
@@ -74,29 +74,17 @@ input, textarea {
 
 /*}*/
 
-.btn-light {
-    border-radius: 20px;
-    background-color: #1aa3ff;
-    color: #FFFFFF;
-    font-size: 12px;
-    font-weight: bold;
-    padding: 12px 45px;
-    letter-spacing: 1px;
-    margin: 1rem 0;
-    text-transform: uppercase;
-}
+/*.btn-light {*/
+/*    background-color: #;*/
+/*    color: #FFFFFF;*/
+/*    font-size: 12px;*/
+/*    font-weight: bold;*/
+/*    padding: 12px 45px;*/
+/*    letter-spacing: 1px;*/
+/*    margin: 1rem 0;*/
+/*    text-transform: uppercase;*/
+/*}*/
 
-.btn-light-navbar {
-    border-radius: 20px;
-    background-color: #1aa3ff;
-    color: #FFFFFF;
-    font-size: 12px;
-    font-weight: bold;
-    padding: 8px 18px;
-    letter-spacing: 1px;
-    margin: 0.3rem 0.2rem;
-    text-transform: uppercase;
-}
 
 .btn-light:hover,
 .btn-light-navbar:hover{
@@ -104,9 +92,9 @@ input, textarea {
     opacity: 0.9;
 }
 
-.main {
-    margin-top: 30px; /* Add a top margin to avoid content overlay */
-}
+/*.main {*/
+/*    margin-top: 30px; !* Add a top margin to avoid content overlay *!*/
+/*}*/
 
 /*:focus {*/
 /*    outline: 0;*/

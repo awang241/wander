@@ -1,37 +1,36 @@
 <template>
         <div class="container">
                 <h1 class="title">Create Account</h1>
-                <form @submit.prevent="createUser" id="formRegister">
+                    <form @submit.prevent="createUser">
 
                     <b-field grouped group-multiline>
-                        <b-field label="First Name" expanded>
+                        <b-field style="width:10em" label="First Name" expanded>
                             <b-input v-model="firstName" placeholder="First Name" required></b-input>
                         </b-field>
-                        <b-field label="Middle Name" expanded>
+                        <b-field style="width:10em" label="Middle Name" expanded>
                             <b-input v-model="middleName" placeholder="Middle Name"></b-input>
                          </b-field>
-                        <b-field label="Last Name" expanded>
+                        <b-field style="width:10em" label="Last Name" expanded>
                             <b-input v-model="lastName" placeholder="Last Name" required></b-input>
                         </b-field>
                     </b-field>
 
                     <b-field grouped group-multiline>
-                        <b-field label="Email" expanded>
+                        <b-field style="width:10em" label="Email" expanded>
                                  <b-input type="email"
                                      v-model="email"
                                      placeholder="Email"
-                                     name="email"
-                                     id="email"
                                      maxlength="30" required>
                                  </b-input>
                         </b-field>
 
-                        <b-field label="Nickname" expanded>
+                        <b-field style="width:10em" label="Nickname" expanded>
                             <b-input v-model="nickName" type="text" placeholder="Nickname" maxlength="25"></b-input>
                         </b-field>
 
-                        <b-field label="Date of Birth" expanded>
+                        <b-field label="Date of Birth" style="width:10em" expanded>
                                  <b-datepicker
+                                         editable="editable"
                                          placeholder="Select Date of Birth"
                                          :max-date="maxDate" ref="dateOfBirth"
                                          v-model="dateOfBirth"
@@ -40,18 +39,18 @@
                         </b-field>
                     </b-field>
                     <b-field grouped group-multiline>
-                        <b-field label="Gender">
+                        <b-field label="Gender" expanded>
                                 <b-select
                                         placeholder="Choose a gender"
-                                        v-model="gender" required>
+                                       v-model="gender" required expanded>
                                     <option value="female">Female</option>
                                     <option value="male">Male</option>
                                     <option value="nonBinary">Non Binary</option>
                                 </b-select>
                         </b-field>
 
-                        <b-field label="Fitness Level">
-                            <b-select placeholder="Fitness Level" v-model="fitness" expanded>
+                        <b-field label="Fitness Level" expanded >
+                            <b-select v-model="fitness" placeholder="Fitness Level" expanded>
                                 <option value="0">Beginner: I am not active at all </option>
                                 <option value="1">Novice: I do a low level excercise (walking)</option>
                                 <option value="2">Intermediate: I work out 1-2 times per week </option>
@@ -61,31 +60,19 @@
                         </b-field>
                     </b-field>
                     <b-field grouped group-multiline>
-                        <b-field label="Password">
-                            <b-input v-model="password" type="password" placeholder="Password" expanded required></b-input>
+                        <b-field label="Password" expanded>
+                            <b-input v-model="password" type="password" placeholder="Password" required></b-input>
                         </b-field>
 
-                        <b-field label="Confirm Password">
-                            <b-input v-model="password" type="confpassword" placeholder="Confirm Password" expanded required></b-input>
+                        <b-field label="Confirm Password" expanded>
+                            <b-input v-model="confpassword" type="confpassword" placeholder="Confirm Password" required></b-input>
                         </b-field>
                     </b-field>
 
-<!--                    <b-field label="Nickname" label-position="on-border">-->
-<!--                        <b-input v-model="nickName" type="text" placeholder="Nickname" maxlength="25"></b-input>-->
-<!--                    </b-field>-->
-
-<!--                    <b-field label="Bio" label-position="on-border">-->
-<!--                        <b-input v-model="bio" type="textarea" placeholder="Nickname" maxlength="200"></b-input>-->
-<!--                    </b-field>-->
-
-<!--                    <button class="btn btn-light" type="submit">Submit</button>-->
-<!--                    <p>* Indicates a required field</p>-->
-
-                    <b-field><!-- Label left empty for spacing -->
-                        <b-button type="submit">Submit</b-button>
+                    <b-field>
+                        <b-button native-type="submit" :disabled="isDisabled">Submit</b-button>
                     </b-field>
-                </form>
-
+            </form>
         </div>
 
 </template>
@@ -107,10 +94,11 @@
                 nickName: "",
                 email: "",
                 password: "",
+                confpassword: "",
                 bio: "",
                 dateOfBirth: "",
-                gender: "",
-                fitness: "",
+                gender: null,
+                fitness: null,
                 allUsers: null,
                 date: new Date(),
                 maxDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 5)
@@ -120,6 +108,13 @@
             let today = new Date().toISOString().split('T')[0];
             this.$refs.dateOfBirth.setAttribute('max', today);
         },
+
+        computed: {
+            isDisabled() {
+                return !(this.password == this.confpassword);
+            }
+        },
+
         methods: {
             createUser() {
                 api.createProfile({
@@ -147,16 +142,6 @@
 
 
 <style scoped>
-    /*.card {*/
-    /*    min-height: 1000px;*/
-    /*}*/
-
-    /*h1 {*/
-    /*    padding: 1.5rem 0;*/
-    /*    font-weight: bold;*/
-    /*    text-align: center;*/
-    /*    font-size: 18px;*/
-    /*}*/
 
     .container {
         background-color: #FFFFFF;
