@@ -7,27 +7,28 @@
         </template>
 
         <template slot="end">
-            <div class="buttons">
-                <b-button v-if="!authenticationStore.authenticated"
-                          tag="router-link"
-                          to="/Login"
-                          type="is-primary">
-                    Login
-                </b-button>
-                <b-button v-if="!authenticationStore.authenticated"
-                          tag="router-link"
-                          to="/Registration"
-                          type="is-light">
-                    Registration
-                </b-button>
-                <b-button v-if="authenticationStore.authenticated"
-                          tag="router-link"
-                          to="/Login"
-                          type="is-light">
-                    Logout
-                </b-button>
-            </div>
-
+            <b-navbar-item tag="div">
+                <div class="buttons">
+                    <b-button v-if="!authenticationStore.authenticated"
+                              tag="router-link"
+                              to="/Login"
+                              type="is-primary">
+                        <strong>Login</strong>
+                    </b-button>
+                    <b-button v-if="!authenticationStore.authenticated"
+                              tag="router-link"
+                              to="/Registration"
+                              type="is-light">
+                        Registration
+                    </b-button>
+                    <b-button v-if="authenticationStore.authenticated"
+                              tag="router-link"
+                              to="/Login"
+                              type="is-light">
+                        Logout
+                    </b-button>
+                </div>
+            </b-navbar-item>
         </template>
     </b-navbar>
 </template>
@@ -64,4 +65,7 @@
         width: 100%;
     }
 
+    buttons{
+        padding: 10px;
+    }
 </style>
