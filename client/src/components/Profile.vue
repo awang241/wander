@@ -138,11 +138,24 @@
             }
         },
         methods: {
+            showCountryInListWarning() {
+                this.$buefy.snackbar.open({
+                    duration: 5000,
+                    message: 'Country is already in list',
+                    type: 'is-danger',
+                    position: 'is-bottom-left',
+                    queue: false,
+                })
+            },
             deleteCountry(chosenCountry){
                 this.chosenCountries = this.chosenCountries.filter(country => country != chosenCountry)
             },
             addCountry(newCountry){
-                this.chosenCountries = [...this.chosenCountries, newCountry.name]
+                if(!this.chosenCountries.includes(newCountry.name)){
+                    this.chosenCountries = [...this.chosenCountries, newCountry.name]
+                } else {
+                    this.showCountryInListWarning()
+                }
             }
         },
         mounted() {
