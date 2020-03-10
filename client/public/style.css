@@ -45,18 +45,18 @@ input, textarea {
     width: 97%;
 }
 
-.card {
-    background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0 14px 28px rgba(0,0,0,0.25),
-    0 10px 10px rgba(0,0,0,0.22);
-    position: relative;
-    /*overflow: hidden;*/
-    width: 600px;
-    max-width: 100%;
-    margin: auto;
-    margin-top: 60px;
-}
+/*.card {*/
+/*    background-color: #fff;*/
+/*    border-radius: 10px;*/
+/*    box-shadow: 0 14px 28px rgba(0,0,0,0.25),*/
+/*    0 10px 10px rgba(0,0,0,0.22);*/
+/*    position: relative;*/
+/*    !*overflow: hidden;*!*/
+/*    width: 600px;*/
+/*    max-width: 100%;*/
+/*    margin: auto;*/
+/*    margin-top: 60px;*/
+/*}*/
 
 /*.form-container {*/
 /*    position: absolute;*/
@@ -64,10 +64,16 @@ input, textarea {
 /*    height: 100%;*/
 /*}*/
 
-/*.sign-up-container {*/
-/*    left: 0;*/
-/*    width: 100%;*/
-/*}*/
+.sign-up-container {
+    background-color: #fff;
+    /*width: 600px;*/
+    left: 0;
+    margin-top: 60px;
+    border-radius: 10px;
+
+    max-width: 100%;
+
+}
 
 .btn-light {
     border-radius: 20px;
