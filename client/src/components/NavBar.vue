@@ -1,6 +1,6 @@
 <template>
     <b-navbar>
-        <template slot="start">
+        <template slot="brand">
             <b-navbar-item href="#">
                 Home
             </b-navbar-item>
