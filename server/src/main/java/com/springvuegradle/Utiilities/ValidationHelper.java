@@ -1,5 +1,6 @@
 package com.springvuegradle.Utiilities;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.springvuegradle.Model.PassportCountry;
 import com.springvuegradle.Model.Profile;
 import com.springvuegradle.PassportCountryRepository;
@@ -9,9 +10,7 @@ import java.io.IOException;
 import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class ValidationHelper {
 
@@ -44,6 +43,25 @@ public class ValidationHelper {
 
     }
 
+    public static Set<PassportCountry> GetRESTCountries2() throws IOException {
+        URL restCountries = new URL("https://restcountries.eu/rest/v2/all?fields=name");
+        HttpURLConnection connection = (HttpURLConnection) restCountries.openConnection();
+        connection.setRequestMethod("GET");
+        Set<PassportCountry> countries = new HashSet<PassportCountry>();
+        ObjectMapper mapper = new ObjectMapper();
+
+        try (java.io.InputStream in = new java.net.URL("https://restcountries.eu/rest/v2/all?fields=name;numericCode").openStream()) {
+            // Get the names of REST countries API
+            String data = new String(in.readAllBytes());
+            countries.addAll(Arrays.asList(mapper.readValue(data, PassportCountry[].class)));
+            // Get each countries name alone and place them into an array "countries"
+        } catch(ConnectException e) {
+            e.printStackTrace();
+            throw e;
+        }
+        return countries;
+    }
+
     public static boolean validateCountry(PassportCountry testCountry, List<String> countries) {
         boolean test = false;
         for (String country : countries) {
@@ -66,12 +84,19 @@ public class ValidationHelper {
     public static void updatePassportCountryRepository(PassportCountryRepository pcRepository, ProfileRepository repository) throws IOException {
 
         // adding new countries to the passport country repository if they do not already exist in the repository.
-        List<String> updatedAPICountries = GetRESTCountries();
-        for (String passportCountry: updatedAPICountries) {
-            if (pcRepository.findByCountryName(passportCountry).size() == 0) {
-                pcRepository.save(new PassportCountry(passportCountry));
+        Set<PassportCountry> updatedAPICountries = GetRESTCountries2();
+        updatedAPICountries.removeIf(country -> {return country.getNumericCode() == null;});
+
+        for (PassportCountry country: updatedAPICountries) {
+            List<PassportCountry> result = pcRepository.findByNumericCode(country.getNumericCode());
+            if (pcRepository.findByNumericCode(country.getNumericCode()).size() == 0) {
+                pcRepository.save(country);
+            } else {
+                PassportCountry entry = result.get(0);
+                entry.setCountryName(country.getCountryName());
+                pcRepository.save(entry);
             }
-        }
+        }/*
 
         // removing all the passport countries not part of the API from each user if they are not in the passport country repository
         List<Profile> allProfiles = repository.findAll();
@@ -90,6 +115,7 @@ public class ValidationHelper {
                 pcRepository.delete(passportCountry);
             }
         }
+         */
 
     }
 
