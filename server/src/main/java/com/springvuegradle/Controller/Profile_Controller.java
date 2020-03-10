@@ -19,9 +19,7 @@ import javax.xml.bind.DatatypeConverter;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 
 /**
@@ -44,17 +42,27 @@ public class Profile_Controller {
      */
     @PostMapping("/createprofile")
     public ResponseEntity<String> createProfile (@RequestBody Profile newProfile) {
+        System.out.println(newProfile);
         String error = verifyProfile(newProfile);
 
-        if (error == "") {
+        if (error.equals("")) {
             // case nothing goes wrong
             String hashedPassword = hashPassword(newProfile.getPassword());
-            if(hashedPassword != "Hash Failed") {
+            if (hashedPassword != "Hash Failed") {
                 newProfile.setPassword(hashedPassword);
             }
+            Set<PassportCountry> updated = new HashSet<PassportCountry>();
             for(PassportCountry passportCountry : newProfile.retrievePassportCountryObjects()){
-                passportCountry.addProfile(newProfile);
+                List<PassportCountry> result = pcRepository.findByCountryName(passportCountry.getCountryName());
+
+                if (result.size() == 0) {
+                    String body = String.format("Country {} does not exist in the database.", passportCountry.getCountryName());
+                    return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+                } else {
+                    updated.add(result.get(0));
+                }
             }
+            newProfile.setPassport_countries(updated);
             repository.save(newProfile);                      //save profile to database
             return new ResponseEntity("New profile has been created.", HttpStatus.CREATED);
         } else {
