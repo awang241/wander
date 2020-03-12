@@ -1,9 +1,9 @@
 <template>
-    <div class="container">
+    <div class="container containerColor">
         <!-- Header -->
-        <section class="">
-            <div class="hero-body">
-                <div class="container">Hello! I am
+        <section class="hero">
+            <div class="containerColor hero-body">
+                <div class="container containerColor">Hello! I am
                     <h1 class="title is-1">
                         {{ firstName }} {{ middleName }} {{ lastName }}
                     </h1>
@@ -40,14 +40,16 @@
                 </div>
             </div>
         </nav>
-        <section class="section" id="about">
-            <div class="section-heading">
-                <div class="container">
-                    <p>{{ bio }} Temporary bio templated, until user bio data can be inputted. I like rock climbing and merge conflicts. gg.</p>
-                </div>
+        <div class="section-heading">
+            <div class="center container containerColor">
+                <p>{{ bio }} Temporary bio templated, until user bio data can be inputted. I like rock climbing and merge conflicts. gg.</p>
             </div>
+        </div>
+        <section class="section" id="about">
 
-            <div class="columns has-same-height is-gapless">
+            <hr class ="hrLine">
+
+            <div class="container containerColor has-same-height is-gapless">
                 <div class="column">
                 <!-- Profile -->
                 <div class="card">
@@ -78,16 +80,7 @@
                     </div>
                 </div>
             </div>
-            <div class="column">
-                <!-- Profile picture -->
-                <div class="card">
-                    <div class="card-image">
-                        <figure class="image is-4by3">
-                            <img src="https://source.unsplash.com/random/1280x960" alt="Placeholder image">
-                        </figure>
-                    </div>
-                </div>
-            </div>
+
             <div class="column">
                 <!-- Fitness Level-->
                 <div class="card">
@@ -111,12 +104,13 @@
             </div>
         </div>
         </section>
+        <!-- Activities -->
         <section class="section" id="services">
             <div class="section-heading">
-                <h3 class="title is-2">Activities</h3>
+                <h3 class="center activitiesTitle title is-2">Activities</h3>
                 <h4 class="subtitle is-5"></h4>
             </div>
-            <div class="container">
+            <div class="container containerColor">
                 <div class="columns">
                     <div class="column">
                         <div class="box">
@@ -138,7 +132,7 @@
                     <div class="column">
                         <div class="box">
                             <div class="content">
-                                <h4 class="title is-5">Basketball</h4>.
+                                <h4 class="title is-5">Basketball</h4>
                             </div>
                         </div>
                     </div>
@@ -153,10 +147,19 @@
             </div>
         </section>
 
-        <AddCountry v-bind:possibleCountries="possibleCountries" v-bind:chosenCountries="chosenCountries" v-on:addCountry="addCountry"></AddCountry>
-
-        <countries v-bind:chosenCountries="chosenCountries" v-on:deleteCountry="deleteCountry"></countries>
-
+        <section class="section">
+            <div class="section-heading">
+                <h3 class="center activitiesTitle title is-2">Countries</h3>
+                <h4 class="subtitle is-5"></h4>
+            </div>
+            <div class="container containerColor">
+                <div class="box">
+                    <h3 class="title is-4">Add a country</h3>
+                    <AddCountry v-bind:possibleCountries="possibleCountries" v-bind:chosenCountries="chosenCountries" v-on:addCountry="addCountry"></AddCountry>
+                    <countries v-bind:chosenCountries="chosenCountries" v-on:deleteCountry="deleteCountry"></countries>
+                </div>
+            </div>
+        </section>
     </div>
 
 
@@ -256,14 +259,20 @@
 </script>
 
 <style scoped>
-    /* .container-1{*/
-    /*    background-color: #FFFFFF;*/
-    /*    align-items: center;*/
-    /*    padding: 0 40px;*/
-    /*    text-align: left;*/
-    /*}*/
-    .test{
-        color: green;
+    .bannerColor {
+        background-color: #64C6E3
+    }
+
+    .containerColor {
+        background-color: #F7F8F9
+    }
+
+    .center {
+        text-align: center;
+    }
+
+    .hrLine {
+        border:2px solid #EDEEEE;
     }
 
 </style>

@@ -1,6 +1,6 @@
 <template>
     <section>
-        <b-field label="Add a country">
+        <b-field>
             <b-select placeholder="Select a country" v-model="country">
                 <option
                         v-for="country in possibleCountries"
