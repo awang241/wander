@@ -39,7 +39,6 @@
     import authenticationStore  from "../store/authentication";
     import router from "../router";
     import api from "../Api";
-    import router from "../router";
 
     export default {
         name: "NavBar",
