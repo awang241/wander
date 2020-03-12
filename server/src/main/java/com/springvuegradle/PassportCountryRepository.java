@@ -12,5 +12,6 @@ public interface PassportCountryRepository extends JpaRepository<PassportCountry
 
     List<PassportCountry> findByCountryName(String name);
     List<PassportCountry> findByNumericCode(String code);
+    boolean existsByNumericCode(String code);
 
 }

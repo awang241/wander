@@ -1,10 +1,9 @@
 package com.springvuegradle.Controller;
 
-import com.springvuegradle.Model.LoginRequest;
 import com.springvuegradle.Model.PassportCountry;
 import com.springvuegradle.Model.Profile;
 import com.springvuegradle.PassportCountryRepository;
-import com.springvuegradle.Utiilities.ValidationHelper;
+import com.springvuegradle.Utilities.ValidationHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +13,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.swing.text.html.Option;
 import javax.xml.bind.DatatypeConverter;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -102,14 +100,18 @@ public class Profile_Controller {
             error += "The Date of Birth field is blank.\n";
         }
         if (newProfile.retrievePassportCountryObjects().size() >= 1 ) {
-            List<String> countries = new ArrayList<String>();
+            Set<PassportCountry> countries = new HashSet<>();
             try {
-                countries = helper.GetRESTCountries();
+                countries = ValidationHelper.GetRESTCountries();
             } catch (java.io.IOException e) {
                 error += e.toString();
             }
+            List<String> countryNames = new ArrayList<String>();
+            for (PassportCountry country : countries) {
+                countryNames.add(country.getCountryName());
+            }
             for (PassportCountry country : newProfile.retrievePassportCountryObjects()) {
-                if (!helper.validateCountry(country, countries)) {
+                if (!ValidationHelper.validateCountry(country, countryNames)) {
                     error += "That country doesn't exist.\n";
                 }
             }
