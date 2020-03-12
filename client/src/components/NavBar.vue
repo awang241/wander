@@ -24,7 +24,8 @@
                     <b-button v-if="authenticationStore.authenticated"
                               tag="router-link"
                               to="/Login"
-                              type="is-light">
+                              type="is-light"
+                    @click="logout">
                         Logout
                     </b-button>
                 </div>

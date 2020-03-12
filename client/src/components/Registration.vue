@@ -3,32 +3,32 @@
                 <h1 class="title">Create Account</h1>
                     <form @submit.prevent="createUser">
 
-                    <b-field grouped group-multiline>
-                        <b-field style="width:10em" label="First Name" expanded>
+
+                        <b-field label="First Name" expanded>
                             <b-input v-model="firstName" placeholder="First Name" required></b-input>
                         </b-field>
-                        <b-field style="width:10em" label="Middle Name" expanded>
+                        <b-field label="Middle Name" expanded>
                             <b-input v-model="middleName" placeholder="Middle Name"></b-input>
                          </b-field>
-                        <b-field style="width:10em" label="Last Name" expanded>
+                        <b-field label="Last Name" expanded>
                             <b-input v-model="lastName" placeholder="Last Name" required></b-input>
                         </b-field>
-                    </b-field>
 
-                    <b-field grouped group-multiline>
-                        <b-field style="width:10em" label="Email" expanded>
+
+
+                        <b-field label="Email" expanded>
                                  <b-input type="email"
                                      v-model="email"
                                      placeholder="Email"
-                                     maxlength="30" required>
+                                     required>
                                  </b-input>
                         </b-field>
 
-                        <b-field style="width:10em" label="Nickname" expanded>
-                            <b-input v-model="nickName" type="text" placeholder="Nickname" maxlength="25"></b-input>
+                        <b-field label="Nickname" expanded>
+                            <b-input v-model="nickName" type="text" placeholder="Nickname"></b-input>
                         </b-field>
 
-                        <b-field label="Date of Birth" style="width:10em" expanded>
+                        <b-field label="Date of Birth" expanded>
                                  <b-datepicker
                                          editable="editable"
                                          placeholder="Select Date of Birth"
@@ -37,8 +37,8 @@
                                          type="date" required>
                                  </b-datepicker>
                         </b-field>
-                    </b-field>
-                    <b-field grouped group-multiline>
+
+                        <b-field group-multiline grouped>
                         <b-field label="Gender" expanded>
                                 <b-select
                                         placeholder="Choose a gender"
@@ -58,8 +58,7 @@
                                 <option value="4">Pro: I work out 5+ times per week</option>
                             </b-select>
                         </b-field>
-                    </b-field>
-                    <b-field grouped group-multiline>
+                        </b-field>
                         <b-field label="Password" expanded>
                             <b-input v-model="password" type="password" placeholder="Password"
                                      required></b-input>
@@ -70,7 +69,6 @@
                             <b-input v-model="confpassword" type="password" placeholder="Confirm Password"
                                      required></b-input>
                         </b-field>
-                    </b-field>
 
                     <b-field>
                         <b-button native-type="submit" :disabled="isDisabled">Submit</b-button>
@@ -145,6 +143,14 @@
 
 
 <style scoped>
+    .container {
+        width: 800px;
+    }
 
+    @media only screen and (max-width: 600px) {
+        .container {
+            width: 100%;
+        }
+    }
 
 </style>
