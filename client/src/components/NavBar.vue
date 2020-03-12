@@ -1,7 +1,9 @@
 <template>
     <b-navbar>
         <template slot="brand">
-            <b-navbar-item href="#">
+            <b-navbar-item tag="router-link"
+                           to="/Mainpage"
+                           href="#">
                 Home
             </b-navbar-item>
         </template>
@@ -21,10 +23,9 @@
                               type="is-light">
                         Registration
                     </b-button>
-                    <b-button v-if="authenticationStore.authenticated"
-                              tag="router-link"
-                              to="/Login"
-                              type="is-light">
+                    <b-button  @click="logout"
+                               v-if="authenticationStore.authenticated"
+                               type="is-light">
                         Logout
                     </b-button>
                 </div>
@@ -36,6 +37,7 @@
 
 <script>
     import authenticationStore  from "../store/authentication";
+    import router from "../router";
 
     export default {
         name: "NavBar",
@@ -46,6 +48,7 @@
         },
         methods: {
             logout(){
+                router.push('Login')
                 authenticationStore.methods.setAuthenticated(false)
             }
         }
