@@ -1,104 +1,165 @@
 <template>
     <div class="container">
-            <section class="hero is-primary">
-                <div class="hero-body">
-                    <div class="container">
-                        <h1 class="title">
-                           {{ firstName }} {{ middleName }} {{ lastName }}
-                        </h1>
-                        <h2 class="subtitle">
-                            SamNZ
-                        </h2>
-                    </div>
-                </div>
-            </section>
-            <nav class="level">
-                <div class="level-item has-text-centered">
-                    <div>
-                        <p class="heading">Countries</p>
-                        <p class="title">5</p>
-                    </div>
-                </div>
-                <div class="level-item has-text-centered">
-                    <div>
-                        <p class="heading">Following</p>
-                        <p class="title">123</p>
-                    </div>
-                </div>
-                <div class="level-item has-text-centered">
-                    <div>
-                        <p class="heading">Followers</p>
-                        <p class="title">150</p>
-                    </div>
-                </div>
-                <div class="level-item has-text-centered">
-                    <div>
-                        <p class="heading">Likes</p>
-                        <p class="title">789</p>
-                    </div>
-                </div>
-            </nav>
-        <div class="tile is-ancestor">
-            <div class="tile is-vertical is-8">
-                <div class="tile">
-                    <div class="tile is-parent is-vertical">
-                        <article class="tile is-child notification is-primary">
-                            <p class="title">Personal</p>
-                            <p class="subtitle"> Birthday: {{ dateOfBirth }} </p>
-                            <p class="subtitle"> Gender: {{ gender }} </p>
-                            <p class="subtitle"> Email: {{ email }} </p>
-                            <p class="subtitle"> Fitness Level: To add </p>
-
-                        </article>
-                        <article class="tile is-child notification is-warning">
-                            <p class="title">Bio</p>
-                            <p class="subtitle"> {{ bio }}</p>
-                        </article>
-                    </div>
-                    <div class="tile is-parent">
-                        <article class="tile is-child notification is-info">
-                            <p class="title"></p>
-                            <p class="subtitle"></p>
-                            <figure class="image is-4by3">
-                                <img src="https://bulma.io/images/placeholders/640x480.png">
-                            </figure>
-                        </article>
-                    </div>
-                </div>
-                <div class="tile is-parent">
-                    <article class="tile is-child notification is-danger">
-                        <p class="title">Activities</p>
-                        <p class="subtitle">Biking, Rock climbing</p>
-                        <div class="content">
-                            <!-- Content -->
-                        </div>
-                    </article>
+        <!-- Header -->
+        <section class="">
+            <div class="hero-body">
+                <div class="container">Hello! I am
+                    <h1 class="title is-1">
+                        {{ firstName }} {{ middleName }} {{ lastName }}
+                    </h1>
+                    <h2 class="subtitle is-3">
+                        {{ nickName }}
+                    </h2>
                 </div>
             </div>
-            <div class="tile is-parent">
-                <article class="tile is-child notification is-success">
-                    <div class="content">
-                        <p class="title">Countries</p>
-                        <p class="subtitle"></p>
-                        <li v-for="country in chosenCountries" v-bind:key="country"> {{ country }}</li>
+        </section>
+        <!-- Social Media Count -->
+        <nav class="level">
+            <div class="level-item has-text-centered">
+                <div>
+                    <p class="heading">Countries</p>
+                    <p class="title">5</p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered">
+                <div>
+                    <p class="heading">Following</p>
+                    <p class="title">123</p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered">
+                <div>
+                    <p class="heading">Followers</p>
+                    <p class="title">150</p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered">
+                <div>
+                    <p class="heading">Likes</p>
+                    <p class="title">789</p>
+                </div>
+            </div>
+        </nav>
+        <section class="section" id="about">
+            <div class="section-heading">
+                <div class="container">
+                    <p>{{ bio }} Temporary bio templated, until user bio data can be inputted. I like rock climbing and merge conflicts. gg.</p>
+                </div>
+            </div>
+
+            <div class="columns has-same-height is-gapless">
+                <div class="column">
+                <!-- Profile -->
+                <div class="card">
+                    <div class="card-content">
+                        <h3 class="title is-4">Profile</h3>
+
                         <div class="content">
-                            <!-- Content -->
+                            <table class="table-profile">
+                                <tr>
+                                    <th colspan="1"></th>
+                                    <th colspan="2"></th>
+                                </tr>
+                                <tr>
+                                    <td>Gender:</td>
+                                    <td>{{ gender }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Birthday:</td>
+                                    <td>{{ dateOfBirth }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Email:</td>
+                                    <td>{{ email }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <br>
+                    </div>
+                </div>
+            </div>
+            <div class="column">
+                <!-- Profile picture -->
+                <div class="card">
+                    <div class="card-image">
+                        <figure class="image is-4by3">
+                            <img src="https://source.unsplash.com/random/1280x960" alt="Placeholder image">
+                        </figure>
+                    </div>
+                </div>
+            </div>
+            <div class="column">
+                <!-- Fitness Level-->
+                <div class="card">
+                    <div class="card-content skills-content">
+                        <h3 class="title is-4">Fitness Level</h3>
+                        <div class="content">
+                            <article class="media">
+                                <div class="media-content">
+                                    <div class="content">
+                                        <p>
+                                            <strong> Needs to retrieve fitness level </strong>
+                                            <br>
+                                            <progress class="progress is-primary" value="90" max="100"></progress>
+                                        </p>
+                                    </div>
+                                </div>
+                            </article>
                         </div>
                     </div>
-                </article>
+                </div>
             </div>
         </div>
-            <div>
-                <ul>
-                    <li> {{ firstName }} {{ middleName }} {{ lastName }} </li>
-                    <li> {{ nickName }}</li>
-                    <li> Date of Birth: {{ dateOfBirth }} </li>
-                    <li> Gender: {{ gender }} </li>
-                    <li> Email: {{ email }} </li>
-                    <li> Bio: {{ bio }} </li>
-                    <li v-for="country in chosenCountries" v-bind:key="country"> {{ country }}</li>
-                </ul>
+        </section>
+        <section class="section" id="services">
+            <div class="section-heading">
+                <h3 class="title is-2">Activities</h3>
+                <h4 class="subtitle is-5"></h4>
             </div>
+            <div class="container">
+                <div class="columns">
+                    <div class="column">
+                        <div class="box">
+                            <div class="content">
+                                <h4 class="title is-5">Rock Climbing</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="column">
+                        <div class="box">
+                            <div class="content">
+                                <h4 class="title is-5">Tennis</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="columns">
+                    <div class="column">
+                        <div class="box">
+                            <div class="content">
+                                <h4 class="title is-5">Basketball</h4>.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="column">
+                        <div class="box">
+                            <div class="content">
+                                <h4 class="title is-5">Hiking</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <AddCountry v-bind:possibleCountries="possibleCountries" v-bind:chosenCountries="chosenCountries" v-on:addCountry="addCountry"></AddCountry>
+
+        <countries v-bind:chosenCountries="chosenCountries" v-on:deleteCountry="deleteCountry"></countries>
+
+    </div>
+
+
 <!--            <li v-for="(value, key) in currentUser" v-bind:key="key">-->
 <!--                {{key}} : {{value}}-->
 <!--            </li>-->
@@ -106,11 +167,7 @@
 
 
 
-        <AddCountry v-bind:possibleCountries="possibleCountries" v-bind:chosenCountries="chosenCountries" v-on:addCountry="addCountry"></AddCountry>
 
-        <countries v-bind:chosenCountries="chosenCountries" v-on:deleteCountry="deleteCountry"></countries>
-
-    </div>
 </template>
 
 <script>
@@ -132,7 +189,7 @@
                 dateOfBirth: null,
                 gender: null,
                 bio: null,
-                email: "bobby@google.com",
+                email: "currently doesn't retrieve email from the backend",
                 possibleCountries: [],
                 chosenCountries: []
             }
@@ -160,7 +217,7 @@
         },
         mounted() {
             // Retrieves user data using their id number. Will change to token at some point
-            api.getProfile(270)
+            api.getProfile(1759)
                 .then((response) => {
                     console.log(response.data);
                     console.log(response.data.firstname)
@@ -205,5 +262,8 @@
     /*    padding: 0 40px;*/
     /*    text-align: left;*/
     /*}*/
+    .test{
+        color: green;
+    }
 
 </style>
