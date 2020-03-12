@@ -4,24 +4,23 @@
             <section>
                 <form action="" method="post" class="form-register">
                     <h1 class="title">Login</h1>
-                    <b-field label="Email">
-                             <b-input placeholder="Email"
-                                      v-model="email"
-                                      type="email"
-                                      maxlength="20">
-                             </b-input>
-                    </b-field>
+                        <b-field label="Email">
+                            <b-input class="help" placeholder="Email"
+                                     v-model="email"
+                                     type="email"
+                                     maxlength="20">
+                            </b-input>
+                        </b-field>
 
-                    <b-field label="Password">
-                        <b-input placeholder="Password"
-                                 v-model="password"
-                                 type="password"
-                                 maxlength="20">
-                        </b-input>
-                    </b-field>
-
+                        <b-field label="Password">
+                            <b-input placeholder="Password"
+                                     v-model="password"
+                                     type="password"
+                                     maxlength="20">
+                            </b-input>
+                        </b-field>
                     <b-button @click="login"
-                              type="is-danger">
+                              type="is-info">
                         Login
                     </b-button>
                 </form>
@@ -61,5 +60,14 @@
 </script>
 
 <style scoped>
+    .container {
+        width: 500px;
+    }
+
+    @media only screen and (max-width: 600px) {
+        .container {
+            width: 100%;
+        }
+    }
 
 </style>
