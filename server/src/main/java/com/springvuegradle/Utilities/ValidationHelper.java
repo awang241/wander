@@ -64,7 +64,7 @@ public class ValidationHelper {
      * @param repository
      * @throws IOException
      */
-    /* public static void updatePassportCountryRepository(PassportCountryRepository pcRepository, ProfileRepository repository) throws IOException {
+    public static void updatePassportCountryRepository(PassportCountryRepository pcRepository, ProfileRepository repository) throws IOException {
 
         // adding new countries to the passport country repository if they do not already exist in the repository.
         Set<PassportCountry> updatedAPICountries = GetRESTCountries();
@@ -72,14 +72,18 @@ public class ValidationHelper {
         int assignedCodeCounter = 900;
         for (PassportCountry country: updatedAPICountries) {
             //if country has no numeric code, assign a free code from 900-999 (free block in ISO 3166-1)
-            if (country.getNumericCode() == null && !pcRepository.existsByCountryName(country.getCountryName())) {
-                while (assignedCodeCounter < 1000 && pcRepository.existsByNumericCode(Integer.toString(assignedCodeCounter))){
-                    assignedCodeCounter++;
-                }
-                if (assignedCodeCounter < 1000){
-                    country.setNumericCode(Integer.toString(assignedCodeCounter));
+            if (country.getNumericCode() == null){
+                if (pcRepository.existsByCountryName(country.getCountryName())) {
+                    continue;
                 } else {
-                    throw new IOException("Database error: No available user-assigned codes remaining");
+                    while (assignedCodeCounter < 1000 && pcRepository.existsByNumericCode(Integer.toString(assignedCodeCounter))){
+                        assignedCodeCounter++;
+                    }
+                    if (assignedCodeCounter < 1000){
+                        country.setNumericCode(Integer.toString(assignedCodeCounter));
+                    } else {
+                        throw new IOException("Database error: No available user-assigned codes remaining");
+                    }
                 }
             }
             List<PassportCountry> result = pcRepository.findByNumericCode(country.getNumericCode());
@@ -90,27 +94,25 @@ public class ValidationHelper {
                 entry.setCountryName(country.getCountryName());
                 pcRepository.save(entry);
             }
+
         }
-        /*
+
         // removing all the passport countries not part of the API from each user if they are not in the passport country repository
         List<Profile> allProfiles = repository.findAll();
         for (Profile profile: allProfiles) {
-            for (PassportCountry passportCountry: profile.retrievePassportCountryObjects()) {
-                // if not in API
-                if (!updatedAPICountries.contains(passportCountry.getCountryName())) {
-                    profile.removePassportCountry(passportCountry);
-                    repository.save(profile);
-                }
-            }
+            profile.retrievePassportCountryObjects().removeIf(country -> !updatedAPICountries.contains(country));
+            repository.save(profile);
         }
         // removing all the passport countries which are in the repository but not in the API
+
         for (PassportCountry passportCountry: pcRepository.findAll()) {
-            if (!updatedAPICountries.contains(passportCountry)) {
+            if (!updatedAPICountries.contains(passportCountry) && !passportCountry.getCountryName().equals("Republic of Kosovo")) {
                 pcRepository.delete(passportCountry);
             }
         }
 
 
-    } */
+
+    }
 
 }

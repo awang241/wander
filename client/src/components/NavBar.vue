@@ -1,7 +1,9 @@
 <template>
     <b-navbar>
         <template slot="brand">
-            <b-navbar-item href="#">
+            <b-navbar-item tag="router-link"
+                           to="/Mainpage"
+                           href="#">
                 Home
             </b-navbar-item>
         </template>
@@ -21,7 +23,9 @@
                               type="is-light">
                         Registration
                     </b-button>
-                    <b-button v-if="authenticationStore.authenticated" type="is-light" @click="logout">
+                    <b-button  @click="logout"
+                               v-if="authenticationStore.authenticated"
+                               type="is-light">
                         Logout
                     </b-button>
                 </div>
@@ -33,6 +37,7 @@
 
 <script>
     import authenticationStore  from "../store/authentication";
+    import router from "../router";
     import api from "../Api";
     import router from "../router";
 
@@ -52,6 +57,7 @@
                 authenticationStore.methods.setSessionId(0)
                 authenticationStore.methods.setUserId(0)
                 authenticationStore.methods.setAuthenticated(false)
+                router.push('Login')
             }
         }
     }

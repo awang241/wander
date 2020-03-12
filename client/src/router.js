@@ -8,7 +8,7 @@ import authenticationStore from "./store/authentication";
 
 
 const routes = [
-    {path: "", name: "mainpage", component: MainpageComponent},
+    {path: "/Mainpage", name: "mainpage", component: MainpageComponent},
     {path: "/Login", name: "login", component: LoginComponent},
     {path: "/Registration", name: "registration", component: RegistrationComponent},
     {path: "/NavBar", name: "navbar", component: NavBarComponent},
