@@ -28,8 +28,8 @@ public class Profile {
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "profile_passport_country",
-            inverseJoinColumns = @JoinColumn(name = "profile_id", referencedColumnName = "id"),
-            joinColumns = @JoinColumn(name = "passport_country_id", referencedColumnName = "id"))
+            inverseJoinColumns = @JoinColumn(name = "passport_country_id", referencedColumnName = "id"),
+            joinColumns = @JoinColumn(name = "profile_id", referencedColumnName = "id"))
     //@JsonBackReference
     private Set<PassportCountry> passport_countries;
 

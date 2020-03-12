@@ -72,7 +72,7 @@ public class ValidationHelper {
         int assignedCodeCounter = 900;
         for (PassportCountry country: updatedAPICountries) {
             //if country has no numeric code, assign a free code from 900-999 (free block in ISO 3166-1)
-            if (country.getNumericCode() == null) {
+            if (country.getNumericCode() == null && !pcRepository.existsByCountryName(country.getCountryName())) {
                 while (assignedCodeCounter < 1000 && pcRepository.existsByNumericCode(Integer.toString(assignedCodeCounter))){
                     assignedCodeCounter++;
                 }
@@ -91,7 +91,7 @@ public class ValidationHelper {
                 pcRepository.save(entry);
             }
         }
-
+        /*
         // removing all the passport countries not part of the API from each user if they are not in the passport country repository
         List<Profile> allProfiles = repository.findAll();
         for (Profile profile: allProfiles) {
@@ -105,12 +105,12 @@ public class ValidationHelper {
         }
         // removing all the passport countries which are in the repository but not in the API
         for (PassportCountry passportCountry: pcRepository.findAll()) {
-            if (!updatedAPICountries.contains(passportCountry.getCountryName())) {
+            if (!updatedAPICountries.contains(passportCountry)) {
                 pcRepository.delete(passportCountry);
             }
         }
 
-
+        */
     }
 
 }
