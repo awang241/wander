@@ -1,7 +1,6 @@
 package com.springvuegradle;
 
-import com.springvuegradle.Model.PassportCountry;
-import com.springvuegradle.Utiilities.ValidationHelper;
+import com.springvuegradle.Utilities.ValidationHelper;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.SpringApplication;

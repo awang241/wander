@@ -11,5 +11,7 @@ import java.util.List;
 public interface PassportCountryRepository extends JpaRepository<PassportCountry, Long> {
 
     List<PassportCountry> findByCountryName(String name);
+    List<PassportCountry> findByNumericCode(String code);
+    boolean existsByNumericCode(String code);
 
 }
