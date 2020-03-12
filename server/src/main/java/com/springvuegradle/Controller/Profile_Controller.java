@@ -1,10 +1,9 @@
 package com.springvuegradle.Controller;
 
-import com.springvuegradle.Model.LoginRequest;
 import com.springvuegradle.Model.PassportCountry;
 import com.springvuegradle.Model.Profile;
 import com.springvuegradle.PassportCountryRepository;
-import com.springvuegradle.Utiilities.ValidationHelper;
+import com.springvuegradle.Utilities.ValidationHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,14 +13,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.swing.text.html.Option;
 import javax.xml.bind.DatatypeConverter;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 
 /**
@@ -44,17 +40,27 @@ public class Profile_Controller {
      */
     @PostMapping("/createprofile")
     public ResponseEntity<String> createProfile (@RequestBody Profile newProfile) {
+        System.out.println(newProfile);
         String error = verifyProfile(newProfile);
 
-        if (error == "") {
+        if (error.equals("")) {
             // case nothing goes wrong
             String hashedPassword = hashPassword(newProfile.getPassword());
-            if(hashedPassword != "Hash Failed") {
+            if (hashedPassword != "Hash Failed") {
                 newProfile.setPassword(hashedPassword);
             }
+            Set<PassportCountry> updated = new HashSet<PassportCountry>();
             for(PassportCountry passportCountry : newProfile.retrievePassportCountryObjects()){
-                passportCountry.addProfile(newProfile);
+                List<PassportCountry> result = pcRepository.findByCountryName(passportCountry.getCountryName());
+
+                if (result.size() == 0) {
+                    String body = String.format("Country {} does not exist in the database.", passportCountry.getCountryName());
+                    return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+                } else {
+                    updated.add(result.get(0));
+                }
             }
+            newProfile.setPassport_countries(updated);
             repository.save(newProfile);                      //save profile to database
             return new ResponseEntity("New profile has been created.", HttpStatus.CREATED);
         } else {
@@ -94,14 +100,18 @@ public class Profile_Controller {
             error += "The Date of Birth field is blank.\n";
         }
         if (newProfile.retrievePassportCountryObjects().size() >= 1 ) {
-            List<String> countries = new ArrayList<String>();
+            Set<PassportCountry> countries = new HashSet<>();
             try {
-                countries = helper.GetRESTCountries();
+                countries = ValidationHelper.GetRESTCountries();
             } catch (java.io.IOException e) {
                 error += e.toString();
             }
+            List<String> countryNames = new ArrayList<String>();
+            for (PassportCountry country : countries) {
+                countryNames.add(country.getCountryName());
+            }
             for (PassportCountry country : newProfile.retrievePassportCountryObjects()) {
-                if (!helper.validateCountry(country, countries)) {
+                if (!ValidationHelper.validateCountry(country, countryNames)) {
                     error += "That country doesn't exist.\n";
                 }
             }

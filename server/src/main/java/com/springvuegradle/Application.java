@@ -1,7 +1,6 @@
 package com.springvuegradle;
 
-import com.springvuegradle.Model.PassportCountry;
-import com.springvuegradle.Utiilities.ValidationHelper;
+import com.springvuegradle.Utilities.ValidationHelper;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.SpringApplication;
@@ -26,7 +25,7 @@ public class Application {
     @Bean
     CommandLineRunner init(ProfileRepository profileRepository, PassportCountryRepository passportCountryRepository) {
         return args -> {
-            ValidationHelper.updatePassportCountryRepository(passportCountryRepository, profileRepository);
+            //ValidationHelper.updatePassportCountryRepository(passportCountryRepository, profileRepository);
             profileRepository.findAll().forEach(System.out::println); // prints all the profile objects in the repository.
         };
     }
