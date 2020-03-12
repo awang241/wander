@@ -1,6 +1,7 @@
 package com.springvuegradle.Controller;
 
 import com.springvuegradle.Model.LoginRequest;
+import com.springvuegradle.Model.LoginResponse;
 import com.springvuegradle.Model.Profile;
 import com.springvuegradle.ProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,33 +61,32 @@ public class LoginController {
      */
     @PostMapping("/login")
     @ResponseBody
-    public ResponseEntity<String> loginUser(@RequestBody LoginRequest request) {
-        String body = null;
+    public ResponseEntity<LoginResponse> loginUser(@RequestBody LoginRequest request) {
+        LoginResponse body = null;
         HttpStatus status = null;
 
         List<Profile> result = profileRepository.findByEmail(request.getEmail());
         if (result.size() > 1) {
-            body = "Server data error.";
+
             status = HttpStatus.INTERNAL_SERVER_ERROR;
         } else if (result.size() == 0) {
-            body = "Profile does not exist.";
+
             status = HttpStatus.UNAUTHORIZED;
         } else {
             Profile profile = result.get(0);
             String hashedPassword = hashPassword(request.getPassword());
             if (activeSessions.containsKey(profile.getId())) {
-                body = "User already logged in.";
+
                 status = HttpStatus.FORBIDDEN;
             } else if (!result.get(0).getPassword().equals(hashedPassword)) {
-                body = "Incorrect email or password.";
                 status = HttpStatus.UNAUTHORIZED;
             } else {
-                body = String.format("Session ID: %d\n Profile ID %d", ++sessionCounter, result.get(0).getId());
+                body = new LoginResponse(++sessionCounter, result.get(0).getId());
                 status = HttpStatus.OK;
                 activeSessions.put(profile.getId(), sessionCounter);
             }
         }
-        return new ResponseEntity<String>(body, status);
+        return new ResponseEntity<>(body, status);
     }
 
     /**

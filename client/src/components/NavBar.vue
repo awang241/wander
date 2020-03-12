@@ -21,11 +21,7 @@
                               type="is-light">
                         Registration
                     </b-button>
-                    <b-button v-if="authenticationStore.authenticated"
-                              tag="router-link"
-                              to="/Login"
-                              type="is-light"
-                    @click="logout">
+                    <b-button v-if="authenticationStore.authenticated" type="is-light" @click="logout">
                         Logout
                     </b-button>
                 </div>
@@ -37,6 +33,8 @@
 
 <script>
     import authenticationStore  from "../store/authentication";
+    import api from "../Api";
+    import router from "../router";
 
     export default {
         name: "NavBar",
@@ -47,6 +45,12 @@
         },
         methods: {
             logout(){
+                api.logout(authenticationStore.methods.getUserId(), authenticationStore.methods.getSessionId())
+                    .catch(error => window.alert(error.response.data))
+
+                //User is now logged out in authentication store
+                authenticationStore.methods.setSessionId(0)
+                authenticationStore.methods.setUserId(0)
                 authenticationStore.methods.setAuthenticated(false)
             }
         }

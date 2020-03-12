@@ -48,8 +48,8 @@
                     email: this.email,
                     password: this.password,
                 }).then((response => {
-                    console.log(response)
-                    console.log(response.data)
+                    authenticationStore.methods.setUserId(response.data.userId)
+                    authenticationStore.methods.setSessionId(response.data.sessionId)
                     authenticationStore.methods.setAuthenticated(true)
                     router.push('Profile')
                 }))

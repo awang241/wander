@@ -178,6 +178,7 @@
     import api from '../Api';
     import AddCountry from "./AddCountry";
     import Countries from "./Countries";
+    import authenticationStore from "../store/authentication";
 
     export default {
         name: "Profile",
@@ -220,7 +221,7 @@
         },
         mounted() {
             // Retrieves user data using their id number. Will change to token at some point
-            api.getProfile(1759)
+            api.getProfile(authenticationStore.methods.getUserId())
                 .then((response) => {
                     console.log(response.data);
                     console.log(response.data.firstname)
