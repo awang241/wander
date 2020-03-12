@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -19,8 +20,8 @@ public class PassportCountry {
     @JoinTable(name = "profile_passport_country",
     joinColumns = @JoinColumn(name = "profile_id", referencedColumnName = "id"),
     inverseJoinColumns = @JoinColumn(name = "passport_country_id", referencedColumnName = "id"))
-    @JsonIgnore
-    private List<Profile> profiles;
+    @JsonBackReference
+    private List<Profile> profiles = new ArrayList<>();
 
     private String countryName;
 
@@ -32,7 +33,8 @@ public class PassportCountry {
     public void setCountryName(String name){this.countryName = name;}
     public String getCountryName(){return this.countryName;}
 
-    public List<Profile> getProfile() { return profiles; }
+
+    //public List<Profile> getProfile() { return profiles; }
     public void setProfile(List<Profile> newProfiles) { this.profiles = newProfiles;}
     public void addProfile(Profile profile) {this.profiles.add(profile);}
 }

@@ -1,6 +1,7 @@
 package com.springvuegradle.Model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
@@ -12,6 +13,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 public class Profile {
@@ -34,8 +36,8 @@ public class Profile {
     @JoinTable(name = "profile_passport_country",
             inverseJoinColumns = @JoinColumn(name = "profile_id", referencedColumnName = "id"),
             joinColumns = @JoinColumn(name = "passport_country_id", referencedColumnName = "id"))
-    @JsonBackReference
-    private List<PassportCountry> passport_countries;
+    //@JsonBackReference
+    private Set<PassportCountry> passport_countries;
 
 
     /**
@@ -56,7 +58,7 @@ public class Profile {
      * @param gender (Male, Female, Other)
      */
     public Profile(String firstname, String lastname, String middlename, String nickname, String email, String password,
-                      String bio, Calendar date_of_birth, String gender, int fitness_level, List<PassportCountry> passport_countries) {
+                      String bio, Calendar date_of_birth, String gender, int fitness_level, Set<PassportCountry> passport_countries) {
         this.firstname = firstname;
         this.lastname = lastname;
         this.middlename = middlename;
@@ -158,12 +160,24 @@ public class Profile {
 
     public void setFitness_level(int fitness_level){this.fitness_level = fitness_level;}
 
-    public List<PassportCountry> getPassport_countries() {
-        return passport_countries;
+    public List<String> getPassport_countries() {
+        List<String> countryNames = new ArrayList<>();
+        for (PassportCountry country : passport_countries){
+            countryNames.add(country.getCountryName());
+        }
+        return countryNames;
     }
 
-    public void setPassport_countries(List<PassportCountry> passport_countries) {
+    public Set<PassportCountry> retrievePassportCountryObjects() {
+        return this.passport_countries;
+    }
+
+    public void setPassport_countries(Set<PassportCountry> passport_countries) {
         this.passport_countries = passport_countries;
+    }
+
+    public void removePassportCountry(PassportCountry passportCountry) {
+        passport_countries.remove(passportCountry);
     }
 
     /** Helper methods for ProfileController **/

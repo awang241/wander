@@ -1,3 +1,5 @@
+//Stores global state of the application
+//Currently only storing whether or not the user is authenticated
 const authenticationStore = {
     data: {
         authenticated: false
@@ -5,6 +7,9 @@ const authenticationStore = {
     methods: {
         setAuthenticated(isAuthenticated) {
             authenticationStore.data.authenticated = isAuthenticated;
+        },
+        isAuthenticated(){
+            return authenticationStore.data.authenticated;
         }
     }
 };

@@ -1,24 +1,38 @@
 <template>
-    <div class="container">
-        <nav id="main-navbar">
-            <div class="nav-left">
-                <button class="btn-light-navbar">Home</button>
-            </div>
-            <div class="nav-right">
-                <router-link v-if="!authenticationStore.authenticated" to="/Login">
-                    <button class="btn-light-navbar">Login</button>
-                </router-link>
-                <router-link v-if="!authenticationStore.authenticated" to="/Registration">
-                    <button class="btn-light-navbar">Registration</button>
-                </router-link>
+    <b-navbar>
+        <template slot="brand">
+            <b-navbar-item href="#">
+                Home
+            </b-navbar-item>
+        </template>
 
-                <router-link v-if="authenticationStore.authenticated" to="/login" replace>
-                    <button class="btn-light-navbar" @click="logout" >Logout</button>
-                </router-link>
-            </div>
-        </nav>
-    </div>
+        <template slot="end">
+            <b-navbar-item tag="div">
+                <div class="buttons">
+                    <b-button v-if="!authenticationStore.authenticated"
+                              tag="router-link"
+                              to="/Login"
+                              type="is-primary">
+                        <strong>Login</strong>
+                    </b-button>
+                    <b-button v-if="!authenticationStore.authenticated"
+                              tag="router-link"
+                              to="/Registration"
+                              type="is-light">
+                        Registration
+                    </b-button>
+                    <b-button v-if="authenticationStore.authenticated"
+                              tag="router-link"
+                              to="/Login"
+                              type="is-light">
+                        Logout
+                    </b-button>
+                </div>
+            </b-navbar-item>
+        </template>
+    </b-navbar>
 </template>
+
 
 <script>
     import authenticationStore  from "../store/authentication";
@@ -51,4 +65,7 @@
         width: 100%;
     }
 
+    buttons{
+        padding: 10px;
+    }
 </style>

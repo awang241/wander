@@ -63,8 +63,8 @@ public class LoginController {
     public ResponseEntity<String> loginUser(@RequestBody LoginRequest request) {
         String body = null;
         HttpStatus status = null;
-        List<Profile> result = profileRepository.findByEmail(request.getEmail());
 
+        List<Profile> result = profileRepository.findByEmail(request.getEmail());
         if (result.size() > 1) {
             body = "Server data error.";
             status = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -100,7 +100,7 @@ public class LoginController {
     public ResponseEntity<String> logoutUser(@RequestBody long profileID, @RequestHeader("authorization") String field){
         String message = null;
         HttpStatus status = null;
-        Long sessionID = Long.parseLong(field.split(" ")[1]);
+        Long sessionID = Long.parseLong(field.split(" ")[0]);
         if (checkCredentials(profileID, sessionID)){
             message = "Logout successful.";
             status = HttpStatus.OK;
