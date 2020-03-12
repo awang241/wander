@@ -64,7 +64,7 @@ public class ValidationHelper {
      * @param repository
      * @throws IOException
      */
-    public static void updatePassportCountryRepository(PassportCountryRepository pcRepository, ProfileRepository repository) throws IOException {
+    /* public static void updatePassportCountryRepository(PassportCountryRepository pcRepository, ProfileRepository repository) throws IOException {
 
         // adding new countries to the passport country repository if they do not already exist in the repository.
         Set<PassportCountry> updatedAPICountries = GetRESTCountries();
@@ -110,7 +110,7 @@ public class ValidationHelper {
             }
         }
 
-        */
-    }
+
+    } */
 
 }

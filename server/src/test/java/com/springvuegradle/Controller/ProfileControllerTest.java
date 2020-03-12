@@ -13,10 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.ArrayList;
-import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -151,32 +148,29 @@ class ProfileControllerTest {
 
     static Profile createJimmy() {
         PassportCountry nz = new PassportCountry("New Zealand");
-        Set<PassportCountry> country_list = null;
+        List<PassportCountry> country_list = new ArrayList<>();
         country_list.add(nz);
-        Profile jimmy = new Profile("Jimmy", "Quick", "Jones", "Jim-Jam", "jimjam@hotmail.com", "hushhush",
-                "The quick brown fox jumped over the lazy dog.", new GregorianCalendar(1999, 11,
+        return new Profile("Jimmy", "Quick", "Jones", "Jim-Jam", "jimjam@hotmail.com", "hushhush",
+                "The quick brown fox jumped over the lazy dog.", new GregorianCalendar(1999, Calendar.NOVEMBER,
                 28), "male", 1, country_list);
-        return jimmy;
     }
 
     static Profile createMaurice() {
         PassportCountry nz = new PassportCountry("New Zealand");
-        Set<PassportCountry> country_list = null;
+        List<PassportCountry> country_list = new ArrayList<>();
         country_list.add(nz);
-        Profile maurice = new Profile("Maurice", "Benson", "Jack", "Jacky", "jacky@google.com", "jacky'sSecuredPwd",
-                "Jacky loves to ride his bike on crazy mountains.", new GregorianCalendar(1985, 12,
+        return new Profile("Maurice", "Benson", "Jack", "Jacky", "jacky@google.com", "jacky'sSecuredPwd",
+                "Jacky loves to ride his bike on crazy mountains.", new GregorianCalendar(1985, Calendar.DECEMBER,
                 20), "male", 1, country_list);
-        return maurice;
     }
 
     static Profile createDummyMaurice() {
         PassportCountry nz = new PassportCountry("New Zealand");
-        Set<PassportCountry> country_list = null;
+        List<PassportCountry> country_list = new ArrayList<>();
         country_list.add(nz);
-        Profile maurice = new Profile("", "", "Jack", "Jacky", "", "hush",
-                "Jacky loves to ride his bike on crazy mountains.", new GregorianCalendar(1985, 12,
+        return new Profile("", "", "Jack", "Jacky", "", "hush",
+                "Jacky loves to ride his bike on crazy mountains.", new GregorianCalendar(1985, Calendar.DECEMBER,
                 20), "Male", 10, country_list);
-        return maurice;
     }
 }
 
