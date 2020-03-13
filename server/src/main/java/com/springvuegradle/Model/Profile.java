@@ -33,6 +33,11 @@ public class Profile {
     //@JsonBackReference
     private Set<PassportCountry> passport_countries;
 
+    @OneToMany(mappedBy = "user_email")
+    List<UserEmail> additional_email = null;
+
+
+
 
     /**
      * No argument constructor for Profile, can be used for creating new profiles directly from JSON data.
@@ -68,6 +73,9 @@ public class Profile {
         this.middlename = middlename;
         this.nickname = nickname;
         this.email = email;
+
+
+
         this.password = password;
         this.bio = bio;
         this.date_of_birth = date_of_birth;
