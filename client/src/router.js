@@ -4,7 +4,7 @@ import RegistrationComponent from "./components/Registration.vue"
 import NavBarComponent from "./components/NavBar.vue";
 import ProfileComponent from "./components/Profile.vue";
 import MainpageComponent from "./components/Mainpage.vue";
-import authenticationStore from "./store/authentication";
+import authenticationStore from "./store/authenticationStore";
 
 
 const routes = [

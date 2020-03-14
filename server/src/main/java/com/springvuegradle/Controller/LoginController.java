@@ -28,11 +28,11 @@ public class LoginController {
 
     @Autowired
     private ProfileRepository profileRepository;
-    private Map<Long, Long> activeSessions;
+    private static Map<Long, Long> activeSessions = new HashMap<Long, Long>();
     private long sessionCounter;
 
     public LoginController() {
-        activeSessions = new HashMap<Long, Long>();
+        //activeSessions = new HashMap<Long, Long>();
         sessionCounter = 0;
     }
 
@@ -60,13 +60,17 @@ public class LoginController {
             Profile profile = result.get(0);
             String hashedPassword = Profile_Controller.hashPassword(request.getPassword());
             if (activeSessions.containsKey(profile.getId())) {
-
+                System.out.println("user is already logged in with session id:");
+                System.out.println(activeSessions.get(profile.getId()));
                 status = HttpStatus.FORBIDDEN;
             } else if (!result.get(0).getPassword().equals(hashedPassword)) {
                 status = HttpStatus.UNAUTHORIZED;
             } else {
                 body = new LoginResponse(++sessionCounter, result.get(0).getId());
                 status = HttpStatus.OK;
+                System.out.println("login session created with ID X for Profile Y:");
+                System.out.println(sessionCounter);
+                System.out.println(profile.getId());
                 activeSessions.put(profile.getId(), sessionCounter);
             }
         }
@@ -104,9 +108,15 @@ public class LoginController {
      * @return true if the session ID matches the user ID; false otherwise.
      */
     public boolean checkCredentials(long userID, long sessionID){
+        System.out.println("Checking Session of ID X for user Y");
+        System.out.println(sessionID);
+        System.out.println(userID);
+        System.out.println("active session for checked user:");
+        System.out.println(activeSessions.get(userID));
         if (activeSessions.containsKey(userID)) {
             return sessionID == activeSessions.get(userID);
         } else {
+            System.out.println("Session ID not found in login map");
             return false;
         }
     }

@@ -114,7 +114,7 @@ public class Profile_Controller {
         }
         if (!((newProfile.getGender().equals("male")) ||
                 (newProfile.getGender().equals("female")) ||
-                (newProfile.getGender().equals("nonBinary")))) {
+                (newProfile.getGender().equals("non-Binary")))) {
             error += "The Gender field must contain either 'male', 'female' or 'non-binary'.\n";
         }
         return error;

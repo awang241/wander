@@ -48,7 +48,7 @@
                                        v-model="gender" required expanded>
                                     <option value="female">Female</option>
                                     <option value="male">Male</option>
-                                    <option value="nonBinary">Non Binary</option>
+                                    <option value="non-Binary">Non-Binary</option>
                                 </b-select>
                         </b-field>
 

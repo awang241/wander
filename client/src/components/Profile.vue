@@ -178,7 +178,7 @@
     import api from '../Api';
     import AddCountry from "./AddCountry";
     import Countries from "./Countries";
-    import authenticationStore from "../store/authentication";
+    import authenticationStore from "../store/authenticationStore";
 
     export default {
         name: "Profile",

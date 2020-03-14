@@ -32,7 +32,7 @@
 <script>
     import api from '../Api';
     import router from "../router";
-    import authenticationStore from "../store/authentication";
+    import authenticationStore from "../store/authenticationStore";
 
     export default {
         name: 'Login',
@@ -51,6 +51,7 @@
                     authenticationStore.methods.setUserId(response.data.userId)
                     authenticationStore.methods.setSessionId(response.data.sessionId)
                     authenticationStore.methods.setAuthenticated(true)
+
                     router.push('Profile')
                 }))
                 .catch(error => window.alert(error.response.data))

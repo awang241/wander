@@ -36,7 +36,7 @@
 
 
 <script>
-    import authenticationStore  from "../store/authentication";
+    import authenticationStore  from "../store/authenticationStore";
     import router from "../router";
     import api from "../Api";
 

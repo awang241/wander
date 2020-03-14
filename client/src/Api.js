@@ -25,5 +25,5 @@ export default {
   // (G)et
   getProfile: (id, sessionId) => localAxiosInstance.get('getprofile/'+id, {headers: {"authorization":sessionId}}),
 
-  logout: (userId, sessionId) => localAxiosInstance.post('logout/', userId, {headers: {"authorization":sessionId}})
+  logout: (userId, sessionId) => localAxiosInstance.post('logout/', {userId}, {headers: {"authorization":sessionId}})
 }
