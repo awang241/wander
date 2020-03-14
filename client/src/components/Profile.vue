@@ -221,7 +221,7 @@
         },
         mounted() {
             // Retrieves user data using their id number. Will change to token at some point
-            api.getProfile(authenticationStore.methods.getUserId())
+            api.getProfile(authenticationStore.methods.getUserId(), authenticationStore.methods.getSessionId())
                 .then((response) => {
                     console.log(response.data);
                     console.log(response.data.firstname)

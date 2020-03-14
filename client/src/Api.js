@@ -23,7 +23,7 @@ export default {
   // (D)elete  
   removeForId: (id) => localAxiosInstance.delete('students/'+id),
   // (G)et
-  getProfile: (id) => localAxiosInstance.get('getprofile/'+id),
+  getProfile: (id, sessionId) => localAxiosInstance.get('getprofile/'+id, {headers: {"authorization":sessionId}}),
 
   logout: (userId, sessionId) => localAxiosInstance.post('logout/', userId, {headers: {"authorization":sessionId}})
 }
