@@ -2,6 +2,7 @@ package com.springvuegradle.Controller;
 
 import com.springvuegradle.Model.PassportCountry;
 import com.springvuegradle.Model.Profile;
+import com.springvuegradle.Model.UserEmail;
 import com.springvuegradle.PassportCountryRepository;
 import com.springvuegradle.Utilities.ValidationHelper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -196,6 +197,17 @@ public class Profile_Controller {
         //}
     }
 
+    @PostMapping("/editprofile/{id}/emails")
+    public ResponseEntity<String> addEmails (@RequestBody UserEmail newEmails, @PathVariable Long id, @RequestHeader("authorization") long sessionID){
+        if(!loginController.checkCredentials(id.intValue(), sessionID)){
+            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+        }
+        Profile db_profile = repository.findById(id).get();
+//        ArrayList<String> additionalEmails = newEmails.getAdditionalEmails();
+//        db_profile.addEmails(additionalEmails);
+        return new ResponseEntity<>(HttpStatus.OK);
+
+    }
 
     /**
      * Deletes a profile from the repository given that it exists in the database.
