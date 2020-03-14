@@ -40,7 +40,6 @@ public class Profile_Controller {
      */
     @PostMapping("/createprofile")
     public ResponseEntity<String> createProfile (@RequestBody Profile newProfile) {
-        System.out.println(newProfile);
         String error = verifyProfile(newProfile);
 
         if (error.equals("")) {
@@ -145,7 +144,6 @@ public class Profile_Controller {
         if(loginController.checkCredentials(id.intValue(), sessionID)) {
             Optional<Profile> profile_with_id = repository.findById(id);
             if (profile_with_id.isPresent()) {
-                System.out.println(profile_with_id.get().getPassport_countries().size());
                 return new ResponseEntity(profile_with_id.get(), HttpStatus.OK);
             } else {
                 return new ResponseEntity(null, HttpStatus.NOT_FOUND);

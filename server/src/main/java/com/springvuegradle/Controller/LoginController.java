@@ -2,6 +2,7 @@ package com.springvuegradle.Controller;
 
 import com.springvuegradle.Model.LoginRequest;
 import com.springvuegradle.Model.LoginResponse;
+import com.springvuegradle.Model.LogoutRequest;
 import com.springvuegradle.Model.Profile;
 import com.springvuegradle.ProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,17 +61,12 @@ public class LoginController {
             Profile profile = result.get(0);
             String hashedPassword = Profile_Controller.hashPassword(request.getPassword());
             if (activeSessions.containsKey(profile.getId())) {
-                System.out.println("user is already logged in with session id:");
-                System.out.println(activeSessions.get(profile.getId()));
                 status = HttpStatus.FORBIDDEN;
             } else if (!result.get(0).getPassword().equals(hashedPassword)) {
                 status = HttpStatus.UNAUTHORIZED;
             } else {
                 body = new LoginResponse(++sessionCounter, result.get(0).getId());
                 status = HttpStatus.OK;
-                System.out.println("login session created with ID X for Profile Y:");
-                System.out.println(sessionCounter);
-                System.out.println(profile.getId());
                 activeSessions.put(profile.getId(), sessionCounter);
             }
         }
@@ -79,20 +75,20 @@ public class LoginController {
 
     /**
      * Attempts to log out the user given a HTTP logout request. Only succeeds if the user's credentials are correct.
-     * @param profileID the user's profile ID from the request body.
+     * @param userId the user's profile ID from the request body.
      * @param field the Authorization field in the request header.
      * @return An HTTP response with the appropriate message and HTTP code depending on the logout success
      */
     @PostMapping("/logout")
     @ResponseBody
-    public ResponseEntity<String> logoutUser(@RequestBody long profileID, @RequestHeader("authorization") String field){
+    public ResponseEntity<String> logoutUser(@RequestBody LogoutRequest userId, @RequestHeader("authorization") String field){
         String message = null;
         HttpStatus status = null;
         Long sessionID = Long.parseLong(field.split(" ")[0]);
-        if (checkCredentials(profileID, sessionID)){
+        if (checkCredentials(userId.getUserId(), sessionID)){
             message = "Logout successful.";
             status = HttpStatus.OK;
-            activeSessions.remove(profileID);
+            activeSessions.remove(userId.getUserId());
         } else {
             message = "Invalid session key pair.";
             status = HttpStatus.UNAUTHORIZED;
@@ -108,15 +104,11 @@ public class LoginController {
      * @return true if the session ID matches the user ID; false otherwise.
      */
     public boolean checkCredentials(long userID, long sessionID){
-        System.out.println("Checking Session of ID X for user Y");
-        System.out.println(sessionID);
-        System.out.println(userID);
-        System.out.println("active session for checked user:");
-        System.out.println(activeSessions.get(userID));
+
         if (activeSessions.containsKey(userID)) {
             return sessionID == activeSessions.get(userID);
         } else {
-            System.out.println("Session ID not found in login map");
+
             return false;
         }
     }

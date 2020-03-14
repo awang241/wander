@@ -44,12 +44,13 @@
         name: "NavBar",
         data: () => {
             return {
-                authenticationStore: authenticationStore.data
+                authenticationStore: authenticationStore.data,
+                //userID: authenticationStore.getUserId()
             }
         },
         methods: {
             logout(){
-                api.logout(authenticationStore.methods.getUserId(), authenticationStore.methods.getSessionId())
+                api.logout({userId: authenticationStore.methods.getUserId()}, authenticationStore.methods.getSessionId())
                     .catch(error => window.alert(error.response.data))
 
                 //User is now logged out in authentication store
