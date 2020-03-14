@@ -37,22 +37,6 @@ public class LoginController {
     }
 
     /**
-     * Takes the plaintext password and hashes it
-     * @param plainPassword the plaintext password to input
-     * @return the hashed password
-     */
-    private String hashPassword(String plainPassword) {
-        try {
-            MessageDigest hashedPassword = MessageDigest.getInstance("SHA-256");
-            return DatatypeConverter.printHexBinary(hashedPassword.digest(plainPassword.getBytes(StandardCharsets.UTF_8)));
-        } catch (NoSuchAlgorithmException error) {
-            System.out.println(error);
-        }
-        String failPassword = "Hash Failed";
-        return failPassword;
-    }
-
-    /**
      * Attempts to log in a user given a login request. If the credentials are correct, the user is logged
      * in and the session is recorded; otherwise, returns an error code.
      * @param request the user's email and password mapped from the request body onto a LoginRequest object
@@ -74,7 +58,7 @@ public class LoginController {
             status = HttpStatus.UNAUTHORIZED;
         } else {
             Profile profile = result.get(0);
-            String hashedPassword = hashPassword(request.getPassword());
+            String hashedPassword = Profile_Controller.hashPassword(request.getPassword());
             if (activeSessions.containsKey(profile.getId())) {
 
                 status = HttpStatus.FORBIDDEN;
