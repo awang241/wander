@@ -193,7 +193,7 @@
                 dateOfBirth: null,
                 gender: null,
                 bio: null,
-                email: "currently doesn't retrieve email from the backend",
+                email: null,
                 possibleCountries: [],
                 chosenCountries: []
             }
@@ -232,6 +232,7 @@
                     this.dateOfBirth = response.data.date_of_birth;
                     this.gender = response.data.gender;
                     this.bio = response.data.bio;
+                    this.email = response.data.email;
                     this.chosenCountries = response.data.passport_countries;
                 })
             .catch(error => console.log(error));
