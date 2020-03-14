@@ -81,10 +81,6 @@ public class Profile_Controller {
                 newProfile.getFirstname() == null) {
             error += "The First Name field is blank.\n";
         }
-        if (newProfile.getMiddlename() == "" ||
-                newProfile.getMiddlename() == null) {
-            error += "The Middle Name field is blank.\n";
-        }
         if (newProfile.getLastname() == "" ||
                 newProfile.getLastname() == null) {
             error += "The Last Name field is blank.\n";
