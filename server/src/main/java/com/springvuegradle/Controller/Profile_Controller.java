@@ -114,22 +114,9 @@ public class Profile_Controller {
         }
         if (!((newProfile.getGender().equals("male")) ||
                 (newProfile.getGender().equals("female")) ||
-                (newProfile.getGender().equals("non-binary")))) {
+                (newProfile.getGender().equals("nonBinary")))) {
             error += "The Gender field must contain either 'male', 'female' or 'non-binary'.\n";
         }
-
-        /*if (error == "") {
-            // case nothing goes wrong
-            String hashedPassword = hashPassword(newProfile.getPassword());
-            if(hashedPassword != "Hash Failed") {
-                newProfile.setPassword(hashedPassword);
-            }
-            System.out.println(newProfile);
-            repository.save(newProfile);                      //save profile to database
-            return "New profile has been created.";
-        } else {
-            return error;
-        }*/
         return error;
     }
 
@@ -154,18 +141,18 @@ public class Profile_Controller {
      * @return the Profile object corresponding to the given ID.
      */
     @GetMapping("/getprofile/{id}")
-    public @ResponseBody ResponseEntity<Profile> getProfile(@PathVariable Long id) { //@RequestHeader('authorization') long sessionID
-        //if(loginController.checkCredentials(id.intValue(), sessionID)) {
-        Optional<Profile> profile_with_id = repository.findById(id);
+    public @ResponseBody ResponseEntity<Profile> getProfile(@PathVariable Long id, @RequestHeader("authorization") long sessionID) {
+        if(loginController.checkCredentials(id.intValue(), sessionID)) {
+            Optional<Profile> profile_with_id = repository.findById(id);
             if (profile_with_id.isPresent()) {
                 System.out.println(profile_with_id.get().getPassport_countries().size());
                 return new ResponseEntity(profile_with_id.get(), HttpStatus.OK);
             } else {
                 return new ResponseEntity(null, HttpStatus.NOT_FOUND);
             }
-//        } else {
-//            return new ResponseEntity(null, HttpStatus.UNAUTHORIZED);
-//        }
+        } else {
+            return new ResponseEntity(null, HttpStatus.UNAUTHORIZED);
+        }
     }
 
     /**
