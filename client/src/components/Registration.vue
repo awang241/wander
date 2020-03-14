@@ -55,8 +55,8 @@
                         <b-field label="Fitness Level" expanded >
                             <b-select v-model="fitness" placeholder="Fitness Level" expanded>
                                 <option value="0">Beginner: I am not active at all </option>
-                                <option value="1">Novice: I do a low level excercise (walking)</option>
-                                <option value="2">Intermediate: I work out 1-2 times per week </option>
+                                <option value="1">Novice: I do a low level of exercise (walking)</option>
+                                <option value="2">Intermediate: I work out 1-2 times per week</option>
                                 <option value="3">Advanced: I work out 3-4 times per week</option>
                                 <option value="4">Pro: I work out 5+ times per week</option>
                             </b-select>

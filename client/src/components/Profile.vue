@@ -91,9 +91,9 @@
                                 <div class="media-content">
                                     <div class="content">
                                         <p>
-                                            <strong> Needs to retrieve fitness level </strong>
+                                            <strong>{{ fitness_statement }}</strong>
                                             <br>
-                                            <progress class="progress is-primary" value="90" max="100"></progress>
+                                            <b-progress type="is-primary" :value=this.fitness_level max="5"></b-progress>
                                         </p>
                                     </div>
                                 </div>
@@ -194,6 +194,8 @@
                 gender: null,
                 bio: null,
                 email: null,
+                fitness_level: null,
+                fitness_statement: null,
                 possibleCountries: [],
                 chosenCountries: []
             }
@@ -233,7 +235,27 @@
                     this.gender = response.data.gender;
                     this.bio = response.data.bio;
                     this.email = response.data.email;
+                    this.fitness_level = response.data.fitness_level;
                     this.chosenCountries = response.data.passport_countries;
+                    switch(response.data.fitness_level) {
+                        case 0 :
+                            this.fitness_statement = "Beginner: I am not active at all";
+                            break;
+                        case 1 :
+                            this.fitness_statement = "Novice: I do a low level of exercise (walking)";
+                            break;
+                        case 2 :
+                            this.fitness_statement = "Intermediate: I work out 1-2 times per week";
+                            break;
+                        case 3 :
+                            this.fitness_statement = "Advanced: I work out 3-4 times per week";
+                            break;
+                        case 4 :
+                            this.fitness_statement = "Pro: I work out 5+ times per week";
+                            break;
+                        default:
+                            this.fitness_statement = "Beginner: I am not active at all";
+                    }
                 })
             .catch(error => console.log(error));
             // axios.get("https://f91246de-53d1-425e-9b1b-5524c2b62a0e.mock.pstmn.io/getusers")
