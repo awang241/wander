@@ -8,7 +8,7 @@
                             <b-input class="help" placeholder="Email"
                                      v-model="email"
                                      type="email"
-                                     maxlength="20">
+                                     maxlength="30">
                             </b-input>
                         </b-field>
 
@@ -32,7 +32,7 @@
 <script>
     import api from '../Api';
     import router from "../router";
-    import authenticationStore from "../store/authentication";
+    import authenticationStore from "../store/authenticationStore";
 
     export default {
         name: 'Login',
@@ -48,9 +48,10 @@
                     email: this.email,
                     password: this.password,
                 }).then((response => {
-                    console.log(response)
-                    console.log(response.data)
+                    authenticationStore.methods.setUserId(response.data.userId)
+                    authenticationStore.methods.setSessionId(response.data.sessionId)
                     authenticationStore.methods.setAuthenticated(true)
+
                     router.push('Profile')
                 }))
                 .catch(error => window.alert(error.response.data))

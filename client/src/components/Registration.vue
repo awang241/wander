@@ -30,11 +30,14 @@
 
                         <b-field label="Date of Birth" expanded>
                                  <b-datepicker
-                                         editable="editable"
+                                         editable
+                                         :use-html5-validation="false"
                                          placeholder="Select Date of Birth"
                                          :max-date="maxDate" ref="dateOfBirth"
                                          v-model="dateOfBirth"
-                                         type="date" required>
+                                         type="date" required
+                                         validation-message="Please enter a valid date"
+                                         pattern="^(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]))\1|(?:(?:29|30)(\/|-|\.)(?:0?[13-9]|1[0-2])\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/|-|\.)0?2\3(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\d|2[0-8])(\/|-|\.)(?:(?:0?[1-9])|(?:1[0-2]))\4(?:(?:1[6-9]|[2-9]\d)?\d{2})$">>
                                  </b-datepicker>
                         </b-field>
 
@@ -45,15 +48,15 @@
                                        v-model="gender" required expanded>
                                     <option value="female">Female</option>
                                     <option value="male">Male</option>
-                                    <option value="nonBinary">Non Binary</option>
+                                    <option value="non-Binary">Non-Binary</option>
                                 </b-select>
                         </b-field>
 
                         <b-field label="Fitness Level" expanded >
                             <b-select v-model="fitness" placeholder="Fitness Level" expanded>
                                 <option value="0">Beginner: I am not active at all </option>
-                                <option value="1">Novice: I do a low level excercise (walking)</option>
-                                <option value="2">Intermediate: I work out 1-2 times per week </option>
+                                <option value="1">Novice: I do a low level of exercise (walking)</option>
+                                <option value="2">Intermediate: I work out 1-2 times per week</option>
                                 <option value="3">Advanced: I work out 3-4 times per week</option>
                                 <option value="4">Pro: I work out 5+ times per week</option>
                             </b-select>
