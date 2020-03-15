@@ -1,7 +1,8 @@
 package com.springvuegradle;
 
-import com.springvuegradle.Model.PassportCountry;
-import com.springvuegradle.Utiilities.ValidationHelper;
+import com.springvuegradle.Repositories.PassportCountryRepository;
+import com.springvuegradle.Repositories.ProfileRepository;
+import com.springvuegradle.Utilities.ValidationHelper;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.SpringApplication;
@@ -26,14 +27,7 @@ public class Application {
     @Bean
     CommandLineRunner init(ProfileRepository profileRepository, PassportCountryRepository passportCountryRepository) {
         return args -> {
-            List<PassportCountry> countries = new ArrayList<PassportCountry>();
-            for (String s : ValidationHelper.GetRESTCountries()) {
-                countries.add(new PassportCountry(s));
-            }
-            if (passportCountryRepository.count() == 0) {
-                passportCountryRepository.saveAll(countries);
-            }
-            profileRepository.findAll().forEach(System.out::println); // prints all the profile objects in the repository.
+            ValidationHelper.updatePassportCountryRepository(passportCountryRepository, profileRepository);
         };
     }
 
@@ -44,7 +38,7 @@ public class Application {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
         // *** URL below needs to match the Vue client URL and port ***
-        config.setAllowedOrigins(new ArrayList(Arrays.asList("http://localhost:9000", "http://localhost:9500", "https://csse-s302g0.canterbury.ac.nz/test", "https://csse-s302g0.canterbury.ac.nz/prod")));
+        config.setAllowedOrigins(new ArrayList(Arrays.asList("http://localhost:9000", "http://localhost:9499", "http://localhost:9500", "https://csse-s302g0.canterbury.ac.nz/test", "https://csse-s302g0.canterbury.ac.nz/prod")));
         config.setAllowedMethods(Collections.singletonList("*"));
         config.setAllowedHeaders(Collections.singletonList("*"));
         source.registerCorsConfiguration("/**", config);

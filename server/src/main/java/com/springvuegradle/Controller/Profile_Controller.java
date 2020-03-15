@@ -1,27 +1,23 @@
 package com.springvuegradle.Controller;
 
-import com.springvuegradle.Model.LoginRequest;
 import com.springvuegradle.Model.PassportCountry;
 import com.springvuegradle.Model.Profile;
-import com.springvuegradle.PassportCountryRepository;
-import com.springvuegradle.Utiilities.ValidationHelper;
+import com.springvuegradle.Repositories.PassportCountryRepository;
+import com.springvuegradle.Utilities.ValidationHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.springvuegradle.ProfileRepository;
+import com.springvuegradle.Repositories.ProfileRepository;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.swing.text.html.Option;
 import javax.xml.bind.DatatypeConverter;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 
 /**
@@ -40,33 +36,48 @@ public class Profile_Controller {
     /**
      * Creates a new Profile object given a set of JSON data and forms a profile object based on the given data, then
      * hashes the password and adds the new data to the database.
+     * @param newProfile contains data relating to the user profile we wish to add to the database.
+     * @param testing set to true when this method is used for testing purposes so that it does not save the profile
+     *                object to the database, only checks if its valid.
      * @return the created profile.
      */
-    @PostMapping("/createprofile")
-    public ResponseEntity<String> createProfile (@RequestBody Profile newProfile) {
+
+    public ResponseEntity<String> createProfile (Profile newProfile, boolean testing, ProfileRepository repo) {
         String error = verifyProfile(newProfile);
 
-        if (error == "") {
+        if (error.equals("")) {
             // case nothing goes wrong
             String hashedPassword = hashPassword(newProfile.getPassword());
-            if(hashedPassword != "Hash Failed") {
+            if (hashedPassword != "Hash Failed") {
                 newProfile.setPassword(hashedPassword);
             }
-            System.out.println("Inside createProfile method: " + newProfile + " with id " + newProfile.getId());
+            Set<PassportCountry> updated = new HashSet<PassportCountry>();
+            for(PassportCountry passportCountry : newProfile.retrievePassportCountryObjects()){
+                List<PassportCountry> result = pcRepository.findByCountryName(passportCountry.getCountryName());
 
-            for(PassportCountry passportCountry : newProfile.getPassport_countries()){
-                passportCountry.addProfile(newProfile);
+                if (result.size() == 0) {
+                    String body = String.format("Country {} does not exist in the database.", passportCountry.getCountryName());
+                    return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+                } else {
+                    updated.add(result.get(0));
+                }
             }
-            for (PassportCountry country : newProfile.getPassport_countries()) {
-                PassportCountry target = pcRepository.findByCountryName(country.getCountryName()).get(0);
-                target.addProfile(newProfile);
+            newProfile.setPassport_countries(updated);
+            if (!testing) {
+                repository.save(newProfile);
+            } else {
+                repo.save(newProfile);
             }
-
-            repository.save(newProfile);                      //save profile to database
+            //save profile to database
             return new ResponseEntity("New profile has been created.", HttpStatus.CREATED);
         } else {
-            return new ResponseEntity(error, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity(error, HttpStatus.FORBIDDEN);
         }
+    }
+
+    @PostMapping("/createprofile")
+    public ResponseEntity<String> createProfile (@RequestBody Profile newProfile) {
+        return createProfile(newProfile, false, null);
     }
 
     private String verifyProfile(Profile newProfile) {
@@ -82,10 +93,6 @@ public class Profile_Controller {
                 newProfile.getFirstname() == null) {
             error += "The First Name field is blank.\n";
         }
-        if (newProfile.getMiddlename() == "" ||
-                newProfile.getMiddlename() == null) {
-            error += "The Middle Name field is blank.\n";
-        }
         if (newProfile.getLastname() == "" ||
                 newProfile.getLastname() == null) {
             error += "The Last Name field is blank.\n";
@@ -100,37 +107,29 @@ public class Profile_Controller {
                 newProfile.getDate_of_birth() == null) {
             error += "The Date of Birth field is blank.\n";
         }
-        if (newProfile.getPassport_countries().size() >= 1 ) {
-            List<String> countries = new ArrayList<String>();
+        if (newProfile.retrievePassportCountryObjects().size() >= 1 ) {
+            Set<PassportCountry> countries = new HashSet<>();
             try {
-                countries = helper.GetRESTCountries();
+                countries = ValidationHelper.GetRESTCountries();
             } catch (java.io.IOException e) {
                 error += e.toString();
             }
-            for (PassportCountry country : newProfile.getPassport_countries()) {
-                if (!helper.validateCountry(country, countries)) {
+            List<String> countryNames = new ArrayList<String>();
+            for (PassportCountry country : countries) {
+                countryNames.add(country.getCountryName());
+            }
+            for (PassportCountry country : newProfile.retrievePassportCountryObjects()) {
+                if (!ValidationHelper.validateCountry(country, countryNames)) {
                     error += "That country doesn't exist.\n";
                 }
             }
         }
         if (!((newProfile.getGender().equals("male")) ||
                 (newProfile.getGender().equals("female")) ||
-                (newProfile.getGender().equals("non-binary")))) {
+                (newProfile.getGender().equals("non-Binary")))) {
             error += "The Gender field must contain either 'male', 'female' or 'non-binary'.\n";
         }
-
-        if (error == "") {
-            // case nothing goes wrong
-            String hashedPassword = hashPassword(newProfile.getPassword());
-            if(hashedPassword != "Hash Failed") {
-                newProfile.setPassword(hashedPassword);
-            }
-            System.out.println(newProfile);
-            repository.save(newProfile);                      //save profile to database
-            return "New profile has been created.";
-        } else {
-            return error;
-        }
+        return error;
     }
 
     /**
@@ -151,21 +150,34 @@ public class Profile_Controller {
 
     /**
      * Retrieves data corresponding to the given profile ID from the database.
+     * @param sessionID session token to make sure user logged in
+     * @param testing if true, will skip the credential check
+     * @param id gets the profile object and if it exists and authorization is approved, it will return the object
      * @return the Profile object corresponding to the given ID.
      */
-    @GetMapping("/getprofile/{id}")
-    public @ResponseBody ResponseEntity<Profile> getProfile(@PathVariable Long id) { //@RequestHeader('authorization') long sessionID
-        //if(loginController.checkCredentials(id.intValue(), sessionID)) {
-            var profile_with_id = repository.findById(id);
+    public ResponseEntity<Profile> getProfile(Long id, Long sessionID, boolean testing, ProfileRepository repo) {
+        if(testing || loginController.checkCredentials(id.intValue(), sessionID)) {
+            Optional<Profile> profile_with_id = null;
+            if (!testing) {
+                profile_with_id = repository.findById(id);
+            } else {
+                profile_with_id = repo.findById(id);
+            }
             if (profile_with_id.isPresent()) {
                 return new ResponseEntity(profile_with_id.get(), HttpStatus.OK);
             } else {
                 return new ResponseEntity(null, HttpStatus.NOT_FOUND);
             }
-//        } else {
-//            return new ResponseEntity(null, HttpStatus.UNAUTHORIZED);
-//        }
+        } else {
+            return new ResponseEntity(null, HttpStatus.UNAUTHORIZED);
+        }
     }
+
+    @GetMapping("/getprofile/{id}")
+    public @ResponseBody ResponseEntity<Profile> getProfile(@PathVariable Long id, @RequestHeader("authorization") long sessionID) {
+        return getProfile(id, sessionID, false, null);
+    }
+
 
     /**
      * Takes a Profile object and finds the corresponding profile in the database, then replaces the old profile data

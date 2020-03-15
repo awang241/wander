@@ -1,11 +1,17 @@
 <template>
-    <form @submit="addCountry">
-<!--        <input type="text" v-model="country" name="country" placeholder="Add country">-->
-        <select v-model="country">
-            <option v-for="country in possibleCountries" v-bind:key="country">{{country}}</option>
-        </select>
-        <input type="submit" value="submit">
-    </form>
+    <section>
+        <b-field>
+            <b-select placeholder="Select a country" v-model="country">
+                <option
+                        v-for="country in possibleCountries"
+                        :value="country"
+                        :key="country">
+                    {{ country }}
+                </option>
+            </b-select>
+            <b-button type="is-primary" @click="addCountry">Submit</b-button>
+        </b-field>
+    </section>
 </template>
 
 <script>

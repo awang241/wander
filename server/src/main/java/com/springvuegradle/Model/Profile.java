@@ -1,17 +1,13 @@
 package com.springvuegradle.Model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.*;
 
 import javax.management.AttributeList;
 import javax.persistence.*;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
+import java.util.*;
 
 @Entity
 public class Profile {
@@ -32,10 +28,9 @@ public class Profile {
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "profile_passport_country",
-            inverseJoinColumns = @JoinColumn(name = "profile_id", referencedColumnName = "id"),
-            joinColumns = @JoinColumn(name = "passport_country_id", referencedColumnName = "id"))
-    @JsonBackReference
-    private List<PassportCountry> passport_countries;
+            inverseJoinColumns = @JoinColumn(name = "passport_country_id", referencedColumnName = "id"),
+            joinColumns = @JoinColumn(name = "profile_id", referencedColumnName = "id"))
+    private Set<PassportCountry> passport_countries;
 
 
     /**
@@ -45,18 +40,28 @@ public class Profile {
 
     /**
      * Constructor for Profile.
-     * @param firstname
-     * @param lastname
-     * @param middlename
-     * @param nickname
-     * @param email
+     * @param firstname first name of user
+     * @param lastname last name of user
+     * @param middlename middle name of user
+     * @param nickname nickname of user
+     * @param email users email address
      * @param password (encrypted)
-     * @param bio
+     * @param bio other information about the user that they wish to enter
      * @param date_of_birth (xxxx_xx_xx -> year_month_day)
      * @param gender (Male, Female, Other)
      */
-    public Profile(String firstname, String lastname, String middlename, String nickname, String email, String password,
-                      String bio, Calendar date_of_birth, String gender, int fitness_level, List<PassportCountry> passport_countries) {
+    @JsonCreator
+    public Profile(@JsonProperty("firstname") String firstname,
+                   @JsonProperty("lastname") String lastname,
+                   @JsonProperty("middlename") String middlename,
+                   @JsonProperty("nickname") String nickname,
+                   @JsonProperty("email") String email,
+                   @JsonProperty("password") String password,
+                   @JsonProperty("bio") String bio,
+                   @JsonProperty("date_of_birth") Calendar date_of_birth,
+                   @JsonProperty("gender") String gender,
+                   @JsonProperty("fitness_level") int fitness_level,
+                   @JsonProperty("passport_countries") String[] passport_countries) {
         this.firstname = firstname;
         this.lastname = lastname;
         this.middlename = middlename;
@@ -67,7 +72,38 @@ public class Profile {
         this.date_of_birth = date_of_birth;
         this.gender = gender;
         this.fitness_level = fitness_level;
-        this.passport_countries = passport_countries;
+        this.passport_countries = new HashSet<>();
+        for (String name: passport_countries) {
+            addPassportCountry(new PassportCountry(name));
+        }
+    }
+
+    /**
+         * Constructor for Profile.
+         * @param firstname first name of user
+         * @param lastname last name of user
+         * @param middlename middle name of user
+         * @param nickname nickname of user
+         * @param email users email address
+         * @param password (encrypted)
+         * @param bio other information about the user that they wish to enter
+         * @param date_of_birth date of birth as an Calendar object.
+         * @param gender (Male, Female, Other)
+         */
+    public Profile(String firstname, String lastname, String middlename, String nickname,
+                   String email, String password, String bio, Calendar date_of_birth,
+                   String gender) {
+        this.firstname = firstname;
+        this.lastname = lastname;
+        this.middlename = middlename;
+        this.nickname = nickname;
+        this.email = email;
+        this.password = password;
+        this.bio = bio;
+        this.date_of_birth = date_of_birth;
+        this.gender = gender;
+        this.passport_countries = new HashSet<>();
+
     }
 
     /** Series of Getters and Getters **/
@@ -158,15 +194,30 @@ public class Profile {
 
     public void setFitness_level(int fitness_level){this.fitness_level = fitness_level;}
 
-    public List<PassportCountry> getPassport_countries() {
-        return passport_countries;
+    public List<String> getPassport_countries() {
+        List<String> countryNames = new ArrayList<>();
+        for (PassportCountry country : passport_countries){
+            countryNames.add(country.getCountryName());
+        }
+        return countryNames;
     }
 
-    public void setPassport_countries(List<PassportCountry> passport_countries) {
+    public Set<PassportCountry> retrievePassportCountryObjects() {
+        return this.passport_countries;
+    }
+
+    public void setPassport_countries(Set<PassportCountry> passport_countries) {
         this.passport_countries = passport_countries;
     }
 
-    /** Helper methods for ProfileController **/
+    public void addPassportCountry(PassportCountry passportCountry) {
+        passport_countries.add(passportCountry);
+    }
+
+    public void removePassportCountry(PassportCountry passportCountry) {
+        passport_countries.remove(passportCountry);
+    }
+    // Helper methods for ProfileController
 
     /**
      * This method is used to update a profile with the given profile's details.
@@ -190,17 +241,17 @@ public class Profile {
     public boolean equals(Object o) {
         if (o instanceof Profile) {
             Profile other = (Profile) o;
-            return this.firstname == other.firstname &&
-                    this.lastname == other.lastname &&
-                    this.middlename == other.middlename &&
-                    this.nickname == other.nickname &&
-                    this.email == other.email &&
-                    this.password == other.password &&
-                    this.bio == other.bio &&
+            return this.firstname.equals(other.firstname) &&
+                    this.lastname.equals(other.lastname) &&
+                    this.middlename.equals(other.middlename) &&
+                    this.nickname.equals(other.nickname) &&
+                    this.email.equals(other.email) &&
+                    this.password.equals(other.password) &&
+                    this.bio.equals(other.bio) &&
                     //this.getDate_of_birth() == other.getDate_of_birth() &&
-                    this.gender == other.gender &&
+                    this.gender.equals(other.gender) &&
                     this.fitness_level == other.fitness_level &&
-                    this.passport_countries == other.passport_countries;
+                    this.passport_countries.equals(other.passport_countries);
         } else {
             return false;
         }
