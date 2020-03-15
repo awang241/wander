@@ -4,17 +4,12 @@ import com.springvuegradle.Model.LoginRequest;
 import com.springvuegradle.Model.LoginResponse;
 import com.springvuegradle.Model.LogoutRequest;
 import com.springvuegradle.Model.Profile;
-import com.springvuegradle.ProfileRepository;
+import com.springvuegradle.Repositories.ProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.persistence.PersistenceException;
-import javax.xml.bind.DatatypeConverter;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

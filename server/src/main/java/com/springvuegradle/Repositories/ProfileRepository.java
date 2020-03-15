@@ -1,4 +1,4 @@
-package com.springvuegradle;
+package com.springvuegradle.Repositories;
 
 
 import com.springvuegradle.Model.Profile;

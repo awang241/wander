@@ -41,13 +41,13 @@ public class Profile {
 
     /**
      * Constructor for Profile.
-     * @param firstname
-     * @param lastname
-     * @param middlename
-     * @param nickname
-     * @param email
+     * @param firstname first name of user
+     * @param lastname last name of user
+     * @param middlename middle name of user
+     * @param nickname nickname of user
+     * @param email users email address
      * @param password (encrypted)
-     * @param bio
+     * @param bio other information about the user that they wish to enter
      * @param date_of_birth (xxxx_xx_xx -> year_month_day)
      * @param gender (Male, Female, Other)
      */
@@ -77,6 +77,22 @@ public class Profile {
         for (String name: passport_countries) {
             addPassportCountry(new PassportCountry(name));
         }
+    }
+
+    public Profile(String firstname, String lastname, String middlename, String nickname,
+                   String email, String password, String bio, Calendar date_of_birth,
+                   String gender) {
+        this.firstname = firstname;
+        this.lastname = lastname;
+        this.middlename = middlename;
+        this.nickname = nickname;
+        this.email = email;
+        this.password = password;
+        this.bio = bio;
+        this.date_of_birth = date_of_birth;
+        this.gender = gender;
+        this.passport_countries = new HashSet<>();
+
     }
 
     /** Series of Getters and Getters **/
