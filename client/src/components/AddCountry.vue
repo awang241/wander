@@ -11,7 +11,6 @@
             </b-select>
             <b-button type="is-primary" @click="addCountry">Submit</b-button>
         </b-field>
-
     </section>
 </template>
 

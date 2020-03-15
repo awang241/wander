@@ -8,7 +8,7 @@
                             <b-input class="help" placeholder="Email"
                                      v-model="email"
                                      type="email"
-                                     maxlength="20">
+                                     maxlength="30">
                             </b-input>
                         </b-field>
 

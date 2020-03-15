@@ -45,7 +45,6 @@
         data: () => {
             return {
                 authenticationStore: authenticationStore.data,
-                //userID: authenticationStore.getUserId()
             }
         },
         methods: {
