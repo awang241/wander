@@ -2,14 +2,14 @@ package com.springvuegradle.Controller;
 
 import com.springvuegradle.Model.PassportCountry;
 import com.springvuegradle.Model.Profile;
-import com.springvuegradle.Model.UserEmail;
-import com.springvuegradle.PassportCountryRepository;
+import com.springvuegradle.Model.Email;
+import com.springvuegradle.Repositories.PassportCountryRepository;
 import com.springvuegradle.Utilities.ValidationHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.springvuegradle.ProfileRepository;
+import com.springvuegradle.Repositories.ProfileRepository;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -71,11 +71,11 @@ public class Profile_Controller {
 
     private String verifyProfile(Profile newProfile) {
         String error = "";
-        if (repository.findByEmail(newProfile.getEmail()).size() > 0) {
-            error += "A profile with this email already exists in the database.\n";
-        }
-        if (newProfile.getEmail() == "" ||
-                newProfile.getEmail() == null) {
+//        if (repository.findByEmail(newProfile.getPrimaryEmail()).size() > 0) {
+//            error += "A profile with this email already exists in the database.\n";
+//        }
+        if (newProfile.getPrimaryEmail().getAddress() == "" ||
+                newProfile.getPrimaryEmail().getAddress() == null) {
             error += "The email field is blank.\n";
         }
         if (newProfile.getFirstname() == "" ||
@@ -198,7 +198,7 @@ public class Profile_Controller {
     }
 
     @PostMapping("/editprofile/{id}/emails")
-    public ResponseEntity<String> addEmails (@RequestBody UserEmail newEmails, @PathVariable Long id, @RequestHeader("authorization") long sessionID){
+    public ResponseEntity<String> addEmails (@RequestBody Email newEmails, @PathVariable Long id, @RequestHeader("authorization") long sessionID){
         if(!loginController.checkCredentials(id.intValue(), sessionID)){
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
@@ -240,10 +240,10 @@ public class Profile_Controller {
         return new ResponseEntity<String>("POST Response", HttpStatus.OK);
     }
 
-    public List<Profile> findByEmail(String primary_email) {
-        List<Profile> profiles_with_email = repository.findByEmail(primary_email);
-        return profiles_with_email;
-    }
+//    public List<Profile> findByEmail(String primary_email) {
+//        List<Profile> profiles_with_email = repository.findByEmail(primary_email);
+//        return profiles_with_email;
+//    }
 
     protected ProfileRepository getRepository() {
         return repository;

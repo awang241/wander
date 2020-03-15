@@ -2,13 +2,12 @@ package com.springvuegradle.Controller;
 
 import com.springvuegradle.Model.LoginRequest;
 import com.springvuegradle.Model.Profile;
-import com.springvuegradle.ProfileRepository;
+import com.springvuegradle.Repositories.ProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.persistence.PersistenceException;
 import javax.xml.bind.DatatypeConverter;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -65,6 +64,7 @@ public class LoginController {
         HttpStatus status = null;
 
         List<Profile> result = profileRepository.findByEmail(request.getEmail());
+        List<Profile> result = null;
         if (result.size() > 1) {
             body = "Server data error.";
             status = HttpStatus.INTERNAL_SERVER_ERROR;

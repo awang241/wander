@@ -1,6 +1,7 @@
-package com.springvuegradle;
+package com.springvuegradle.Repositories;
 
 
+import com.springvuegradle.Model.Email;
 import com.springvuegradle.Model.Profile;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;

@@ -1,5 +1,8 @@
 package com.springvuegradle;
 
+import com.springvuegradle.Repositories.EmailRepository;
+import com.springvuegradle.Repositories.PassportCountryRepository;
+import com.springvuegradle.Repositories.ProfileRepository;
 import com.springvuegradle.Utilities.ValidationHelper;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -23,7 +26,7 @@ public class Application {
     }
 
     @Bean
-    CommandLineRunner init(ProfileRepository profileRepository, PassportCountryRepository passportCountryRepository) {
+    CommandLineRunner init(EmailRepository emailRepository, ProfileRepository profileRepository, PassportCountryRepository passportCountryRepository) {
         return args -> {
             //ValidationHelper.updatePassportCountryRepository(passportCountryRepository, profileRepository);
             profileRepository.findAll().forEach(System.out::println); // prints all the profile objects in the repository.

@@ -3,9 +3,8 @@ package com.springvuegradle.Utilities;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.springvuegradle.Model.PassportCountry;
 import com.springvuegradle.Model.Profile;
-import com.springvuegradle.PassportCountryRepository;
-import com.springvuegradle.ProfileRepository;
-import org.springframework.data.rest.webmvc.support.ExcerptProjector;
+import com.springvuegradle.Repositories.PassportCountryRepository;
+import com.springvuegradle.Repositories.ProfileRepository;
 
 import java.io.IOException;
 import java.net.ConnectException;

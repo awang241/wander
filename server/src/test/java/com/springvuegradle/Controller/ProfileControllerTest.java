@@ -3,7 +3,7 @@ package com.springvuegradle.Controller;
 import com.springvuegradle.Model.PassportCountry;
 import com.springvuegradle.Model.Profile;
 
-import com.springvuegradle.ProfileRepository;
+import com.springvuegradle.Repositories.ProfileRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
