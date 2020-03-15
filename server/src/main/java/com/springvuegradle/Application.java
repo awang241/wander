@@ -28,7 +28,6 @@ public class Application {
     CommandLineRunner init(ProfileRepository profileRepository, PassportCountryRepository passportCountryRepository) {
         return args -> {
             ValidationHelper.updatePassportCountryRepository(passportCountryRepository, profileRepository);
-            profileRepository.findAll().forEach(System.out::println); // prints all the profile objects in the repository.
         };
     }
 

@@ -30,7 +30,6 @@ public class Profile {
     @JoinTable(name = "profile_passport_country",
             inverseJoinColumns = @JoinColumn(name = "passport_country_id", referencedColumnName = "id"),
             joinColumns = @JoinColumn(name = "profile_id", referencedColumnName = "id"))
-    //@JsonBackReference
     private Set<PassportCountry> passport_countries;
 
 
@@ -79,6 +78,18 @@ public class Profile {
         }
     }
 
+    /**
+         * Constructor for Profile.
+         * @param firstname first name of user
+         * @param lastname last name of user
+         * @param middlename middle name of user
+         * @param nickname nickname of user
+         * @param email users email address
+         * @param password (encrypted)
+         * @param bio other information about the user that they wish to enter
+         * @param date_of_birth date of birth as an Calendar object.
+         * @param gender (Male, Female, Other)
+         */
     public Profile(String firstname, String lastname, String middlename, String nickname,
                    String email, String password, String bio, Calendar date_of_birth,
                    String gender) {

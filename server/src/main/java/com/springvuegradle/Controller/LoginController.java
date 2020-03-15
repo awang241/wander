@@ -28,7 +28,6 @@ public class LoginController {
     private long sessionCounter;
 
     public LoginController() {
-        //activeSessions = new HashMap<Long, Long>();
         sessionCounter = 0;
     }
 
@@ -47,10 +46,8 @@ public class LoginController {
 
         List<Profile> result = profileRepository.findByEmail(request.getEmail());
         if (result.size() > 1) {
-
             status = HttpStatus.INTERNAL_SERVER_ERROR;
         } else if (result.size() == 0) {
-
             status = HttpStatus.UNAUTHORIZED;
         } else {
             Profile profile = result.get(0);
