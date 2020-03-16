@@ -9,6 +9,6 @@ import java.util.List;
 @RepositoryRestResource
 public interface EmailRepository extends JpaRepository<Email, Long> {
 
-    List<Email> findByEmail(String email);
+    List<Email> findAllByAddress(String address);
 
 }

@@ -2,6 +2,7 @@ package com.springvuegradle.Controller;
 
 import com.springvuegradle.Model.LoginRequest;
 import com.springvuegradle.Model.Profile;
+import com.springvuegradle.Repositories.DBQueries;
 import com.springvuegradle.Repositories.ProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,6 +13,8 @@ import javax.xml.bind.DatatypeConverter;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.sql.SQLException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,12 +62,13 @@ public class LoginController {
      */
     @PostMapping("/login")
     @ResponseBody
-    public ResponseEntity<String> loginUser(@RequestBody LoginRequest request) {
+    public ResponseEntity<String> loginUser(@RequestBody LoginRequest request) throws SQLException {
         String body = null;
         HttpStatus status = null;
 
-        List<Profile> result = profileRepository.findByEmail(request.getEmail());
-        List<Profile> result = null;
+        //List<Profile> result = profileRepository.findByEmail(request.getEmail());
+        Long id = DBQueries.findIdByEmail(request.getEmail());
+        List<Profile> result = profileRepository.findAllById(Collections.singleton(id));
         if (result.size() > 1) {
             body = "Server data error.";
             status = HttpStatus.INTERNAL_SERVER_ERROR;
