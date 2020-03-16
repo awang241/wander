@@ -29,6 +29,7 @@ public class Application {
     @Bean
     CommandLineRunner init(EmailRepository emailRepository, ProfileRepository profileRepository, PassportCountryRepository passportCountryRepository) {
         return args -> {
+            System.out.println(emailRepository.findByPrimaryEmail("jacky123@google.com"));
             ValidationHelper.updatePassportCountryRepository(passportCountryRepository, profileRepository);
             profileRepository.findAll().forEach(System.out::println); // prints all the profile objects in the repository.
             System.out.println("-----Program should be running now-----");

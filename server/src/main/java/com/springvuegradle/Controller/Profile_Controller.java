@@ -3,6 +3,7 @@ package com.springvuegradle.Controller;
 import com.springvuegradle.Model.PassportCountry;
 import com.springvuegradle.Model.Profile;
 import com.springvuegradle.Model.Email;
+import com.springvuegradle.Repositories.EmailRepository;
 import com.springvuegradle.Repositories.PassportCountryRepository;
 import com.springvuegradle.Utilities.ValidationHelper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,8 @@ public class Profile_Controller {
     private ProfileRepository repository;
     @Autowired
     private PassportCountryRepository pcRepository;
+    @Autowired
+    private EmailRepository eRepository;
     private LoginController loginController = new LoginController();
     private ValidationHelper helper = new ValidationHelper();
 
@@ -43,7 +46,7 @@ public class Profile_Controller {
      * @return the created profile.
      */
 
-    public ResponseEntity<String> createProfile (Profile newProfile, boolean testing, ProfileRepository repo) {
+    public ResponseEntity<String> createProfile (Profile newProfile, boolean testing, ProfileRepository repo, EmailRepository eRepo) {
         String error = verifyProfile(newProfile);
 
         if (error.equals("")) {
@@ -66,9 +69,14 @@ public class Profile_Controller {
             newProfile.setPassport_countries(updated);
             if (!testing) {
                 repository.save(newProfile);
+                saveEmails(newProfile, false, null);
+
             } else {
                 repo.save(newProfile);
+                saveEmails(newProfile, true, eRepo);
             }
+
+
             //save profile to database
             return new ResponseEntity("New profile has been created.", HttpStatus.CREATED);
         } else {
@@ -76,9 +84,23 @@ public class Profile_Controller {
         }
     }
 
+    private void saveEmails(Profile newProfile, boolean testing, EmailRepository eRepo) {
+        Set<Email> emailsFromNewProfile = newProfile.retrieveEmails();
+        for (Email email: emailsFromNewProfile) {
+            if (testing) {
+                email.setProfile(newProfile);
+                eRepo.save(email);
+            } else {
+                email.setProfile(newProfile);
+                eRepository.save(email);
+            }
+
+        }
+    }
+
     @PostMapping("/createprofile")
     public ResponseEntity<String> createProfile (@RequestBody Profile newProfile) {
-        return createProfile(newProfile, false, null);
+        return createProfile(newProfile, false, null, null);
     }
 
     private String verifyProfile(Profile newProfile) {
@@ -86,8 +108,8 @@ public class Profile_Controller {
 //        if (repository.findByEmail(newProfile.getPrimaryEmail()).size() > 0) {
 //            error += "A profile with this email already exists in the database.\n";
 //        }
-        if (newProfile.getPrimaryEmail().getAddress() == "" ||
-                newProfile.getPrimaryEmail().getAddress() == null) {
+        if (newProfile.retrievePrimaryEmail().getAddress() == "" ||
+                newProfile.retrievePrimaryEmail().getAddress() == null) {
             error += "The email field is blank.\n";
         }
         if (newProfile.getFirstname() == "" ||
@@ -125,6 +147,19 @@ public class Profile_Controller {
                 }
             }
         }
+
+        if (newProfile.retrieveEmails().size() >= 1) {
+            boolean valid = true;
+            for (Email email: newProfile.retrieveEmails()) {
+                if (eRepository.existsByAddress(email.getAddress())) {
+                    valid = false;
+                }
+            }
+            if (!valid) {
+                error += "An email address you have entered is already in use by another Profile.\n";
+            }
+        }
+
         if (!((newProfile.getGender().equals("male")) ||
                 (newProfile.getGender().equals("female")) ||
                 (newProfile.getGender().equals("non-Binary")))) {

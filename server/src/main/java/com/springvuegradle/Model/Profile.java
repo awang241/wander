@@ -35,12 +35,16 @@ public class Profile {
     private Set<PassportCountry> passport_countries;
 
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinTable(name = "profile_email",
-            inverseJoinColumns = @JoinColumn(name = "email_id", referencedColumnName = "id"),
-            joinColumns = @JoinColumn(name = "profile_id", referencedColumnName = "id"))
+//    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+//    @JoinTable(name = "profile_email",
+//            inverseJoinColumns = @JoinColumn(name = "email_id", referencedColumnName = "id"),
+//            joinColumns = @JoinColumn(name = "profile_id", referencedColumnName = "id"))
     //@JsonBackReference
-    private List<Email> emails = new ArrayList<>();
+
+
+
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "profile")
+    private Set<Email> emails;
 //    @OneToMany(mappedBy = "user_email")
 //    List<UserEmail> additional_email = null;
 
@@ -65,7 +69,8 @@ public class Profile {
      * @param gender (Male, Female, Other)
      */
     @JsonCreator
-    public Profile(@JsonProperty("firstname") String firstname,
+    public Profile(@JsonProperty("id") Long id,
+                   @JsonProperty("firstname") String firstname,
                    @JsonProperty("lastname") String lastname,
                    @JsonProperty("middlename") String middlename,
                    @JsonProperty("nickname") String nickname,
@@ -100,40 +105,42 @@ public class Profile {
         }
     }
 
-    @JsonCreator
-    public Profile(@JsonProperty("firstname") String firstname,
-                   @JsonProperty("lastname") String lastname,
-                   @JsonProperty("middlename") String middlename,
-                   @JsonProperty("nickname") String nickname,
-                   @JsonProperty("primary_email") String primaryEmail,
-                   @JsonProperty("password") String password,
-                   @JsonProperty("bio") String bio,
-                   @JsonProperty("date_of_birth") Calendar date_of_birth,
-                   @JsonProperty("gender") String gender,
-                   @JsonProperty("fitness_level") int fitness_level,
-                   @JsonProperty("passport_countries") String[] passport_countries) {
+    public Profile(String firstname,
+                   String lastname,
+                   String middlename,
+                   String nickname,
+                   Set<Email> emails,
+                   String password,
+                   String bio,
+                   Calendar date_of_birth,
+                   String gender,
+                   int fitness_level,
+                   Set<PassportCountry> passport_countries) {
         this.firstname = firstname;
         this.lastname = lastname;
         this.middlename = middlename;
         this.nickname = nickname;
-
-        addEmail(new Email(primaryEmail, true));
-
+        this.emails = emails;
         this.password = password;
         this.bio = bio;
         this.date_of_birth = date_of_birth;
         this.gender = gender;
         this.fitness_level = fitness_level;
-        this.passport_countries = new HashSet<>();
-        for (String name: passport_countries) {
-            addPassportCountry(new PassportCountry(name));
-        }
+        this.passport_countries = passport_countries;
     }
 
     private void addEmail(Email email) {
         this.emails.add(email);
     }
 
+
+    public Set<Email> retrieveEmails() {
+        return emails;
+    }
+
+    public void setEmails(Set<Email> emails) {
+        this.emails = emails;
+    }
 
 
     public String getDate_of_birth() {
@@ -210,6 +217,11 @@ public class Profile {
     }
 
     /** Series of Getters and Getters **/
+
+    public Long getId() {
+        return id;
+    }
+
     public void setDate_of_birth(Calendar date_of_birth) {
         this.date_of_birth = date_of_birth;
     }
@@ -226,9 +238,7 @@ public class Profile {
 
     public void setFitness_level(int fitness_level){this.fitness_level = fitness_level;}
 
-    public Long getId() {
-        return id;
-    }
+
 
     public void setId(Long id) {
         this.id = id;
@@ -266,7 +276,7 @@ public class Profile {
         this.nickname = nickname;
     }
 
-    public Email getPrimaryEmail() {
+    public Email retrievePrimaryEmail() {
         for (Email email: emails) {
             if (email.isPrimary()) {
                 return email;
@@ -274,6 +284,26 @@ public class Profile {
         }
         return null;
     };
+
+    public String getPrimary_email() {
+        for (Email email: emails) {
+            if (email.isPrimary()) {
+                return email.getAddress();
+            }
+        }
+        return null;
+    };
+
+    public Set<String> getAdditional_email() {
+        Set<String> emailStrings = new HashSet<>();
+        for (Email email: emails) {
+            if (!email.isPrimary()) {
+                emailStrings.add(email.getAddress());
+            }
+
+        }
+        return emailStrings;
+    }
 
     public String getPassword() {
         return password;

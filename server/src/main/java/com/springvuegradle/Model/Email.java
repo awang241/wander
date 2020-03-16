@@ -1,5 +1,7 @@
 package com.springvuegradle.Model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import javax.persistence.*;
 
 @Entity
@@ -7,28 +9,37 @@ public class Email {
 
     public Email() {};
 
-    public Email(String address, Long id) {
+    public Email(String address){
         this.address = address;
-
     }
 
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
+    public Email(String address, boolean isPrimary){
+        this.address = address;
+        this.isPrimary = isPrimary;
     }
 
     @Id
     @GeneratedValue
     private long id;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "profile_id")
+    @JsonBackReference
+    private Profile profile;
+
     @Column(unique=true, nullable=false)
     private String address;
 
-
+    @Column(nullable=false)
     private boolean isPrimary = false;
+
+    public Profile getProfile() {
+        return profile;
+    }
+
+    public void setProfile(Profile profile) {
+        this.profile = profile;
+    }
 
     public String getAddress() {
         return address;
@@ -38,14 +49,12 @@ public class Email {
         this.address = email;
     }
 
-
-    public Email(String address){
-        this.address = address;
+    public long getId() {
+        return id;
     }
 
-    public Email(String address, boolean isPrimary){
-        this.address = address;
-        this.isPrimary = isPrimary;
+    public void setId(long id) {
+        this.id = id;
     }
 
     public void setPrimary(boolean isPrimary) {

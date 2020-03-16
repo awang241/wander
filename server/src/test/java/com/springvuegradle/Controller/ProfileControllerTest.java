@@ -3,6 +3,7 @@ package com.springvuegradle.Controller;
 import com.springvuegradle.Model.PassportCountry;
 import com.springvuegradle.Model.Profile;
 
+import com.springvuegradle.Repositories.EmailRepository;
 import com.springvuegradle.Repositories.ProfileRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,6 +30,9 @@ class ProfileControllerTest {
     private ProfileRepository repo;
 
     @Autowired
+    private EmailRepository erepo;
+
+    @Autowired
     private Profile_Controller profileController;
 
     /**
@@ -40,21 +44,21 @@ class ProfileControllerTest {
         int expected_in_repo = 0;
         assertEquals(expected_in_repo, profileController.getRepository().count());
 
-        ResponseEntity<String> response_entity = profileController.createProfile(jimmy, true, repo);
+        ResponseEntity<String> response_entity = profileController.createProfile(jimmy, true, repo, erepo);
         assertEquals(HttpStatus.CREATED, response_entity.getStatusCode());
 
         expected_in_repo = 1;
         assertEquals(expected_in_repo, profileController.getRepository().count());
 
         Profile maurice = createMaurice();
-        ResponseEntity<String> response_entity_new = profileController.createProfile(maurice, true, repo);
+        ResponseEntity<String> response_entity_new = profileController.createProfile(maurice, true, repo, erepo);
         assertEquals(HttpStatus.CREATED, response_entity_new.getStatusCode());
 
         expected_in_repo = 2;
         assertEquals(expected_in_repo, profileController.getRepository().count());
 
         Profile dummyJimmy = createDummyJimmy();
-        ResponseEntity<String> response_entity_dummy = profileController.createProfile(dummyJimmy, true, repo);
+        ResponseEntity<String> response_entity_dummy = profileController.createProfile(dummyJimmy, true, repo, erepo);
         assertEquals(HttpStatus.FORBIDDEN, response_entity_dummy.getStatusCode());
 
         expected_in_repo = 2;
@@ -73,7 +77,7 @@ class ProfileControllerTest {
         int expected_in_repo = 0;
         assertEquals(expected_in_repo, profileController.getRepository().count());
 
-        ResponseEntity<String> response_entity = profileController.createProfile(jimmy, true, repo);
+        ResponseEntity<String> response_entity = profileController.createProfile(jimmy, true, repo, erepo);
         assertEquals(HttpStatus.CREATED, response_entity.getStatusCode());
 
         expected_in_repo = 1;
@@ -105,7 +109,7 @@ class ProfileControllerTest {
         int expected_in_repo = 0;
         assertEquals(expected_in_repo, profileController.getRepository().count());
 
-        ResponseEntity<String> response_entity = profileController.createProfile(dummy_maurice, true, repo);
+        ResponseEntity<String> response_entity = profileController.createProfile(dummy_maurice, true, repo, erepo);
         System.out.println(response_entity.getBody());
         assertEquals(HttpStatus.FORBIDDEN, response_entity.getStatusCode());
         String actual_error_message = response_entity.getBody();
@@ -129,7 +133,7 @@ class ProfileControllerTest {
         int expected_in_repo = 0;
         assertEquals(expected_in_repo, profileController.getRepository().count());
 
-        ResponseEntity<String> response_entity_jimmy = profileController.createProfile(jimmy, true, repo);
+        ResponseEntity<String> response_entity_jimmy = profileController.createProfile(jimmy, true, repo, erepo);
         assertEquals(HttpStatus.CREATED, response_entity_jimmy.getStatusCode());
 
         expected_in_repo = 1;
@@ -137,7 +141,7 @@ class ProfileControllerTest {
 
         Profile dup_jimmy = createJimmy();
 
-        ResponseEntity<String> response_entity_dup_jimmy = profileController.createProfile(dup_jimmy, true, repo);
+        ResponseEntity<String> response_entity_dup_jimmy = profileController.createProfile(dup_jimmy, true, repo, erepo);
         assertEquals(HttpStatus.FORBIDDEN, response_entity_dup_jimmy.getStatusCode());
 
         assertEquals(expected_in_repo, profileController.getRepository().count());

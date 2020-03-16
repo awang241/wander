@@ -4,6 +4,7 @@ import com.springvuegradle.Model.LoginRequest;
 import com.springvuegradle.Model.LoginResponse;
 import com.springvuegradle.Model.LogoutRequest;
 import com.springvuegradle.Model.Profile;
+import com.springvuegradle.Repositories.EmailRepository;
 import com.springvuegradle.Repositories.ProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,6 +25,9 @@ public class LoginController {
 
     @Autowired
     private ProfileRepository profileRepository;
+
+    @Autowired
+    private EmailRepository eRepo;
     private static Map<Long, Long> activeSessions = new HashMap<Long, Long>();
     private long sessionCounter;
 
@@ -43,8 +47,8 @@ public class LoginController {
     public ResponseEntity<LoginResponse> loginUser(@RequestBody LoginRequest request) {
         LoginResponse body = null;
         HttpStatus status = null;
-
-        List<Profile> result = profileRepository.findByEmail(request.getEmail());
+        List<Profile> result = eRepo.findByPrimaryEmail(request.getEmail());
+        System.out.println(result.get(0));
         if (result.size() > 1) {
             status = HttpStatus.INTERNAL_SERVER_ERROR;
         } else if (result.size() == 0) {

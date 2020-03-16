@@ -13,7 +13,7 @@ import java.util.List;
 @RepositoryRestResource
 public interface ProfileRepository extends JpaRepository<Profile, Long> {
 
-    //@Query("SELECT p FROM Profile p JOIN USER_EMAIL u ON p.id = u.profile_id JOIN email e on e.id = u.email_id where e.email = :email")
-    //List<Profile> findByEmails(@Param("email") String email);
+    @Query("SELECT p FROM Profile p JOIN Email e ON p.id = e.profile.id where p = e.profile AND e.address = :email AND e.isPrimary = true")
+    List<Profile> findByPrimaryEmail(@Param("email") String email);
 
 }
