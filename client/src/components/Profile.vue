@@ -223,8 +223,8 @@
                 }
             },
             editProfile(){
-                console.log("editProflie clicked");
-                router.push('EditProfile');
+                console.log("editProfile clicked");
+                router.push('editProfile');
             }
         },
         mounted() {

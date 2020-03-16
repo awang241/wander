@@ -8,8 +8,11 @@
                 <li><a v-on:click="changeToAcitivites">Activities</a></li>
                 <li><a v-on:click="changeToEmail">Email</a></li>
             </ul>
-
+            <div>
+                <a @click="changeToProfile">Back to Profile</a>
+            </div>
         </div>
+
         <div>
             <component v-bind:is="component" />
         </div>
@@ -22,6 +25,7 @@
     import countries from "./countries";
     import activities from "./activities";
     import email from "./email";
+    import router from "../../router";
     export default {
         name: "editProfile",
         components: {
@@ -48,6 +52,9 @@
             },
             changeToEmail() {
                 this.component = email
+            },
+            changeToProfile() {
+                router.push('Profile');
             }
         }
     }

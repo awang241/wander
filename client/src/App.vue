@@ -1,7 +1,7 @@
 <template>
     <div id="app">
         <NavBar/>
-        <editProfile/>
+<!--        <editProfile/>-->
         <div id="nav">
 
         </div>
