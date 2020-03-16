@@ -41,6 +41,8 @@ public class Profile {
             joinColumns = @JoinColumn(name = "profile_id", referencedColumnName = "id"))
     //@JsonBackReference
     private List<Email> emails = new ArrayList<>();
+//    @OneToMany(mappedBy = "user_email")
+//    List<UserEmail> additional_email = null;
 
 
 
