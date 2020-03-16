@@ -2,8 +2,11 @@ package com.springvuegradle.Model;
 
 import com.fasterxml.jackson.annotation.*;
 
+import javax.management.AttributeList;
 import javax.persistence.*;
+import java.sql.Date;
 import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Entity
@@ -49,13 +52,13 @@ public class Profile {
 
     /**
      * Constructor for Profile.
-     * @param firstname
-     * @param lastname
-     * @param middlename
-     * @param nickname
-     * @param primaryEmail
+     * @param firstname first name of user
+     * @param lastname last name of user
+     * @param middlename middle name of user
+     * @param nickname nickname of user
+     * @param primaryEmail users primary email address
      * @param password (encrypted)
-     * @param bio
+     * @param bio other information about the user that they wish to enter
      * @param date_of_birth (xxxx_xx_xx -> year_month_day)
      * @param gender (Male, Female, Other)
      */

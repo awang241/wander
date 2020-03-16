@@ -37,11 +37,13 @@ public class Profile_Controller {
     /**
      * Creates a new Profile object given a set of JSON data and forms a profile object based on the given data, then
      * hashes the password and adds the new data to the database.
+     * @param newProfile contains data relating to the user profile we wish to add to the database.
+     * @param testing set to true when this method is used for testing purposes so that it does not save the profile
+     *                object to the database, only checks if its valid.
      * @return the created profile.
      */
-    @PostMapping("/createprofile")
-    public ResponseEntity<String> createProfile (@RequestBody Profile newProfile) {
-        System.out.println(newProfile);
+
+    public ResponseEntity<String> createProfile (Profile newProfile, boolean testing, ProfileRepository repo) {
         String error = verifyProfile(newProfile);
 
         if (error.equals("")) {
@@ -62,11 +64,21 @@ public class Profile_Controller {
                 }
             }
             newProfile.setPassport_countries(updated);
-            repository.save(newProfile);                      //save profile to database
+            if (!testing) {
+                repository.save(newProfile);
+            } else {
+                repo.save(newProfile);
+            }
+            //save profile to database
             return new ResponseEntity("New profile has been created.", HttpStatus.CREATED);
         } else {
             return new ResponseEntity(error, HttpStatus.FORBIDDEN);
         }
+    }
+
+    @PostMapping("/createprofile")
+    public ResponseEntity<String> createProfile (@RequestBody Profile newProfile) {
+        return createProfile(newProfile, false, null);
     }
 
     private String verifyProfile(Profile newProfile) {
@@ -81,10 +93,6 @@ public class Profile_Controller {
         if (newProfile.getFirstname() == "" ||
                 newProfile.getFirstname() == null) {
             error += "The First Name field is blank.\n";
-        }
-        if (newProfile.getMiddlename() == "" ||
-                newProfile.getMiddlename() == null) {
-            error += "The Middle Name field is blank.\n";
         }
         if (newProfile.getLastname() == "" ||
                 newProfile.getLastname() == null) {
@@ -119,22 +127,9 @@ public class Profile_Controller {
         }
         if (!((newProfile.getGender().equals("male")) ||
                 (newProfile.getGender().equals("female")) ||
-                (newProfile.getGender().equals("non-binary")))) {
+                (newProfile.getGender().equals("non-Binary")))) {
             error += "The Gender field must contain either 'male', 'female' or 'non-binary'.\n";
         }
-
-        /*if (error == "") {
-            // case nothing goes wrong
-            String hashedPassword = hashPassword(newProfile.getPassword());
-            if(hashedPassword != "Hash Failed") {
-                newProfile.setPassword(hashedPassword);
-            }
-            System.out.println(newProfile);
-            repository.save(newProfile);                      //save profile to database
-            return "New profile has been created.";
-        } else {
-            return error;
-        }*/
         return error;
     }
 
@@ -156,22 +151,34 @@ public class Profile_Controller {
 
     /**
      * Retrieves data corresponding to the given profile ID from the database.
+     * @param sessionID session token to make sure user logged in
+     * @param testing if true, will skip the credential check
+     * @param id gets the profile object and if it exists and authorization is approved, it will return the object
      * @return the Profile object corresponding to the given ID.
      */
-    @GetMapping("/getprofile/{id}")
-    public @ResponseBody ResponseEntity<Profile> getProfile(@PathVariable Long id) { //@RequestHeader('authorization') long sessionID
-        //if(loginController.checkCredentials(id.intValue(), sessionID)) {
-        Optional<Profile> profile_with_id = repository.findById(id);
+    public ResponseEntity<Profile> getProfile(Long id, Long sessionID, boolean testing, ProfileRepository repo) {
+        if(testing || loginController.checkCredentials(id.intValue(), sessionID)) {
+            Optional<Profile> profile_with_id = null;
+            if (!testing) {
+                profile_with_id = repository.findById(id);
+            } else {
+                profile_with_id = repo.findById(id);
+            }
             if (profile_with_id.isPresent()) {
-                System.out.println(profile_with_id.get().getPassport_countries().size());
                 return new ResponseEntity(profile_with_id.get(), HttpStatus.OK);
             } else {
                 return new ResponseEntity(null, HttpStatus.NOT_FOUND);
             }
-//        } else {
-//            return new ResponseEntity(null, HttpStatus.UNAUTHORIZED);
-//        }
+        } else {
+            return new ResponseEntity(null, HttpStatus.UNAUTHORIZED);
+        }
     }
+
+    @GetMapping("/getprofile/{id}")
+    public @ResponseBody ResponseEntity<Profile> getProfile(@PathVariable Long id, @RequestHeader("authorization") long sessionID) {
+        return getProfile(id, sessionID, false, null);
+    }
+
 
     /**
      * Takes a Profile object and finds the corresponding profile in the database, then replaces the old profile data
