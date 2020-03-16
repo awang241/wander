@@ -147,7 +147,7 @@ class ProfileControllerTest {
         assertEquals(expected_in_repo, profileController.getRepository().count());
 
         String actual_error_message = response_entity_dup_jimmy.getBody();
-        String expected_error_message = "A profile with this email already exists in the database.\n";
+        String expected_error_message = "An email address you have entered is already in use by another Profile.\n";
         assertEquals(expected_error_message, actual_error_message);
     }
 
@@ -157,30 +157,31 @@ class ProfileControllerTest {
     @BeforeEach
     void setup() {
         repo.deleteAll();
+        erepo.deleteAll();
     }
 
     /* Below are a set of ready-made Profile objects which can be used for various tests. */
 
     static Profile createJimmy() {
-        return new Profile("Jimmy", "Quick", "Jones", "Jim-Jam", "jimjam@hotmail.com", "hushhush",
+        return new Profile(null, "Jimmy", "Quick", "Jones", "Jim-Jam", "jimjam@hotmail.com", new String[]{"additional@email.com"}, "hushhush",
                 "The quick brown fox jumped over the lazy dog.", new GregorianCalendar(1999, Calendar.NOVEMBER,
                 28), "male", 1, new String[]{"New Zealand", "India"});
     }
 
     static Profile createDummyJimmy() {
-        return new Profile("Jimmy", "Quick", "Jones", "Jim-Jam", "jimjam@hotmail.com", "hushhush",
+        return new Profile(null, "Jimmy", "Quick", "Jones", "Jim-Jam", "jimjam@hotmail.com", new String[]{"additional@email.com"}, "hushhush",
                 "The quick brown fox jumped over the lazy dog.", new GregorianCalendar(1999, Calendar.NOVEMBER,
                 28), "male", 1, new String[]{"Cowabunga"});
     }
 
     static Profile createMaurice() {
-        return new Profile("Maurice", "Benson", "Jack", "Jacky", "jacky@google.com", "jacky'sSecuredPwd",
+        return new Profile(null, "Maurice", "Benson", "Jack", "Jacky", "jacky@google.com", new String[]{"additionaldoda@email.com"}, "jacky'sSecuredPwd",
                 "Jacky loves to ride his bike on crazy mountains.", new GregorianCalendar(1985, Calendar.DECEMBER,
                 20), "male", 1, new String[]{"New Zealand", "India"});
     }
 
     static Profile createDummyMaurice() {
-        return new Profile("", "", "Jack", "Jacky", "", "hush",
+        return new Profile(null, "", "", "Jack", "Jacky", "", new String[]{"additionaldoda@email.com"}, "hush",
                 "Jacky loves to ride his bike on crazy mountains.", new GregorianCalendar(1985, Calendar.DECEMBER,
                 20), "Male", 10, new String[]{"New Zealand", "India"});
     }

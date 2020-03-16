@@ -87,6 +87,8 @@ public class Profile {
         this.middlename = middlename;
         this.nickname = nickname;
 
+        this.emails = new HashSet<>();
+
         addEmail(new Email(primaryEmail, true));
 
         //this.additionalEmails = new List<Email>();
@@ -103,30 +105,6 @@ public class Profile {
         for (String name: passport_countries) {
             addPassportCountry(new PassportCountry(name));
         }
-    }
-
-    public Profile(String firstname,
-                   String lastname,
-                   String middlename,
-                   String nickname,
-                   Set<Email> emails,
-                   String password,
-                   String bio,
-                   Calendar date_of_birth,
-                   String gender,
-                   int fitness_level,
-                   Set<PassportCountry> passport_countries) {
-        this.firstname = firstname;
-        this.lastname = lastname;
-        this.middlename = middlename;
-        this.nickname = nickname;
-        this.emails = emails;
-        this.password = password;
-        this.bio = bio;
-        this.date_of_birth = date_of_birth;
-        this.gender = gender;
-        this.fitness_level = fitness_level;
-        this.passport_countries = passport_countries;
     }
 
     private void addEmail(Email email) {
