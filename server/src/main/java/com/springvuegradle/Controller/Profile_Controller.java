@@ -2,6 +2,7 @@ package com.springvuegradle.Controller;
 
 import com.springvuegradle.Model.PassportCountry;
 import com.springvuegradle.Model.Profile;
+import com.springvuegradle.Model.UserEmail;
 import com.springvuegradle.Repositories.PassportCountryRepository;
 import com.springvuegradle.Utilities.ValidationHelper;
 import org.springframework.beans.factory.annotation.Autowired;
