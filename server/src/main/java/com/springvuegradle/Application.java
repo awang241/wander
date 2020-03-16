@@ -3,6 +3,7 @@ package com.springvuegradle;
 import com.springvuegradle.Repositories.PassportCountryRepository;
 import com.springvuegradle.Repositories.ProfileRepository;
 import com.springvuegradle.Utilities.ValidationHelper;
+import com.sun.xml.bind.v2.runtime.output.SAXOutput;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.SpringApplication;
@@ -28,6 +29,7 @@ public class Application {
     CommandLineRunner init(ProfileRepository profileRepository, PassportCountryRepository passportCountryRepository) {
         return args -> {
             ValidationHelper.updatePassportCountryRepository(passportCountryRepository, profileRepository);
+            System.out.println("-----Program should be running now-----");
         };
     }
 

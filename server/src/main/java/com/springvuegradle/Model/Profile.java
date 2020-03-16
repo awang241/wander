@@ -32,8 +32,8 @@ public class Profile {
             joinColumns = @JoinColumn(name = "profile_id", referencedColumnName = "id"))
     private Set<PassportCountry> passport_countries;
 
-    @OneToMany(mappedBy = "user_email")
-    List<UserEmail> additional_email = null;
+//    @OneToMany(mappedBy = "user_email")
+//    List<UserEmail> additional_email = null;
 
 
 
