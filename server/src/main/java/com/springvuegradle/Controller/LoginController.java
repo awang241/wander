@@ -53,7 +53,10 @@ public class LoginController {
             Profile profile = result.get(0);
             String hashedPassword = Profile_Controller.hashPassword(request.getPassword());
             if (activeSessions.containsKey(profile.getId())) {
-                status = HttpStatus.FORBIDDEN;
+                status = HttpStatus.OK;
+                activeSessions.remove(result.get(0).getId());
+                body = new LoginResponse(++sessionCounter, result.get(0).getId());
+                activeSessions.put(profile.getId(), sessionCounter);
             } else if (!result.get(0).getPassword().equals(hashedPassword)) {
                 status = HttpStatus.UNAUTHORIZED;
             } else {
