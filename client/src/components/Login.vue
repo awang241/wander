@@ -4,21 +4,21 @@
             <section>
                 <form action="" method="post" class="form-register">
                     <h1 class="title">Login</h1>
-                        <b-field label="Email">
-                            <b-input class="help" placeholder="Email"
-                                     v-model="email"
-                                     type="email"
-                                     maxlength="30">
-                            </b-input>
-                        </b-field>
+                    <b-field label="Email">
+                        <b-input class="help" placeholder="Email"
+                                 v-model="email"
+                                 type="email"
+                                 maxlength="40" required>
+                        </b-input>
+                    </b-field>
 
-                        <b-field label="Password">
-                            <b-input placeholder="Password"
-                                     v-model="password"
-                                     type="password"
-                                     maxlength="20">
-                            </b-input>
-                        </b-field>
+                    <b-field label="Password">
+                        <b-input placeholder="Password"
+                                 v-model="password"
+                                 type="password"
+                                 maxlength="20" required>
+                        </b-input>
+                    </b-field>
                     <b-button @click="login"
                               type="is-info">
                         Login
@@ -54,7 +54,12 @@
 
                     router.push('Profile')
                 }))
-                .catch(error => window.alert(error.response.data))
+                    .catch(error => this.$buefy.toast.open({
+                        duration:5500,
+                        message: error.response.data,
+                        type: 'is-danger',
+                        position: 'is-top'
+                    }))
             }
         }
     }
