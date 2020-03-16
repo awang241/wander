@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.*;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -59,5 +60,19 @@ public class PassportCountry {
      */
     public void addProfile(Profile profile) {
         profiles.add(profile);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PassportCountry country = (PassportCountry) o;
+        return countryName.equals(country.countryName) &&
+                numericCode.equals(country.numericCode);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(countryName, numericCode);
     }
 }

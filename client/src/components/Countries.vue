@@ -16,7 +16,3 @@
         props: ["chosenCountries"]
     }
 </script>
-
-<style scoped>
-
-</style>

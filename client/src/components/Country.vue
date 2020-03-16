@@ -1,7 +1,6 @@
 <template>
     <div class="country">
         <p>{{country}}</p>
-<!--        <button @click="$emit('deleteCountry', country)" class="btn-delete">x</button>-->
         <b-button type="is-danger" size="is-small" @click="$emit('deleteCountry', country)">X</b-button>
     </div>
 </template>
@@ -14,7 +13,6 @@
 </script>
 
 <style scoped>
-
     .country{
         background: #f4f4f4;
         padding: 10px;

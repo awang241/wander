@@ -36,20 +36,27 @@
 
 
 <script>
-    import authenticationStore  from "../store/authentication";
+    import authenticationStore  from "../store/authenticationStore";
     import router from "../router";
+    import api from "../Api";
 
     export default {
         name: "NavBar",
         data: () => {
             return {
-                authenticationStore: authenticationStore.data
+                authenticationStore: authenticationStore.data,
             }
         },
         methods: {
             logout(){
-                router.push('Login')
+                api.logout({userId: authenticationStore.methods.getUserId()}, authenticationStore.methods.getSessionId())
+                    .catch(error => window.alert(error.response.data))
+
+                //User is now logged out in authentication store
+                authenticationStore.methods.setSessionId(0)
+                authenticationStore.methods.setUserId(0)
                 authenticationStore.methods.setAuthenticated(false)
+                router.push('Login')
             }
         }
     }
