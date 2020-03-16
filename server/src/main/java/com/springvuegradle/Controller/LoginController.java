@@ -10,11 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.persistence.PersistenceException;
-import javax.xml.bind.DatatypeConverter;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,39 +31,42 @@ public class LoginController {
         sessionCounter = 0;
     }
 
-//    /**
-//     * Attempts to log in a user given a login request. If the credentials are correct, the user is logged
-//     * in and the session is recorded; otherwise, returns an error code.
-//     * @param request the user's email and password mapped from the request body onto a LoginRequest object
-//     * @return a response containing either the user's profile ID and session ID upon a successful login, or an
-//     * appropriate error code and status otherwise.
-//     */
-//    @PostMapping("/login")
-//    @ResponseBody
-//    public ResponseEntity<LoginResponse> loginUser(@RequestBody LoginRequest request) {
-//        LoginResponse body = null;
-//        HttpStatus status = null;
-//
-//        List<Profile> result = profileRepository.findByEmails(request.getEmail());
-//        if (result.size() > 1) {
-//            status = HttpStatus.INTERNAL_SERVER_ERROR;
-//        } else if (result.size() == 0) {
-//            status = HttpStatus.UNAUTHORIZED;
-//        } else {
-//            Profile profile = result.get(0);
-//            String hashedPassword = Profile_Controller.hashPassword(request.getPassword());
-//            if (activeSessions.containsKey(profile.getId())) {
-//                status = HttpStatus.FORBIDDEN;
-//            } else if (!result.get(0).getPassword().equals(hashedPassword)) {
-//                status = HttpStatus.UNAUTHORIZED;
-//            } else {
-//                body = new LoginResponse(++sessionCounter, result.get(0).getId());
-//                status = HttpStatus.OK;
-//                activeSessions.put(profile.getId(), sessionCounter);
-//            }
-//        }
-//        return new ResponseEntity<>(body, status);
-//    }
+    /**
+     * Attempts to log in a user given a login request. If the credentials are correct, the user is logged
+     * in and the session is recorded; otherwise, returns an error code.
+     * @param request the user's email and password mapped from the request body onto a LoginRequest object
+     * @return a response containing either the user's profile ID and session ID upon a successful login, or an
+     * appropriate error code and status otherwise.
+     */
+    @PostMapping("/login")
+    @ResponseBody
+    public ResponseEntity<LoginResponse> loginUser(@RequestBody LoginRequest request) {
+        LoginResponse body = null;
+        HttpStatus status = null;
+
+        List<Profile> result = profileRepository.findByEmail(request.getEmail());
+        if (result.size() > 1) {
+            status = HttpStatus.INTERNAL_SERVER_ERROR;
+        } else if (result.size() == 0) {
+            status = HttpStatus.UNAUTHORIZED;
+        } else {
+            Profile profile = result.get(0);
+            String hashedPassword = Profile_Controller.hashPassword(request.getPassword());
+            if (activeSessions.containsKey(profile.getId())) {
+                status = HttpStatus.OK;
+                activeSessions.remove(result.get(0).getId());
+                body = new LoginResponse(++sessionCounter, result.get(0).getId());
+                activeSessions.put(profile.getId(), sessionCounter);
+            } else if (!result.get(0).getPassword().equals(hashedPassword)) {
+                status = HttpStatus.UNAUTHORIZED;
+            } else {
+                body = new LoginResponse(++sessionCounter, result.get(0).getId());
+                status = HttpStatus.OK;
+                activeSessions.put(profile.getId(), sessionCounter);
+            }
+        }
+        return new ResponseEntity<>(body, status);
+    }
 
     /**
      * Attempts to log out the user given a HTTP logout request. Only succeeds if the user's credentials are correct.

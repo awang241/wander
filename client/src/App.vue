@@ -1,6 +1,7 @@
 <template>
     <div id="app">
         <NavBar/>
+<!--        <editProfile/>-->
         <div id="nav">
 
         </div>
@@ -10,15 +11,16 @@
 
 <script>
   import NavBar from './components/NavBar';
+  import editProfile from'./components/editProfileComponents/editProfile'
 
   const app = {
       name: 'app',
       components: {
-          NavBar
+          NavBar, editProfile
       },
       data: () => {
           return {
-              NavBar
+              NavBar, editProfile
           }
       },
   }
