@@ -10,6 +10,7 @@
                     <h2 class="subtitle is-3">
                         {{ nickName }}
                     </h2>
+                    <button @click="editProfile">Edit Profile</button>
                 </div>
             </div>
         </section>
@@ -51,58 +52,58 @@
 
             <div class="container containerColor has-same-height is-gapless">
                 <div class="column">
-                <!-- Profile -->
-                <div class="card">
-                    <div class="card-content">
-                        <h3 class="title is-4">Profile</h3>
+                    <!-- Profile -->
+                    <div class="card">
+                        <div class="card-content">
+                            <h3 class="title is-4">Profile</h3>
 
-                        <div class="content">
-                            <table class="table-profile">
-                                <tr>
-                                    <th colspan="1"></th>
-                                    <th colspan="2"></th>
-                                </tr>
-                                <tr>
-                                    <td>Gender:</td>
-                                    <td>{{ gender }}</td>
-                                </tr>
-                                <tr>
-                                    <td>Birthday:</td>
-                                    <td>{{ dateOfBirth }}</td>
-                                </tr>
-                                <tr>
-                                    <td>Email:</td>
-                                    <td>{{ email }}</td>
-                                </tr>
-                            </table>
+                            <div class="content">
+                                <table class="table-profile">
+                                    <tr>
+                                        <th colspan="1"></th>
+                                        <th colspan="2"></th>
+                                    </tr>
+                                    <tr>
+                                        <td>Gender:</td>
+                                        <td>{{ gender }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Birthday:</td>
+                                        <td>{{ dateOfBirth }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Email:</td>
+                                        <td>{{ email }}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <br>
                         </div>
-                        <br>
                     </div>
                 </div>
-            </div>
 
-            <div class="column">
-                <!-- Fitness Level-->
-                <div class="card">
-                    <div class="card-content skills-content">
-                        <h3 class="title is-4">Fitness Level</h3>
-                        <div class="content">
-                            <article class="media">
-                                <div class="media-content">
-                                    <div class="content">
-                                        <p>
-                                            <strong>{{ fitness_statement }}</strong>
-                                            <br>
-                                            <b-progress type="is-primary" :value=this.fitness_level max="5"></b-progress>
-                                        </p>
+                <div class="column">
+                    <!-- Fitness Level-->
+                    <div class="card">
+                        <div class="card-content skills-content">
+                            <h3 class="title is-4">Fitness Level</h3>
+                            <div class="content">
+                                <article class="media">
+                                    <div class="media-content">
+                                        <div class="content">
+                                            <p>
+                                                <strong>{{ fitness_statement }}</strong>
+                                                <br>
+                                                <b-progress type="is-primary" :value=this.fitness_level max="5"></b-progress>
+                                            </p>
+                                        </div>
                                     </div>
-                                </div>
-                            </article>
+                                </article>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
         </section>
         <!-- Activities -->
         <section class="section" id="services">
@@ -163,9 +164,9 @@
     </div>
 
 
-<!--            <li v-for="(value, key) in currentUser" v-bind:key="key">-->
-<!--                {{key}} : {{value}}-->
-<!--            </li>-->
+    <!--            <li v-for="(value, key) in currentUser" v-bind:key="key">-->
+    <!--                {{key}} : {{value}}-->
+    <!--            </li>-->
 
 
 
@@ -179,6 +180,7 @@
     import AddCountry from "./AddCountry";
     import Countries from "./Countries";
     import authenticationStore from "../store/authenticationStore";
+    import router from "../router";
 
     export default {
         name: "Profile",
@@ -219,6 +221,10 @@
                 } else {
                     this.showCountryInListWarning()
                 }
+            },
+            editProfile(){
+                console.log("editProflie clicked");
+                router.push('EditProfile');
             }
         },
         mounted() {
@@ -257,7 +263,7 @@
                             this.fitness_statement = "Beginner: I am not active at all";
                     }
                 })
-            .catch(error => console.log(error));
+                .catch(error => console.log(error));
             // axios.get("https://f91246de-53d1-425e-9b1b-5524c2b62a0e.mock.pstmn.io/getusers")
             //     .then((response) => {
             //         let rows =  response.data['users']
