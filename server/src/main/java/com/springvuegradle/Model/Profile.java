@@ -100,6 +100,36 @@ public class Profile {
         }
     }
 
+    @JsonCreator
+    public Profile(@JsonProperty("firstname") String firstname,
+                   @JsonProperty("lastname") String lastname,
+                   @JsonProperty("middlename") String middlename,
+                   @JsonProperty("nickname") String nickname,
+                   @JsonProperty("primary_email") String primaryEmail,
+                   @JsonProperty("password") String password,
+                   @JsonProperty("bio") String bio,
+                   @JsonProperty("date_of_birth") Calendar date_of_birth,
+                   @JsonProperty("gender") String gender,
+                   @JsonProperty("fitness_level") int fitness_level,
+                   @JsonProperty("passport_countries") String[] passport_countries) {
+        this.firstname = firstname;
+        this.lastname = lastname;
+        this.middlename = middlename;
+        this.nickname = nickname;
+
+        addEmail(new Email(primaryEmail, true));
+
+        this.password = password;
+        this.bio = bio;
+        this.date_of_birth = date_of_birth;
+        this.gender = gender;
+        this.fitness_level = fitness_level;
+        this.passport_countries = new HashSet<>();
+        for (String name: passport_countries) {
+            addPassportCountry(new PassportCountry(name));
+        }
+    }
+
     private void addEmail(Email email) {
         this.emails.add(email);
     }
