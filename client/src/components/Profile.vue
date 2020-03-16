@@ -157,7 +157,7 @@
                 <div class="box">
                     <h3 class="title is-4">Add a country</h3>
                     <AddCountry v-bind:possibleCountries="possibleCountries" v-bind:chosenCountries="chosenCountries" v-on:addCountry="addCountry"></AddCountry>
-                    <countries v-bind:chosenCountries="chosenCountries" v-on:deleteCountry="deleteCountry"></countries>
+                    <countries v-bind:chosenItems="chosenCountries" v-on:deleteListItem="deleteCountry"></countries>
                 </div>
             </div>
         </section>
@@ -178,7 +178,7 @@
     import axios from 'axios'
     import api from '../Api';
     import AddCountry from "./AddCountry";
-    import Countries from "./Countries";
+    import Countries from "./List";
     import authenticationStore from "../store/authenticationStore";
     import router from "../router";
 

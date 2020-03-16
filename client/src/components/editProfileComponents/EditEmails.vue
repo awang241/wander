@@ -30,21 +30,16 @@
             </b-select>
         </b-field>
 
-        <countries v-bind:chosenCountries="optionalEmails" v-on:deleteCountry="deleteEmail"></countries>
-
-
-
+        <list v-bind:chosenItems="optionalEmails" v-on:deleteListItem="deleteEmail"></list>
     </div>
-
-
 </template>
 
 <script>
 
-    import Countries from "./Countries";
+    import List from "../List";
     export default {
         name: "EditEmails",
-        components: {Countries},
+        components: {List},
         methods: {
             addEmail() {
                 if(this.optionalEmails.length > 3){

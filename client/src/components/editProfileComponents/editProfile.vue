@@ -24,7 +24,7 @@
     import changePassword from "./changePassword";
     import countries from "./countries";
     import activities from "./activities";
-    import email from "./email";
+    import editEmails from "./EditEmails";
     import router from "../../router";
     export default {
         name: "editProfile",
@@ -51,7 +51,7 @@
                 this.component = activities
             },
             changeToEmail() {
-                this.component = email
+                this.component = editEmails
             },
             changeToProfile() {
                 router.push('Profile');
