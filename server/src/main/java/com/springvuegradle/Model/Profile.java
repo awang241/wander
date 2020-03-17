@@ -2,8 +2,11 @@ package com.springvuegradle.Model;
 
 import com.fasterxml.jackson.annotation.*;
 
+import javax.management.AttributeList;
 import javax.persistence.*;
+import java.sql.Date;
 import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Entity
@@ -32,12 +35,18 @@ public class Profile {
     private Set<PassportCountry> passport_countries;
 
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinTable(name = "profile_email",
-            inverseJoinColumns = @JoinColumn(name = "email_id", referencedColumnName = "id"),
-            joinColumns = @JoinColumn(name = "profile_id", referencedColumnName = "id"))
+//    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+//    @JoinTable(name = "profile_email",
+//            inverseJoinColumns = @JoinColumn(name = "email_id", referencedColumnName = "id"),
+//            joinColumns = @JoinColumn(name = "profile_id", referencedColumnName = "id"))
     //@JsonBackReference
-    private List<Email> emails = new ArrayList<>();
+
+
+
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "profile")
+    private Set<Email> emails;
+//    @OneToMany(mappedBy = "user_email")
+//    List<UserEmail> additional_email = null;
 
 
 
@@ -49,18 +58,19 @@ public class Profile {
 
     /**
      * Constructor for Profile.
-     * @param firstname
-     * @param lastname
-     * @param middlename
-     * @param nickname
-     * @param primaryEmail
+     * @param firstname first name of user
+     * @param lastname last name of user
+     * @param middlename middle name of user
+     * @param nickname nickname of user
+     * @param primaryEmail users primary email address
      * @param password (encrypted)
-     * @param bio
+     * @param bio other information about the user that they wish to enter
      * @param date_of_birth (xxxx_xx_xx -> year_month_day)
      * @param gender (Male, Female, Other)
      */
     @JsonCreator
-    public Profile(@JsonProperty("firstname") String firstname,
+    public Profile(@JsonProperty("id") Long id,
+                   @JsonProperty("firstname") String firstname,
                    @JsonProperty("lastname") String lastname,
                    @JsonProperty("middlename") String middlename,
                    @JsonProperty("nickname") String nickname,
@@ -76,6 +86,8 @@ public class Profile {
         this.lastname = lastname;
         this.middlename = middlename;
         this.nickname = nickname;
+
+        this.emails = new HashSet<>();
 
         addEmail(new Email(primaryEmail, true));
 
@@ -99,6 +111,14 @@ public class Profile {
         this.emails.add(email);
     }
 
+
+    public Set<Email> retrieveEmails() {
+        return emails;
+    }
+
+    public void setEmails(Set<Email> emails) {
+        this.emails = emails;
+    }
 
 
     public String getDate_of_birth() {
@@ -175,6 +195,11 @@ public class Profile {
     }
 
     /** Series of Getters and Getters **/
+
+    public Long getId() {
+        return id;
+    }
+
     public void setDate_of_birth(Calendar date_of_birth) {
         this.date_of_birth = date_of_birth;
     }
@@ -191,9 +216,7 @@ public class Profile {
 
     public void setFitness_level(int fitness_level){this.fitness_level = fitness_level;}
 
-    public Long getId() {
-        return id;
-    }
+
 
     public void setId(Long id) {
         this.id = id;
@@ -231,7 +254,7 @@ public class Profile {
         this.nickname = nickname;
     }
 
-    public Email getPrimaryEmail() {
+    public Email retrievePrimaryEmail() {
         for (Email email: emails) {
             if (email.isPrimary()) {
                 return email;
@@ -239,6 +262,26 @@ public class Profile {
         }
         return null;
     };
+
+    public String getPrimary_email() {
+        for (Email email: emails) {
+            if (email.isPrimary()) {
+                return email.getAddress();
+            }
+        }
+        return null;
+    };
+
+    public Set<String> getAdditional_email() {
+        Set<String> emailStrings = new HashSet<>();
+        for (Email email: emails) {
+            if (!email.isPrimary()) {
+                emailStrings.add(email.getAddress());
+            }
+
+        }
+        return emailStrings;
+    }
 
     public String getPassword() {
         return password;
