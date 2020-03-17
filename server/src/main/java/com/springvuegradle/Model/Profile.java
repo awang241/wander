@@ -107,8 +107,45 @@ public class Profile {
         }
     }
 
-    private void addEmail(Email email) {
-        this.emails.add(email);
+    /**
+     * Adds the email to the list. Does not check repository to see if the email address is alredy in use. Trying to keep
+     * db related queries in Controller classes. Though, it does check if the email is already in the list of emails as
+     * well as if the list of emails is already at the max capacity (5).
+     * @param email
+     * @return
+     */
+    private boolean addEmail(Email email) {
+        if (emails.contains(email) || emails.size() >= 5) {
+            return false;
+        } else {
+            email.setProfile(this);
+            this.emails.add(email);
+            return true;
+        }
+    }
+
+    private boolean removeProfile(Email email) {
+        for (Email currentEmail: emails) {
+            if (currentEmail.getAddress() == email.getAddress() && !currentEmail.isPrimary()) {
+                emails.remove(currentEmail);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Changes the primary email to the given email object given that is already in the set of emails.
+     * @param newPrimary new Email object already in list we want to set primary.
+     */
+    private void changePrimary(Email newPrimary) {
+        for (Email currentEmail: emails) {
+            if (currentEmail.getAddress() == newPrimary.getAddress()) {
+                currentEmail.setPrimary(true);
+            } else {
+                currentEmail.setPrimary(false);
+            }
+        }
     }
 
 
