@@ -1,5 +1,6 @@
 package com.springvuegradle.Controller;
 
+import com.springvuegradle.Model.EmailUpdateRequest;
 import com.springvuegradle.Model.PassportCountry;
 import com.springvuegradle.Model.Profile;
 import com.springvuegradle.Model.Email;
@@ -290,13 +291,22 @@ public class Profile_Controller {
     }
 
     @PostMapping("/editprofile/{id}/emails")
-    public ResponseEntity<String> addEmails (@RequestBody Email newEmails, @PathVariable Long id, @RequestHeader("authorization") long sessionID){
+    public ResponseEntity<String> editEmails (@RequestBody EmailUpdateRequest newEmails, @PathVariable Long id, @RequestHeader("authorization") long sessionID){
         if(!loginController.checkCredentials(id.intValue(), sessionID)){
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
         Profile db_profile = repository.findById(id).get();
-//        ArrayList<String> additionalEmails = newEmails.getAdditionalEmails();
-//        db_profile.addEmails(additionalEmails);
+        String primaryEmail = newEmails.getPrimaryEmail();
+        if(primaryEmail != null){
+            Email newPrimaryEmail = new Email(primaryEmail, true);
+            newPrimaryEmail.setProfile(db_profile);
+        }
+
+        for(String optionalEmail : newEmails.getOptionalEmails()){
+            Email newOptionalEmail = new Email(optionalEmail, false);
+            newOptionalEmail.setProfile(db_profile);
+        }
+
         return new ResponseEntity<>(HttpStatus.OK);
 
     }
