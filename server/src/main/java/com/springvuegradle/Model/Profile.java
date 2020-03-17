@@ -21,7 +21,7 @@ public class Profile {
     private String nickname;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "profile")
-    private Set<Email> emails;
+    private Set<Email> emails = new HashSet<>();
 
     private String password;
     private String bio;
@@ -74,10 +74,10 @@ public class Profile {
 
         this.emails = new HashSet<>();
 
-        addEmail(new Email(primaryEmail, true));
+        System.out.println(addEmail(new Email(primaryEmail, true)));
 
         for (String email: additionalEmails) {
-            addEmail(new Email(email));
+            System.out.println(addEmail(new Email(email)));
         }
 
         this.password = password;
@@ -105,7 +105,7 @@ public class Profile {
                 alreadyInEmails = true;
             }
         }
-        if (!alreadyInEmails || emails.size() >= 5) {
+        if (alreadyInEmails || emails.size() >= 5) {
             return false;
         } else {
             email.setProfile(this);

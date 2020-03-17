@@ -47,7 +47,7 @@ public class LoginController {
     public ResponseEntity<LoginResponse> loginUser(@RequestBody LoginRequest request) {
         LoginResponse body = null;
         HttpStatus status = null;
-        List<Profile> result = eRepo.findByPrimaryEmail(request.getEmail());
+        List<Profile> result = (List<Profile>) eRepo.findByPrimaryEmail(request.getEmail());
         System.out.println(result.get(0));
         if (result.size() > 1) {
             status = HttpStatus.INTERNAL_SERVER_ERROR;

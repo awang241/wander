@@ -44,26 +44,25 @@ class ProfileControllerTest {
         int expected_in_repo = 0;
         assertEquals(expected_in_repo, profileController.getRepository().count());
 
-        ResponseEntity<String> response_entity = profileController.createProfile(jimmy, true, repo, erepo);
+        ResponseEntity<String> response_entity = profileController.createProfile(jimmy);
         assertEquals(HttpStatus.CREATED, response_entity.getStatusCode());
 
         expected_in_repo = 1;
-        assertEquals(expected_in_repo, profileController.getRepository().count());
+        assertEquals(expected_in_repo, repo.count());
 
         Profile maurice = createMaurice();
-        ResponseEntity<String> response_entity_new = profileController.createProfile(maurice, true, repo, erepo);
+        ResponseEntity<String> response_entity_new = profileController.createProfile(maurice);
         assertEquals(HttpStatus.CREATED, response_entity_new.getStatusCode());
 
         expected_in_repo = 2;
-        assertEquals(expected_in_repo, profileController.getRepository().count());
+        assertEquals(expected_in_repo, repo.count());
 
         Profile dummyJimmy = createDummyJimmy();
-        ResponseEntity<String> response_entity_dummy = profileController.createProfile(dummyJimmy, true, repo, erepo);
+        ResponseEntity<String> response_entity_dummy = profileController.createProfile(dummyJimmy);
         assertEquals(HttpStatus.FORBIDDEN, response_entity_dummy.getStatusCode());
 
         expected_in_repo = 2;
-        assertEquals(expected_in_repo, profileController.getRepository().count());
-        assertEquals(expected_in_repo, profileController.getRepository().count());
+        assertEquals(expected_in_repo, repo.count());
     }
 
     /**
@@ -75,17 +74,17 @@ class ProfileControllerTest {
         Profile jimmy = createJimmy();
 
         int expected_in_repo = 0;
-        assertEquals(expected_in_repo, profileController.getRepository().count());
+        assertEquals(expected_in_repo, repo.count());
 
-        ResponseEntity<String> response_entity = profileController.createProfile(jimmy, true, repo, erepo);
+        ResponseEntity<String> response_entity = profileController.createProfile(jimmy);
         assertEquals(HttpStatus.CREATED, response_entity.getStatusCode());
 
         expected_in_repo = 1;
-        assertEquals(expected_in_repo, profileController.getRepository().count());
+        assertEquals(expected_in_repo, repo.count());
 
-        long expected_id = profileController.getRepository().findAll().get(0).getId();
+        long expected_id = repo.findAll().get(0).getId();
 
-        ResponseEntity<Profile> response_entity_new = profileController.getProfile(expected_id, null, true, repo);
+        ResponseEntity<Profile> response_entity_new = profileController.getProfile(expected_id, null, true);
         assertEquals(HttpStatus.OK, response_entity_new.getStatusCode());
         Profile db_jimmy = response_entity_new.getBody();
         assertTrue(jimmy.equals(db_jimmy));
@@ -94,8 +93,8 @@ class ProfileControllerTest {
     @Test
     void getProfileDoesNotExistTest() {
         int expected_in_repo = 0;
-        assertEquals(expected_in_repo, profileController.getRepository().count());
-        ResponseEntity<Profile> response_entity = profileController.getProfile((long) 1, null, true, repo);
+        assertEquals(expected_in_repo, repo.count());
+        ResponseEntity<Profile> response_entity = profileController.getProfile((long) 1, null, true);
         assertEquals(HttpStatus.NOT_FOUND, response_entity.getStatusCode());
     }
 
@@ -109,7 +108,7 @@ class ProfileControllerTest {
         int expected_in_repo = 0;
         assertEquals(expected_in_repo, profileController.getRepository().count());
 
-        ResponseEntity<String> response_entity = profileController.createProfile(dummy_maurice, true, repo, erepo);
+        ResponseEntity<String> response_entity = profileController.createProfile(dummy_maurice);
         System.out.println(response_entity.getBody());
         assertEquals(HttpStatus.FORBIDDEN, response_entity.getStatusCode());
         String actual_error_message = response_entity.getBody();
@@ -120,7 +119,7 @@ class ProfileControllerTest {
                 "The fitness level isn't valid.\n" +
                 "The Gender field must contain either 'male', 'female' or 'non-binary'.\n";
         assertEquals(expected_error_message, actual_error_message);
-        assertEquals(expected_in_repo, profileController.getRepository().count());
+        assertEquals(expected_in_repo, repo.count());
     }
 
     /**
@@ -131,20 +130,20 @@ class ProfileControllerTest {
     void createProfileExistingEmailTest() {
         Profile jimmy = createJimmy();
         int expected_in_repo = 0;
-        assertEquals(expected_in_repo, profileController.getRepository().count());
+        assertEquals(expected_in_repo, repo.count());
 
-        ResponseEntity<String> response_entity_jimmy = profileController.createProfile(jimmy, true, repo, erepo);
+        ResponseEntity<String> response_entity_jimmy = profileController.createProfile(jimmy);
         assertEquals(HttpStatus.CREATED, response_entity_jimmy.getStatusCode());
 
         expected_in_repo = 1;
-        assertEquals(expected_in_repo, profileController.getRepository().count());
+        assertEquals(expected_in_repo, repo.count());
 
         Profile dup_jimmy = createJimmy();
 
-        ResponseEntity<String> response_entity_dup_jimmy = profileController.createProfile(dup_jimmy, true, repo, erepo);
+        ResponseEntity<String> response_entity_dup_jimmy = profileController.createProfile(dup_jimmy);
         assertEquals(HttpStatus.FORBIDDEN, response_entity_dup_jimmy.getStatusCode());
 
-        assertEquals(expected_in_repo, profileController.getRepository().count());
+        assertEquals(expected_in_repo, repo.count());
 
         String actual_error_message = response_entity_dup_jimmy.getBody();
         String expected_error_message = "An email address you have entered is already in use by another Profile.\n";

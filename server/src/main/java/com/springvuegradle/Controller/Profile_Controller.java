@@ -36,18 +36,16 @@ public class Profile_Controller {
     @Autowired
     private EmailRepository eRepository;
     private LoginController loginController = new LoginController();
-    private ValidationHelper helper = new ValidationHelper();
 
     /**
      * Creates a new Profile object given a set of JSON data and forms a profile object based on the given data, then
      * hashes the password and adds the new data to the database.
      * @param newProfile contains data relating to the user profile we wish to add to the database.
-     * @param testing set to true when this method is used for testing purposes so that it does not save the profile
-     *                object to the database, only checks if its valid.
      * @return the created profile.
      */
 
-    public ResponseEntity<String> createProfile (Profile newProfile, boolean testing, ProfileRepository repo, EmailRepository eRepo) {
+    @PostMapping("/createprofile")
+    public ResponseEntity<String> createProfile (@RequestBody Profile newProfile) {
         String error = verifyProfile(newProfile);
 
         if (error.equals("")) {
@@ -68,16 +66,8 @@ public class Profile_Controller {
                 }
             }
             newProfile.setPassport_countries(updated);
-            if (!testing) {
-                repository.save(newProfile);
-                saveEmails(newProfile, false, null);
-
-            } else {
-                repo.save(newProfile);
-                saveEmails(newProfile, true, eRepo);
-            }
-
-
+            repository.save(newProfile);
+            saveEmails(newProfile);
             //save profile to database
             return new ResponseEntity("New profile has been created.", HttpStatus.CREATED);
         } else {
@@ -85,23 +75,12 @@ public class Profile_Controller {
         }
     }
 
-    private void saveEmails(Profile newProfile, boolean testing, EmailRepository eRepo) {
+    private void saveEmails(Profile newProfile) {
         Set<Email> emailsFromNewProfile = newProfile.retrieveEmails();
         for (Email email: emailsFromNewProfile) {
-            if (testing) {
-                email.setProfile(newProfile);
-                eRepo.save(email);
-            } else {
-                email.setProfile(newProfile);
-                eRepository.save(email);
-            }
-
+            email.setProfile(newProfile);
+            eRepository.save(email);
         }
-    }
-
-    @PostMapping("/createprofile")
-    public ResponseEntity<String> createProfile (@RequestBody Profile newProfile) {
-        return createProfile(newProfile, false, null, null);
     }
 
     private String verifyProfile(Profile newProfile) {
@@ -242,14 +221,10 @@ public class Profile_Controller {
      * @param id gets the profile object and if it exists and authorization is approved, it will return the object
      * @return the Profile object corresponding to the given ID.
      */
-    public ResponseEntity<Profile> getProfile(Long id, Long sessionID, boolean testing, ProfileRepository repo) {
+    public ResponseEntity<Profile> getProfile(Long id, Long sessionID, boolean testing) {
         if(testing || loginController.checkCredentials(id.intValue(), sessionID)) {
             Optional<Profile> profile_with_id = null;
-            if (!testing) {
-                profile_with_id = repository.findById(id);
-            } else {
-                profile_with_id = repo.findById(id);
-            }
+            profile_with_id = repository.findById(id);
             if (profile_with_id.isPresent()) {
                 return new ResponseEntity(profile_with_id.get(), HttpStatus.OK);
             } else {
@@ -262,7 +237,7 @@ public class Profile_Controller {
 
     @GetMapping("/getprofile/{id}")
     public @ResponseBody ResponseEntity<Profile> getProfile(@PathVariable Long id, @RequestHeader("authorization") long sessionID) {
-        return getProfile(id, sessionID, false, null);
+        return getProfile(id, sessionID, false);
     }
 
 
@@ -342,16 +317,8 @@ public class Profile_Controller {
         return new ResponseEntity<String>("POST Response", HttpStatus.OK);
     }
 
-//    public List<Profile> findByEmail(String primary_email) {
-//        List<Profile> profiles_with_email = repository.findByEmail(primary_email);
-//        return profiles_with_email;
-//    }
-
     protected ProfileRepository getRepository() {
         return repository;
     }
 
-    protected void clearRepository() {
-        repository.deleteAll();
-    }
 }
