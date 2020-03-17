@@ -105,9 +105,6 @@ public class Profile_Controller {
 
     private String verifyProfile(Profile newProfile) {
         String error = "";
-//        if (repository.findByEmail(newProfile.getPrimaryEmail()).size() > 0) {
-//            error += "A profile with this email already exists in the database.\n";
-//        }
         if (newProfile.retrievePrimaryEmail().getAddress() == "" ||
                 newProfile.retrievePrimaryEmail().getAddress() == null) {
             error += "The email field is blank.\n";
@@ -148,17 +145,7 @@ public class Profile_Controller {
             }
         }
 
-        if (newProfile.retrieveEmails().size() >= 1) {
-            boolean valid = true;
-            for (Email email: newProfile.retrieveEmails()) {
-                if (eRepository.existsByAddress(email.getAddress())) {
-                    valid = false;
-                }
-            }
-            if (!valid) {
-                error += "An email address you have entered is already in use by another Profile.\n";
-            }
-        }
+        error += verifyEmailsInProfile(newProfile);
 
         if (!((newProfile.getGender().equals("male")) ||
                 (newProfile.getGender().equals("female")) ||
@@ -166,6 +153,69 @@ public class Profile_Controller {
             error += "The Gender field must contain either 'male', 'female' or 'non-binary'.\n";
         }
         return error;
+    }
+
+    /**
+     * Method used to verify emails before adding them to the list.
+     * @param newProfile
+     * @return
+     */
+    private String verifyEmailsInProfile(Profile newProfile) {
+        String error = "";
+        if (newProfile.retrieveEmails().size() >= 1) {
+            boolean valid = true;
+            ArrayList<String> emailStrings = new ArrayList<>();
+            for (Email email: newProfile.retrieveEmails()) {
+                if (eRepository.existsByAddress(email.getAddress())) {
+                    valid = false;
+                } else {
+                    emailStrings.add(email.getAddress());
+                }
+            }
+
+            if (emailStrings.size() != (new HashSet(emailStrings)).size()) {
+                error += "There are duplicate email addresses used. User cannot enter same email multiple times in primary" +
+                        " and/or additional.\n";
+            } else if (!valid) {
+                error += "An email address you have entered is already in use by another Profile.\n";
+            }
+        }
+        return error;
+    }
+
+    /**
+     * This method adds a new email to a given profile, isPrimary set to false by default. This method will be called directly for testing,
+     * when running, it will call the method with only profile and newAddress as parameters which sets testing to false and both repositories
+     * to null so objects are saved to their actual repositories rather than given test repositories.
+     * @param profile where we want to associate the email
+     * @param newAddress new address we want to add
+     * @param testing true if testing, false otherwise
+     * @param repo ProfileRepository object used for testing, false otherwise
+     * @param erepo EmailRepository object used for testing, false otherwise
+     * @return true if added, false otherwise
+     */
+    private boolean addNewEmailToProfile(Profile profile, String newAddress, boolean testing, ProfileRepository repo, EmailRepository erepo) {
+        boolean isAdded = false;
+        if (!testing) {
+            if (!eRepository.existsByAddress(newAddress)) {
+                Email emailToAdd = new Email(newAddress);
+                isAdded = profile.addEmail(emailToAdd);
+                if (isAdded) {
+                    eRepository.save(emailToAdd);
+                    repository.save(profile);
+                }
+            }
+        } else {
+            if (!erepo.existsByAddress(newAddress)) {
+                Email emailToAdd = new Email(newAddress);
+                isAdded = profile.addEmail(emailToAdd);
+                if (isAdded) {
+                    erepo.save(emailToAdd);
+                    repo.save(profile);
+                }
+            }
+        }
+        return isAdded;
     }
 
     /**

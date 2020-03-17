@@ -20,6 +20,8 @@ public class Profile {
     private String middlename;
     private String nickname;
 
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "profile")
+    private Set<Email> emails;
 
     private String password;
     private String bio;
@@ -31,25 +33,7 @@ public class Profile {
     @JoinTable(name = "profile_passport_country",
             inverseJoinColumns = @JoinColumn(name = "passport_country_id", referencedColumnName = "id"),
             joinColumns = @JoinColumn(name = "profile_id", referencedColumnName = "id"))
-    //@JsonBackReference
     private Set<PassportCountry> passport_countries;
-
-
-//    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-//    @JoinTable(name = "profile_email",
-//            inverseJoinColumns = @JoinColumn(name = "email_id", referencedColumnName = "id"),
-//            joinColumns = @JoinColumn(name = "profile_id", referencedColumnName = "id"))
-    //@JsonBackReference
-
-
-
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "profile")
-    private Set<Email> emails;
-//    @OneToMany(mappedBy = "user_email")
-//    List<UserEmail> additional_email = null;
-
-
-
 
     /**
      * No argument constructor for Profile, can be used for creating new profiles directly from JSON data.
@@ -57,7 +41,8 @@ public class Profile {
     public Profile() {}
 
     /**
-     * Constructor for Profile.
+     * Constructor for Profile. The way the JSONProperty is structured is how the getProfile method should display the
+     * users details as well.
      * @param firstname first name of user
      * @param lastname last name of user
      * @param middlename middle name of user
@@ -91,7 +76,6 @@ public class Profile {
 
         addEmail(new Email(primaryEmail, true));
 
-        //this.additionalEmails = new List<Email>();
         for (String email: additionalEmails) {
             addEmail(new Email(email));
         }
@@ -108,14 +92,20 @@ public class Profile {
     }
 
     /**
-     * Adds the email to the list. Does not check repository to see if the email address is alredy in use. Trying to keep
+     * Adds the email to the set. Does not check repository to see if the email address is alredy in use. Trying to keep
      * db related queries in Controller classes. Though, it does check if the email is already in the list of emails as
      * well as if the list of emails is already at the max capacity (5).
      * @param email
      * @return
      */
-    private boolean addEmail(Email email) {
-        if (emails.contains(email) || emails.size() >= 5) {
+    public boolean addEmail(Email email) {
+        boolean alreadyInEmails = false;
+        for (Email tEmail: emails) {
+            if (tEmail.getAddress() == email.getAddress()) {
+                alreadyInEmails = true;
+            }
+        }
+        if (!alreadyInEmails || emails.size() >= 5) {
             return false;
         } else {
             email.setProfile(this);
@@ -124,7 +114,14 @@ public class Profile {
         }
     }
 
-    private boolean removeProfile(Email email) {
+    /**
+     * This method removes an email from the set of emails given that it is already in the set of emails. Also checks to
+     * make sure that the email is not a primary email, if it is then it does not remove the email and just returns false.
+     * The method also returns false if it cannot find an email with the same address in the associated set of emails.
+     * @param email that we want to remove.
+     * @return true if email is removed, false otherwise.
+     */
+    public boolean removeEmail(Email email) {
         for (Email currentEmail: emails) {
             if (currentEmail.getAddress() == email.getAddress() && !currentEmail.isPrimary()) {
                 emails.remove(currentEmail);
@@ -136,16 +133,19 @@ public class Profile {
 
     /**
      * Changes the primary email to the given email object given that is already in the set of emails.
-     * @param newPrimary new Email object already in list we want to set primary.
+     * @param newPrimary new Email object already in set we want to set primary.
      */
-    private void changePrimary(Email newPrimary) {
+    public boolean changePrimary(Email newPrimary) {
+        boolean primaryChanged = false;
         for (Email currentEmail: emails) {
             if (currentEmail.getAddress() == newPrimary.getAddress()) {
                 currentEmail.setPrimary(true);
+                primaryChanged = true;
             } else {
                 currentEmail.setPrimary(false);
             }
         }
+        return primaryChanged;
     }
 
 
