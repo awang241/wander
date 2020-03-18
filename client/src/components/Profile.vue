@@ -280,15 +280,6 @@
                     }
                 })
                 .catch(error => console.log(error));
-            // axios.get("https://f91246de-53d1-425e-9b1b-5524c2b62a0e.mock.pstmn.io/getusers")
-            //     .then((response) => {
-            //         let rows =  response.data['users']
-            //         for(let i=0, len=rows.length; i<len; i++){
-            //             if(rows[i].email === this.email){
-            //                 this.currentUser = rows[i]
-            //             }
-            //         }
-            //     })
             axios.get("https://restcountries.eu/rest/v2/all")
                 .then(response => {
                     const data = response.data
@@ -299,7 +290,6 @@
                     this.possibleCountries = possibleCountries;
                 })
                 .catch(error => console.log(error));
-
         },
     }
 </script>

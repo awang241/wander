@@ -17,7 +17,7 @@
 
         <form>
             <b-field label="Enter in an email address and click the + sign to add it to your profile! (5 email limit)" class="addEmails">
-                <b-input class="addForm" v-model="newEmail" placeholder="n email's left" maxlength="30" ></b-input>
+                <b-input type="email" class="addForm" v-model="newEmail" placeholder="n email's left" maxlength="30" ></b-input>
                 <b-button class="addButton" type="is-info" @click="addEmail()">
                     +
                 </b-button>
@@ -36,42 +36,52 @@
 
 <script>
 
-    // import List from "../List";
+    import List from "../List";
     export default {
         name: "EditEmails",
-        // components: {List},
-        // methods: {
-        //     addEmail() {
-        //         if(this.optionalEmails.length > 3){
-        //             //Todo change this to inform the user
-        //           console.log("no")
-        //         } else {
-        //             this.optionalEmails.push(this.newEmail);
-        //         }
-        //     },
-        //     changePrimaryEmail() {
-        //         if(this.optionalEmails.length <= 0) {
-        //             console.log("No EMAILS")
-        //         } else {
-        //
-        //             this.optionalEmails.push(this.primaryEmail);
-        //             this.optionalEmails = this.optionalEmails.filter(email => email != this.newPrimaryEmail)
-        //             this.primaryEmail = this.newPrimaryEmail;
-        //         }
-        //     },
-        //
-        //     deleteEmail(emailToDelete){
-        //         this.optionalEmails = this.optionalEmails.filter(email => email != emailToDelete)
-        //     }
-        // },
-        // data() {
-        //     return {
-        //     primaryEmail: "bab@gmail.com",
-        //     optionalEmails: ["email1@hardcode.hardasf", "email2@hardcode.hardas", "bob@gmail.com", "l"],
-        //     newEmail: "",
-        //     newPrimaryEmail: ""
-        //     }
-        // }
+        components: {List},
+        methods: {
+            addEmail() {
+                if(this.optionalEmails.length > 3){
+                    //Todo change this to inform the user
+                  this.showWarning("Maximum emails reached")
+                } else if(this.optionalEmails.includes(this.newEmail) || this.newEmail === this.primaryEmail){
+                    this.showWarning("Email is already in use")
+                } else {
+                    this.optionalEmails.push(this.newEmail);
+                }
+            },
+            changePrimaryEmail() {
+                if(this.newPrimaryEmail === "") {
+                    this.showWarning("No email selected")
+                } else {
+                    this.optionalEmails.push(this.primaryEmail);
+                    this.optionalEmails = this.optionalEmails.filter(email => email != this.newPrimaryEmail)
+                    this.primaryEmail = this.newPrimaryEmail;
+                }
+            },
+
+            deleteEmail(emailToDelete){
+                this.optionalEmails = this.optionalEmails.filter(email => email != emailToDelete)
+            },
+            showWarning(message) {
+                this.$buefy.snackbar.open({
+                    duration: 5000,
+                    message: message,
+                    type: 'is-danger',
+                    position: 'is-bottom-left',
+                    queue: false,
+                })
+            },
+        },
+        data() {
+            return {
+            primaryEmail: "bab@gmail.com",
+            newEmail: "",
+            newPrimaryEmail: "",
+            optionalEmails: [],
+            }
+        }
     }
 </script>
 
