@@ -62,7 +62,7 @@
         </b-field>
 
         <b-field label="Fitness Level" expanded >
-            <b-select v-model="fitness" placeholder="Fitness Level" expanded>
+            <b-select v-model="fitness_level" placeholder="Fitness Level" expanded>
                 <option value="0">Beginner: I am not active at all </option>
                 <option value="1">Novice: I do a low level of exercise (walking)</option>
                 <option value="2">Intermediate: I work out 1-2 times per week</option>
@@ -71,7 +71,7 @@
             </b-select>
         </b-field>
         <b-field label="Bio" expanded>
-            <b-input maxlength="200" type="textarea"></b-input>
+            <b-input maxlength="200" type="textarea" placeholder="Enter a bio"></b-input>
         </b-field>
 
         <b-field>
@@ -84,6 +84,7 @@
 
 <script>
     import api from "../../Api";
+    import authenticationStore from "../../store/authenticationStore";
     // import router from "../../router";
 
     export default {
@@ -98,35 +99,53 @@
                 bio: "",
                 dateOfBirth: "",
                 gender: null,
-                fitness: null,
+                fitness_level: null,
+                fitness_statement: null,
                 allUsers: null,
                 date: new Date(),
                 maxDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 5)
             }
         },
         mounted() {
-            let today = new Date().toISOString().split('T')[0];
-            this.$refs.dateOfBirth.setAttribute('max', today);
+            // Retrieves user data using their id number. Will change to token at some point
+            api.getProfile(authenticationStore.methods.getUserId(), authenticationStore.methods.getSessionId())
+                .then((response) => {
+                    console.log(response.data);
+                    console.log(response.data.firstname)
+                    this.firstName = response.data.firstname;
+                    this.lastName = response.data.lastname;
+                    this.middleName = response.data.middlename;
+                    this.nickName = response.data.nickname;
+                    this.dateOfBirth = response.data.date_of_birth;
+                    this.gender = response.data.gender;
+                    this.bio = response.data.bio;
+                    this.email = response.data.email;
+                    this.fitness_level = response.data.fitness_level;
+                    switch(response.data.fitness_level) {
+                        case 0 :
+                            this.fitness_statement = "Beginner: I am not active at all";
+                            break;
+                        case 1 :
+                            this.fitness_statement = "Novice: I do a low level of exercise (walking)";
+                            break;
+                        case 2 :
+                            this.fitness_statement = "Intermediate: I work out 1-2 times per week";
+                            break;
+                        case 3 :
+                            this.fitness_statement = "Advanced: I work out 3-4 times per week";
+                            break;
+                        case 4 :
+                            this.fitness_statement = "Pro: I work out 5+ times per week";
+                            break;
+                        default:
+                            this.fitness_statement = "Beginner: I am not active at all";
+                    }
+                })
+                .catch(error => console.log(error));
         },
 
         methods: {
-            sendEditedDetails() {
-                api.createProfile({
-                    lastname: this.lastName,
-                    firstname: this.firstName,
-                    middlename: this.middleName,
-                    nickname: this.nickName,
-                    bio: this.bio,
-                    date_of_birth: this.dateOfBirth,
-                    gender: this.gender,
-                    fitness_level: this.fitness,
-                })
-                    .then((response => {
-                        console.log(response)
-                        // router.push('Login')
-                    }))
-                    .catch(error => window.alert(error.response.data))
-            }
+
         }
     }
 </script>
