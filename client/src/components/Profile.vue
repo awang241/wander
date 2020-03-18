@@ -1,8 +1,8 @@
 <template>
     <div class="container containerColor">
         <!-- Header -->
-        <section class="hero">
-            <div class="containerColor hero-body">
+        <section class="hero level">
+            <div class=" hero-body level-item">
                 <div class="container containerColor">Hello! I am
                     <h1 class="title is-1">
                         {{ firstName }} {{ middleName }} {{ lastName }}
@@ -10,8 +10,13 @@
                     <h2 class="subtitle is-3">
                         {{ nickName }}
                     </h2>
-                    <button @click="editProfile">Edit Profile</button>
+
                 </div>
+
+                <b-button  @click="editProfile"
+                           type="is-info">
+                    Edit Profile
+                </b-button>
             </div>
         </section>
         <!-- Social Media Count -->

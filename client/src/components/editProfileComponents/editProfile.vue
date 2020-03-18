@@ -12,6 +12,7 @@
             </ul>
             <div>
                 <a @click="changeToProfile">Back to Profile</a>
+
             </div>
         </div>
 

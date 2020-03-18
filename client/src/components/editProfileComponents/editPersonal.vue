@@ -15,7 +15,7 @@
 <!--                </p>-->
 <!--            </div>-->
 <!--        </div>-->
-    <form>
+    <form @submit="sendUpdatedData">
         <b-field group-multiline grouped>
             <b-field label="First Name" expanded >
                 <b-input v-model="firstName" placeholder="First Name" required></b-input>
@@ -145,7 +145,9 @@
         },
 
         methods: {
-
+            sendUpdatedData(){
+                //does nothing - need to send data to backend
+            }
         }
     }
 </script>
