@@ -1,7 +1,7 @@
 <template>
 
     <div class="container">
-        <h1 class="Title">Edit Email Adresses</h1>
+        <h1 class="Title">Edit Email Addresses</h1>
 
         <h2 class="primaryEmailHeader">
             Current Primary Email Address
@@ -36,42 +36,42 @@
 
 <script>
 
-    import List from "../List";
+    // import List from "../List";
     export default {
         name: "EditEmails",
-        components: {List},
-        methods: {
-            addEmail() {
-                if(this.optionalEmails.length > 3){
-                    //Todo change this to inform the user
-                  console.log("no")
-                } else {
-                    this.optionalEmails.push(this.newEmail);
-                }
-            },
-            changePrimaryEmail() {
-                if(this.optionalEmails.length <= 0) {
-                    console.log("No EMAILS")
-                } else {
-
-                    this.optionalEmails.push(this.primaryEmail);
-                    this.optionalEmails = this.optionalEmails.filter(email => email != this.newPrimaryEmail)
-                    this.primaryEmail = this.newPrimaryEmail;
-                }
-            },
-
-            deleteEmail(emailToDelete){
-                this.optionalEmails = this.optionalEmails.filter(email => email != emailToDelete)
-            }
-        },
-        data() {
-            return {
-            primaryEmail: "bab@gmail.com",
-            optionalEmails: ["email1@hardcode.hardasf", "email2@hardcode.hardas", "bob@gmail.com", "l"],
-            newEmail: "",
-            newPrimaryEmail: ""
-            }
-        }
+        // components: {List},
+        // methods: {
+        //     addEmail() {
+        //         if(this.optionalEmails.length > 3){
+        //             //Todo change this to inform the user
+        //           console.log("no")
+        //         } else {
+        //             this.optionalEmails.push(this.newEmail);
+        //         }
+        //     },
+        //     changePrimaryEmail() {
+        //         if(this.optionalEmails.length <= 0) {
+        //             console.log("No EMAILS")
+        //         } else {
+        //
+        //             this.optionalEmails.push(this.primaryEmail);
+        //             this.optionalEmails = this.optionalEmails.filter(email => email != this.newPrimaryEmail)
+        //             this.primaryEmail = this.newPrimaryEmail;
+        //         }
+        //     },
+        //
+        //     deleteEmail(emailToDelete){
+        //         this.optionalEmails = this.optionalEmails.filter(email => email != emailToDelete)
+        //     }
+        // },
+        // data() {
+        //     return {
+        //     primaryEmail: "bab@gmail.com",
+        //     optionalEmails: ["email1@hardcode.hardasf", "email2@hardcode.hardas", "bob@gmail.com", "l"],
+        //     newEmail: "",
+        //     newPrimaryEmail: ""
+        //     }
+        // }
     }
 </script>
 
@@ -117,5 +117,8 @@
     /*    left:310px;*/
     /*    top:293px;*/
     /*}*/
+    .container {
+        background-color: #F7F8F9;
+    }
 
 </style>

@@ -36,14 +36,7 @@
 
 
                         <b-field group-multiline grouped>
-
-<!--                            <b-field label="Nickname" expanded>-->
-<!--                                <b-input v-model="nickName" type="text" placeholder="Nickname"></b-input>-->
-<!--                            </b-field>-->
-
-
                             <b-field label="Date of Birth" expanded>
-
                                 <b-datepicker
                                         editable
                                         :use-html5-validation="false"
