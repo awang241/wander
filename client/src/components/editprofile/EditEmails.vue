@@ -31,12 +31,18 @@
         </b-button>
 
         <list v-bind:chosenItems="optionalEmails" v-on:deleteListItem="deleteEmail"></list>
+
+        <b-field>
+            <b-button native-type="submit" @click="submitEmails">Save</b-button>
+        </b-field>
     </div>
 </template>
 
 <script>
 
     import List from "../List";
+    import Api from "../../Api";
+    import authenticationStore from "../../store/authenticationStore";
     export default {
         name: "EditEmails",
         components: {List},
@@ -73,6 +79,22 @@
                     queue: false,
                 })
             },
+            showSuccess(message){
+                this.$buefy.toast.open({
+                    duration:5500,
+                    message: message,
+                    type: 'success',
+                    position: 'is-bottom'
+                })
+            },
+            submitEmails(){
+
+                Api.editEmail({
+                    "primary_email": this.primaryEmail,
+                    "additional_email": this.optionalEmails
+                }, authenticationStore.methods.getUserId(), authenticationStore.methods.getSessionId())
+                this.showSuccess("Emails submitted")
+            }
         },
         data() {
             return {
