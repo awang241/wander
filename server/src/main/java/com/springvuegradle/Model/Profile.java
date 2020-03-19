@@ -202,6 +202,10 @@ public class Profile {
 
     public void setFitness_level(int fitness_level){this.fitness_level = fitness_level;}
 
+    /**
+     * Gets the passport countries as a string of names instead of objects
+     * @return list of country name strings
+     */
     public List<String> getPassport_countries() {
         List<String> countryNames = new ArrayList<>();
         for (PassportCountry country : passport_countries){
@@ -225,7 +229,6 @@ public class Profile {
     public void removePassportCountry(PassportCountry passportCountry) {
         passport_countries.remove(passportCountry);
     }
-    // Helper methods for ProfileController
 
     /**
      * This method is used to update a profile with the given profile's details.
@@ -245,6 +248,11 @@ public class Profile {
         this.passport_countries = editedProfile.passport_countries;
     }
 
+    /**
+     * Checks the equality of two profile objects by comparing all fields
+     * @param o The profile object. other objects can be passed in but will return false for equality
+     * @return boolean result - true if all fields are equal, false otherwise
+     */
     @Override
     public boolean equals(Object o) {
         if (o instanceof Profile) {
