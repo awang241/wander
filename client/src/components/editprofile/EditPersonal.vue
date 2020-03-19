@@ -22,8 +22,6 @@
             </b-field>
 
 
-
-
             <b-field group-multiline grouped>
             <b-field label="Date of Birth" expanded>
 
@@ -31,7 +29,9 @@
                         editable
                         :use-html5-validation="false"
                         placeholder="Select Date of Birth"
-                        :max-date="maxDate" ref="dateOfBirth"
+                        :min-date="minDate"
+                        :max-date="maxDate"
+                        ref="dateOfBirth"
                         v-model="dateOfBirth"
                         type="date" required
                         validation-message="Please enter a valid date"
@@ -62,9 +62,9 @@
             <b-field label="Bio" expanded>
                 <b-input maxlength="200" type="textarea" placeholder="Enter a bio"></b-input>
             </b-field>
-
+            <h2>{{dateOfBirth}}</h2>
             <b-field>
-                <b-button native-type="submit">Save</b-button>
+                <b-button type="is-info" native-type="submit">Save</b-button>
             </b-field>
         </form>
 
@@ -81,17 +81,18 @@
         data() {
             const today = new Date()
             return {
-                firstName: "",
-                lastName: "",
-                middleName: "",
-                nickName: "",
-                bio: "",
-                dateOfBirth: "",
+                firstName: null,
+                lastName: null,
+                middleName: null,
+                nickName: null,
+                bio: null,
+                dateOfBirth: null,
                 gender: null,
                 fitness_level: null,
                 fitness_statement: null,
                 date: new Date(),
-                maxDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 5)
+                maxDate: new Date(today.getFullYear(), today.getMonth(), today.getDate()),
+                minDate: new Date(today.getFullYear() -100, today.getMonth(), today.getDate())
             }
         },
         mounted() {

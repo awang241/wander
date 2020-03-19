@@ -211,7 +211,7 @@
 
             editProfile(){
                 router.push('EditProfile');
-            }
+            },
         },
         mounted() {
             // Retrieves user data using their id number. Will change to token at some point
