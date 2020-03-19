@@ -62,7 +62,6 @@
             <b-field label="Bio" expanded>
                 <b-input maxlength="200" type="textarea" placeholder="Enter a bio"></b-input>
             </b-field>
-            <h2>{{dateOfBirth}}</h2>
             <b-field>
                 <b-button type="is-info" native-type="submit">Save</b-button>
             </b-field>
@@ -84,6 +83,7 @@
                 firstName: null,
                 lastName: null,
                 middleName: null,
+                password: null,
                 nickName: null,
                 bio: null,
                 dateOfBirth: null,
@@ -91,11 +91,14 @@
                 fitness_level: null,
                 fitness_statement: null,
                 date: new Date(),
+                email: null,
+                passportCountries: [],
                 maxDate: new Date(today.getFullYear(), today.getMonth(), today.getDate()),
                 minDate: new Date(today.getFullYear() -100, today.getMonth(), today.getDate())
             }
         },
         mounted() {
+
             // Retrieves user data using their id number. Will change to token at some point
             api.getProfile(authenticationStore.methods.getUserId(), authenticationStore.methods.getSessionId())
                 .then((response) => {
@@ -105,11 +108,13 @@
                     this.lastName = response.data.lastname;
                     this.middleName = response.data.middlename;
                     this.nickName = response.data.nickname;
-                    this.dateOfBirth = response.data.date_of_birth;
+                    this.dateOfBirth = new Date(response.data.date_of_birth);
                     this.gender = response.data.gender;
                     this.bio = response.data.bio;
                     this.email = response.data.email;
+                    this.password = response.data.password;
                     this.fitness_level = response.data.fitness_level;
+                    this.passportCountries = response.data.passport_countries;
                     switch(response.data.fitness_level) {
                         case 0 :
                             this.fitness_statement = "Beginner: I am not active at all";
@@ -136,13 +141,18 @@
         methods: {
             sendUpdatedData(){
                 const profile = {"firstName": this.firstName,
+                                 "lastName": this.lastName,
                                 "middleName": this.middleName,
-                                "lastName": this.lastName,
+                                "nickname": this.nickname,
+                                "email": this.email,
+                                "password": this.password,
+                                "bio": this.bio,
                                 "dateOfBirth": this.dateOfBirth,
                                 "gender": this.gender,
                                 "fitnessLevel": this.fitnessLevel,
-                                "bio": this.bio,
-                                "nickname": this.nickname
+                                "passportCountries":this.passportCountries
+
+
                 }
                 api.editProfile(authenticationStore.methods.getUserId(), profile, authenticationStore.methods.getSessionId())
             }
