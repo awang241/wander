@@ -14,13 +14,21 @@
                     <b-button type="is-info" @click="addEmail()">+</b-button>
             </b-field>
 
-            <b-field label="Change your primary email">
-                <b-select v-model="newPrimaryEmail" class="selectNewPEList" expanded>
-                    <option v-for="email in optionalEmails" :key="email">{{email}}</option>
-                </b-select>
-            </b-field>
-            <b-button size="is-small" type="is-info" @click="changePrimaryEmail()">Change</b-button>
-            <list v-bind:chosenItems="optionalEmails" v-on:deleteListItem="deleteEmail"></list>
+        <b-field label="Change your primary email">
+            <b-select v-model="newPrimaryEmail" class="selectNewPEList">
+                <option class="singleEmail" v-for="email in optionalEmails" :key="email">{{email}}</option>
+            </b-select>
+
+        </b-field>
+        <b-button class="changeButton changeGroup" size="is-small" type="is-info" @click="changePrimaryEmail()">
+            Change
+        </b-button>
+
+        <list v-bind:chosenItems="optionalEmails" v-on:deleteListItem="deleteEmail"></list>
+
+        <b-field>
+            <b-button native-type="submit" @click="submitEmails">Save</b-button>
+        </b-field>
         </form>
     </div>
 </template>
@@ -28,6 +36,8 @@
 <script>
 
     import List from "../List";
+    import Api from "../../Api";
+    import authenticationStore from "../../store/authenticationStore";
     export default {
         name: "EditEmails",
         components: {List},
@@ -64,6 +74,22 @@
                     queue: false,
                 })
             },
+            showSuccess(message){
+                this.$buefy.toast.open({
+                    duration:5500,
+                    message: message,
+                    type: 'success',
+                    position: 'is-bottom'
+                })
+            },
+            submitEmails(){
+
+                Api.editEmail({
+                    "primary_email": this.primaryEmail,
+                    "additional_email": this.optionalEmails
+                }, authenticationStore.methods.getUserId(), authenticationStore.methods.getSessionId())
+                this.showSuccess("Emails submitted")
+            }
         },
         data() {
             return {

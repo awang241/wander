@@ -88,7 +88,7 @@
     // import router from "../../router";
 
     export default {
-        name: "editPersonal",
+        name: "EditPersonal",
         data() {
             const today = new Date()
             return {
