@@ -35,8 +35,7 @@
         <b-field>
             <b-button native-type="submit" @click="submitEmails">Save</b-button>
         </b-field>
-        </form>
-        <b-button @click="saveEmails()"> Save </b-button>
+
     </div>
 </template>
 
@@ -45,7 +44,7 @@
     import List from "../List";
     import authenticationStore from "../../store/authenticationStore";
     import Api from "../../Api";
-    import authenticationStore from "../../store/authenticationStore";
+
     export default {
         name: "EditEmails",
         components: {List},
@@ -69,19 +68,17 @@
                     this.primaryEmail = this.newPrimaryEmail;
                 }
             },
-
             deleteEmail(emailToDelete){
                 this.optionalEmails = this.optionalEmails.filter(email => email != emailToDelete)
             },
-            saveEmails() {
-                api.editEmail({
-                        primaryEmail: this.primaryEmail,
-                        optionalEmails: this.optionalEmails
-                    },
-                    authenticationStore.methods.getUserId(),
-                    authenticationStore.methods.getSessionId())
+            submitEmails(){
+                Api.editEmail({
+                    "primary_email": this.primaryEmail,
+                    "additional_email": this.optionalEmails
+                }, authenticationStore.methods.getUserId(), authenticationStore.methods.getSessionId())
+                this.showSuccess("Emails submitted")
                 }
-            },
+            }  ,
             showWarning(message) {
                 this.$buefy.snackbar.open({
                     duration: 5000,
@@ -91,22 +88,6 @@
                     queue: false,
                 })
             },
-            mounted() {
-                api.getProfile(authenticationStore.methods.getUserId(), authenticationStore.methods.getSessionId())
-                    .then((response) => {
-                        this.primaryEmail = response.data.email;
-                        console.log(this.primaryEmail)
-                    })
-            },
-            data() {
-                return {
-                    primaryEmail: "replacewithUserRegisteredEmail@gmail.com",
-                    newEmail: "",
-                    newPrimaryEmail: "",
-                    optionalEmails: [],
-                }
-            }
-        }
             showSuccess(message){
                 this.$buefy.toast.open({
                     duration:5500,
@@ -115,15 +96,13 @@
                     position: 'is-bottom'
                 })
             },
-            submitEmails(){
-
-                Api.editEmail({
-                    "primary_email": this.primaryEmail,
-                    "additional_email": this.optionalEmails
-                }, authenticationStore.methods.getUserId(), authenticationStore.methods.getSessionId())
-                this.showSuccess("Emails submitted")
-            }
-        },
+            mounted() {
+                Api.getProfile(authenticationStore.methods.getUserId(), authenticationStore.methods.getSessionId())
+                    .then((response) => {
+                        this.primaryEmail = response.data.email;
+                        console.log(this.primaryEmail)
+                    })
+            },
         data() {
             return {
             primaryEmail: "",
