@@ -3,32 +3,29 @@
     <div class="container">
         <h1 class="Title">Edit Email Addresses</h1>
 
-        <h2>
-            Current Primary Email Address
-        </h2>
-
-        <label class="primaryEmailText primaryEmailBox">
-            {{primaryEmail}}
-        </label>
+        <b-field label="Current Primary Email Address:"></b-field>
+        <h2>{{primaryEmail}}</h2>
+        <br>
 
         <form>
-            <b-field label="Enter in an email address and click the + sign to add it to your profile! (5 email limit)" class="addEmailsText">
+            <div>
+            <b-field label="Change your primary email">
+                <b-select v-model="newPrimaryEmail" class="selectNewPEList" expanded>
+                    <option class="singleEmail" v-for="email in optionalEmails" :key="email">{{email}}</option>
+                </b-select>
             </b-field>
-            <b-input type="email" class="addForm" v-model="newEmail" placeholder="n emails left" maxlength="30" ></b-input>
-            <b-button class="addButton" type="is-info" @click="addEmail()">
-                +
+            <b-button  type="is-info" @click="changePrimaryEmail()">
+                Change
             </b-button>
+            </div>
+            <br>
+
+            <b-field label="Enter in an email address and click the + sign to add it to your profile! (5 email limit)" expanded></b-field>
+            <b-field group-multiline grouped>
+                <b-input type="email" class="addForm" v-model="newEmail" placeholder="n emails left" maxlength="30" expanded ></b-input>
+                <b-button class="addButton" type="is-info" @click="addEmail()">+</b-button>
+            </b-field>
         </form>
-
-        <b-field label="Change your primary email">
-            <b-select v-model="newPrimaryEmail" class="selectNewPEList">
-                <option class="singleEmail" v-for="email in optionalEmails" :key="email">{{email}}</option>
-            </b-select>
-
-        </b-field>
-        <b-button class="changeButton changeGroup" size="is-small" type="is-info" @click="changePrimaryEmail()">
-            Change
-        </b-button>
 
         <list v-bind:chosenItems="optionalEmails" v-on:deleteListItem="deleteEmail"></list>
 
