@@ -3,34 +3,25 @@
     <div class="container">
         <h1 class="Title">Edit Email Addresses</h1>
 
-        <h2>
-            Current Primary Email Address
+        <h2 expanded>
+            Current Primary Email Address: {{primaryEmail}}
         </h2>
 
-        <label class="primaryEmailText primaryEmailBox">
-            {{primaryEmail}}
-        </label>
-
         <form>
-            <b-field label="Enter in an email address and click the + sign to add it to your profile! (5 email limit)" class="addEmailsText">
+            <b-field group-multiline grouped>
+                <b-field label="Enter in an email address and click the + sign to add it to your profile! (5 email limit)" expanded></b-field>
+                    <b-input type="email" v-model="newEmail" placeholder="n emails left" maxlength="30" expanded></b-input>
+                    <b-button type="is-info" @click="addEmail()">+</b-button>
             </b-field>
-            <b-input type="email" class="addForm" v-model="newEmail" placeholder="n emails left" maxlength="30" ></b-input>
-            <b-button class="addButton" type="is-info" @click="addEmail()">
-                +
-            </b-button>
+
+            <b-field label="Change your primary email">
+                <b-select v-model="newPrimaryEmail" class="selectNewPEList" expanded>
+                    <option v-for="email in optionalEmails" :key="email">{{email}}</option>
+                </b-select>
+            </b-field>
+            <b-button size="is-small" type="is-info" @click="changePrimaryEmail()">Change</b-button>
+            <list v-bind:chosenItems="optionalEmails" v-on:deleteListItem="deleteEmail"></list>
         </form>
-
-        <b-field label="Change your primary email">
-            <b-select v-model="newPrimaryEmail" class="selectNewPEList">
-                <option class="singleEmail" v-for="email in optionalEmails" :key="email">{{email}}</option>
-            </b-select>
-
-        </b-field>
-        <b-button class="changeButton changeGroup" size="is-small" type="is-info" @click="changePrimaryEmail()">
-            Change
-        </b-button>
-
-        <list v-bind:chosenItems="optionalEmails" v-on:deleteListItem="deleteEmail"></list>
     </div>
 </template>
 
@@ -86,38 +77,7 @@
 </script>
 
 <style scoped>
-
-    .addForm {
-        width:500px;
-        top:32px;
-    }
-    .addButton{
-        position:relative;
-        bottom:30px;
-        left:500px;
-    }
-    .primaryEmailText{
-        font-size:15px;
-    }
-    .primaryEmailBox {
-        background:#a9a9a9;
-        padding:4px;
-
-    }
-    .selectNewPEList {
-       positon:absolute;
-       left:70px;
-    }
-    .changeButton {
-        position:relative;
-        bottom:47.5px;
-    }
-    .addEmailsText {
-        position:relative;
-        top:40px;
-    }
     .container {
         background-color: #F7F8F9;
     }
-
 </style>
