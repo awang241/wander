@@ -38,6 +38,7 @@
                         <b-field group-multiline grouped>
                             <b-field label="Date of Birth" expanded>
                                 <b-datepicker
+                                        editable
 
                                         :use-html5-validation="false"
                                         placeholder="Select Date of Birth"
