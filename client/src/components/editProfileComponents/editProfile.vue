@@ -27,7 +27,7 @@
     import changePassword from "./changePassword";
     import countries from "./countries";
     import activities from "./activities";
-    import editEmails from "./EditEmails";
+    import editEmails from "./editEmails";
     import router from "../../router";
     export default {
         name: "editProfile",

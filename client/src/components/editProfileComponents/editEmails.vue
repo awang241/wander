@@ -29,17 +29,20 @@
                 <option v-for="email in optionalEmails" :key="email">{{email}}</option>
             </b-select>
         </b-field>
-
         <list v-bind:chosenItems="optionalEmails" v-on:deleteListItem="deleteEmail"></list>
+        <b-button @click="saveEmails()"> Save </b-button>
     </div>
 </template>
 
 <script>
 
     import List from "../List";
+    import api from "../../Api";
+    import authenticationStore from "../../store/authenticationStore";
     export default {
         name: "EditEmails",
         components: {List},
+
         methods: {
             addEmail() {
                 if(this.optionalEmails.length > 3){
@@ -73,10 +76,26 @@
                     queue: false,
                 })
             },
+            saveEmails() {
+                api.editEmail({
+                    primaryEmail : this.primaryEmail,
+                    optionalEmails : this.optionalEmails
+                },
+                    authenticationStore.methods.getUserId(),
+                    authenticationStore.methods.getSessionId())
+            }
         },
+        mounted() {
+            api.getProfile(authenticationStore.methods.getUserId(), authenticationStore.methods.getSessionId())
+                .then((response) => {
+                    this.primaryEmail = response.data.email;
+                    console.log(this.primaryEmail)
+                })
+        },
+
         data() {
             return {
-            primaryEmail: "bab@gmail.com",
+            primaryEmail: "",
             newEmail: "",
             newPrimaryEmail: "",
             optionalEmails: [],
