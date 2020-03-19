@@ -54,12 +54,24 @@
 
                     router.push('Profile')
                 }))
-                    .catch(error => this.$buefy.toast.open({
-                        duration:5500,
-                        message: error.response.data,
-                        type: 'is-danger',
-                        position: 'is-top'
-                    }))
+                    .catch(error => this.displayError(error.response.status))
+            },
+
+            displayError(errorStatusCode){
+                const message = this.getErrorMessageFromStatusCode(errorStatusCode)
+                this.$buefy.toast.open({
+                    duration:5500,
+                    message: message,
+                    type: 'is-danger',
+                    position: 'is-top'
+                })
+            },
+            getErrorMessageFromStatusCode(statusCode){
+                let message = ""
+                if(statusCode === 401){
+                    message = "Incorrect username or password"
+                }
+                return message;
             }
         }
     }

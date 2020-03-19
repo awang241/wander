@@ -21,7 +21,7 @@
                               tag="router-link"
                               to="/Registration"
                               type="is-light">
-                        Registration
+                        Register
                     </b-button>
                     <b-button  @click="logout"
                                v-if="authenticationStore.authenticated"

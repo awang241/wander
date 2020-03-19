@@ -11,16 +11,15 @@
 
 <script>
   import NavBar from './components/NavBar';
-  import editProfile from'./components/editProfileComponents/editProfile'
 
   const app = {
       name: 'app',
       components: {
-          NavBar, editProfile
+          NavBar
       },
       data: () => {
           return {
-              NavBar, editProfile
+              NavBar
           }
       },
   }
