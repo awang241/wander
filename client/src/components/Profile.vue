@@ -78,7 +78,9 @@
                                     </tr>
                                     <tr>
                                         <td>Email:</td>
-                                        <td>{{ email }}</td>
+                                        <td>{{ primaryEmail }}</td>
+                                        <td>{{ additionalEmails }}</td>
+
                                     </tr>
                                 </table>
                             </div>
@@ -200,7 +202,8 @@
                 dateOfBirth: null,
                 gender: null,
                 bio: null,
-                email: null,
+                primaryEmail: null,
+                additionalEmails: [],
                 fitness_level: null,
                 fitness_statement: null,
                 possibleCountries: [],
@@ -226,7 +229,8 @@
                     this.dateOfBirth = response.data.date_of_birth;
                     this.gender = response.data.gender;
                     this.bio = response.data.bio;
-                    this.email = response.data.email;
+                    this.primaryEmail = response.data.primary_email;
+                    this.additionalEmails = response.data.additional_email;
                     this.fitness_level = response.data.fitness_level;
                     this.chosenCountries = response.data.passport_countries;
                     switch(response.data.fitness_level) {

@@ -26,7 +26,7 @@
         <list v-bind:chosenItems="optionalEmails" v-on:deleteListItem="deleteEmail"></list>
 
         <b-field>
-            <b-button native-type="submit" @click="submitEmails">Save</b-button>
+            <b-button click="submitEmails">Save</b-button>
         </b-field>
         </form>
     </div>
