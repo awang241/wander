@@ -31,28 +31,30 @@
         </b-button>
 
         <list v-bind:chosenItems="optionalEmails" v-on:deleteListItem="deleteEmail"></list>
+        <b-button @click="saveEmails()"> Save </b-button>
     </div>
 </template>
 
 <script>
-
+    import api from "../../Api";
     import List from "../List";
+    import authenticationStore from "../../store/authenticationStore";
     export default {
         name: "EditEmails",
         components: {List},
         methods: {
             addEmail() {
-                if(this.optionalEmails.length > 3){
+                if (this.optionalEmails.length > 3) {
                     //Todo change this to inform the user
-                  this.showWarning("Maximum emails reached")
-                } else if(this.optionalEmails.includes(this.newEmail) || this.newEmail === this.primaryEmail){
+                    this.showWarning("Maximum emails reached")
+                } else if (this.optionalEmails.includes(this.newEmail) || this.newEmail === this.primaryEmail) {
                     this.showWarning("Email is already in use")
                 } else {
                     this.optionalEmails.push(this.newEmail);
                 }
             },
             changePrimaryEmail() {
-                if(this.newPrimaryEmail === "") {
+                if (this.newPrimaryEmail === "") {
                     this.showWarning("No email selected")
                 } else {
                     this.optionalEmails.push(this.primaryEmail);
@@ -60,9 +62,17 @@
                     this.primaryEmail = this.newPrimaryEmail;
                 }
             },
-
-            deleteEmail(emailToDelete){
+            deleteEmail(emailToDelete) {
                 this.optionalEmails = this.optionalEmails.filter(email => email != emailToDelete)
+            },
+            saveEmails() {
+                api.editEmail({
+                        primaryEmail: this.primaryEmail,
+                        optionalEmails: this.optionalEmails
+                    },
+                    authenticationStore.methods.getUserId(),
+                    authenticationStore.methods.getSessionId())
+                }
             },
             showWarning(message) {
                 this.$buefy.snackbar.open({
@@ -73,16 +83,22 @@
                     queue: false,
                 })
             },
-        },
-        data() {
-            return {
-            primaryEmail: "replacewithUserRegisteredEmail@gmail.com",
-            newEmail: "",
-            newPrimaryEmail: "",
-            optionalEmails: [],
+            mounted() {
+                api.getProfile(authenticationStore.methods.getUserId(), authenticationStore.methods.getSessionId())
+                    .then((response) => {
+                        this.primaryEmail = response.data.email;
+                        console.log(this.primaryEmail)
+                    })
+            },
+            data() {
+                return {
+                    primaryEmail: "replacewithUserRegisteredEmail@gmail.com",
+                    newEmail: "",
+                    newPrimaryEmail: "",
+                    optionalEmails: [],
+                }
             }
         }
-    }
 </script>
 
 <style scoped>
