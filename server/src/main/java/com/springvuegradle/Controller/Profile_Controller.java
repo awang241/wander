@@ -36,18 +36,16 @@ public class Profile_Controller {
     @Autowired
     private EmailRepository eRepository;
     private LoginController loginController = new LoginController();
-    private ValidationHelper helper = new ValidationHelper();
 
     /**
      * Creates a new Profile object given a set of JSON data and forms a profile object based on the given data, then
      * hashes the password and adds the new data to the database.
      * @param newProfile contains data relating to the user profile we wish to add to the database.
-     * @param testing set to true when this method is used for testing purposes so that it does not save the profile
-     *                object to the database, only checks if its valid.
      * @return the created profile.
      */
 
-    public ResponseEntity<String> createProfile (Profile newProfile, boolean testing, ProfileRepository repo, EmailRepository eRepo) {
+    @PostMapping("/createprofile")
+    public ResponseEntity<String> createProfile (@RequestBody Profile newProfile) {
         String error = verifyProfile(newProfile);
 
         if (error.equals("")) {
@@ -68,16 +66,8 @@ public class Profile_Controller {
                 }
             }
             newProfile.setPassport_countries(updated);
-            if (!testing) {
-                repository.save(newProfile);
-                saveEmails(newProfile, false, null);
-
-            } else {
-                repo.save(newProfile);
-                saveEmails(newProfile, true, eRepo);
-            }
-
-
+            repository.save(newProfile);
+            saveEmails(newProfile);
             //save profile to database
             return new ResponseEntity("New profile has been created.", HttpStatus.CREATED);
         } else {
@@ -85,30 +75,16 @@ public class Profile_Controller {
         }
     }
 
-    private void saveEmails(Profile newProfile, boolean testing, EmailRepository eRepo) {
+    private void saveEmails(Profile newProfile) {
         Set<Email> emailsFromNewProfile = newProfile.retrieveEmails();
         for (Email email: emailsFromNewProfile) {
-            if (testing) {
-                email.setProfile(newProfile);
-                eRepo.save(email);
-            } else {
-                email.setProfile(newProfile);
-                eRepository.save(email);
-            }
-
+            email.setProfile(newProfile);
+            eRepository.save(email);
         }
-    }
-
-    @PostMapping("/createprofile")
-    public ResponseEntity<String> createProfile (@RequestBody Profile newProfile) {
-        return createProfile(newProfile, false, null, null);
     }
 
     private String verifyProfile(Profile newProfile) {
         String error = "";
-//        if (repository.findByEmail(newProfile.getPrimaryEmail()).size() > 0) {
-//            error += "A profile with this email already exists in the database.\n";
-//        }
         if (newProfile.retrievePrimaryEmail().getAddress() == "" ||
                 newProfile.retrievePrimaryEmail().getAddress() == null) {
             error += "The email field is blank.\n";
@@ -149,17 +125,7 @@ public class Profile_Controller {
             }
         }
 
-        if (newProfile.retrieveEmails().size() >= 1) {
-            boolean valid = true;
-            for (Email email: newProfile.retrieveEmails()) {
-                if (eRepository.existsByAddress(email.getAddress())) {
-                    valid = false;
-                }
-            }
-            if (!valid) {
-                error += "An email address you have entered is already in use by another Profile.\n";
-            }
-        }
+        error += verifyEmailsInProfile(newProfile);
 
         if (!((newProfile.getGender().equals("male")) ||
                 (newProfile.getGender().equals("female")) ||
@@ -167,6 +133,69 @@ public class Profile_Controller {
             error += "The Gender field must contain either 'male', 'female' or 'non-binary'.\n";
         }
         return error;
+    }
+
+    /**
+     * Method used to verify emails before adding them to the list.
+     * @param newProfile
+     * @return
+     */
+    private String verifyEmailsInProfile(Profile newProfile) {
+        String error = "";
+        if (newProfile.retrieveEmails().size() >= 1) {
+            boolean valid = true;
+            ArrayList<String> emailStrings = new ArrayList<>();
+            for (Email email: newProfile.retrieveEmails()) {
+                if (eRepository.existsByAddress(email.getAddress())) {
+                    valid = false;
+                } else {
+                    emailStrings.add(email.getAddress());
+                }
+            }
+
+            if (emailStrings.size() != (new HashSet(emailStrings)).size()) {
+                error += "There are duplicate email addresses used. User cannot enter same email multiple times in primary" +
+                        " and/or additional.\n";
+            } else if (!valid) {
+                error += "An email address you have entered is already in use by another Profile.\n";
+            }
+        }
+        return error;
+    }
+
+    /**
+     * This method adds a new email to a given profile, isPrimary set to false by default. This method will be called directly for testing,
+     * when running, it will call the method with only profile and newAddress as parameters which sets testing to false and both repositories
+     * to null so objects are saved to their actual repositories rather than given test repositories.
+     * @param profile where we want to associate the email
+     * @param newAddress new address we want to add
+     * @param testing true if testing, false otherwise
+     * @param repo ProfileRepository object used for testing, false otherwise
+     * @param erepo EmailRepository object used for testing, false otherwise
+     * @return true if added, false otherwise
+     */
+    private boolean addNewEmailToProfile(Profile profile, String newAddress, boolean testing, ProfileRepository repo, EmailRepository erepo) {
+        boolean isAdded = false;
+        if (!testing) {
+            if (!eRepository.existsByAddress(newAddress)) {
+                Email emailToAdd = new Email(newAddress);
+                isAdded = profile.addEmail(emailToAdd);
+                if (isAdded) {
+                    eRepository.save(emailToAdd);
+                    repository.save(profile);
+                }
+            }
+        } else {
+            if (!erepo.existsByAddress(newAddress)) {
+                Email emailToAdd = new Email(newAddress);
+                isAdded = profile.addEmail(emailToAdd);
+                if (isAdded) {
+                    erepo.save(emailToAdd);
+                    repo.save(profile);
+                }
+            }
+        }
+        return isAdded;
     }
 
     /**
@@ -192,14 +221,10 @@ public class Profile_Controller {
      * @param id gets the profile object and if it exists and authorization is approved, it will return the object
      * @return the Profile object corresponding to the given ID.
      */
-    public ResponseEntity<Profile> getProfile(Long id, Long sessionID, boolean testing, ProfileRepository repo) {
+    public ResponseEntity<Profile> getProfile(Long id, Long sessionID, boolean testing) {
         if(testing || loginController.checkCredentials(id.intValue(), sessionID)) {
             Optional<Profile> profile_with_id = null;
-            if (!testing) {
-                profile_with_id = repository.findById(id);
-            } else {
-                profile_with_id = repo.findById(id);
-            }
+            profile_with_id = repository.findById(id);
             if (profile_with_id.isPresent()) {
                 return new ResponseEntity(profile_with_id.get(), HttpStatus.OK);
             } else {
@@ -212,7 +237,7 @@ public class Profile_Controller {
 
     @GetMapping("/getprofile/{id}")
     public @ResponseBody ResponseEntity<Profile> getProfile(@PathVariable Long id, @RequestHeader("authorization") long sessionID) {
-        return getProfile(id, sessionID, false, null);
+        return getProfile(id, sessionID, false);
     }
 
 
@@ -240,22 +265,83 @@ public class Profile_Controller {
         //}
     }
 
-    @PostMapping("/editprofile/{id}/emails")
-    public ResponseEntity<String> editEmails (@RequestBody EmailUpdateRequest newEmails, @PathVariable Long id, @RequestHeader("authorization") long sessionID){
-        if(!loginController.checkCredentials(id.intValue(), sessionID)){
+    @PutMapping("/editprofile/{id}/emails")
+    public ResponseEntity<String> editEmails (@RequestBody EmailUpdateRequest newEmails, @PathVariable Long id, @RequestHeader("authorization") long sessionID) {
+        return editEmails (newEmails, id, sessionID, false);
+    }
+
+    public ResponseEntity<String> editEmails (EmailUpdateRequest newEmails, Long id, Long sessionID, boolean testing){
+        if(!testing && !loginController.checkCredentials(id.intValue(), sessionID)){
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
+
         Profile db_profile = repository.findById(id).get();
         String primaryEmail = newEmails.getPrimaryEmail();
-        if(primaryEmail != null){
-            Email newPrimaryEmail = new Email(primaryEmail, true);
-            newPrimaryEmail.setProfile(db_profile);
+
+        Set<Email> newEmailSet = new HashSet<>();
+
+        Set<Email> oldEmails = db_profile.retrieveEmails();
+
+        List<String> duplicateDetectionList = new ArrayList(newEmails.getOptionalEmails());
+        if (newEmails.getPrimaryEmail() != null) {
+            duplicateDetectionList.add(newEmails.getPrimaryEmail());
+        }
+        if (duplicateDetectionList.size() != new HashSet(duplicateDetectionList).size()) {
+            return new ResponseEntity<>("Duplicate email addresses detected.", HttpStatus.FORBIDDEN);
         }
 
-        for(String optionalEmail : newEmails.getOptionalEmails()){
-            Email newOptionalEmail = new Email(optionalEmail, false);
-            newOptionalEmail.setProfile(db_profile);
+        if (duplicateDetectionList.size() > 5) {
+            return new ResponseEntity<>("Cannot have more than 5 emails associated to a profile.", HttpStatus.FORBIDDEN);
         }
+
+        //primary email
+        if(primaryEmail != null) {
+            List<Email> emailsReturnedFromSearch = eRepository.findAllByAddress(primaryEmail);
+            if (emailsReturnedFromSearch.isEmpty()) {
+                newEmailSet.add(new Email(primaryEmail, true, db_profile));
+            } else if (emailsReturnedFromSearch.get(0).getId() == id) {
+                //case where primary email already associated with profile
+                Email email = emailsReturnedFromSearch.get(0);
+                email.setPrimary(true);
+                newEmailSet.add(email);
+            } else {
+                return new ResponseEntity<>("Primary email address already in use by another profile.", HttpStatus.BAD_REQUEST);
+            }
+        } else {
+            return new ResponseEntity<>("Primary address cannot be null.", HttpStatus.FORBIDDEN);
+        }
+
+        for (String optionalEmail: newEmails.getOptionalEmails()) {
+            List<Email> emailsReturnedFromSearch = eRepository.findAllByAddress(optionalEmail);
+            if (emailsReturnedFromSearch.isEmpty()) {
+                newEmailSet.add(new Email(optionalEmail, false, db_profile));
+            } else if (emailsReturnedFromSearch.get(0).getId() == id) {
+                Email email = emailsReturnedFromSearch.get(0);
+                email.setPrimary(false);
+                newEmailSet.add(email);
+            } else {
+                return new ResponseEntity<>("Email address already in use by another profile.", HttpStatus.FORBIDDEN);
+            }
+        }
+
+        for (Email emailFromOldSet: oldEmails) {
+            boolean found = false;
+            for (Email emailFromNewSet: newEmailSet) {
+                if (emailFromOldSet.getAddress() == emailFromNewSet.getAddress()) {
+                    found = true;
+                }
+            }
+            if (!found) {
+                eRepository.delete(emailFromOldSet);
+            }
+        }
+
+        for (Email email: newEmailSet) {
+            eRepository.save(email);
+        }
+
+        db_profile.setEmails(newEmailSet);
+        repository.save(db_profile);
 
         return new ResponseEntity<>(HttpStatus.OK);
 
@@ -292,16 +378,8 @@ public class Profile_Controller {
         return new ResponseEntity<String>("POST Response", HttpStatus.OK);
     }
 
-//    public List<Profile> findByEmail(String primary_email) {
-//        List<Profile> profiles_with_email = repository.findByEmail(primary_email);
-//        return profiles_with_email;
-//    }
-
     protected ProfileRepository getRepository() {
         return repository;
     }
 
-    protected void clearRepository() {
-        repository.deleteAll();
-    }
 }

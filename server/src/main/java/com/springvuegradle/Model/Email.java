@@ -13,9 +13,20 @@ public class Email {
         this.address = address;
     }
 
+    /**
+     * Creates an Email object.
+     * @param address value we want to assign to the email address
+     * @param isPrimary indicates whether the email should be primary or not
+     */
     public Email(String address, boolean isPrimary){
         this.address = address;
         this.isPrimary = isPrimary;
+    }
+
+    public Email(String address, boolean isPrimary, Profile profile) {
+        this.address = address;
+        this.isPrimary = isPrimary;
+        this.profile = profile;
     }
 
     @Id
