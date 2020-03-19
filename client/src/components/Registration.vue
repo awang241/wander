@@ -38,9 +38,10 @@
                         <b-field group-multiline grouped>
                             <b-field label="Date of Birth" expanded>
                                 <b-datepicker
-                                        editable
+
                                         :use-html5-validation="false"
                                         placeholder="Select Date of Birth"
+                                        :min-date="minDate"
                                         :max-date="maxDate" ref="dateOfBirth"
                                         v-model="dateOfBirth"
                                         type="date" required
@@ -102,7 +103,10 @@
                 fitness: null,
                 allUsers: null,
                 date: new Date(),
-                maxDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 5)
+                maxDate: new Date(today.getFullYear(), today.getMonth(), today.getDate()),
+                minDate: new Date(today.getFullYear() -100, today.getMonth(), today.getDate())
+
+
             }
         },
         mounted() {
