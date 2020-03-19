@@ -176,36 +176,20 @@
             </div>
             <div class="container containerColor">
                 <div class="box">
-                    <h3 class="title is-4">Add a country</h3>
-                    <AddCountry v-bind:possibleCountries="possibleCountries" v-bind:chosenCountries="chosenCountries" v-on:addCountry="addCountry"></AddCountry>
-                    <countries v-bind:chosenItems="chosenCountries" v-on:deleteListItem="deleteCountry"></countries>
+                    <h3 v-for="country in chosenCountries" :key="country" class="title is-4">{{country}}</h3>
                 </div>
             </div>
         </section>
     </div>
-
-
-    <!--            <li v-for="(value, key) in currentUser" v-bind:key="key">-->
-    <!--                {{key}} : {{value}}-->
-    <!--            </li>-->
-
-
-
-
-
 </template>
 
 <script>
-    import axios from 'axios'
     import api from '../Api';
-    import AddCountry from "./AddCountry";
-    import Countries from "./List";
     import authenticationStore from "../store/authenticationStore";
     import router from "../router";
 
     export default {
         name: "Profile",
-        components: {AddCountry, Countries},
         data() {
             return {
                 currentUser: null,
@@ -220,32 +204,13 @@
                 fitness_level: null,
                 fitness_statement: null,
                 possibleCountries: [],
-                chosenCountries: []
+                chosenCountries: ["New Zealand", "Japan"]
             }
         },
         methods: {
-            showCountryInListWarning() {
-                this.$buefy.snackbar.open({
-                    duration: 5000,
-                    message: 'Country is already in list',
-                    type: 'is-danger',
-                    position: 'is-bottom-left',
-                    queue: false,
-                })
-            },
-            deleteCountry(chosenCountry){
-                this.chosenCountries = this.chosenCountries.filter(country => country != chosenCountry)
-            },
-            addCountry(newCountry){
-                if(!this.chosenCountries.includes(newCountry.name)){
-                    this.chosenCountries = [...this.chosenCountries, newCountry.name]
-                } else {
-                    this.showCountryInListWarning()
-                }
-            },
+
             editProfile(){
-                console.log("editProfile clicked");
-                router.push('editProfile');
+                router.push('EditProfile');
             }
         },
         mounted() {
@@ -283,16 +248,6 @@
                         default:
                             this.fitness_statement = "Beginner: I am not active at all";
                     }
-                })
-                .catch(error => console.log(error));
-            axios.get("https://restcountries.eu/rest/v2/all")
-                .then(response => {
-                    const data = response.data
-                    const possibleCountries = []
-                    for (let country in data){
-                        possibleCountries.push(data[country].name)
-                    }
-                    this.possibleCountries = possibleCountries;
                 })
                 .catch(error => console.log(error));
         },

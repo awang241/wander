@@ -31,30 +31,37 @@
         </b-button>
 
         <list v-bind:chosenItems="optionalEmails" v-on:deleteListItem="deleteEmail"></list>
+
+        <b-field>
+            <b-button native-type="submit" @click="submitEmails">Save</b-button>
+        </b-field>
+        </form>
         <b-button @click="saveEmails()"> Save </b-button>
     </div>
 </template>
 
 <script>
-    import api from "../../Api";
+
     import List from "../List";
+    import authenticationStore from "../../store/authenticationStore";
+    import Api from "../../Api";
     import authenticationStore from "../../store/authenticationStore";
     export default {
         name: "EditEmails",
         components: {List},
         methods: {
             addEmail() {
-                if (this.optionalEmails.length > 3) {
+                if(this.optionalEmails.length > 3){
                     //Todo change this to inform the user
-                    this.showWarning("Maximum emails reached")
-                } else if (this.optionalEmails.includes(this.newEmail) || this.newEmail === this.primaryEmail) {
+                  this.showWarning("Maximum emails reached")
+                } else if(this.optionalEmails.includes(this.newEmail) || this.newEmail === this.primaryEmail){
                     this.showWarning("Email is already in use")
                 } else {
                     this.optionalEmails.push(this.newEmail);
                 }
             },
             changePrimaryEmail() {
-                if (this.newPrimaryEmail === "") {
+                if(this.newPrimaryEmail === "") {
                     this.showWarning("No email selected")
                 } else {
                     this.optionalEmails.push(this.primaryEmail);
@@ -62,7 +69,8 @@
                     this.primaryEmail = this.newPrimaryEmail;
                 }
             },
-            deleteEmail(emailToDelete) {
+
+            deleteEmail(emailToDelete){
                 this.optionalEmails = this.optionalEmails.filter(email => email != emailToDelete)
             },
             saveEmails() {
@@ -99,39 +107,35 @@
                 }
             }
         }
+            showSuccess(message){
+                this.$buefy.toast.open({
+                    duration:5500,
+                    message: message,
+                    type: 'success',
+                    position: 'is-bottom'
+                })
+            },
+            submitEmails(){
+
+                Api.editEmail({
+                    "primary_email": this.primaryEmail,
+                    "additional_email": this.optionalEmails
+                }, authenticationStore.methods.getUserId(), authenticationStore.methods.getSessionId())
+                this.showSuccess("Emails submitted")
+            }
+        },
+        data() {
+            return {
+            primaryEmail: "replacewithUserRegisteredEmail@gmail.com",
+            newEmail: "",
+            newPrimaryEmail: "",
+            optionalEmails: [],
+            }
+        }
+    }
 </script>
 
 <style scoped>
-
-    .addForm {
-        width:500px;
-        top:32px;
-    }
-    .addButton{
-        position:relative;
-        bottom:30px;
-        left:500px;
-    }
-    .primaryEmailText{
-        font-size:15px;
-    }
-    .primaryEmailBox {
-        background:#a9a9a9;
-        padding:4px;
-
-    }
-    .selectNewPEList {
-       positon:absolute;
-       left:70px;
-    }
-    .changeButton {
-        position:relative;
-        bottom:47.5px;
-    }
-    .addEmailsText {
-        position:relative;
-        top:40px;
-    }
     .container {
         background-color: #F7F8F9;
     }
