@@ -126,7 +126,7 @@
         },
         data() {
             return {
-            primaryEmail: "replacewithUserRegisteredEmail@gmail.com",
+            primaryEmail: "",
             newEmail: "",
             newPrimaryEmail: "",
             optionalEmails: [],
