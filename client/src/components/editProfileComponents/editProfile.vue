@@ -1,15 +1,18 @@
 <template>
     <div class="container containerColor">
+        <h3 class="title is-4">Profile Settings</h3>
         <div class="tabs is-centered">
+
             <ul>
-                <li><a v-on:click="changeToPersonal">Edit Profile</a></li>
+                <li><a v-on:click="changeToPersonal">Basic Info</a></li>
                 <li><a v-on:click="changeToPassword">Change Password</a></li>
-                <li><a v-on:click="changeToCountries">Countries</a></li>
+                <li><a v-on:click="changeToCountries">Passport Countries</a></li>
                 <li><a v-on:click="changeToAcitivites">Activities</a></li>
-                <li><a v-on:click="changeToEmail">Email</a></li>
+                <li><a v-on:click="changeToEmail">Emails</a></li>
             </ul>
             <div>
                 <a @click="changeToProfile">Back to Profile</a>
+
             </div>
         </div>
 

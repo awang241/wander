@@ -1,8 +1,8 @@
 <template>
     <div class="container containerColor">
         <!-- Header -->
-        <section class="hero">
-            <div class="containerColor hero-body">
+        <section class="hero level">
+            <div class=" hero-body level-item">
                 <div class="container containerColor">Hello! I am
                     <h1 class="title is-1">
                         {{ firstName }} {{ middleName }} {{ lastName }}
@@ -10,8 +10,13 @@
                     <h2 class="subtitle is-3">
                         {{ nickName }}
                     </h2>
-                    <button @click="editProfile">Edit Profile</button>
+
                 </div>
+
+                <b-button  @click="editProfile"
+                           type="is-info">
+                    Edit Profile
+                </b-button>
             </div>
         </section>
         <!-- Social Media Count -->
@@ -108,7 +113,7 @@
         <!-- Activities -->
         <section class="section" id="services">
             <div class="section-heading">
-                <h3 class="center activitiesTitle title is-2">Activities</h3>
+                <h3 class="center activitiesTitle title is-3">Activities</h3>
                 <h4 class="subtitle is-5"></h4>
             </div>
             <div class="container containerColor">
@@ -127,6 +132,22 @@
                             </div>
                         </div>
                     </div>
+                    <div class="column">
+                        <div class="box">
+                            <div class="content">
+                                <h4 class="title is-5">Football</h4>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="column">
+                        <div class="box">
+                            <div class="content">
+                                <h4 class="title is-5">Basketball</h4>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
 
                 <div class="columns">
@@ -264,15 +285,6 @@
                     }
                 })
                 .catch(error => console.log(error));
-            // axios.get("https://f91246de-53d1-425e-9b1b-5524c2b62a0e.mock.pstmn.io/getusers")
-            //     .then((response) => {
-            //         let rows =  response.data['users']
-            //         for(let i=0, len=rows.length; i<len; i++){
-            //             if(rows[i].email === this.email){
-            //                 this.currentUser = rows[i]
-            //             }
-            //         }
-            //     })
             axios.get("https://restcountries.eu/rest/v2/all")
                 .then(response => {
                     const data = response.data
@@ -283,7 +295,6 @@
                     this.possibleCountries = possibleCountries;
                 })
                 .catch(error => console.log(error));
-
         },
     }
 </script>
