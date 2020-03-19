@@ -50,7 +50,7 @@ public class Profile_Controller {
             // case nothing goes wrong
             String hashedPassword = hashPassword(newProfile.getPassword());
             if (hashedPassword != "Hash Failed") {
-                newProfile.setPassword(hashedPassword);
+                newProfile.seatPassword(hashedPassword);
             }
             Set<PassportCountry> updated = new HashSet<PassportCountry>();
             for(PassportCountry passportCountry : newProfile.retrievePassportCountryObjects()){

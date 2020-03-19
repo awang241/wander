@@ -4,7 +4,7 @@ import RegistrationComponent from "./components/Registration.vue"
 import NavBarComponent from "./components/NavBar.vue";
 import ProfileComponent from "./components/Profile.vue";
 import MainpageComponent from "./components/Mainpage.vue";
-import EditProfileComponent from "./components/editProfileComponents/editProfile.vue";
+import EditProfileComponent from "./components/editprofile/EditProfile.vue";
 import authenticationStore from "./store/authenticationStore";
 
 

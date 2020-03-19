@@ -1,10 +1,10 @@
 <template>
-    <header> edit email </header>
+    <header> changePassasdfasdword</header>
 </template>
 
 <script>
     export default {
-        name: "email"
+        name: "EditPassword"
     }
 </script>
 

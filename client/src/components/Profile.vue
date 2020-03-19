@@ -244,8 +244,7 @@
                 }
             },
             editProfile(){
-                console.log("editProfile clicked");
-                router.push('editProfile');
+                router.push('EditProfile');
             }
         },
         mounted() {

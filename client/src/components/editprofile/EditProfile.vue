@@ -1,3 +1,5 @@
+<!--Container that holds all other edit componenets and allows switching between them-->
+
 <template>
     <div class="container containerColor">
         <h3 class="title is-4">Profile Settings</h3>
@@ -23,35 +25,35 @@
 </template>
 
 <script>
-    import editPersonal from "./editPersonal";
-    import changePassword from "./changePassword";
-    import countries from "./countries";
-    import activities from "./activities";
-    import editEmails from "./editEmails";
+    import editPersonal from "./EditPersonal";
+    import editPassword from "./EditPassword";
+    import editCountries from "./EditCountries";
+    import editActivities from "./EditActivities";
+    import editEmails from "./EditEmails";
     import router from "../../router";
     export default {
-        name: "editProfile",
+        name: "EditProfile",
         components: {
             editPersonal
         },
         data() {
             return {
-                component: "editPersonal"
+                component: "EditPersonal"
             }
         },
         // These methods are used to dynamically swap between components on click
         methods: {
             changeToPassword() {
-                this.component = changePassword
+                this.component = editPassword
             },
             changeToPersonal() {
                 this.component = editPersonal
             },
             changeToCountries() {
-                this.component = countries
+                this.component = editCountries
             },
             changeToAcitivites() {
-                this.component = activities
+                this.component = editActivities
             },
             changeToEmail() {
                 this.component = editEmails
