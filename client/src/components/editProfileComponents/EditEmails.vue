@@ -3,7 +3,7 @@
     <div class="container">
         <h1 class="Title">Edit Email Addresses</h1>
 
-        <h2 class="primaryEmailHeader">
+        <h2>
             Current Primary Email Address
         </h2>
 
@@ -11,24 +11,24 @@
             {{primaryEmail}}
         </label>
 
-        <b-button class="changeButton" type="is-info" @click="changePrimaryEmail()">
-            Change
-        </b-button>
-
         <form>
-            <b-field label="Enter in an email address and click the + sign to add it to your profile! (5 email limit)" class="addEmails">
-                <b-input type="email" class="addForm" v-model="newEmail" placeholder="n email's left" maxlength="30" ></b-input>
-                <b-button class="addButton" type="is-info" @click="addEmail()">
-                    +
-                </b-button>
+            <b-field label="Enter in an email address and click the + sign to add it to your profile! (5 email limit)" class="addEmailsText">
             </b-field>
+            <b-input type="email" class="addForm" v-model="newEmail" placeholder="n emails left" maxlength="30" ></b-input>
+            <b-button class="addButton" type="is-info" @click="addEmail()">
+                +
+            </b-button>
         </form>
 
-        <b-field label="Change your primary email" class="changePrimaryEmailMenuLoc">
-            <b-select placeholder="Change" v-model="newPrimaryEmail">
-                <option v-for="email in optionalEmails" :key="email">{{email}}</option>
+        <b-field label="Change your primary email">
+            <b-select v-model="newPrimaryEmail" class="selectNewPEList">
+                <option class="singleEmail" v-for="email in optionalEmails" :key="email">{{email}}</option>
             </b-select>
+
         </b-field>
+        <b-button class="changeButton changeGroup" size="is-small" type="is-info" @click="changePrimaryEmail()">
+            Change
+        </b-button>
 
         <list v-bind:chosenItems="optionalEmails" v-on:deleteListItem="deleteEmail"></list>
     </div>
@@ -76,7 +76,7 @@
         },
         data() {
             return {
-            primaryEmail: "bab@gmail.com",
+            primaryEmail: "replacewithUserRegisteredEmail@gmail.com",
             newEmail: "",
             newPrimaryEmail: "",
             optionalEmails: [],
@@ -87,46 +87,35 @@
 
 <style scoped>
 
-    /*.container {*/
-    /*    height:500px;*/
-    /*}*/
-    /*.Title {*/
-    /*    font-size:35px;*/
-    /*}*/
-    /*.primaryEmailHeader {*/
-    /*    font-size: 20px;*/
-    /*}*/
-    /*.primaryEmailText {*/
-    /*    position:absolute;*/
-    /*    top:140px;*/
-    /*    font-size:15px;*/
-    /*}*/
-    /*.addEmails {*/
-    /*    position:absolute;*/
-    /*    top:180px;*/
-    /*}*/
-    /*.addForm {*/
-    /*    width:160%;*/
-    /*}*/
-    /*.addButton {*/
-    /*    position:absolute;*/
-    /*    right:230px;*/
-    /*    top:100px;*/
-    /*}*/
-    /*.primaryEmailBox{*/
-    /*    border-radius: 0px;*/
-    /*    padding:5px;*/
-    /*    background:#f4f4f4;*/
-    /*}*/
-    /*.changePrimaryEmailMenuLoc {*/
-    /*    position:absolute;*/
-    /*    top:260px;*/
-    /*}*/
-    /*.changeButton {*/
-    /*    position:absolute;*/
-    /*    left:310px;*/
-    /*    top:293px;*/
-    /*}*/
+    .addForm {
+        width:500px;
+        top:32px;
+    }
+    .addButton{
+        position:relative;
+        bottom:30px;
+        left:500px;
+    }
+    .primaryEmailText{
+        font-size:15px;
+    }
+    .primaryEmailBox {
+        background:#a9a9a9;
+        padding:4px;
+
+    }
+    .selectNewPEList {
+       positon:absolute;
+       left:70px;
+    }
+    .changeButton {
+        position:relative;
+        bottom:47.5px;
+    }
+    .addEmailsText {
+        position:relative;
+        top:40px;
+    }
     .container {
         background-color: #F7F8F9;
     }
