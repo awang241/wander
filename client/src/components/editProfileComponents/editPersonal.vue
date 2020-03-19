@@ -101,7 +101,6 @@
                 gender: null,
                 fitness_level: null,
                 fitness_statement: null,
-                allUsers: null,
                 date: new Date(),
                 maxDate: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 5)
             }
@@ -146,7 +145,16 @@
 
         methods: {
             sendUpdatedData(){
-                //does nothing - need to send data to backend
+                const profile = {"firstName": this.firstName,
+                                "middleName": this.middleName,
+                                "lastName": this.lastName,
+                                "dateOfBirth": this.dateOfBirth,
+                                "gender": this.gender,
+                                "fitnessLevel": this.fitnessLevel,
+                                "bio": this.bio,
+                                "nickname": this.nickname
+                }
+                api.editProfile(authenticationStore.methods.getUserId(), profile, authenticationStore.methods.getSessionId())
             }
         }
     }
