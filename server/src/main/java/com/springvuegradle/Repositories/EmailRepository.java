@@ -20,5 +20,5 @@ public interface EmailRepository extends JpaRepository<Email, Long> {
     Profile findByPrimaryEmail(@Param("email") String email);
 
     @Query("SELECT e.profile FROM Email e WHERE e.address = :email")
-    Profile findByEmail(@Param("email") String email);
+    Profile findProfileByEmail(@Param("email") String email);
 }

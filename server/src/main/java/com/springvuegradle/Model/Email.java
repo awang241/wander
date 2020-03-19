@@ -23,6 +23,12 @@ public class Email {
         this.isPrimary = isPrimary;
     }
 
+    public Email(String address, boolean isPrimary, Profile profile) {
+        this.address = address;
+        this.isPrimary = isPrimary;
+        this.profile = profile;
+    }
+
     @Id
     @GeneratedValue
     private long id;

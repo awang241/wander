@@ -265,22 +265,83 @@ public class Profile_Controller {
         //}
     }
 
-    @PostMapping("/editprofile/{id}/emails")
-    public ResponseEntity<String> editEmails (@RequestBody EmailUpdateRequest newEmails, @PathVariable Long id, @RequestHeader("authorization") long sessionID){
-        if(!loginController.checkCredentials(id.intValue(), sessionID)){
+    @PutMapping("/editprofile/{id}/emails")
+    public ResponseEntity<String> editEmails (@RequestBody EmailUpdateRequest newEmails, @PathVariable Long id, @RequestHeader("authorization") long sessionID) {
+        return editEmails (newEmails, id, sessionID, false);
+    }
+
+    public ResponseEntity<String> editEmails (EmailUpdateRequest newEmails, Long id, Long sessionID, boolean testing){
+        if(!testing && !loginController.checkCredentials(id.intValue(), sessionID)){
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
+
         Profile db_profile = repository.findById(id).get();
         String primaryEmail = newEmails.getPrimaryEmail();
-        if(primaryEmail != null){
-            Email newPrimaryEmail = new Email(primaryEmail, true);
-            newPrimaryEmail.setProfile(db_profile);
+
+        Set<Email> newEmailSet = new HashSet<>();
+
+        Set<Email> oldEmails = db_profile.retrieveEmails();
+
+        List<String> duplicateDetectionList = new ArrayList(newEmails.getOptionalEmails());
+        if (newEmails.getPrimaryEmail() != null) {
+            duplicateDetectionList.add(newEmails.getPrimaryEmail());
+        }
+        if (duplicateDetectionList.size() != new HashSet(duplicateDetectionList).size()) {
+            return new ResponseEntity<>("Duplicate email addresses detected.", HttpStatus.FORBIDDEN);
         }
 
-        for(String optionalEmail : newEmails.getOptionalEmails()){
-            Email newOptionalEmail = new Email(optionalEmail, false);
-            newOptionalEmail.setProfile(db_profile);
+        if (duplicateDetectionList.size() > 5) {
+            return new ResponseEntity<>("Cannot have more than 5 emails associated to a profile.", HttpStatus.FORBIDDEN);
         }
+
+        //primary email
+        if(primaryEmail != null) {
+            List<Email> emailsReturnedFromSearch = eRepository.findAllByAddress(primaryEmail);
+            if (emailsReturnedFromSearch.isEmpty()) {
+                newEmailSet.add(new Email(primaryEmail, true, db_profile));
+            } else if (emailsReturnedFromSearch.get(0).getId() == id) {
+                //case where primary email already associated with profile
+                Email email = emailsReturnedFromSearch.get(0);
+                email.setPrimary(true);
+                newEmailSet.add(email);
+            } else {
+                return new ResponseEntity<>("Primary email address already in use by another profile.", HttpStatus.BAD_REQUEST);
+            }
+        } else {
+            return new ResponseEntity<>("Primary address cannot be null.", HttpStatus.FORBIDDEN);
+        }
+
+        for (String optionalEmail: newEmails.getOptionalEmails()) {
+            List<Email> emailsReturnedFromSearch = eRepository.findAllByAddress(optionalEmail);
+            if (emailsReturnedFromSearch.isEmpty()) {
+                newEmailSet.add(new Email(optionalEmail, false, db_profile));
+            } else if (emailsReturnedFromSearch.get(0).getId() == id) {
+                Email email = emailsReturnedFromSearch.get(0);
+                email.setPrimary(false);
+                newEmailSet.add(email);
+            } else {
+                return new ResponseEntity<>("Email address already in use by another profile.", HttpStatus.FORBIDDEN);
+            }
+        }
+
+        for (Email emailFromOldSet: oldEmails) {
+            boolean found = false;
+            for (Email emailFromNewSet: newEmailSet) {
+                if (emailFromOldSet.getAddress() == emailFromNewSet.getAddress()) {
+                    found = true;
+                }
+            }
+            if (!found) {
+                eRepository.delete(emailFromOldSet);
+            }
+        }
+
+        for (Email email: newEmailSet) {
+            eRepository.save(email);
+        }
+
+        db_profile.setEmails(newEmailSet);
+        repository.save(db_profile);
 
         return new ResponseEntity<>(HttpStatus.OK);
 
