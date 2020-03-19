@@ -19,7 +19,8 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Tests for the Profile_Controller class, these tests are run separate from the actual repository.
+ * Tests for the Profile_Controller class, these tests are run separate from the actual repository. Spring Boot configures
+ * an in-memory H2 database specifically for testing.
  * Author: Hamesh Ravji
  */
 @ExtendWith(SpringExtension.class)
@@ -161,24 +162,36 @@ class ProfileControllerTest {
 
     /* Below are a set of ready-made Profile objects which can be used for various tests. */
 
+    /**
+     * @return a valid profile object.
+     */
     static Profile createJimmy() {
         return new Profile(null, "Jimmy", "Quick", "Jones", "Jim-Jam", "jimjam@hotmail.com", new String[]{"additional@email.com"}, "hushhush",
                 "The quick brown fox jumped over the lazy dog.", new GregorianCalendar(1999, Calendar.NOVEMBER,
                 28), "male", 1, new String[]{"New Zealand", "India"});
     }
 
+    /**
+     * @return a profile object with an invalid country name.
+     */
     static Profile createDummyJimmy() {
         return new Profile(null, "Jimmy", "Quick", "Jones", "Jim-Jam", "jimjam@hotmail.com", new String[]{"additional@email.com"}, "hushhush",
                 "The quick brown fox jumped over the lazy dog.", new GregorianCalendar(1999, Calendar.NOVEMBER,
                 28), "male", 1, new String[]{"Cowabunga"});
     }
 
+    /**
+     * @return a valid profile object.
+     */
     static Profile createMaurice() {
         return new Profile(null, "Maurice", "Benson", "Jack", "Jacky", "jacky@google.com", new String[]{"additionaldoda@email.com"}, "jacky'sSecuredPwd",
                 "Jacky loves to ride his bike on crazy mountains.", new GregorianCalendar(1985, Calendar.DECEMBER,
                 20), "male", 1, new String[]{"New Zealand", "India"});
     }
 
+    /**
+     * @return an invalid profile object with fields containing empty strings.
+     */
     static Profile createDummyMaurice() {
         return new Profile(null, "", "", "Jack", "Jacky", "", new String[]{"additionaldoda@email.com"}, "hush",
                 "Jacky loves to ride his bike on crazy mountains.", new GregorianCalendar(1985, Calendar.DECEMBER,
