@@ -9,7 +9,7 @@
                 <li><a v-on:click="changeToPersonal">Basic Info</a></li>
                 <li><a v-on:click="changeToPassword">Change Password</a></li>
                 <li><a v-on:click="changeToCountries">Passport Countries</a></li>
-                <li><a v-on:click="changeToAcitivites">Activities</a></li>
+                <li><a v-on:click="changeToActivities">Activities</a></li>
                 <li><a v-on:click="changeToEmail">Emails</a></li>
             </ul>
             <div>
@@ -52,7 +52,7 @@
             changeToCountries() {
                 this.component = editCountries
             },
-            changeToAcitivites() {
+            changeToActivities() {
                 this.component = editActivities
             },
             changeToEmail() {

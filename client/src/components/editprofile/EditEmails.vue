@@ -9,18 +9,17 @@
 
         <form>
             <b-field group-multiline grouped>
-                <b-field label="Enter in an email address and click the + sign to add it to your profile! (5 email limit)" expanded></b-field>
+                <b-field label="Enter in an email address and click the + sign to add it to your profile! (5 email limit)"></b-field>
                     <b-input type="email" v-model="newEmail" placeholder="n emails left" maxlength="30" expanded></b-input>
                     <b-button type="is-info" @click="addEmail()">+</b-button>
             </b-field>
 
-        <b-field label="Change your primary email">
-            <b-select v-model="newPrimaryEmail" class="selectNewPEList">
-                <option class="singleEmail" v-for="email in optionalEmails" :key="email">{{email}}</option>
+        <b-field label="Change your primary email" expanded>
+            <b-select v-model="newPrimaryEmail" expanded>
+                <option v-for="email in optionalEmails" :key="email">{{email}}</option>
             </b-select>
-
         </b-field>
-        <b-button class="changeButton changeGroup" size="is-small" type="is-info" @click="changePrimaryEmail()">
+        <b-button size="is-small" type="is-info" @click="changePrimaryEmail()">
             Change
         </b-button>
 
