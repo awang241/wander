@@ -38,7 +38,7 @@
         },
         data() {
             return {
-                component: "EditPersonal"
+                component: "editPersonal"
             }
         },
         // These methods are used to dynamically swap between components on click

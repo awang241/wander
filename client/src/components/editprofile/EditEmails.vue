@@ -3,23 +3,30 @@
     <div class="container">
         <h1 class="Title">Edit Email Addresses</h1>
 
-        <h2 expanded>
-            Current Primary Email Address: {{primaryEmail}}
+        <h2>
+            Current Primary Email Address
         </h2>
 
-        <form>
-            <b-field group-multiline grouped>
-                <b-field label="Enter in an email address and click the + sign to add it to your profile! (5 email limit)"></b-field>
-                    <b-input type="email" v-model="newEmail" placeholder="n emails left" maxlength="30" expanded></b-input>
-                    <b-button type="is-info" @click="addEmail()">+</b-button>
-            </b-field>
+        <label class="primaryEmailText primaryEmailBox">
+            {{primaryEmail}}
+        </label>
 
-        <b-field label="Change your primary email" expanded>
-            <b-select v-model="newPrimaryEmail" expanded>
-                <option v-for="email in optionalEmails" :key="email">{{email}}</option>
+        <form>
+            <b-field label="Enter in an email address and click the + sign to add it to your profile! (5 email limit)" class="addEmailsText">
+            </b-field>
+            <b-input type="email" class="addForm" v-model="newEmail" placeholder="n emails left" maxlength="30" ></b-input>
+            <b-button class="addButton" type="is-info" @click="addEmail()">
+                +
+            </b-button>
+        </form>
+
+        <b-field label="Change your primary email">
+            <b-select v-model="newPrimaryEmail" class="selectNewPEList">
+                <option class="singleEmail" v-for="email in optionalEmails" :key="email">{{email}}</option>
             </b-select>
+
         </b-field>
-        <b-button size="is-small" type="is-info" @click="changePrimaryEmail()">
+        <b-button class="changeButton changeGroup" size="is-small" type="is-info" @click="changePrimaryEmail()">
             Change
         </b-button>
 
@@ -28,15 +35,16 @@
         <b-field>
             <b-button click="submitEmails">Save</b-button>
         </b-field>
-        </form>
+
     </div>
 </template>
 
 <script>
 
     import List from "../List";
-    import Api from "../../Api";
     import authenticationStore from "../../store/authenticationStore";
+    import Api from "../../Api";
+
     export default {
         name: "EditEmails",
         components: {List},
@@ -60,10 +68,17 @@
                     this.primaryEmail = this.newPrimaryEmail;
                 }
             },
-
             deleteEmail(emailToDelete){
                 this.optionalEmails = this.optionalEmails.filter(email => email != emailToDelete)
             },
+            submitEmails(){
+                Api.editEmail({
+                    "primary_email": this.primaryEmail,
+                    "additional_email": this.optionalEmails
+                }, authenticationStore.methods.getUserId(), authenticationStore.methods.getSessionId())
+                this.showSuccess("Emails submitted")
+                }
+            }  ,
             showWarning(message) {
                 this.$buefy.snackbar.open({
                     duration: 5000,
@@ -81,18 +96,16 @@
                     position: 'is-bottom'
                 })
             },
-            submitEmails(){
-
-                Api.editEmail({
-                    "primary_email": this.primaryEmail,
-                    "additional_email": this.optionalEmails
-                }, authenticationStore.methods.getUserId(), authenticationStore.methods.getSessionId())
-                this.showSuccess("Emails submitted")
-            }
-        },
+            mounted() {
+                Api.getProfile(authenticationStore.methods.getUserId(), authenticationStore.methods.getSessionId())
+                    .then((response) => {
+                        this.primaryEmail = response.data.email;
+                        console.log(this.primaryEmail)
+                    })
+            },
         data() {
             return {
-            primaryEmail: "replacewithUserRegisteredEmail@gmail.com",
+            primaryEmail: "",
             newEmail: "",
             newPrimaryEmail: "",
             optionalEmails: [],
@@ -105,4 +118,5 @@
     .container {
         background-color: #F7F8F9;
     }
+
 </style>
