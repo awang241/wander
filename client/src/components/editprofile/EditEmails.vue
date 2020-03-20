@@ -23,7 +23,7 @@
             <b-field label="Enter in an email address and click the + sign to add it to your profile! (5 email limit)" expanded></b-field>
             <b-field group-multiline grouped>
                 <b-input type="email" class="addForm" v-model="newEmail" placeholder="n emails left" maxlength="30" expanded ></b-input>
-                <b-button class="addButton" type="is-info" @click="addEmail()">+</b-button>
+                <b-button class="addButton" type="is-info" @click="addEmail()">Add</b-button>
             </b-field>
         </form>
 
@@ -40,6 +40,7 @@
 
     import List from "../List";
     import authenticationStore from "../../store/authenticationStore";
+    import profileStore from "../../store/profileStore";
     import Api from "../../Api";
 
     export default {
@@ -69,9 +70,11 @@
                 this.optionalEmails = this.optionalEmails.filter(email => email != emailToDelete)
             },
             submitEmails(){
+                profileStore.methods.setOptionalEmails(this.optionalEmails)
+                profileStore.methods.setPrimaryEmail(this.primaryEmail)
                 Api.editEmail({
-                    "primary_email": this.primaryEmail,
-                    "additional_email": this.optionalEmails
+                    "primary_email": profileStore.data.primaryEmail,
+                    "additional_email": profileStore.data.optionalEmails
                 }, authenticationStore.methods.getUserId(), authenticationStore.methods.getSessionId())
                 this.showSuccess("Emails submitted")
                 }
@@ -102,10 +105,10 @@
             },
         data() {
             return {
-            primaryEmail: "",
+            primaryEmail: profileStore.data.primaryEmail,
             newEmail: "",
             newPrimaryEmail: "",
-            optionalEmails: [],
+            optionalEmails: profileStore.data.optionalEmails,
             }
         }
     }

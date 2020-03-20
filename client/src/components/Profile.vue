@@ -186,6 +186,7 @@
 <script>
     import api from '../Api';
     import authenticationStore from "../store/authenticationStore";
+    import profileStore from "../store/profileStore";
     import router from "../router";
 
     export default {
@@ -218,8 +219,10 @@
             // Retrieves user data using their id number. Will change to token at some point
             api.getProfile(authenticationStore.methods.getUserId(), authenticationStore.methods.getSessionId())
                 .then((response) => {
-                    console.log(response.data);
-                    console.log(response.data.firstname)
+
+                    //Save to auth store
+                    profileStore.methods.setProfile(response.data)
+
                     this.firstName = response.data.firstname;
                     this.lastName = response.data.lastname;
                     this.middleName = response.data.middlename;
