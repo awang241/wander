@@ -242,13 +242,31 @@ public class Profile_Controller {
 
 
     /**
-     * Takes a Profile object and finds the corresponding profile in the database, then replaces the old profile data
-     * with the new profile data in the database, then updates it.
-     * @param editedProfile
-     * @return true if the operation was completed successfully, false otherwise.
+     * Updates a profile in the database given a request to do so.
+     * @param editedProfile a profile object created from the request
+     * @param id the ID of the profile being edited, pulled from the URL as a path variable.
+     * @param sessionID session ID generated at login that is associated with this profile, pulled from the request header.
+     * @return
      */
-    @PostMapping("/editprofile")
-    public @ResponseBody ResponseEntity<Profile> updateProfile(@RequestBody Profile editedProfile) {
+    @PutMapping("/editprofile/{id}")
+    public @ResponseBody ResponseEntity<Profile> updateProfile(@RequestBody Profile editedProfile, @RequestHeader("authorization") long sessionID, @PathVariable Long id) {
+        return updateProfile(editedProfile, sessionID, id, false);
+    }
+
+    /**
+     * Updates a profile in the database given a request to do so. This version contains a flag to disable authentication
+     * for the purposes of automated testing.
+     * @param editedProfile a profile object created from the request
+     * @param id the ID of the profile being edited, pulled from the URL as a path variable.
+     * @param sessionID session ID generated at login that is associated with this profile, pulled from the request header.
+     * @param testing flag to indicate that method is being tested and should ignore authentication
+     * @return An HTTP response with an appropriate status code and the updated profile if there method was successful.
+     */
+    public ResponseEntity<Profile> updateProfile(Profile editedProfile, long sessionID, Long id, boolean testing){
+        if(!testing && !loginController.checkCredentials(id.intValue(), sessionID)){
+            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+        }
+
         if (verifyProfile(editedProfile) != "") {
             return new ResponseEntity(null, HttpStatus.BAD_REQUEST);
         }
@@ -257,6 +275,11 @@ public class Profile_Controller {
             Profile db_profile = repository.findById(profile_id).get();
             db_profile.updateProfile(editedProfile);
 
+            EmailUpdateRequest mockRequest = new EmailUpdateRequest(new ArrayList<String>(db_profile.getAdditional_email()), db_profile.getPrimary_email(), id.intValue());
+            ResponseEntity<String> response = editEmails(mockRequest, id, sessionID, testing);
+            if (!response.getStatusCode().equals(HttpStatus.OK)) {
+                return new ResponseEntity<>(null, response.getStatusCode());
+            }
             repository.save(db_profile);
 
             return new ResponseEntity(db_profile, HttpStatus.OK);
@@ -265,11 +288,27 @@ public class Profile_Controller {
         //}
     }
 
+    /**
+     * Updates a profile's emails in the database given a request to do so.
+     * @param newEmails The profile's new primary/additional emails embedded in an EmailUpdateRequest.
+     * @param id the ID of the profile being edited, pulled from the URL as a path variable.
+     * @param sessionID session ID generated at login that is associated with this profile, pulled from the request header.
+     * @return An HTTP response with an appropriate status code and, if there was a problem with the request, an error message.
+     */
     @PutMapping("/editprofile/{id}/emails")
     public ResponseEntity<String> editEmails (@RequestBody EmailUpdateRequest newEmails, @PathVariable Long id, @RequestHeader("authorization") long sessionID) {
         return editEmails (newEmails, id, sessionID, false);
     }
 
+    /**
+     * Updates a profile's emails in the database given a request to do so. This version contains a flag to disable authentication
+     * for the purposes of automated testing.
+     * @param newEmails The profile's new primary/additional emails embedded in an EmailUpdateRequest
+     * @param id the ID of the profile being edited
+     * @param sessionID session ID generated at login that is associated with this profile
+     * @param testing flag to indicate that method is being tested and should ignore authentication
+     * @return An HTTP response with an appropriate status code and, if there was a problem with the request, an error message.
+     */
     public ResponseEntity<String> editEmails (EmailUpdateRequest newEmails, Long id, Long sessionID, boolean testing){
         if(!testing && !loginController.checkCredentials(id.intValue(), sessionID)){
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
