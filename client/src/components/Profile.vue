@@ -78,7 +78,7 @@
                                     </tr>
                                     <tr>
                                         <td>Email:</td>
-                                        <td>{{ email }}</td>
+                                        <td>{{ primaryEmail }}</td>
                                     </tr>
                                 </table>
                             </div>
