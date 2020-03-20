@@ -74,13 +74,14 @@
     import api from "../../Api";
     import authenticationStore from "../../store/authenticationStore";
     // import router from "../../router";
+    import profileStore from "../../store/profileStore";
 
     export default {
         name: "EditPersonal",
         data() {
             const today = new Date()
             return {
-                firstName: null,
+                firstName: profileStore.data.firstName,
                 lastName: null,
                 middleName: null,
                 password: null,
