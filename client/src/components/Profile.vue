@@ -1,8 +1,8 @@
 <template>
     <div class="container containerColor">
         <!-- Header -->
-        <section class="hero">
-            <div class="containerColor hero-body">
+        <section class="hero level">
+            <div class=" hero-body level-item">
                 <div class="container containerColor">Hello! I am
                     <h1 class="title is-1">
                         {{ firstName }} {{ middleName }} {{ lastName }}
@@ -10,8 +10,13 @@
                     <h2 class="subtitle is-3">
                         {{ nickName }}
                     </h2>
-                    <button @click="editProfile">Edit Profile</button>
+
                 </div>
+
+                <b-button  @click="editProfile"
+                           type="is-info">
+                    Edit Profile
+                </b-button>
             </div>
         </section>
         <!-- Social Media Count -->
@@ -73,7 +78,9 @@
                                     </tr>
                                     <tr>
                                         <td>Email:</td>
-                                        <td>{{ email }}</td>
+                                        <td>{{ primaryEmail }}</td>
+                                        <td>{{ additionalEmails }}</td>
+
                                     </tr>
                                 </table>
                             </div>
@@ -108,7 +115,7 @@
         <!-- Activities -->
         <section class="section" id="services">
             <div class="section-heading">
-                <h3 class="center activitiesTitle title is-2">Activities</h3>
+                <h3 class="center activitiesTitle title is-3">Activities</h3>
                 <h4 class="subtitle is-5"></h4>
             </div>
             <div class="container containerColor">
@@ -127,6 +134,22 @@
                             </div>
                         </div>
                     </div>
+                    <div class="column">
+                        <div class="box">
+                            <div class="content">
+                                <h4 class="title is-5">Football</h4>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="column">
+                        <div class="box">
+                            <div class="content">
+                                <h4 class="title is-5">Basketball</h4>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
 
                 <div class="columns">
@@ -155,36 +178,20 @@
             </div>
             <div class="container containerColor">
                 <div class="box">
-                    <h3 class="title is-4">Add a country</h3>
-                    <AddCountry v-bind:possibleCountries="possibleCountries" v-bind:chosenCountries="chosenCountries" v-on:addCountry="addCountry"></AddCountry>
-                    <countries v-bind:chosenItems="chosenCountries" v-on:deleteListItem="deleteCountry"></countries>
+                    <h3 v-for="country in chosenCountries" :key="country" class="title is-4">{{country}}</h3>
                 </div>
             </div>
         </section>
     </div>
-
-
-    <!--            <li v-for="(value, key) in currentUser" v-bind:key="key">-->
-    <!--                {{key}} : {{value}}-->
-    <!--            </li>-->
-
-
-
-
-
 </template>
 
 <script>
-    import axios from 'axios'
     import api from '../Api';
-    import AddCountry from "./AddCountry";
-    import Countries from "./List";
     import authenticationStore from "../store/authenticationStore";
     import router from "../router";
 
     export default {
         name: "Profile",
-        components: {AddCountry, Countries},
         data() {
             return {
                 currentUser: null,
@@ -195,36 +202,18 @@
                 dateOfBirth: null,
                 gender: null,
                 bio: null,
-                email: null,
+                primaryEmail: null,
+                additionalEmails: [],
                 fitness_level: null,
                 fitness_statement: null,
                 possibleCountries: [],
-                chosenCountries: []
+                chosenCountries: ["New Zealand", "Japan"]
             }
         },
         methods: {
-            showCountryInListWarning() {
-                this.$buefy.snackbar.open({
-                    duration: 5000,
-                    message: 'Country is already in list',
-                    type: 'is-danger',
-                    position: 'is-bottom-left',
-                    queue: false,
-                })
-            },
-            deleteCountry(chosenCountry){
-                this.chosenCountries = this.chosenCountries.filter(country => country != chosenCountry)
-            },
-            addCountry(newCountry){
-                if(!this.chosenCountries.includes(newCountry.name)){
-                    this.chosenCountries = [...this.chosenCountries, newCountry.name]
-                } else {
-                    this.showCountryInListWarning()
-                }
-            },
+
             editProfile(){
-                console.log("editProfile clicked");
-                router.push('editProfile');
+                router.push('EditProfile');
             }
         },
         mounted() {
@@ -240,7 +229,8 @@
                     this.dateOfBirth = response.data.date_of_birth;
                     this.gender = response.data.gender;
                     this.bio = response.data.bio;
-                    this.email = response.data.email;
+                    this.primaryEmail = response.data.primary_email;
+                    this.additionalEmails = response.data.additional_email;
                     this.fitness_level = response.data.fitness_level;
                     this.chosenCountries = response.data.passport_countries;
                     switch(response.data.fitness_level) {
@@ -264,26 +254,6 @@
                     }
                 })
                 .catch(error => console.log(error));
-            // axios.get("https://f91246de-53d1-425e-9b1b-5524c2b62a0e.mock.pstmn.io/getusers")
-            //     .then((response) => {
-            //         let rows =  response.data['users']
-            //         for(let i=0, len=rows.length; i<len; i++){
-            //             if(rows[i].email === this.email){
-            //                 this.currentUser = rows[i]
-            //             }
-            //         }
-            //     })
-            axios.get("https://restcountries.eu/rest/v2/all")
-                .then(response => {
-                    const data = response.data
-                    const possibleCountries = []
-                    for (let country in data){
-                        possibleCountries.push(data[country].name)
-                    }
-                    this.possibleCountries = possibleCountries;
-                })
-                .catch(error => console.log(error));
-
         },
     }
 </script>

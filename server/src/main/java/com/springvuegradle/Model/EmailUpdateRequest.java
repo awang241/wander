@@ -1,6 +1,5 @@
 package com.springvuegradle.Model;
 
-import javax.persistence.Entity;
 import java.util.ArrayList;
 
 /**
@@ -8,30 +7,30 @@ import java.util.ArrayList;
  */
 public class EmailUpdateRequest {
 
-    private ArrayList<String> optionalEmails;
-    private String primaryEmail;
+    private ArrayList<String> additional_email;
+    private String primary_email;
     private int userId;
 
-    public EmailUpdateRequest(ArrayList<String> optionalEmails, String primaryEmail, int userId){
-        this.optionalEmails = optionalEmails;
-        this.primaryEmail = primaryEmail;
+    public EmailUpdateRequest(ArrayList<String> additional_email, String primary_email, int userId){
+        this.additional_email = additional_email;
+        this.primary_email = primary_email;
         this.userId = userId;
     }
 
-    public ArrayList<String> getOptionalEmails() {
-        return optionalEmails;
+    public ArrayList<String> getAdditional_email() {
+        return additional_email;
     }
 
-    public void setOptionalEmails(ArrayList<String> optionalEmails) {
-        this.optionalEmails = optionalEmails;
+    public void setAdditional_email(ArrayList<String> additional_email) {
+        this.additional_email = additional_email;
     }
 
-    public String getPrimaryEmail() {
-        return primaryEmail;
+    public String getPrimary_email() {
+        return primary_email;
     }
 
-    public void setPrimaryEmail(String primaryEmail) {
-        this.primaryEmail = primaryEmail;
+    public void setPrimary_email(String primary_email) {
+        this.primary_email = primary_email;
     }
 
     public int getUserId() {

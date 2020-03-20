@@ -91,6 +91,20 @@ class ProfileControllerTest {
         assertTrue(jimmy.equals(db_jimmy));
     }
 
+
+    @Test
+    void addEmailToProfileTest() {
+        Profile jimmy = createJimmy();
+
+        int expected_in_repo = 0;
+        assertEquals(expected_in_repo, repo.count());
+
+        ResponseEntity<String> response_entity = profileController.createProfile(jimmy);
+        assertEquals(HttpStatus.CREATED, response_entity.getStatusCode());
+
+
+    }
+
     @Test
     void getProfileDoesNotExistTest() {
         int expected_in_repo = 0;

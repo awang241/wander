@@ -310,20 +310,24 @@ public class Profile_Controller {
      * @return An HTTP response with an appropriate status code and, if there was a problem with the request, an error message.
      */
     public ResponseEntity<String> editEmails (EmailUpdateRequest newEmails, Long id, Long sessionID, boolean testing){
-        if(!testing && !loginController.checkCredentials(id.intValue(), sessionID)){
+        if(false && !testing && !loginController.checkCredentials(id.intValue(), sessionID)){
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
 
         Profile db_profile = repository.findById(id).get();
-        String primaryEmail = newEmails.getPrimaryEmail();
+        String primaryEmail = newEmails.getPrimary_email();
 
         Set<Email> newEmailSet = new HashSet<>();
 
         Set<Email> oldEmails = db_profile.retrieveEmails();
 
-        List<String> duplicateDetectionList = new ArrayList(newEmails.getOptionalEmails());
-        if (newEmails.getPrimaryEmail() != null) {
-            duplicateDetectionList.add(newEmails.getPrimaryEmail());
+        List<String> duplicateDetectionList = new ArrayList<>();
+
+        for (String emailString: newEmails.getAdditional_email()) {
+            duplicateDetectionList.add(emailString);
+        }
+        if (newEmails.getPrimary_email() != null) {
+            duplicateDetectionList.add(newEmails.getPrimary_email());
         }
         if (duplicateDetectionList.size() != new HashSet(duplicateDetectionList).size()) {
             return new ResponseEntity<>("Duplicate email addresses detected.", HttpStatus.FORBIDDEN);
@@ -350,7 +354,7 @@ public class Profile_Controller {
             return new ResponseEntity<>("Primary address cannot be null.", HttpStatus.FORBIDDEN);
         }
 
-        for (String optionalEmail: newEmails.getOptionalEmails()) {
+        for (String optionalEmail: newEmails.getAdditional_email()) {
             List<Email> emailsReturnedFromSearch = eRepository.findAllByAddress(optionalEmail);
             if (emailsReturnedFromSearch.isEmpty()) {
                 newEmailSet.add(new Email(optionalEmail, false, db_profile));

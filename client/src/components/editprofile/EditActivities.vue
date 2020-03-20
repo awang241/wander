@@ -1,10 +1,10 @@
 <template>
-    <header> edit email </header>
+    <header> edit activities</header>
 </template>
 
 <script>
     export default {
-        name: "email"
+        name: "EditActivities"
     }
 </script>
 

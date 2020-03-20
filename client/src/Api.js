@@ -13,7 +13,8 @@ const localAxiosInstance = axios.create({
 export default {
   createProfile: (user) => localAxiosInstance.post('createprofile', user),
   login: (user) => localAxiosInstance.post('login', user),
+  editProfile: (userId, newData, sessionId) => localAxiosInstance.put('/profiles/' + userId, newData, {headers: {"authorization":sessionId}}),
   logout: (userId, sessionId) => localAxiosInstance.post('logout/', userId, {headers: {"authorization":sessionId}}),
-  getProfile: (id, sessionId) => localAxiosInstance.get('getprofile/'+id, {headers: {"authorization":sessionId}}),
-  editEmail: (emails, id, sessionId) => localAxiosInstance.post('editprofile/'+id+'/emails', emails, {headers: {"authorization":sessionId}})
+  getProfile: (userId, sessionId) => localAxiosInstance.get('getprofile/'+userId, {headers: {"authorization":sessionId}}),
+  editEmail: (emails, userId, sessionId) => localAxiosInstance.put('editprofile/'+userId+'/emails', emails, {headers: {"authorization":sessionId}})
 }

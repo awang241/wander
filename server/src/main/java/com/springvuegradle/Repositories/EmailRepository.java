@@ -17,7 +17,7 @@ public interface EmailRepository extends JpaRepository<Email, Long> {
     Boolean existsByAddress(String address);
 
     @Query("SELECT e.profile FROM Email e WHERE e.address = :email AND e.isPrimary = true")
-    Profile findByPrimaryEmail(@Param("email") String email);
+    List<Profile> findByPrimaryEmail(@Param("email") String email);
 
     @Query("SELECT e.profile FROM Email e WHERE e.address = :email")
     Profile findProfileByEmail(@Param("email") String email);
