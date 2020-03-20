@@ -30,7 +30,7 @@
         <list v-bind:chosenItems="optionalEmails" v-on:deleteListItem="deleteEmail"></list>
 
         <b-field>
-            <b-button click="submitEmails">Save</b-button>
+            <b-button type="is-info" @click="submitEmails">Save</b-button>
         </b-field>
 
     </div>

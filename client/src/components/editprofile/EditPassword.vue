@@ -15,7 +15,7 @@
                 <b-input v-model="confirmPassword" type="password" placeholder="Confirm Password" required></b-input>
             </b-field>
             <b-field>
-                <b-button native-type="submit">Save</b-button>
+                <b-button type="is-info" native-type="submit">Save</b-button>
             </b-field>
         </form>
     </div>
