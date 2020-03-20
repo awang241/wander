@@ -3,75 +3,59 @@ package com.springvuegradle.Model;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Calendar;
-import java.util.GregorianCalendar;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class ProfileTest {
 
-    private Profile profile;
+    private Profile firstProfile;
+    private Profile secondProfile;
+    private Profile firstProfileAgain;
+    private Set<PassportCountry> passportCountries;
 
     @BeforeEach
-    void setup() {
-        profile = new Profile(null, "Jimmy", "Quick", "Jones", "Jim-Jam", "jimjam@hotmail.com", new String[]{"additional@email.com"}, "hushhush",
-                "The quick brown fox jumped over the lazy dog.", new GregorianCalendar(1999, Calendar.NOVEMBER,
-                28), "male", 1, new String[]{"New Zealand", "India"});
+    void setUp() {
+        Calendar calendar = new GregorianCalendar(2000, 11, 15);
+        firstProfile = new Profile("Steve", "Tester", "The", "Stevetest",
+                "Steve@test.com", "987654321", "Here to run some tests!", calendar,
+                "Male");
+        secondProfile = new Profile("Dave", "Tester", "The", "Davetest",
+                "Dave@test.com", "987654321", "Here to run some tests!", calendar,
+                "Male");
+        firstProfileAgain = new Profile("Steve", "Tester", "The", "Stevetest",
+                "Steve@test.com", "987654321", "Here to run some tests!", calendar,
+                "Male");
+
+        PassportCountry firstCountry = new PassportCountry("USA");
+        PassportCountry secondCountry = new PassportCountry("UK");
+        passportCountries = Set.of(firstCountry, secondCountry);
     }
 
     @Test
-    void addEmailToProfile() {
-
-        boolean added = profile.addEmail(new Email("jimmy@edu.com"));
-        assertTrue(added);
-
+    void testTwoProfilesAreEqual(){
+        assertEquals(firstProfile, firstProfileAgain);
     }
 
     @Test
-    void addMoreThan5EmailsToProfile() {
-        assertEquals(2, profile.retrieveEmails().size());
-        boolean added = profile.addEmail(new Email("jimmy@edu.com"));
-        assertTrue(added);
-        assertEquals(3, profile.retrieveEmails().size());
-        added = profile.addEmail(new Email("jimmy1@edu.com"));
-        assertTrue(added);
-        assertEquals(4, profile.retrieveEmails().size());
-        added = profile.addEmail(new Email("jimmy2@edu.com"));
-        assertTrue(added);
-        assertEquals(5, profile.retrieveEmails().size());
-
-        // this next email should be rejected as the max number of emails has been reached.
-        added = profile.addEmail(new Email("jimmy3@edu.com"));
-        assertFalse(added);
-        assertEquals(5, profile.retrieveEmails().size());
+    void testUpdateProfileWithNewInfo(){
+        firstProfile.updateProfile(secondProfile);
+        assertEquals(firstProfile.getFirstname(), secondProfile.getFirstname());
+        assertEquals(firstProfile.getNickname(), secondProfile.getNickname());
+        assertEquals(firstProfile.getEmail(), secondProfile.getEmail());
     }
 
     @Test
-    void addDuplicateEmailsToProfile() {
-        assertEquals(2, profile.retrieveEmails().size());
-        boolean added = profile.addEmail(new Email("jimmy@edu.com"));
-        assertTrue(added);
-        assertEquals(3, profile.retrieveEmails().size());
-
-        // this next email should be rejected as it has the same address as the last email added.
-        added = profile.addEmail(new Email("jimmy@edu.com"));
-        assertFalse(added);
-        assertEquals(3, profile.retrieveEmails().size());
+    void testGetListOfCountryNames(){
+        firstProfile.setPassport_countries(passportCountries);
+        assertEquals(2, firstProfile.getPassport_countries().size());
+        assertEquals(firstProfile.getPassport_countries().get(0).getClass(), String.class);
     }
 
     @Test
-    void removeEmailFromProfile() {
+    void testGetDateOfBirthInCorrectStringFormat(){
+        String expectedString = "2000-12-15";
+        assertEquals(expectedString, firstProfile.getDate_of_birth());
     }
 
-    @Test
-    void changePrimaryEmail() {
-    }
-
-    @Test
-    void addPassportCountry() {
-    }
-
-    @Test
-    void removePassportCountry() {
-    }
 }
