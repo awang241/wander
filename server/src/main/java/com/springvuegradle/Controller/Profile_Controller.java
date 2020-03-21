@@ -1,9 +1,6 @@
 package com.springvuegradle.Controller;
 
-import com.springvuegradle.Model.EmailUpdateRequest;
-import com.springvuegradle.Model.PassportCountry;
-import com.springvuegradle.Model.Profile;
-import com.springvuegradle.Model.Email;
+import com.springvuegradle.Model.*;
 import com.springvuegradle.Repositories.EmailRepository;
 import com.springvuegradle.Repositories.PassportCountryRepository;
 import com.springvuegradle.Utilities.ValidationHelper;
@@ -65,7 +62,7 @@ public class Profile_Controller {
                     updated.add(result.get(0));
                 }
             }
-            newProfile.setPassport_countries(updated);
+            newProfile.setPassports(updated);
             repository.save(newProfile);
             saveEmails(newProfile);
             //save profile to database
@@ -100,7 +97,7 @@ public class Profile_Controller {
         if (newProfile.getPassword().length() < 8) {
             error += "The Password is not long enough.\n";
         }
-        if (newProfile.getFitness_level() > 4 || newProfile.getFitness_level() < 0) {
+        if (newProfile.getFitness() > 4 || newProfile.getFitness() < 0) {
             error += "The fitness level isn't valid.\n";
         }
         if (newProfile.getDate_of_birth() == "" ||
@@ -198,6 +195,36 @@ public class Profile_Controller {
         return isAdded;
     }
 
+    @PutMapping("/profiles/{id}/password")
+    public ResponseEntity<String> changePassword (@RequestBody ChangePasswordRequest newPasswordRequest, @PathVariable Long id, @RequestHeader("authorization") long sessionID) {
+        if(!loginController.checkCredentials(id.intValue(), sessionID)){
+            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+        }
+
+        if (newPasswordRequest.getNewPassword().length() < 8) {
+            return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
+        }
+
+        Profile db_profile = repository.findById(id).get();
+        if (db_profile == null) {
+            return new ResponseEntity<>("Could not find profile in repository.", HttpStatus.NOT_FOUND);
+        }
+
+        String db_hashed_password = db_profile.getPassword();
+
+        if (!hashPassword(newPasswordRequest.getCurrentPassword()).equals(db_hashed_password)) {
+            return new ResponseEntity<>("Entered incorrect password.", HttpStatus.BAD_REQUEST);
+        }
+
+        if (!newPasswordRequest.getNewPassword().equals(newPasswordRequest.getConfPassword())) {
+            return new ResponseEntity<>("New passwords do not match.", HttpStatus.BAD_REQUEST);
+        }
+        String new_hashed_password = hashPassword(newPasswordRequest.getNewPassword());
+        db_profile.setPassword(new_hashed_password);
+        repository.save(db_profile);
+        return new ResponseEntity<>("Successfully changed password.", HttpStatus.OK);
+    }
+
     /**
      * Takes the plaintext password and hashes it
      * @param plainPassword the plaintext password to input
@@ -248,7 +275,7 @@ public class Profile_Controller {
      * @param sessionID session ID generated at login that is associated with this profile, pulled from the request header.
      * @return
      */
-    @PutMapping("/editprofile/{id}")
+    @PutMapping("/profiles/{id}")
     public @ResponseBody ResponseEntity<Profile> updateProfile(@RequestBody Profile editedProfile, @RequestHeader("authorization") long sessionID, @PathVariable Long id) {
         return updateProfile(editedProfile, sessionID, id, false);
     }
@@ -270,22 +297,18 @@ public class Profile_Controller {
         if (verifyProfile(editedProfile) != "") {
             return new ResponseEntity(null, HttpStatus.BAD_REQUEST);
         }
-        //if(loginController.checkCredentials(editedProfile.getId().intValue(), sessionID)) {
-            Long profile_id = editedProfile.getId();
-            Profile db_profile = repository.findById(profile_id).get();
-            db_profile.updateProfile(editedProfile);
+        Long profile_id = editedProfile.getId();
+        Profile db_profile = repository.findById(profile_id).get();
+        db_profile.updateProfile(editedProfile);
 
-            EmailUpdateRequest mockRequest = new EmailUpdateRequest(new ArrayList<String>(db_profile.getAdditional_email()), db_profile.getPrimary_email(), id.intValue());
-            ResponseEntity<String> response = editEmails(mockRequest, id, sessionID, testing);
-            if (!response.getStatusCode().equals(HttpStatus.OK)) {
-                return new ResponseEntity<>(null, response.getStatusCode());
-            }
-            repository.save(db_profile);
+        EmailUpdateRequest mockRequest = new EmailUpdateRequest(new ArrayList<String>(db_profile.getAdditional_email()), db_profile.getPrimary_email(), id.intValue());
+        ResponseEntity<String> response = editEmails(mockRequest, id, sessionID, testing);
+        if (!response.getStatusCode().equals(HttpStatus.OK)) {
+            return new ResponseEntity<>(null, response.getStatusCode());
+        }
+        repository.save(db_profile);
 
-            return new ResponseEntity(db_profile, HttpStatus.OK);
-        //} else {
-        //    return new ResponseEntity(null, HttpStatus.UNAUTHORIZED);
-        //}
+        return new ResponseEntity(db_profile, HttpStatus.OK);
     }
 
     /**
@@ -295,7 +318,7 @@ public class Profile_Controller {
      * @param sessionID session ID generated at login that is associated with this profile, pulled from the request header.
      * @return An HTTP response with an appropriate status code and, if there was a problem with the request, an error message.
      */
-    @PutMapping("/editprofile/{id}/emails")
+    @PutMapping("/profiles/{id}/emails")
     public ResponseEntity<String> editEmails (@RequestBody EmailUpdateRequest newEmails, @PathVariable Long id, @RequestHeader("authorization") long sessionID) {
         return editEmails (newEmails, id, sessionID, false);
     }

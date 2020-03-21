@@ -98,8 +98,6 @@
                                         <div class="content">
                                             <p>
                                                 <strong>{{ fitness_statement }}</strong>
-                                                <br>
-                                                <b-progress type="is-primary" :value=this.fitness_level max="5"></b-progress>
                                             </p>
                                         </div>
                                     </div>
@@ -206,7 +204,7 @@
                 fitness_level: null,
                 fitness_statement: null,
                 possibleCountries: [],
-                chosenCountries: ["New Zealand", "Japan"]
+                chosenCountries: []
             }
         },
         methods: {
@@ -219,7 +217,6 @@
             // Retrieves user data using their id number. Will change to token at some point
             api.getProfile(authenticationStore.methods.getUserId(), authenticationStore.methods.getSessionId())
                 .then((response) => {
-
                     //Save to auth store
                     profileStore.methods.setProfile(response.data)
 

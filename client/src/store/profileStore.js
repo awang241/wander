@@ -2,10 +2,10 @@
 //Done this way to avoid complicated passing of data as props into seperate components
 const profileStore = {
     data: {
-        firstName: "frank",
-        lastName: ":)",
+        firstName: "",
+        lastName: "",
         middleName: "",
-        nickname: ":)",
+        nickname: "",
         primaryEmail: "",
         optionalEmails:[],
         bio:"",
@@ -16,30 +16,30 @@ const profileStore = {
 
     },
     methods: {
-        setPassportCountries(countries) {
-            profileStore.data.passportCountries = countries;
+        setPassportCountries(passports) {
+            profileStore.data.passportCountries = passports;
         },
-        setPrimaryEmail(primaryEmail) {
-            profileStore.data.primaryEmail = primaryEmail;
+        setPrimaryEmail(primary_email) {
+            profileStore.data.primaryEmail = primary_email;
         },
-        setOptionalEmails(optionalEmails) {
-            profileStore.data.optionalEmails = optionalEmails;
+        setOptionalEmails(additional_email) {
+            profileStore.data.optionalEmails = additional_email;
         },
         updatePersonal(updatedProfile) {
-            profileStore.data.firstName = updatedProfile.firstName;
-            profileStore.data.lastName = updatedProfile.lastName;
-            profileStore.data.middleName = updatedProfile.middleName;
+            profileStore.data.firstName = updatedProfile.firstname;
+            profileStore.data.lastName = updatedProfile.lastname;
+            profileStore.data.middleName = updatedProfile.middlename;
             profileStore.data.nickname = updatedProfile.nickname;
             profileStore.data.bio = updatedProfile.bio;
-            profileStore.data.dateOfBirth = updatedProfile.dateOfBirth;
+            profileStore.data.dateOfBirth = updatedProfile.date_of_birth;
             profileStore.data.gender = updatedProfile.gender;
-            profileStore.data.fitnessLevel = updatedProfile.fitnessLevel;
+            profileStore.data.fitnessLevel = updatedProfile.fitness_level;
         },
         setProfile(profile){
             profileStore.methods.updatePersonal(profile)
-            profileStore.data.primaryEmail = profile.primaryEmail;
-            profileStore.data.optionalEmails = profile.optionalEmails;
-            profileStore.data.passportCountries = profile.passport_countries;
+            profileStore.data.primaryEmail = profile.primary_email;
+            profileStore.data.optionalEmails = profile.additional_email;
+            profileStore.data.passportCountries = profile.passports;
         }
     }
 };

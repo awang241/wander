@@ -2,7 +2,7 @@
 
     <div class="container">
 
-        <h1 class="Title">Edit Basic Info</h1>
+        <h1 class="title is-5">Edit Basic Info</h1>
 
         <form @submit="sendUpdatedData">
             <b-field group-multiline grouped>
@@ -83,9 +83,9 @@
                 firstName: profileStore.data.firstName,
                 lastName: profileStore.data.lastName,
                 middleName: profileStore.data.middleName,
-                nickName: profileStore.data.nickName,
+                nickName: profileStore.data.nickname,
                 bio: profileStore.data.bio,
-                dateOfBirth: profileStore.data.dateOfBirth,
+                dateOfBirth: new Date(profileStore.data.dateOfBirth),
                 gender: profileStore.data.gender,
                 fitness_level: profileStore.data.fitnessLevel,
                 fitness_statement: null,
@@ -118,14 +118,14 @@
 
         methods: {
             sendUpdatedData(){
-                const personalDetails = {"firstName": this.firstName,
-                                 "lastName": this.lastName,
-                                "middleName": this.middleName,
+                const personalDetails = {"firstname": this.firstName,
+                                 "lastname": this.lastName,
+                                "middlename": this.middleName,
                                 "nickname": this.nickname,
                                 "bio": this.bio,
-                                "dateOfBirth": this.dateOfBirth,
+                                "date_of_birth": this.dateOfBirth,
                                 "gender": this.gender,
-                                "fitnessLevel": this.fitnessLevel,
+                                "fitness": this.fitnessLevel,
                 }
                 profileStore.methods.updatePersonal(personalDetails)
                 const updatedProfile = {
@@ -139,7 +139,7 @@
                     "date_of_birth": profileStore.data.dateOfBirth,
                     "gender": profileStore.data.gender,
                     "fitness": profileStore.data.fitnessLevel,
-                    "passports":profileStore.data.passportCountries,
+                    "passports":profileStore.data.passportCountries
                 }
                 api.editProfile(authenticationStore.methods.getUserId(), updatedProfile, authenticationStore.methods.getSessionId())
             }
@@ -150,6 +150,8 @@
 <style scoped>
     .container {
         background-color: #F7F8F9;
+        margin-top: 0px;
+        padding: 0px;
     }
 
 

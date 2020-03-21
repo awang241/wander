@@ -2,11 +2,8 @@ package com.springvuegradle.Model;
 
 import com.fasterxml.jackson.annotation.*;
 
-import javax.management.AttributeList;
 import javax.persistence.*;
-import java.sql.Date;
 import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Entity
@@ -27,13 +24,13 @@ public class Profile {
     private String bio;
     private Calendar date_of_birth;
     private String gender;
-    private int fitness_level;
+    private int fitness;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "profile_passport_country",
             inverseJoinColumns = @JoinColumn(name = "passport_country_id", referencedColumnName = "id"),
             joinColumns = @JoinColumn(name = "profile_id", referencedColumnName = "id"))
-    private Set<PassportCountry> passport_countries;
+    private Set<PassportCountry> passports;
 
     /**
      * No argument constructor for Profile, can be used for creating new profiles directly from JSON data.
@@ -65,8 +62,8 @@ public class Profile {
                    @JsonProperty("bio") String bio,
                    @JsonProperty("date_of_birth") Calendar date_of_birth,
                    @JsonProperty("gender") String gender,
-                   @JsonProperty("fitness_level") int fitness_level,
-                   @JsonProperty("passport_countries") String[] passport_countries) {
+                   @JsonProperty("fitness") int fitness,
+                   @JsonProperty("passports") String[] passports) {
         this.firstname = firstname;
         this.lastname = lastname;
         this.middlename = middlename;
@@ -84,9 +81,9 @@ public class Profile {
         this.bio = bio;
         this.date_of_birth = date_of_birth;
         this.gender = gender;
-        this.fitness_level = fitness_level;
-        this.passport_countries = new HashSet<>();
-        for (String name: passport_countries) {
+        this.fitness = fitness;
+        this.passports = new HashSet<>();
+        for (String name: passports) {
             addPassportCountry(new PassportCountry(name));
         }
     }
@@ -170,28 +167,28 @@ public class Profile {
      * Gets the passport countries as a string of names instead of objects
      * @return list of country name strings
      */
-    public List<String> getPassport_countries() {
+    public List<String> getPassports() {
         List<String> countryNames = new ArrayList<>();
-        for (PassportCountry country : passport_countries){
+        for (PassportCountry country : passports){
             countryNames.add(country.getCountryName());
         }
         return countryNames;
     }
 
     public Set<PassportCountry> retrievePassportCountryObjects() {
-        return this.passport_countries;
+        return this.passports;
     }
 
-    public void setPassport_countries(Set<PassportCountry> passport_countries) {
-        this.passport_countries = passport_countries;
+    public void setPassports(Set<PassportCountry> passport_countries) {
+        this.passports = passport_countries;
     }
 
     public void addPassportCountry(PassportCountry passportCountry) {
-        passport_countries.add(passportCountry);
+        passports.add(passportCountry);
     }
 
     public void removePassportCountry(PassportCountry passportCountry) {
-        passport_countries.remove(passportCountry);
+        passports.remove(passportCountry);
     }
 
     /**
@@ -208,8 +205,8 @@ public class Profile {
         this.bio = editedProfile.bio;
         this.date_of_birth = editedProfile.date_of_birth;
         this.gender = editedProfile.gender;
-        this.fitness_level = editedProfile.fitness_level;
-        this.passport_countries = editedProfile.passport_countries;
+        this.fitness = editedProfile.fitness;
+        this.passports = editedProfile.passports;
     }
 
     /**
@@ -221,22 +218,25 @@ public class Profile {
     public boolean equals(Object o) {
         if (o instanceof Profile) {
             Profile other = (Profile) o;
-            return this.firstname.equals(other.firstname) &&
-                    this.lastname.equals(other.lastname) &&
-                    this.middlename.equals(other.middlename) &&
-                    this.nickname.equals(other.nickname) &&
-                    this.emails.equals(other.emails) &&
-                    this.password.equals(other.password) &&
-                    this.bio.equals(other.bio) &&
-                    //this.getDate_of_birth() == other.getDate_of_birth() &&
-                    this.gender.equals(other.gender) &&
-                    this.fitness_level == other.fitness_level &&
-                    this.passport_countries.equals(other.passport_countries);
-        } else {
-            return false;
+            if(
+                    this.firstname.equals(other.firstname)
+                            && this.lastname.equals(other.lastname)
+                    && this.middlename.equals(other.middlename)
+                    && this.nickname.equals(other.nickname)
+                    && this.getPrimary_email().equals(other.getPrimary_email())
+                    && this.getAdditional_email().equals(other.getAdditional_email())
+                    && this.password.equals(other.password)
+                    && this.bio.equals(other.bio)
+                    && this.getDate_of_birth().equals(other.getDate_of_birth())
+                    && this.gender.equals(other.gender)
+                    && this.fitness == other.fitness
+                    && this.getPassports().equals(other.getPassports())
+                   )
+            {
+                return true;
+            }
         }
-
-
+            return false;
     }
 
     /** Series of Getters and Getters **/
@@ -257,9 +257,9 @@ public class Profile {
         this.gender = gender;
     }
 
-    public int getFitness_level(){return fitness_level;}
+    public int getFitness(){return fitness;}
 
-    public void setFitness_level(int fitness_level){this.fitness_level = fitness_level;}
+    public void setFitness(int fitness_level){this.fitness = fitness_level;}
 
 
 

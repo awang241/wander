@@ -1,7 +1,7 @@
 <template>
 
     <div class="container">
-        <h1 class="Title">Edit Email Addresses</h1>
+        <h1 class="title is-5">Edit Email Addresses</h1>
 
         <b-field label="Current Primary Email Address:"></b-field>
         <h2>{{primaryEmail}}</h2>
@@ -96,13 +96,6 @@
                     position: 'is-bottom'
                 })
             },
-            mounted() {
-                Api.getProfile(authenticationStore.methods.getUserId(), authenticationStore.methods.getSessionId())
-                    .then((response) => {
-                        this.primaryEmail = response.data.email;
-                        console.log(this.primaryEmail)
-                    })
-            },
         data() {
             return {
             primaryEmail: profileStore.data.primaryEmail,
@@ -117,6 +110,8 @@
 <style scoped>
     .container {
         background-color: #F7F8F9;
+        margin-top: 0px;
+        padding: 0px;
     }
 
 </style>
