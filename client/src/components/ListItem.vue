@@ -2,14 +2,19 @@
 <template>
     <div class="country">
         <p>{{listItem}}</p>
-        <b-button type="is-danger" size="is-small" @click="$emit('deleteListItem', listItem)">X</b-button>
+        <b-button type="is-danger" size="is-small" @click="deleteListItem">X</b-button>
     </div>
 </template>
 
 <script>
     export default {
         name: "ListItem",
-        props: ["listItem"]
+        props: ["listItem"],
+        methods: {
+            deleteListItem(){
+                this.$emit('deleteListItem', this.listItem)
+            }
+        }
     }
 </script>
 
