@@ -83,7 +83,7 @@
                 firstName: profileStore.data.firstName,
                 lastName: profileStore.data.lastName,
                 middleName: profileStore.data.middleName,
-                nickName: profileStore.data.nickName,
+                nickName: profileStore.data.nickname,
                 bio: profileStore.data.bio,
                 dateOfBirth: profileStore.data.dateOfBirth,
                 gender: profileStore.data.gender,
@@ -125,7 +125,7 @@
                                 "bio": this.bio,
                                 "dateOfBirth": this.dateOfBirth,
                                 "gender": this.gender,
-                                "fitnessLevel": this.fitnessLevel,
+                                "fitnessLevel": this.fitnessLevel
                 }
                 profileStore.methods.updatePersonal(personalDetails)
                 const updatedProfile = {
@@ -139,7 +139,7 @@
                     "date_of_birth": profileStore.data.dateOfBirth,
                     "gender": profileStore.data.gender,
                     "fitness": profileStore.data.fitnessLevel,
-                    "passports":profileStore.data.passportCountries,
+                    "passports":profileStore.data.passportCountries
                 }
                 api.editProfile(authenticationStore.methods.getUserId(), updatedProfile, authenticationStore.methods.getSessionId())
             }
