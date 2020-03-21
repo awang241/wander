@@ -275,7 +275,7 @@ public class Profile_Controller {
      * @param sessionID session ID generated at login that is associated with this profile, pulled from the request header.
      * @return
      */
-    @PutMapping("/editprofile/{id}")
+    @PutMapping("/profiles/{id}")
     public @ResponseBody ResponseEntity<Profile> updateProfile(@RequestBody Profile editedProfile, @RequestHeader("authorization") long sessionID, @PathVariable Long id) {
         return updateProfile(editedProfile, sessionID, id, false);
     }

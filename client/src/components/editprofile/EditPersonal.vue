@@ -2,7 +2,7 @@
 
     <div class="container">
 
-        <h1 class="Title">Edit Basic Info</h1>
+        <h1 class="title is-5">Edit Basic Info</h1>
 
         <form @submit="sendUpdatedData">
             <b-field group-multiline grouped>
@@ -150,6 +150,8 @@
 <style scoped>
     .container {
         background-color: #F7F8F9;
+        margin-top: 0px;
+        padding: 0px;
     }
 
 

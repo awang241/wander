@@ -98,8 +98,6 @@
                                         <div class="content">
                                             <p>
                                                 <strong>{{ fitness_statement }}</strong>
-                                                <br>
-                                                <b-progress type="is-primary" :value=this.fitness_level max="5"></b-progress>
                                             </p>
                                         </div>
                                     </div>
@@ -222,7 +220,7 @@
                     //Save to auth store
                     profileStore.methods.setProfile(response.data)
 
-                    this.firstName = response.data.firstName;
+                    this.firstName = response.data.firstname;
                     this.lastName = response.data.lastname;
                     this.middleName = response.data.middlename;
                     this.nickName = response.data.nickname;

@@ -2,7 +2,7 @@
 
     <div class="container">
 
-        <h1 class="Title">Change Password</h1>
+        <h1 class="title is-5">Change Password</h1>
 
         <form @submit.prevent="updatePassword">
             <b-field label="Current Password" expanded >
@@ -59,6 +59,8 @@
 <style scoped>
     .container {
         background-color: #F7F8F9;
+        margin-top: 0px;
+        padding: 0px;
     }
 
 </style>
