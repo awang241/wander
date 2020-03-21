@@ -42,7 +42,7 @@ class ProfileTest {
         firstProfile.updateProfile(secondProfile);
         assertEquals(firstProfile.getFirstname(), secondProfile.getFirstname());
         assertEquals(firstProfile.getNickname(), secondProfile.getNickname());
-        assertEquals(firstProfile.getEmail(), secondProfile.getEmail());
+        assertEquals(firstProfile.getPrimary_email(), secondProfile.getPrimary_email());
     }
 
     @Test

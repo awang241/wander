@@ -1,9 +1,6 @@
 package com.springvuegradle.Controller;
 
-import com.springvuegradle.Model.EmailUpdateRequest;
-import com.springvuegradle.Model.PassportCountry;
-import com.springvuegradle.Model.Profile;
-import com.springvuegradle.Model.Email;
+import com.springvuegradle.Model.*;
 import com.springvuegradle.Repositories.EmailRepository;
 import com.springvuegradle.Repositories.PassportCountryRepository;
 import com.springvuegradle.Utilities.ValidationHelper;
@@ -198,6 +195,36 @@ public class Profile_Controller {
         return isAdded;
     }
 
+    @PutMapping("/profiles/{id}/password")
+    public ResponseEntity<String> changePassword (@RequestBody ChangePasswordRequest newPasswordRequest, @PathVariable Long id, @RequestHeader("authorization") long sessionID) {
+        if(!loginController.checkCredentials(id.intValue(), sessionID)){
+            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+        }
+
+        if (newPasswordRequest.getNewPassword().length() < 8) {
+            return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
+        }
+
+        Profile db_profile = repository.findById(id).get();
+        if (db_profile == null) {
+            return new ResponseEntity<>("Could not find profile in repository.", HttpStatus.NOT_FOUND);
+        }
+
+        String db_hashed_password = db_profile.getPassword();
+
+        if (!hashPassword(newPasswordRequest.getCurrentPassword()).equals(db_hashed_password)) {
+            return new ResponseEntity<>("Entered incorrect password.", HttpStatus.BAD_REQUEST);
+        }
+
+        if (!newPasswordRequest.getNewPassword().equals(newPasswordRequest.getConfPassword())) {
+            return new ResponseEntity<>("New passwords do not match.", HttpStatus.BAD_REQUEST);
+        }
+        String new_hashed_password = hashPassword(newPasswordRequest.getNewPassword());
+        db_profile.setPassword(new_hashed_password);
+        repository.save(db_profile);
+        return new ResponseEntity<>("Successfully changed password.", HttpStatus.OK);
+    }
+
     /**
      * Takes the plaintext password and hashes it
      * @param plainPassword the plaintext password to input
@@ -295,7 +322,7 @@ public class Profile_Controller {
      * @param sessionID session ID generated at login that is associated with this profile, pulled from the request header.
      * @return An HTTP response with an appropriate status code and, if there was a problem with the request, an error message.
      */
-    @PutMapping("/editprofile/{id}/emails")
+    @PutMapping("/profiles/{id}/emails")
     public ResponseEntity<String> editEmails (@RequestBody EmailUpdateRequest newEmails, @PathVariable Long id, @RequestHeader("authorization") long sessionID) {
         return editEmails (newEmails, id, sessionID, false);
     }
