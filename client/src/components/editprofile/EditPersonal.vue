@@ -85,7 +85,7 @@
                 middleName: profileStore.data.middleName,
                 nickName: profileStore.data.nickname,
                 bio: profileStore.data.bio,
-                dateOfBirth: profileStore.data.dateOfBirth,
+                dateOfBirth: new Date(profileStore.data.dateOfBirth),
                 gender: profileStore.data.gender,
                 fitness_level: profileStore.data.fitnessLevel,
                 fitness_statement: null,
@@ -118,14 +118,14 @@
 
         methods: {
             sendUpdatedData(){
-                const personalDetails = {"firstName": this.firstName,
-                                 "lastName": this.lastName,
-                                "middleName": this.middleName,
+                const personalDetails = {"firstname": this.firstName,
+                                 "lastname": this.lastName,
+                                "middlename": this.middleName,
                                 "nickname": this.nickname,
                                 "bio": this.bio,
-                                "dateOfBirth": this.dateOfBirth,
+                                "date_of_birth": this.dateOfBirth,
                                 "gender": this.gender,
-                                "fitnessLevel": this.fitnessLevel
+                                "fitness": this.fitnessLevel,
                 }
                 profileStore.methods.updatePersonal(personalDetails)
                 const updatedProfile = {

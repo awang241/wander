@@ -96,13 +96,6 @@
                     position: 'is-bottom'
                 })
             },
-            mounted() {
-                Api.getProfile(authenticationStore.methods.getUserId(), authenticationStore.methods.getSessionId())
-                    .then((response) => {
-                        this.primaryEmail = response.data.email;
-                        console.log(this.primaryEmail)
-                    })
-            },
         data() {
             return {
             primaryEmail: profileStore.data.primaryEmail,
