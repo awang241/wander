@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="container">
         <h4 class="title is-5">Add Countries</h4>
         <b-field>
             <b-select placeholder="Select a country" v-model="newCountry" expanded>
@@ -90,5 +90,10 @@
 </script>
 
 <style scoped>
+    .container {
+        background-color: #F7F8F9;
+        margin-top: 0px;
+        padding: 0px;
+    }
 
 </style>
