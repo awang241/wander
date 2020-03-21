@@ -275,7 +275,7 @@ public class Profile_Controller {
      * @param sessionID session ID generated at login that is associated with this profile, pulled from the request header.
      * @return
      */
-    @PutMapping("/editprofile/{id}")
+    @PutMapping("/profiles/{id}")
     public @ResponseBody ResponseEntity<Profile> updateProfile(@RequestBody Profile editedProfile, @RequestHeader("authorization") long sessionID, @PathVariable Long id) {
         return updateProfile(editedProfile, sessionID, id, false);
     }
@@ -297,22 +297,18 @@ public class Profile_Controller {
         if (verifyProfile(editedProfile) != "") {
             return new ResponseEntity(null, HttpStatus.BAD_REQUEST);
         }
-        //if(loginController.checkCredentials(editedProfile.getId().intValue(), sessionID)) {
-            Long profile_id = editedProfile.getId();
-            Profile db_profile = repository.findById(profile_id).get();
-            db_profile.updateProfile(editedProfile);
+        Long profile_id = editedProfile.getId();
+        Profile db_profile = repository.findById(profile_id).get();
+        db_profile.updateProfile(editedProfile);
 
-            EmailUpdateRequest mockRequest = new EmailUpdateRequest(new ArrayList<String>(db_profile.getAdditional_email()), db_profile.getPrimary_email(), id.intValue());
-            ResponseEntity<String> response = editEmails(mockRequest, id, sessionID, testing);
-            if (!response.getStatusCode().equals(HttpStatus.OK)) {
-                return new ResponseEntity<>(null, response.getStatusCode());
-            }
-            repository.save(db_profile);
+        EmailUpdateRequest mockRequest = new EmailUpdateRequest(new ArrayList<String>(db_profile.getAdditional_email()), db_profile.getPrimary_email(), id.intValue());
+        ResponseEntity<String> response = editEmails(mockRequest, id, sessionID, testing);
+        if (!response.getStatusCode().equals(HttpStatus.OK)) {
+            return new ResponseEntity<>(null, response.getStatusCode());
+        }
+        repository.save(db_profile);
 
-            return new ResponseEntity(db_profile, HttpStatus.OK);
-        //} else {
-        //    return new ResponseEntity(null, HttpStatus.UNAUTHORIZED);
-        //}
+        return new ResponseEntity(db_profile, HttpStatus.OK);
     }
 
     /**
