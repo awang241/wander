@@ -44,7 +44,7 @@ class LoginControllerTest {
     }
 
     @Test
-    void loginTest() {
+    void loginUserTest() {
 
         Profile jimmy = createJimmy();
         LoginRequest jimmysRequest = new LoginRequest("jimmy@yahoo.com", "asdf");
@@ -75,7 +75,7 @@ class LoginControllerTest {
     }
 //
      @Test
-     void logoutTest() {
+     void logoutUserTest() {
 
         // Tests that user can successfully logout when the correct credentials are provided
          LoginRequest mauricesRequest4 = new LoginRequest("jacky@google.com", "jacky'sSecuredPwd");
@@ -89,14 +89,25 @@ class LoginControllerTest {
 //         LogoutRequest mauriceLogoutRequest = new LogoutRequest(createMaurice().getId(), response_entity_maurice4.getBody().getSessionId());
 //
          // Tests user cannot ssuccessfully logout when incorrect credentials are provided
-         // In this case incorrect email with correct password
+         // In this case incorrect session id is given with the correct user id.
+         String session_id = "56";
          LoginRequest mauricesRequest5 = new LoginRequest("jacky@google.com", "jacky'sSecuredPwd");
          ResponseEntity<LoginResponse> response_entity_maurice5 = loginController.loginUser(mauricesRequest5);
          Long id1 = response_entity_maurice5.getBody().getUserId();
          LogoutRequest logoutRequest1 = new LogoutRequest(id1);
-         ResponseEntity loggedOut1 = loginController.logoutUser(logoutRequest1, response_entity_maurice5.getBody().getSessionId().toString());
-         assertEquals(HttpStatus.UNAUTHORIZED, loggedOut.getStatusCode());
-        }
+         ResponseEntity loggedOut1 = loginController.logoutUser(logoutRequest1, session_id);
+         assertEquals(HttpStatus.UNAUTHORIZED, loggedOut1.getStatusCode());
+
+         // Tests user cannot ssuccessfully logout when incorrect credentials are provided
+         // In this case incorrect user_id is given with correct session id.
+         LoginRequest mauricesRequest6 = new LoginRequest("jacky@google.com", "jacky'sSecuredPwd");
+         ResponseEntity<LoginResponse> response_entity_maurice6 = loginController.loginUser(mauricesRequest6);
+         Long i = new Long(899);
+         LogoutRequest logoutRequest2 = new LogoutRequest(i);
+         ResponseEntity loggedOut2 = loginController.logoutUser(logoutRequest2,response_entity_maurice6.getBody().getSessionId().toString());
+         assertEquals(HttpStatus.UNAUTHORIZED, loggedOut2.getStatusCode());
+
+    }
 
 
 
