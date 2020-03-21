@@ -139,7 +139,7 @@
                     "date_of_birth": profileStore.data.dateOfBirth,
                     "gender": profileStore.data.gender,
                     "fitness": profileStore.data.fitnessLevel,
-                    "passports":profileStore.data.passportCountries,
+                    "passports":profileStore.data.passportCountries
                 }
                 api.editProfile(authenticationStore.methods.getUserId(), updatedProfile, authenticationStore.methods.getSessionId())
             }

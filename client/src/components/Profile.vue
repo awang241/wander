@@ -219,7 +219,6 @@
             // Retrieves user data using their id number. Will change to token at some point
             api.getProfile(authenticationStore.methods.getUserId(), authenticationStore.methods.getSessionId())
                 .then((response) => {
-
                     //Save to auth store
                     profileStore.methods.setProfile(response.data)
 
