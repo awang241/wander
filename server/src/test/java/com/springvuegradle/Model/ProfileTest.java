@@ -20,13 +20,13 @@ class ProfileTest {
         Calendar calendar = new GregorianCalendar(2000, 11, 15);
 
 
-        firstProfile = new Profile(Long.valueOf(1), "Steve", "Tester", "The", "Stevetest",
+        firstProfile = new Profile(1L, "Steve", "Tester", "The", "Stevetest",
                 "Steve@test.com", extraEmails, "987654321", "Here to run some tests!", calendar,
                 "Male", 2, passportCountries);
-        secondProfile = new Profile(Long.valueOf(2), "Dave", "Tester", "The", "Davetest",
+        secondProfile = new Profile(2L, "Dave", "Tester", "The", "Davetest",
                 "Dave@test.com", extraEmails, "987654321", "Here to run some tests!", calendar,
                 "Male", 2, passportCountries);
-        firstProfileAgain = new Profile(Long.valueOf(3), "Steve", "Tester", "The", "Stevetest",
+        firstProfileAgain = new Profile(3L, "Steve", "Tester", "The", "Stevetest",
                 "Steve@test.com", extraEmails, "987654321", "Here to run some tests!", calendar,
                 "Male", 2, passportCountries);
 
@@ -35,7 +35,7 @@ class ProfileTest {
 
     @Test
     void testTwoProfilesAreEqual(){
-        assertTrue(firstProfile.equals(firstProfileAgain));
+        assertEquals(firstProfile, firstProfileAgain);
     }
 
     @Test

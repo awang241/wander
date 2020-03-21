@@ -24,7 +24,7 @@ import java.util.*;
  * Profile Controller Class for handling Profile Models
  */
 @RestController
-public class Profile_Controller {
+public class ProfileController {
 
     @Autowired
     private ProfileRepository repository;
@@ -41,7 +41,7 @@ public class Profile_Controller {
      * @return the created profile.
      */
 
-    @PostMapping("/createprofile")
+    @PostMapping("/profiles")
     public ResponseEntity<String> createProfile (@RequestBody Profile newProfile) {
         String error = verifyProfile(newProfile);
 
@@ -181,32 +181,35 @@ public class Profile_Controller {
     }
 
     @PutMapping("/profiles/{id}/password")
-    public ResponseEntity<String> changePassword (@RequestBody ChangePasswordRequest newPasswordRequest, @PathVariable Long id, @RequestHeader("authorization") long sessionID) {
+    public ResponseEntity<String> changePassword (@RequestBody ChangePasswordRequest newPasswordRequest, @PathVariable Long id, @RequestHeader("authorization") String sessionToken) {
+        long sessionID = LoginController.retrieveSessionID(sessionToken);
         if(!loginController.checkCredentials(id.intValue(), sessionID)){
-            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>("Invalid session ID.", HttpStatus.UNAUTHORIZED);
         }
 
         if (newPasswordRequest.getNewPassword().length() < 8) {
-            return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>("Password must be 8 characters or greater.", HttpStatus.FORBIDDEN);
         }
 
-        Profile db_profile = repository.findById(id).get();
-        if (db_profile == null) {
+        Optional<Profile> result = repository.findById(id);
+        if (!result.isPresent()) {
             return new ResponseEntity<>("Could not find profile in repository.", HttpStatus.NOT_FOUND);
         }
+        Profile dbProfile = result.get();
 
-        String db_hashed_password = db_profile.getPassword();
 
-        if (!hashPassword(newPasswordRequest.getCurrentPassword()).equals(db_hashed_password)) {
+        String dbHashedPassword = dbProfile.getPassword();
+
+        if (!hashPassword(newPasswordRequest.getCurrentPassword()).equals(dbHashedPassword)) {
             return new ResponseEntity<>("Entered incorrect password.", HttpStatus.BAD_REQUEST);
         }
 
         if (!newPasswordRequest.getNewPassword().equals(newPasswordRequest.getConfPassword())) {
             return new ResponseEntity<>("New passwords do not match.", HttpStatus.BAD_REQUEST);
         }
-        String new_hashed_password = hashPassword(newPasswordRequest.getNewPassword());
-        db_profile.setPassword(new_hashed_password);
-        repository.save(db_profile);
+        String newHashedPassword = hashPassword(newPasswordRequest.getNewPassword());
+        dbProfile.setPassword(newHashedPassword);
+        repository.save(dbProfile);
         return new ResponseEntity<>("Successfully changed password.", HttpStatus.OK);
     }
 
@@ -235,8 +238,7 @@ public class Profile_Controller {
      */
     public ResponseEntity<Profile> getProfile(Long id, Long sessionID, boolean testing) {
         if (testing || loginController.checkCredentials(id.intValue(), sessionID)) {
-            Optional<Profile> profile_with_id = null;
-            profile_with_id = repository.findById(id);
+            Optional<Profile> profile_with_id = repository.findById(id);
             if (profile_with_id.isPresent()) {
                 return new ResponseEntity(profile_with_id.get(), HttpStatus.OK);
             } else {
@@ -247,9 +249,9 @@ public class Profile_Controller {
         }
     }
 
-    @GetMapping("/getprofile/{id}")
-    public @ResponseBody ResponseEntity<Profile> getProfile(@PathVariable Long id, @RequestHeader("authorization") long sessionID) {
-        return getProfile(id, sessionID, false);
+    @GetMapping("/profiles/{id}")
+    public @ResponseBody ResponseEntity<Profile> getProfile(@PathVariable Long id, @RequestHeader("authorization") String sessionToken) {
+        return getProfile(id, LoginController.retrieveSessionID(sessionToken), false);
     }
 
 
@@ -258,7 +260,7 @@ public class Profile_Controller {
      * @param editedProfile a profile object created from the request
      * @param id the ID of the profile being edited, pulled from the URL as a path variable.
      * @param sessionToken the token containing this profile's session key, pulled from the request header.
-     * @return
+     * @return An HTTP response with an appropriate status code and the updated profile if there method was successful.
      */
     @PutMapping("/profiles/{id}")
     public @ResponseBody ResponseEntity<String> updateProfile(@RequestBody Profile editedProfile, @RequestHeader("authorization") String sessionToken, @PathVariable Long id) {
@@ -409,7 +411,7 @@ public class Profile_Controller {
      * @param id the id of the profile to be deleted
      * @return http response code and feedback message on the result of the delete operation
      */
-    @DeleteMapping(value="/deleteprofile/{id}")
+    @DeleteMapping(value="/profiles/{id}")
     public @ResponseBody ResponseEntity<String> deleteProfile(@PathVariable Long id) {
         //if(loginController.checkCredentials(id.intValue(), sessionID)) {
             if (repository.existsById(id)) {
@@ -423,16 +425,6 @@ public class Profile_Controller {
         //} else {
         //    return new ResponseEntity<String>("Not logged in as that profile", HttpStatus.UNAUTHORIZED);
         //}
-    }
-
-    @GetMapping("/get")
-    public @ResponseBody ResponseEntity<String> get() {
-        return new ResponseEntity<String>("GET Response", HttpStatus.OK);
-    }
-
-    @PostMapping("/post")
-    public @ResponseBody ResponseEntity<String> post() {
-        return new ResponseEntity<String>("POST Response", HttpStatus.OK);
     }
 
     protected ProfileRepository getRepository() {

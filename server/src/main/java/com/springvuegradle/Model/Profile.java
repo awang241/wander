@@ -242,6 +242,12 @@ public class Profile {
             return false;
         }
     }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(firstname, lastname, middlename, nickname, emails, password, bio, dateOfBirth, gender, fitnessLevel, passportCountries);
+    }
+
     /** Series of Getters and Getters **/
 
     public Long getId() {

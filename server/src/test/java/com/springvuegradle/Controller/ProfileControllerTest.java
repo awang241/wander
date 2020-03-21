@@ -33,7 +33,7 @@ class ProfileControllerTest {
     private EmailRepository erepo;
 
     @Autowired
-    private Profile_Controller profileController;
+    private ProfileController profileController;
 
     /**
      * This tests to ensure profiles structured correctly can be added to the database.

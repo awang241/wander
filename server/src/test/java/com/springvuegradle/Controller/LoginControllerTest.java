@@ -5,9 +5,6 @@ import com.springvuegradle.Model.LoginRequest;
 import com.springvuegradle.Model.LoginResponse;
 import com.springvuegradle.Model.LogoutRequest;
 import com.springvuegradle.Model.Profile;
-import com.springvuegradle.Repositories.PassportCountryRepository;
-import com.springvuegradle.Repositories.ProfileRepository;
-import com.springvuegradle.Utilities.ValidationHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -19,8 +16,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import static com.springvuegradle.Controller.ProfileControllerTest.createJimmy;
-import static com.springvuegradle.Controller.ProfileControllerTest.createMaurice;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(SpringExtension.class)
@@ -31,7 +26,7 @@ class LoginControllerTest {
     private LoginController loginController;
 
     @Autowired
-    private Profile_Controller profileController;
+    private ProfileController profileController;
 
     /**
      * This test ensures profiles login in properly with the correct credentials
@@ -39,14 +34,14 @@ class LoginControllerTest {
      */
     @BeforeEach
     void beforeEach() {
-        Profile maurice = createMaurice();
+        Profile maurice = ProfileControllerTest.createNormalProfileMaurice();
         profileController.createProfile(maurice);
     }
 
     @Test
     void loginUserTest() {
 
-        Profile jimmy = createJimmy();
+        Profile jimmy = ProfileControllerTest.createNormalProfileJimmy();
         LoginRequest jimmysRequest = new LoginRequest("jimmy@yahoo.com", "asdf");
         int expected_session_counter = 0;
         // Tests that an unregistered user cannot login

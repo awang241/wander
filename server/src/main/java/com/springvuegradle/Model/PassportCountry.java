@@ -31,6 +31,7 @@ public class PassportCountry {
 
     public PassportCountry(String name){
         this.countryName = name;
+        this.numericCode = "Dummy Code";
     };
 
     @JsonCreator
