@@ -12,29 +12,31 @@ class ProfileTest {
     private Profile firstProfile;
     private Profile secondProfile;
     private Profile firstProfileAgain;
-    private Set<PassportCountry> passportCountries;
+    private String[] passportCountries = {"USA", "UK"};
+    private String[] extraEmails = {"throwayway1@gmail.com", "throwaway2@gmail.com"};
 
     @BeforeEach
     void setUp() {
         Calendar calendar = new GregorianCalendar(2000, 11, 15);
-        firstProfile = new Profile("Steve", "Tester", "The", "Stevetest",
-                "Steve@test.com", "987654321", "Here to run some tests!", calendar,
-                "Male");
-        secondProfile = new Profile("Dave", "Tester", "The", "Davetest",
-                "Dave@test.com", "987654321", "Here to run some tests!", calendar,
-                "Male");
-        firstProfileAgain = new Profile("Steve", "Tester", "The", "Stevetest",
-                "Steve@test.com", "987654321", "Here to run some tests!", calendar,
-                "Male");
 
-        PassportCountry firstCountry = new PassportCountry("USA");
-        PassportCountry secondCountry = new PassportCountry("UK");
-        passportCountries = Set.of(firstCountry, secondCountry);
+
+
+        firstProfile = new Profile(Long.valueOf(1), "Steve", "Tester", "The", "Stevetest",
+                "Steve@test.com", extraEmails, "987654321", "Here to run some tests!", calendar,
+                "Male", 2, passportCountries);
+        secondProfile = new Profile(Long.valueOf(2), "Dave", "Tester", "The", "Davetest",
+                "Dave@test.com", extraEmails, "987654321", "Here to run some tests!", calendar,
+                "Male", 2, passportCountries);
+        firstProfileAgain = new Profile(Long.valueOf(3), "Steve", "Tester", "The", "Stevetest",
+                "Steve@test.com", extraEmails, "987654321", "Here to run some tests!", calendar,
+                "Male", 2, passportCountries);
+
+
     }
 
     @Test
     void testTwoProfilesAreEqual(){
-        assertEquals(firstProfile, firstProfileAgain);
+        assertTrue(firstProfile.equals(firstProfileAgain));
     }
 
     @Test
@@ -47,7 +49,6 @@ class ProfileTest {
 
     @Test
     void testGetListOfCountryNames(){
-        firstProfile.setPassports(passportCountries);
         assertEquals(2, firstProfile.getPassports().size());
         assertEquals(firstProfile.getPassports().get(0).getClass(), String.class);
     }

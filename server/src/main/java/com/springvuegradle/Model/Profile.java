@@ -218,22 +218,25 @@ public class Profile {
     public boolean equals(Object o) {
         if (o instanceof Profile) {
             Profile other = (Profile) o;
-            return this.firstname.equals(other.firstname) &&
-                    this.lastname.equals(other.lastname) &&
-                    this.middlename.equals(other.middlename) &&
-                    this.nickname.equals(other.nickname) &&
-                    this.emails.equals(other.emails) &&
-                    this.password.equals(other.password) &&
-                    this.bio.equals(other.bio) &&
-                    //this.getDate_of_birth() == other.getDate_of_birth() &&
-                    this.gender.equals(other.gender) &&
-                    this.fitness == other.fitness &&
-                    this.passports.equals(other.passports);
-        } else {
-            return false;
+            if(
+                    this.firstname.equals(other.firstname)
+                            && this.lastname.equals(other.lastname)
+                    && this.middlename.equals(other.middlename)
+                    && this.nickname.equals(other.nickname)
+                    && this.getPrimary_email().equals(other.getPrimary_email())
+                    && this.getAdditional_email().equals(other.getAdditional_email())
+                    && this.password.equals(other.password)
+                    && this.bio.equals(other.bio)
+                    && this.getDate_of_birth().equals(other.getDate_of_birth())
+                    && this.gender.equals(other.gender)
+                    && this.fitness == other.fitness
+                    && this.getPassports().equals(other.getPassports())
+                   )
+            {
+                return true;
+            }
         }
-
-
+            return false;
     }
 
     /** Series of Getters and Getters **/
