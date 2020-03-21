@@ -43,12 +43,36 @@
         },
         methods: {
             updatePassword() {
-                const passwordDetails = {
-                    "currentPassword": this.currentPassword,
-                    "newPassword": this.password,
-                    "confPassword": this.confPassword
+                if(this.password.length < 8) {
+                    this.showMessage("Password must be 8 characters long")
+                } else {
+                    const passwordDetails = {
+                        "currentPassword": this.currentPassword,
+                        "newPassword": this.password,
+                        "confPassword": this.confPassword
+                    }
+                    api.editPassword(passwordDetails, authenticationStore.methods.getUserId(), authenticationStore.methods.getSessionId())
+                        .catch(error => this.showMessage(this.displayError(error.response.status)))
+                        .then(response => this.showMessage(this.displayError(response.status)))
+                    // this.showMessage(this.displayError(status))
                 }
-                api.editPassword(passwordDetails, authenticationStore.methods.getUserId(), authenticationStore.methods.getSessionId())
+            },
+            showMessage(message) {
+                this.$buefy.toast.open({
+                    duration: 5500,
+                    message: message,
+                    type: 'is-danger',
+                    position: 'is-top'
+                })
+            },
+            displayError(statusCode){
+                let message = ""
+                if(statusCode == 200) {
+                    message = "Password changed successfully"
+                } else if(statusCode == 400 || statusCode == 403 || statusCode == 401) {
+                    message = "Incorrect details entered"
+                }
+                return message;
             }
         }
     }
