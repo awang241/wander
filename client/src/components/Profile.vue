@@ -206,7 +206,7 @@
                 fitness_level: null,
                 fitness_statement: null,
                 possibleCountries: [],
-                chosenCountries: ["New Zealand", "Japan"]
+                chosenCountries: []
             }
         },
         methods: {
@@ -223,7 +223,7 @@
                     //Save to auth store
                     profileStore.methods.setProfile(response.data)
 
-                    this.firstName = response.data.firstname;
+                    this.firstName = response.data.firstName;
                     this.lastName = response.data.lastname;
                     this.middleName = response.data.middlename;
                     this.nickName = response.data.nickname;
