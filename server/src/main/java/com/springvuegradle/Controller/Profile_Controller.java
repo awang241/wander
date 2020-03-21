@@ -62,7 +62,7 @@ public class Profile_Controller {
                     updated.add(result.get(0));
                 }
             }
-            newProfile.setPassport_countries(updated);
+            newProfile.setPassports(updated);
             repository.save(newProfile);
             saveEmails(newProfile);
             //save profile to database
@@ -97,7 +97,7 @@ public class Profile_Controller {
         if (newProfile.getPassword().length() < 8) {
             error += "The Password is not long enough.\n";
         }
-        if (newProfile.getFitness_level() > 4 || newProfile.getFitness_level() < 0) {
+        if (newProfile.getFitness() > 4 || newProfile.getFitness() < 0) {
             error += "The fitness level isn't valid.\n";
         }
         if (newProfile.getDate_of_birth() == "" ||

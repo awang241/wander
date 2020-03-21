@@ -47,9 +47,9 @@ class ProfileTest {
 
     @Test
     void testGetListOfCountryNames(){
-        firstProfile.setPassport_countries(passportCountries);
-        assertEquals(2, firstProfile.getPassport_countries().size());
-        assertEquals(firstProfile.getPassport_countries().get(0).getClass(), String.class);
+        firstProfile.setPassports(passportCountries);
+        assertEquals(2, firstProfile.getPassports().size());
+        assertEquals(firstProfile.getPassports().get(0).getClass(), String.class);
     }
 
     @Test
