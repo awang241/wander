@@ -16,4 +16,5 @@ public class LoginResponse {
     public Long getSessionId() {
         return sessionId;
     }
+
 }

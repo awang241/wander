@@ -1,8 +1,8 @@
 <template>
-    <div>
+    <div class="container">
         <h4 class="title is-5">Add Countries</h4>
         <b-field>
-            <b-select placeholder="Select a country" v-model="country">
+            <b-select placeholder="Select a country" v-model="newCountry" expanded>
                 <option
                         v-for="country in possibleCountries"
                         :value="country"
@@ -10,30 +10,35 @@
                     {{ country }}
                 </option>
             </b-select>
-            <b-button type="is-primary" @click="addCountry">Submit</b-button>
+            <b-button type="is-primary" @click="addCountry">Add</b-button>
         </b-field>
         <List v-bind:chosenItems="chosenCountries" v-on:deleteListItem="deleteCountry"></List>
+        <b-button type="is-primary" @click="submitCountries">Save</b-button>
     </div>
 </template>
 
 <script>
     import List from "../List";
     import axios from "axios";
+    import Api from "../../Api";
+    import profileStore from "../../store/profileStore";
+    import authenticationStore from "../../store/authenticationStore";
 
     export default {
         name: "EditCountries",
-        components: List,
-        props: ["chosenCountries"],
+        components: {List},
         data(){
             return {
-                possibleCountries: ""
+                possibleCountries: "",
+                newCountry: "",
+                chosenCountries: profileStore.data.passportCountries,
             }
         },
         methods: {
-            showCountryInListWarning() {
+            showWarning(message) {
                 this.$buefy.snackbar.open({
                     duration: 5000,
-                    message: 'Country is already in list',
+                    message: message,
                     type: 'is-danger',
                     position: 'is-bottom-left',
                     queue: false,
@@ -42,12 +47,31 @@
             deleteCountry(chosenCountry) {
                 this.chosenCountries = this.chosenCountries.filter(country => country != chosenCountry)
             },
-            addCountry(newCountry) {
-                if (!this.chosenCountries.includes(newCountry.name)) {
-                    this.chosenCountries = [...this.chosenCountries, newCountry.name]
+            addCountry() {
+                if (this.newCountry === ""){
+                    this.showWarning("No country selected")
+                } else if (this.chosenCountries.includes(this.newCountry)) {
+                    this.showWarning("Country already in list")
                 } else {
-                    this.showCountryInListWarning()
+                    this.chosenCountries = [...this.chosenCountries, this.newCountry]
                 }
+            },
+            submitCountries(){
+                profileStore.methods.setPassportCountries(this.chosenCountries)
+                const updatedProfile = {
+                    "lastname": profileStore.data.lastName,
+                    "firstname": profileStore.data.firstName,
+                    "middlename": profileStore.data.middleName,
+                    "nickname": profileStore.data.nickname,
+                    "primary_email": profileStore.data.primaryEmail,
+                    "bio": profileStore.data.bio,
+                    "date_of_birth": profileStore.data.dateOfBirth,
+                    "gender": profileStore.data.gender,
+                    "fitness": profileStore.data.fitnessLevel,
+                    "passports":profileStore.data.passportCountries,
+                }
+                Api.editProfile(authenticationStore.methods.getUserId(), updatedProfile, authenticationStore.methods.getSessionId())
+
             }
         },
         mounted() {
@@ -66,5 +90,10 @@
 </script>
 
 <style scoped>
+    .container {
+        background-color: #F7F8F9;
+        margin-top: 0px;
+        padding: 0px;
+    }
 
 </style>

@@ -48,7 +48,6 @@ public class LoginController {
         LoginResponse body = null;
         HttpStatus status = null;
         List<Profile> result = eRepo.findByPrimaryEmail(request.getEmail());
-        //System.out.println(result.get(0));
         if (result.size() > 1) {
             status = HttpStatus.INTERNAL_SERVER_ERROR;
         } else if (result.size() == 0) {
@@ -116,4 +115,8 @@ public class LoginController {
         return Long.parseLong(rawAuthorizationField.substring(6).strip());
     }
 
+
+    public long getSessionCounter() {
+        return sessionCounter;
+    }
 }

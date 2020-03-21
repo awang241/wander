@@ -2,7 +2,7 @@
 
     <div class="container">
 
-        <h1 class="Title">Edit Basic Info</h1>
+        <h1 class="title is-5">Edit Basic Info</h1>
 
         <form @submit="sendUpdatedData">
             <b-field group-multiline grouped>
@@ -60,10 +60,10 @@
                 </b-select>
             </b-field>
             <b-field label="Bio" expanded>
-                <b-input maxlength="200" type="textarea" placeholder="Enter a bio"></b-input>
+                <b-input v-model="bio" maxlength="200" type="textarea" placeholder="Enter a bio"></b-input>
             </b-field>
             <b-field>
-                <b-button type="is-info" native-type="submit">Save</b-button>
+                <b-button type="is-info" native-type="submit" @click="sendUpdatedData">Save</b-button>
             </b-field>
         </form>
 
@@ -73,88 +73,75 @@
 <script>
     import api from "../../Api";
     import authenticationStore from "../../store/authenticationStore";
-    // import router from "../../router";
+    import profileStore from "../../store/profileStore";
 
     export default {
         name: "EditPersonal",
         data() {
             const today = new Date()
             return {
-                firstName: null,
-                lastName: null,
-                middleName: null,
-                password: null,
-                nickName: null,
-                bio: null,
-                dateOfBirth: null,
-                gender: null,
-                fitness_level: null,
+                firstName: profileStore.data.firstName,
+                lastName: profileStore.data.lastName,
+                middleName: profileStore.data.middleName,
+                nickName: profileStore.data.nickname,
+                bio: profileStore.data.bio,
+                dateOfBirth: new Date(profileStore.data.dateOfBirth),
+                gender: profileStore.data.gender,
+                fitness_level: profileStore.data.fitnessLevel,
                 fitness_statement: null,
-                date: new Date(),
-                email: null,
-                passportCountries: [],
+                date: profileStore.data.dateOfBirth,
                 maxDate: new Date(today.getFullYear(), today.getMonth(), today.getDate()),
                 minDate: new Date(today.getFullYear() -100, today.getMonth(), today.getDate())
             }
         },
         mounted() {
-
-            // Retrieves user data using their id number. Will change to token at some point
-            api.getProfile(authenticationStore.methods.getUserId(), authenticationStore.methods.getSessionId())
-                .then((response) => {
-                    console.log(response.data);
-                    console.log(response.data.firstname)
-                    this.firstName = response.data.firstname;
-                    this.lastName = response.data.lastname;
-                    this.middleName = response.data.middlename;
-                    this.nickName = response.data.nickname;
-                    this.dateOfBirth = new Date(response.data.date_of_birth);
-                    this.gender = response.data.gender;
-                    this.bio = response.data.bio;
-                    this.email = response.data.email;
-                    this.password = response.data.password;
-                    this.fitness_level = response.data.fitness_level;
-                    this.passportCountries = response.data.passport_countries;
-                    switch(response.data.fitness_level) {
-                        case 0 :
-                            this.fitness_statement = "Beginner: I am not active at all";
-                            break;
-                        case 1 :
-                            this.fitness_statement = "Novice: I do a low level of exercise (walking)";
-                            break;
-                        case 2 :
-                            this.fitness_statement = "Intermediate: I work out 1-2 times per week";
-                            break;
-                        case 3 :
-                            this.fitness_statement = "Advanced: I work out 3-4 times per week";
-                            break;
-                        case 4 :
-                            this.fitness_statement = "Pro: I work out 5+ times per week";
-                            break;
-                        default:
-                            this.fitness_statement = "Beginner: I am not active at all";
-                    }
-                })
-                .catch(error => console.log(error));
+            switch(this.fitness_level) {
+                case 0 :
+                    this.fitness_statement = "Beginner: I am not active at all";
+                    break;
+                case 1 :
+                    this.fitness_statement = "Novice: I do a low level of exercise (walking)";
+                    break;
+                case 2 :
+                    this.fitness_statement = "Intermediate: I work out 1-2 times per week";
+                    break;
+                case 3 :
+                    this.fitness_statement = "Advanced: I work out 3-4 times per week";
+                    break;
+                case 4 :
+                    this.fitness_statement = "Pro: I work out 5+ times per week";
+                    break;
+                default:
+                    this.fitness_statement = "Beginner: I am not active at all";
+            }
         },
 
         methods: {
             sendUpdatedData(){
-                const profile = {"firstName": this.firstName,
-                                 "lastName": this.lastName,
-                                "middleName": this.middleName,
+                const personalDetails = {"firstname": this.firstName,
+                                 "lastname": this.lastName,
+                                "middlename": this.middleName,
                                 "nickname": this.nickname,
-                                "email": this.email,
-                                "password": this.password,
                                 "bio": this.bio,
-                                "dateOfBirth": this.dateOfBirth,
+                                "date_of_birth": this.dateOfBirth,
                                 "gender": this.gender,
-                                "fitnessLevel": this.fitnessLevel,
-                                "passportCountries":this.passportCountries
-
-
+                                "fitness": this.fitnessLevel,
                 }
-                api.editProfile(authenticationStore.methods.getUserId(), profile, authenticationStore.methods.getSessionId())
+                profileStore.methods.updatePersonal(personalDetails)
+                const updatedProfile = {
+                    "lastname": profileStore.data.lastName,
+                    "firstname": profileStore.data.firstName,
+                    "middlename": profileStore.data.middleName,
+                    "nickname": profileStore.data.nickname,
+                    "primary_email": profileStore.data.primaryEmail,
+                    "additional_email": profileStore.data.optionalEmails,
+                    "bio": profileStore.data.bio,
+                    "date_of_birth": profileStore.data.dateOfBirth,
+                    "gender": profileStore.data.gender,
+                    "fitness": profileStore.data.fitnessLevel,
+                    "passports":profileStore.data.passportCountries
+                }
+                api.editProfile(authenticationStore.methods.getUserId(), updatedProfile, authenticationStore.methods.getSessionId())
             }
         }
     }
@@ -163,6 +150,8 @@
 <style scoped>
     .container {
         background-color: #F7F8F9;
+        margin-top: 0px;
+        padding: 0px;
     }
 
 

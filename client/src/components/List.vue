@@ -1,6 +1,6 @@
 <!--Container component that Holds several ListItems-->
 <template>
-    <div class="container">
+    <div>
         <div v-for="listItem in chosenItems" v-bind:key="listItem">
             <ListItem v-bind:listItem="listItem" v-on:deleteListItem="$emit('deleteListItem', listItem)"></ListItem>
         </div>

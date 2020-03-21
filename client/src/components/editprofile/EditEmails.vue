@@ -1,7 +1,7 @@
 <template>
 
     <div class="container">
-        <h1 class="Title">Edit Email Addresses</h1>
+        <h1 class="title is-5">Edit Email Addresses</h1>
 
         <b-field label="Current Primary Email Address:"></b-field>
         <h2>{{primaryEmail}}</h2>
@@ -23,14 +23,14 @@
             <b-field label="Enter in an email address and click the + sign to add it to your profile! (5 email limit)" expanded></b-field>
             <b-field group-multiline grouped>
                 <b-input type="email" class="addForm" v-model="newEmail" placeholder="n emails left" maxlength="30" expanded ></b-input>
-                <b-button class="addButton" type="is-info" @click="addEmail()">+</b-button>
+                <b-button class="addButton" type="is-info" @click="addEmail()">Add</b-button>
             </b-field>
         </form>
 
         <list v-bind:chosenItems="optionalEmails" v-on:deleteListItem="deleteEmail"></list>
 
         <b-field>
-            <b-button click="submitEmails">Save</b-button>
+            <b-button type="is-info" @click="submitEmails">Save</b-button>
         </b-field>
 
     </div>
@@ -40,6 +40,7 @@
 
     import List from "../List";
     import authenticationStore from "../../store/authenticationStore";
+    import profileStore from "../../store/profileStore";
     import Api from "../../Api";
 
     export default {
@@ -69,9 +70,11 @@
                 this.optionalEmails = this.optionalEmails.filter(email => email != emailToDelete)
             },
             submitEmails(){
+                profileStore.methods.setOptionalEmails(this.optionalEmails)
+                profileStore.methods.setPrimaryEmail(this.primaryEmail)
                 Api.editEmail({
-                    "primary_email": this.primaryEmail,
-                    "additional_email": this.optionalEmails
+                    "primary_email": profileStore.data.primaryEmail,
+                    "additional_email": profileStore.data.optionalEmails
                 }, authenticationStore.methods.getUserId(), authenticationStore.methods.getSessionId())
                 this.showSuccess("Emails submitted")
                 }
@@ -93,19 +96,12 @@
                     position: 'is-bottom'
                 })
             },
-            mounted() {
-                Api.getProfile(authenticationStore.methods.getUserId(), authenticationStore.methods.getSessionId())
-                    .then((response) => {
-                        this.primaryEmail = response.data.email;
-                        console.log(this.primaryEmail)
-                    })
-            },
         data() {
             return {
-            primaryEmail: "",
+            primaryEmail: profileStore.data.primaryEmail,
             newEmail: "",
             newPrimaryEmail: "",
-            optionalEmails: [],
+            optionalEmails: profileStore.data.optionalEmails,
             }
         }
     }
@@ -114,6 +110,8 @@
 <style scoped>
     .container {
         background-color: #F7F8F9;
+        margin-top: 0px;
+        padding: 0px;
     }
 
 </style>

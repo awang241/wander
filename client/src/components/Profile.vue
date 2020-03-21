@@ -78,7 +78,7 @@
                                     </tr>
                                     <tr>
                                         <td>Email:</td>
-                                        <td>{{ email }}</td>
+                                        <td>{{ primaryEmail }}</td>
                                     </tr>
                                 </table>
                             </div>
@@ -98,8 +98,6 @@
                                         <div class="content">
                                             <p>
                                                 <strong>{{ fitness_statement }}</strong>
-                                                <br>
-                                                <b-progress type="is-primary" :value=this.fitness_level max="5"></b-progress>
                                             </p>
                                         </div>
                                     </div>
@@ -186,6 +184,7 @@
 <script>
     import api from '../Api';
     import authenticationStore from "../store/authenticationStore";
+    import profileStore from "../store/profileStore";
     import router from "../router";
 
     export default {
@@ -205,7 +204,7 @@
                 fitness_level: null,
                 fitness_statement: null,
                 possibleCountries: [],
-                chosenCountries: ["New Zealand", "Japan"]
+                chosenCountries: []
             }
         },
         methods: {
@@ -218,8 +217,9 @@
             // Retrieves user data using their id number. Will change to token at some point
             api.getProfile(authenticationStore.methods.getUserId(), authenticationStore.methods.getSessionId())
                 .then((response) => {
-                    console.log(response.data);
-                    console.log(response.data.firstname)
+                    //Save to auth store
+                    profileStore.methods.setProfile(response.data)
+
                     this.firstName = response.data.firstname;
                     this.lastName = response.data.lastname;
                     this.middleName = response.data.middlename;

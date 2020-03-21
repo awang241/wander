@@ -122,25 +122,38 @@
 
         methods: {
             createUser() {
-                api.createProfile({
-                    lastname: this.lastName,
-                    firstname: this.firstName,
-                    middlename: this.middleName,
-                    nickname: this.nickName,
-                    primary_email: this.email,
-                    additional_email: [],
-                    password: this.password,
-                    bio: this.bio,
-                    date_of_birth: this.dateOfBirth,
-                    gender: this.gender,
-                    fitness_level: this.fitness,
-                    passport_countries: []
+                if(this.password.length < 8) {
+                    this.showWarning("Password must be 8 characters long")
+                } else {
+                    api.createProfile({
+                        lastname: this.lastName,
+                        firstname: this.firstName,
+                        middlename: this.middleName,
+                        nickname: this.nickName,
+                        primary_email: this.email,
+                        additional_email: [],
+                        password: this.password,
+                        bio: this.bio,
+                        date_of_birth: this.dateOfBirth,
+                        gender: this.gender,
+                        fitness_level: this.fitness,
+                        passport_countries: []
+                    })
+                        .then((response => {
+                            console.log(response)
+                            router.push('Login')
+                        }))
+                        .catch(error => window.alert(error.response.data))
+                }
+            },
+            showWarning(errorStatusCode) {
+                const message = errorStatusCode
+                this.$buefy.toast.open({
+                    duration: 5500,
+                    message: message,
+                    type: 'is-danger',
+                    position: 'is-top'
                 })
-                .then((response => {
-                    console.log(response)
-                    router.push('Login')
-                }))
-                .catch(error => window.alert(error.response.data))
             }
         }
     }

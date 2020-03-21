@@ -230,20 +230,18 @@ public class Profile {
                     this.lastname.equals(other.lastname) &&
                     this.middlename.equals(other.middlename) &&
                     this.nickname.equals(other.nickname) &&
-                    this.emails.equals(other.emails) &&
+                    this.getPrimary_email().equals(other.getPrimary_email()) &&
+                    this.getAdditional_email().equals(other.getAdditional_email()) &&
                     this.password.equals(other.password) &&
                     this.bio.equals(other.bio) &&
-                    //this.getDate_of_birth() == other.getDate_of_birth() &&
+                    this.getDateOfBirth().equals(other.getDateOfBirth()) &&
                     this.gender.equals(other.gender) &&
                     this.fitnessLevel == other.fitnessLevel &&
                     this.passportCountries.equals(other.passportCountries);
         } else {
             return false;
         }
-
-
     }
-
     /** Series of Getters and Getters **/
 
     public Long getId() {
