@@ -23,7 +23,7 @@ public class PassportCountry {
     @NotNull
     private String numericCode;
 
-    @ManyToMany(mappedBy = "passport_countries")
+    @ManyToMany(mappedBy = "passportCountries")
     @JsonBackReference
     private Set<Profile> profiles = new HashSet<Profile>();
 

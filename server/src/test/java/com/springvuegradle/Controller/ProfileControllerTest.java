@@ -1,6 +1,5 @@
 package com.springvuegradle.Controller;
 
-import com.springvuegradle.Model.PassportCountry;
 import com.springvuegradle.Model.Profile;
 
 import com.springvuegradle.Repositories.EmailRepository;
@@ -21,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Tests for the Profile_Controller class, these tests are run separate from the actual repository. Spring Boot configures
  * an in-memory H2 database specifically for testing.
- * Author: Hamesh Ravji
+ * @author Hamesh Ravji
  */
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
@@ -41,7 +40,7 @@ class ProfileControllerTest {
      */
     @Test
     void createProfileTest() {
-        Profile jimmy = createJimmy();
+        Profile jimmy = createNormalProfileJimmy();
         int expected_in_repo = 0;
         assertEquals(expected_in_repo, profileController.getRepository().count());
 
@@ -51,14 +50,14 @@ class ProfileControllerTest {
         expected_in_repo = 1;
         assertEquals(expected_in_repo, repo.count());
 
-        Profile maurice = createMaurice();
+        Profile maurice = createNormalProfileMaurice();
         ResponseEntity<String> response_entity_new = profileController.createProfile(maurice);
         assertEquals(HttpStatus.CREATED, response_entity_new.getStatusCode());
 
         expected_in_repo = 2;
         assertEquals(expected_in_repo, repo.count());
 
-        Profile dummyJimmy = createDummyJimmy();
+        Profile dummyJimmy = createInvalidCountryProfileJimmy();
         ResponseEntity<String> response_entity_dummy = profileController.createProfile(dummyJimmy);
         assertEquals(HttpStatus.FORBIDDEN, response_entity_dummy.getStatusCode());
 
@@ -67,58 +66,11 @@ class ProfileControllerTest {
     }
 
     /**
-     * This method tests that a profile filled correctly where the email address does not exist already in the database
-     * is saved to the database.
-     */
-    @Test
-    void getProfileSuccessTest() {
-        Profile jimmy = createJimmy();
-
-        int expected_in_repo = 0;
-        assertEquals(expected_in_repo, repo.count());
-
-        ResponseEntity<String> response_entity = profileController.createProfile(jimmy);
-        assertEquals(HttpStatus.CREATED, response_entity.getStatusCode());
-
-        expected_in_repo = 1;
-        assertEquals(expected_in_repo, repo.count());
-
-        long expected_id = repo.findAll().get(0).getId();
-
-        ResponseEntity<Profile> response_entity_new = profileController.getProfile(expected_id, null, true);
-        assertEquals(HttpStatus.OK, response_entity_new.getStatusCode());
-        Profile db_jimmy = response_entity_new.getBody();
-        assertTrue(jimmy.equals(db_jimmy));
-    }
-
-
-    @Test
-    void addEmailToProfileTest() {
-        Profile jimmy = createJimmy();
-
-        int expected_in_repo = 0;
-        assertEquals(expected_in_repo, repo.count());
-
-        ResponseEntity<String> response_entity = profileController.createProfile(jimmy);
-        assertEquals(HttpStatus.CREATED, response_entity.getStatusCode());
-
-
-    }
-
-    @Test
-    void getProfileDoesNotExistTest() {
-        int expected_in_repo = 0;
-        assertEquals(expected_in_repo, repo.count());
-        ResponseEntity<Profile> response_entity = profileController.getProfile((long) 1, null, true);
-        assertEquals(HttpStatus.NOT_FOUND, response_entity.getStatusCode());
-    }
-
-    /**
      * This method tests that the profile without the mandatory fields filled in is not saved to the database.
      */
     @Test
-    void createProfileMandatoryFieldsTest() {
-        Profile dummy_maurice = createDummyMaurice();
+    void createProfileWithoutMandatoryFieldsTest() {
+        Profile dummy_maurice = createInvalidFieldsProfileMaurice();
 
         int expected_in_repo = 0;
         assertEquals(expected_in_repo, profileController.getRepository().count());
@@ -143,7 +95,7 @@ class ProfileControllerTest {
      */
     @Test
     void createProfileExistingEmailTest() {
-        Profile jimmy = createJimmy();
+        Profile jimmy = createNormalProfileJimmy();
         int expected_in_repo = 0;
         assertEquals(expected_in_repo, repo.count());
 
@@ -153,7 +105,7 @@ class ProfileControllerTest {
         expected_in_repo = 1;
         assertEquals(expected_in_repo, repo.count());
 
-        Profile dup_jimmy = createJimmy();
+        Profile dup_jimmy = createNormalProfileJimmy();
 
         ResponseEntity<String> response_entity_dup_jimmy = profileController.createProfile(dup_jimmy);
         assertEquals(HttpStatus.FORBIDDEN, response_entity_dup_jimmy.getStatusCode());
@@ -163,6 +115,51 @@ class ProfileControllerTest {
         String actual_error_message = response_entity_dup_jimmy.getBody();
         String expected_error_message = "An email address you have entered is already in use by another Profile.\n";
         assertEquals(expected_error_message, actual_error_message);
+    }
+
+    /**
+     * This method tests that a profile filled correctly where the email address does not exist already in the database
+     * is saved to the database.
+     */
+    @Test
+    void testGetProfileNormal() {
+        Profile jimmy = createNormalProfileJimmy();
+
+        int expected_in_repo = 0;
+        assertEquals(expected_in_repo, repo.count());
+
+        ResponseEntity<String> response_entity = profileController.createProfile(jimmy);
+        assertEquals(HttpStatus.CREATED, response_entity.getStatusCode());
+
+        expected_in_repo = 1;
+        assertEquals(expected_in_repo, repo.count());
+
+        long expected_id = repo.findAll().get(0).getId();
+
+        ResponseEntity<Profile> response_entity_new = profileController.getProfile(expected_id, null, true);
+        assertEquals(HttpStatus.OK, response_entity_new.getStatusCode());
+        Profile db_jimmy = response_entity_new.getBody();
+        assertEquals(jimmy, db_jimmy);
+    }
+
+    @Test
+    void getProfileDoesNotExistTest() {
+        int expected_in_repo = 0;
+        assertEquals(expected_in_repo, repo.count());
+        ResponseEntity<Profile> response_entity = profileController.getProfile((long) 1, null, true);
+        assertEquals(HttpStatus.NOT_FOUND, response_entity.getStatusCode());
+    }
+
+
+    @Test
+    void addEmailToProfileTest() {
+        Profile jimmy = createNormalProfileJimmy();
+
+        int expected_in_repo = 0;
+        assertEquals(expected_in_repo, repo.count());
+
+        ResponseEntity<String> response_entity = profileController.createProfile(jimmy);
+        assertEquals(HttpStatus.CREATED, response_entity.getStatusCode());
     }
 
     /**
@@ -179,7 +176,7 @@ class ProfileControllerTest {
     /**
      * @return a valid profile object.
      */
-    static Profile createJimmy() {
+    static Profile createNormalProfileJimmy() {
         return new Profile(null, "Jimmy", "Quick", "Jones", "Jim-Jam", "jimjam@hotmail.com", new String[]{"additional@email.com"}, "hushhush",
                 "The quick brown fox jumped over the lazy dog.", new GregorianCalendar(1999, Calendar.NOVEMBER,
                 28), "male", 1, new String[]{"New Zealand", "India"});
@@ -188,7 +185,7 @@ class ProfileControllerTest {
     /**
      * @return a profile object with an invalid country name.
      */
-    static Profile createDummyJimmy() {
+    static Profile createInvalidCountryProfileJimmy() {
         return new Profile(null, "Jimmy", "Quick", "Jones", "Jim-Jam", "jimjam@hotmail.com", new String[]{"additional@email.com"}, "hushhush",
                 "The quick brown fox jumped over the lazy dog.", new GregorianCalendar(1999, Calendar.NOVEMBER,
                 28), "male", 1, new String[]{"Cowabunga"});
@@ -197,7 +194,7 @@ class ProfileControllerTest {
     /**
      * @return a valid profile object.
      */
-    static Profile createMaurice() {
+    static Profile createNormalProfileMaurice() {
         return new Profile(null, "Maurice", "Benson", "Jack", "Jacky", "jacky@google.com", new String[]{"additionaldoda@email.com"}, "jacky'sSecuredPwd",
                 "Jacky loves to ride his bike on crazy mountains.", new GregorianCalendar(1985, Calendar.DECEMBER,
                 20), "male", 1, new String[]{"New Zealand", "India"});
@@ -206,7 +203,7 @@ class ProfileControllerTest {
     /**
      * @return an invalid profile object with fields containing empty strings.
      */
-    static Profile createDummyMaurice() {
+    static Profile createInvalidFieldsProfileMaurice() {
         return new Profile(null, "", "", "Jack", "Jacky", "", new String[]{"additionaldoda@email.com"}, "hush",
                 "Jacky loves to ride his bike on crazy mountains.", new GregorianCalendar(1985, Calendar.DECEMBER,
                 20), "Male", 10, new String[]{"New Zealand", "India"});

@@ -2,11 +2,12 @@ package com.springvuegradle.Model;
 
 import com.fasterxml.jackson.annotation.*;
 
-import javax.management.AttributeList;
 import javax.persistence.*;
-import java.sql.Date;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Entity
@@ -14,26 +15,30 @@ public class Profile {
 
     @Id @GeneratedValue
     private Long id;
-
+    @NotNull
     private String firstname;
+    @NotNull
     private String lastname;
     private String middlename;
     private String nickname;
-
+    @NotNull @Size(min = 1, max = 5)
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "profile")
     private Set<Email> emails = new HashSet<>();
-
+    @NotNull
     private String password;
     private String bio;
-    private Calendar date_of_birth;
+    @NotNull
+    private Calendar dateOfBirth;
+    @NotNull
     private String gender;
-    private int fitness_level;
+    //@NotNull @Column(name = "fitness_level")@Min(value = 0) @Max(value = 4)
+    private int fitnessLevel;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "profile_passport_country",
             inverseJoinColumns = @JoinColumn(name = "passport_country_id", referencedColumnName = "id"),
             joinColumns = @JoinColumn(name = "profile_id", referencedColumnName = "id"))
-    private Set<PassportCountry> passport_countries;
+    private Set<PassportCountry> passportCountries;
 
     /**
      * No argument constructor for Profile, can be used for creating new profiles directly from JSON data.
@@ -50,7 +55,7 @@ public class Profile {
      * @param primaryEmail users primary email address
      * @param password (encrypted)
      * @param bio other information about the user that they wish to enter
-     * @param date_of_birth (xxxx_xx_xx -> year_month_day)
+     * @param dateOfBirth (xxxx_xx_xx -> year_month_day)
      * @param gender (Male, Female, Other)
      */
     @JsonCreator
@@ -63,10 +68,10 @@ public class Profile {
                    @JsonProperty("additional_email") String[] additionalEmails,
                    @JsonProperty("password") String password,
                    @JsonProperty("bio") String bio,
-                   @JsonProperty("date_of_birth") Calendar date_of_birth,
+                   @JsonProperty("date_of_birth") Calendar dateOfBirth,
                    @JsonProperty("gender") String gender,
                    @JsonProperty("fitness_level") int fitness_level,
-                   @JsonProperty("passport_countries") String[] passport_countries) {
+                   @JsonProperty("passport_countries") String[] passportCountries) {
         this.firstname = firstname;
         this.lastname = lastname;
         this.middlename = middlename;
@@ -82,11 +87,11 @@ public class Profile {
 
         this.password = password;
         this.bio = bio;
-        this.date_of_birth = date_of_birth;
+        this.dateOfBirth = dateOfBirth;
         this.gender = gender;
-        this.fitness_level = fitness_level;
-        this.passport_countries = new HashSet<>();
-        for (String name: passport_countries) {
+        this.fitnessLevel = fitness_level;
+        this.passportCountries = new HashSet<>();
+        for (String name: passportCountries) {
             addPassportCountry(new PassportCountry(name));
         }
     }
@@ -158,10 +163,10 @@ public class Profile {
     }
 
 
-    public String getDate_of_birth() {
+    public String getDateOfBirth() {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-        format.setCalendar(date_of_birth);
-        return format.format(date_of_birth.getTime());
+        format.setCalendar(dateOfBirth);
+        return format.format(dateOfBirth.getTime());
     }
 
 
@@ -170,28 +175,28 @@ public class Profile {
      * Gets the passport countries as a string of names instead of objects
      * @return list of country name strings
      */
-    public List<String> getPassport_countries() {
+    public List<String> getPassportCountryNames() {
         List<String> countryNames = new ArrayList<>();
-        for (PassportCountry country : passport_countries){
+        for (PassportCountry country : passportCountries){
             countryNames.add(country.getCountryName());
         }
         return countryNames;
     }
 
-    public Set<PassportCountry> retrievePassportCountryObjects() {
-        return this.passport_countries;
+    public Set<PassportCountry> getPassportCountries() {
+        return this.passportCountries;
     }
 
-    public void setPassport_countries(Set<PassportCountry> passport_countries) {
-        this.passport_countries = passport_countries;
+    public void setPassportCountries(Set<PassportCountry> passport_countries) {
+        this.passportCountries = passport_countries;
     }
 
     public void addPassportCountry(PassportCountry passportCountry) {
-        passport_countries.add(passportCountry);
+        passportCountries.add(passportCountry);
     }
 
     public void removePassportCountry(PassportCountry passportCountry) {
-        passport_countries.remove(passportCountry);
+        passportCountries.remove(passportCountry);
     }
 
     /**
@@ -206,10 +211,10 @@ public class Profile {
         this.emails = editedProfile.emails;
         this.password = editedProfile.password;
         this.bio = editedProfile.bio;
-        this.date_of_birth = editedProfile.date_of_birth;
+        this.dateOfBirth = editedProfile.dateOfBirth;
         this.gender = editedProfile.gender;
-        this.fitness_level = editedProfile.fitness_level;
-        this.passport_countries = editedProfile.passport_countries;
+        this.fitnessLevel = editedProfile.fitnessLevel;
+        this.passportCountries = editedProfile.passportCountries;
     }
 
     /**
@@ -230,8 +235,8 @@ public class Profile {
                     this.bio.equals(other.bio) &&
                     //this.getDate_of_birth() == other.getDate_of_birth() &&
                     this.gender.equals(other.gender) &&
-                    this.fitness_level == other.fitness_level &&
-                    this.passport_countries.equals(other.passport_countries);
+                    this.fitnessLevel == other.fitnessLevel &&
+                    this.passportCountries.equals(other.passportCountries);
         } else {
             return false;
         }
@@ -245,8 +250,8 @@ public class Profile {
         return id;
     }
 
-    public void setDate_of_birth(Calendar date_of_birth) {
-        this.date_of_birth = date_of_birth;
+    public void setDateOfBirth(Calendar date_of_birth) {
+        this.dateOfBirth = date_of_birth;
     }
 
     public String getGender() {
@@ -257,9 +262,9 @@ public class Profile {
         this.gender = gender;
     }
 
-    public int getFitness_level(){return fitness_level;}
+    public int getFitnessLevel(){return fitnessLevel;}
 
-    public void setFitness_level(int fitness_level){this.fitness_level = fitness_level;}
+    public void setFitnessLevel(int fitness_level){this.fitnessLevel = fitness_level;}
 
 
 

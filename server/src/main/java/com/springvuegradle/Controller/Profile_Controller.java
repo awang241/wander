@@ -55,17 +55,12 @@ public class Profile_Controller {
                 newProfile.setPassword(hashedPassword);
             }
             Set<PassportCountry> updated = new HashSet<PassportCountry>();
-            for(PassportCountry passportCountry : newProfile.retrievePassportCountryObjects()){
-                List<PassportCountry> result = pcRepository.findByCountryName(passportCountry.getCountryName());
-
-                if (result.size() == 0) {
-                    String body = String.format("Country {} does not exist in the database.", passportCountry.getCountryName());
-                    return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
-                } else {
+            for(PassportCountry passportCountry : newProfile.getPassportCountries()){
+                List<PassportCountry> result = pcRepository.findByCountryName(passportCountry.getCountryName());{
                     updated.add(result.get(0));
                 }
             }
-            newProfile.setPassport_countries(updated);
+            newProfile.setPassportCountries(updated);
             repository.save(newProfile);
             saveEmails(newProfile);
             //save profile to database
@@ -100,27 +95,17 @@ public class Profile_Controller {
         if (newProfile.getPassword().length() < 8) {
             error += "The Password is not long enough.\n";
         }
-        if (newProfile.getFitness_level() > 4 || newProfile.getFitness_level() < 0) {
+        if (newProfile.getFitnessLevel() > 4 || newProfile.getFitnessLevel() < 0) {
             error += "The fitness level isn't valid.\n";
         }
-        if (newProfile.getDate_of_birth() == "" ||
-                newProfile.getDate_of_birth() == null) {
+        if (newProfile.getDateOfBirth() == "" ||
+                newProfile.getDateOfBirth() == null) {
             error += "The Date of Birth field is blank.\n";
         }
-        if (newProfile.retrievePassportCountryObjects().size() >= 1 ) {
-            Set<PassportCountry> countries = new HashSet<>();
-            try {
-                countries = ValidationHelper.GetRESTCountries();
-            } catch (java.io.IOException e) {
-                error += e.toString();
-            }
-            List<String> countryNames = new ArrayList<String>();
-            for (PassportCountry country : countries) {
-                countryNames.add(country.getCountryName());
-            }
-            for (PassportCountry country : newProfile.retrievePassportCountryObjects()) {
-                if (!ValidationHelper.validateCountry(country, countryNames)) {
-                    error += "That country doesn't exist.\n";
+        if (!newProfile.getPassportCountries().isEmpty()) {
+            for(PassportCountry passportCountry : newProfile.getPassportCountries()){
+                if (!pcRepository.existsByCountryName(passportCountry.getCountryName())) {
+                    error += String.format("Country %s does not exist in the database.", passportCountry.getCountryName());
                 }
             }
         }
@@ -222,7 +207,7 @@ public class Profile_Controller {
      * @return the Profile object corresponding to the given ID.
      */
     public ResponseEntity<Profile> getProfile(Long id, Long sessionID, boolean testing) {
-        if(testing || loginController.checkCredentials(id.intValue(), sessionID)) {
+        if (testing || loginController.checkCredentials(id.intValue(), sessionID)) {
             Optional<Profile> profile_with_id = null;
             profile_with_id = repository.findById(id);
             if (profile_with_id.isPresent()) {
@@ -245,12 +230,12 @@ public class Profile_Controller {
      * Updates a profile in the database given a request to do so.
      * @param editedProfile a profile object created from the request
      * @param id the ID of the profile being edited, pulled from the URL as a path variable.
-     * @param sessionID session ID generated at login that is associated with this profile, pulled from the request header.
+     * @param sessionToken the token containing this profile's session key, pulled from the request header.
      * @return
      */
     @PutMapping("/editprofile/{id}")
-    public @ResponseBody ResponseEntity<Profile> updateProfile(@RequestBody Profile editedProfile, @RequestHeader("authorization") long sessionID, @PathVariable Long id) {
-        return updateProfile(editedProfile, sessionID, id, false);
+    public @ResponseBody ResponseEntity<String> updateProfile(@RequestBody Profile editedProfile, @RequestHeader("authorization") String sessionToken, @PathVariable Long id) {
+        return updateProfile(editedProfile, LoginController.retrieveSessionID(sessionToken), id, false);
     }
 
     /**
@@ -262,42 +247,44 @@ public class Profile_Controller {
      * @param testing flag to indicate that method is being tested and should ignore authentication
      * @return An HTTP response with an appropriate status code and the updated profile if there method was successful.
      */
-    public ResponseEntity<Profile> updateProfile(Profile editedProfile, long sessionID, Long id, boolean testing){
+    public ResponseEntity<String> updateProfile(Profile editedProfile, long sessionID, Long id, boolean testing){
         if(!testing && !loginController.checkCredentials(id.intValue(), sessionID)){
-            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<String>("Invalid session key.", HttpStatus.UNAUTHORIZED);
         }
-
-        if (verifyProfile(editedProfile) != "") {
-            return new ResponseEntity(null, HttpStatus.BAD_REQUEST);
+        String verificationMsg = verifyProfile(editedProfile);
+        if (!verificationMsg.equals("")) {
+            return new ResponseEntity<>(verificationMsg, HttpStatus.BAD_REQUEST);
         }
-        //if(loginController.checkCredentials(editedProfile.getId().intValue(), sessionID)) {
-            Long profile_id = editedProfile.getId();
-            Profile db_profile = repository.findById(profile_id).get();
-            db_profile.updateProfile(editedProfile);
-
-            EmailUpdateRequest mockRequest = new EmailUpdateRequest(new ArrayList<String>(db_profile.getAdditional_email()), db_profile.getPrimary_email(), id.intValue());
-            ResponseEntity<String> response = editEmails(mockRequest, id, sessionID, testing);
-            if (!response.getStatusCode().equals(HttpStatus.OK)) {
-                return new ResponseEntity<>(null, response.getStatusCode());
+        Profile db_profile = repository.findById(id).get();
+        db_profile.updateProfile(editedProfile);
+        Set<PassportCountry> updatedCountries = new HashSet<>();
+        for(PassportCountry passportCountry : editedProfile.getPassportCountries()){
+            List<PassportCountry> result = pcRepository.findByCountryName(passportCountry.getCountryName());{
+                updatedCountries.add(result.get(0));
             }
-            repository.save(db_profile);
+        }
+        db_profile.setPassportCountries(updatedCountries);
 
-            return new ResponseEntity(db_profile, HttpStatus.OK);
-        //} else {
-        //    return new ResponseEntity(null, HttpStatus.UNAUTHORIZED);
-        //}
+        EmailUpdateRequest mockRequest = new EmailUpdateRequest(new ArrayList<String>(db_profile.getAdditional_email()), db_profile.getPrimary_email(), id.intValue());
+        ResponseEntity<String> response = editEmails(mockRequest, id, sessionID, testing);
+        if (!response.getStatusCode().equals(HttpStatus.OK)) {
+            return new ResponseEntity<>(response.getBody(), response.getStatusCode());
+        }
+        repository.save(db_profile);
+
+        return new ResponseEntity<>(db_profile.toString(), HttpStatus.OK);
     }
 
     /**
      * Updates a profile's emails in the database given a request to do so.
      * @param newEmails The profile's new primary/additional emails embedded in an EmailUpdateRequest.
      * @param id the ID of the profile being edited, pulled from the URL as a path variable.
-     * @param sessionID session ID generated at login that is associated with this profile, pulled from the request header.
+     * @param sessionToken session ID generated at login that is associated with this profile, pulled from the request header.
      * @return An HTTP response with an appropriate status code and, if there was a problem with the request, an error message.
      */
     @PutMapping("/editprofile/{id}/emails")
-    public ResponseEntity<String> editEmails (@RequestBody EmailUpdateRequest newEmails, @PathVariable Long id, @RequestHeader("authorization") long sessionID) {
-        return editEmails (newEmails, id, sessionID, false);
+    public ResponseEntity<String> editEmails (@RequestBody EmailUpdateRequest newEmails, @PathVariable Long id, @RequestHeader("authorization") String sessionToken) {
+        return editEmails (newEmails, id, LoginController.retrieveSessionID(sessionToken), false);
     }
 
     /**
