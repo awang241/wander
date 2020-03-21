@@ -11,18 +11,31 @@ import java.util.Set;
 @Entity
 public class PassportCountry {
 
+    /**
+     * Holds the automatically generated passport country id obtained when the object is saved.
+     */
     @Id
     @GeneratedValue
     private long id;
 
+    /**
+     * Holds the contry name its referring to.
+     */
     @Column
     @NotNull
     private String countryName;
 
+    /**
+     * Each country has a given numeric code, some countries don't have a numeric code so are given ones when objects are
+     * generated. Hence, each is unique.
+     */
     @Column(unique = true)
     @NotNull
     private String numericCode;
 
+    /**
+     * Each passport country object can have multiple profiles with the passport countries being referred.
+     */
     @ManyToMany(mappedBy = "passports")
     @JsonBackReference
     private Set<Profile> profiles = new HashSet<Profile>();
@@ -35,7 +48,9 @@ public class PassportCountry {
     };
 
     @JsonCreator
-    public PassportCountry(@JsonProperty("name") String countryName, @JsonProperty("numericCode") String code){
+    public PassportCountry(
+            @JsonProperty("name") String countryName,
+            @JsonProperty("numericCode") String code){
         this.countryName = countryName;
         this.numericCode = code;
     }

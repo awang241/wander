@@ -7,6 +7,13 @@ public class ChangePasswordRequest {
     private String newPassword;
     private String confPassword;
 
+    public ChangePasswordRequest(Long userId, String currentPassword, String newPassword, String confPassword) {
+        this.userId = userId;
+        this.currentPassword = currentPassword;
+        this.newPassword = newPassword;
+        this.confPassword = confPassword;
+    }
+
     // getters and setters
 
     public Long getUserId() {

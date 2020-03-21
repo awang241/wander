@@ -10,30 +10,86 @@ import javax.validation.constraints.Size;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+/**
+ * Profile class.
+ * Profile objects are used to structure the user data and enable the user data to be saved in an organised way.
+ */
 @Entity
 public class Profile {
 
+    /**
+     * Holds the user id. Generated and assigned when the object is saved in the database.
+     */
     @Id @GeneratedValue
     private Long id;
+
+    /**
+     * Holds the user's firstname.
+     */
     @NotNull
     private String firstname;
+
+    /**
+     * Holds the user's lastname.
+     */
     @NotNull
     private String lastname;
+
+    /**
+     * Holds the user's middlename (optional).
+     */
     private String middlename;
+
+    /**
+     * Holds the user's nickname (optional).
+     */
     private String nickname;
+
+    /**
+     * Holds the user's emails, this includes primary and additional emails. Only one of these emails will have a
+     * primary tag set to true and is necessary to be included in a valid profile object, hence, not null with min size
+     * of 1. One to Many relationship also established as a user can have many emails but each email can only be assigned
+     * to one user at a time.
+     * Essentially a multi-valued attribute, hence why Email objects are used.
+     */
     @NotNull @Size(min = 1, max = 5)
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "profile")
     private Set<Email> emails = new HashSet<>();
+
+    /**
+     * The user's password (taken from JSON as plaintext and stored as a hash).
+     */
     @NotNull
     private String password;
+
+    /**
+     * Holds the user's detailed description of what they are like.
+     */
     private String bio;
+
+    /**
+     * Stores the user's date of birth as a Calender object.
+     */
     @NotNull
     private Calendar dateOfBirth;
+
+    /**
+     * Stored the gender as a string, e.g. male, female, non-binary.
+     */
     @NotNull
     private String gender;
+
+    /**
+     * Holds the fitness value of the user, where a 0 means the user does little to no fitness while 4 means that the
+     * user exercises quite frequently.
+     */
     @NotNull @Column(name = "fitness") @Min(value = 0) @Max(value = 4)
     private int fitness;
 
+    /**
+     * Holds the user's passports and estabishes a Many to Many relationship as a Profile object can be associated with
+     * multiple PassportCountry.
+     */
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "profile_passport_country",
             inverseJoinColumns = @JoinColumn(name = "passport_country_id", referencedColumnName = "id"),
@@ -79,10 +135,10 @@ public class Profile {
 
         this.emails = new HashSet<>();
 
-        System.out.println(addEmail(new Email(primaryEmail, true)));
+        addEmail(new Email(primaryEmail, true));
 
         for (String email: additionalEmails) {
-            System.out.println(addEmail(new Email(email)));
+            addEmail(new Email(email));
         }
 
         this.password = password;
@@ -154,6 +210,10 @@ public class Profile {
     }
 
 
+    /**
+     * Gets the email objects.
+     * @return set of Email objects
+     */
     public Set<Email> retrieveEmails() {
         return emails;
     }
@@ -201,7 +261,7 @@ public class Profile {
     }
 
     /**
-     * This method is used to update a profile with the given profile's details.
+     * This method is used to update a profile with the given profile's details. Not used to update emails or password.
      * @param editedProfile is the profile that we want to take the updated data from to place in the db profile.
      */
     public void updateProfileExceptEmailsPassword(Profile editedProfile) {
