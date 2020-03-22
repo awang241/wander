@@ -7,8 +7,8 @@
                     <b-field label="Email">
                         <b-input class="help" placeholder="Email"
                                  v-model="email"
-                                 type="email"
-                                 maxlength="40" required>
+
+                                 maxlength="40">
                         </b-input>
                     </b-field>
 
@@ -16,7 +16,7 @@
                         <b-input placeholder="Password"
                                  v-model="password"
                                  type="password"
-                                 maxlength="20" required>
+                                 maxlength="20">
                         </b-input>
                     </b-field>
                     <b-button @click="login"
@@ -67,9 +67,9 @@
                 })
             },
             getErrorMessageFromStatusCode(statusCode){
-                let message = ""
+                let message = "Incorrect email or password"
                 if(statusCode === 401){
-                    message = "Incorrect username or password"
+                    message = "Incorrect email or password"
                 }
                 return message;
             }
