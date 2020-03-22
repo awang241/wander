@@ -1,6 +1,5 @@
 import { shallowMount } from '@vue/test-utils'
-import List from "../../src/components/Registration";
-import ListItem from "../../src/components/ListItem";
+import List from "../../src/components/List";
 
 // Mount the component
 const wrapper = shallowMount(List, {
@@ -9,11 +8,17 @@ const wrapper = shallowMount(List, {
     }
 })
 
+
 describe('List.vue', () => {
     it('has a created hook', () => {
         expect(true).toBe(true)
     })
     it('Renders the component', () => {
-        expect(wrapper.exists()).toBe(true)
+        expect(wrapper.find(List).exists()).toBe(true)
+    })
+    it('Displays the chosen items', () => {
+        expect(wrapper.html()).toContain('Beans')
+        expect(wrapper.html()).toContain('Greens')
+        expect(wrapper.html()).toContain('Tomatoes')
     })
 });

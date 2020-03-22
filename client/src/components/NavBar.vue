@@ -50,7 +50,7 @@
         methods: {
             logout(){
                 api.logout({userId: authenticationStore.methods.getUserId()}, authenticationStore.methods.getSessionId())
-                    .catch(error => window.alert(error.response.data))
+                    .catch(error => console.log(error))
 
                 //User is now logged out in authentication store
                 authenticationStore.methods.setSessionId(0)
