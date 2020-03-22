@@ -11,7 +11,7 @@ const localAxiosInstance = axios.create({
 });  
   
 export default {
-  createProfile: (user) => localAxiosInstance.post('createprofile', user),
+  createProfile: (user) => localAxiosInstance.post('/profiles', user),
   login: (user) => localAxiosInstance.post('login', user),
   editProfile: (userId, newData, sessionId) => localAxiosInstance.put('/profiles/' + userId, newData, {headers: {"authorization":sessionId}}),
   logout: (userId, sessionId) => localAxiosInstance.post('logout/', userId, {headers: {"authorization":sessionId}}),
