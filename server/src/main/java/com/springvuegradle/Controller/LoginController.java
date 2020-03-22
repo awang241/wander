@@ -54,7 +54,7 @@ public class LoginController {
             status = HttpStatus.UNAUTHORIZED;
         } else {
             Profile profile = result.get(0);
-            String hashedPassword = ProfileController.hashPassword(request.getPassword());
+            String hashedPassword = Profile_Controller.hashPassword(request.getPassword());
             if (activeSessions.containsKey(profile.getId())) {
                 status = HttpStatus.OK;
                 activeSessions.remove(result.get(0).getId());

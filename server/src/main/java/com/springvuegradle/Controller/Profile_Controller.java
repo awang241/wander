@@ -5,6 +5,7 @@ import com.springvuegradle.Repositories.EmailRepository;
 import com.springvuegradle.Repositories.PassportCountryRepository;
 import com.springvuegradle.Utilities.ValidationHelper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +25,7 @@ import java.util.*;
  * Profile Controller Class for handling Profile Models
  */
 @RestController
-public class ProfileController {
+public class Profile_Controller {
 
     @Autowired
     private ProfileRepository repository;
@@ -40,7 +41,6 @@ public class ProfileController {
      * @param newProfile contains data relating to the user profile we wish to add to the database.
      * @return the created profile.
      */
-
     @PostMapping("/profiles")
     public ResponseEntity<String> createProfile (@RequestBody Profile newProfile) {
         String error = verifyProfile(newProfile);
@@ -50,6 +50,8 @@ public class ProfileController {
             String hashedPassword = hashPassword(newProfile.getPassword());
             if (hashedPassword != "Hash Failed") {
                 newProfile.setPassword(hashedPassword);
+            } else {
+                return new ResponseEntity<>("Error hashing password.", HttpStatus.INTERNAL_SERVER_ERROR);
             }
             Set<PassportCountry> updated = new HashSet<PassportCountry>();
             for(PassportCountry passportCountry : newProfile.getPassportCountries()){
@@ -61,123 +63,60 @@ public class ProfileController {
             repository.save(newProfile);
             saveEmails(newProfile);
             //save profile to database
-            return new ResponseEntity("New profile has been created.", HttpStatus.CREATED);
+            return new ResponseEntity<>("New profile has been created.", HttpStatus.CREATED);
         } else {
-            return new ResponseEntity(error, HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
         }
     }
 
-    private void saveEmails(Profile newProfile) {
-        Set<Email> emailsFromNewProfile = newProfile.retrieveEmails();
-        for (Email email: emailsFromNewProfile) {
-            email.setProfile(newProfile);
-            eRepository.save(email);
-        }
-    }
-
-    private String verifyProfile(Profile newProfile) {
-        String error = "";
-        if (newProfile.retrievePrimaryEmail().getAddress() == "" ||
-                newProfile.retrievePrimaryEmail().getAddress() == null) {
-            error += "The email field is blank.\n";
-        }
-        if (newProfile.getFirstname() == "" ||
-                newProfile.getFirstname() == null) {
-            error += "The First Name field is blank.\n";
-        }
-        if (newProfile.getLastname() == "" ||
-                newProfile.getLastname() == null) {
-            error += "The Last Name field is blank.\n";
-        }
-        if (newProfile.getPassword().length() < 8) {
-            error += "The Password is not long enough.\n";
-        }
-        if (newProfile.getFitnessLevel() > 4 || newProfile.getFitnessLevel() < 0) {
-            error += "The fitness level isn't valid.\n";
-        }
-        if (newProfile.getDateOfBirth() == "" ||
-                newProfile.getDateOfBirth() == null) {
-            error += "The Date of Birth field is blank.\n";
-        }
-        if (!newProfile.getPassportCountries().isEmpty()) {
-            for(PassportCountry passportCountry : newProfile.getPassportCountries()){
-                if (!pcRepository.existsByCountryName(passportCountry.getCountryName())) {
-                    error += String.format("Country %s does not exist in the database.", passportCountry.getCountryName());
-                }
-            }
-        }
-
-        error += verifyEmailsInProfile(newProfile);
-
-        if (!((newProfile.getGender().equals("male")) ||
-                (newProfile.getGender().equals("female")) ||
-                (newProfile.getGender().equals("non-Binary")))) {
-            error += "The Gender field must contain either 'male', 'female' or 'non-binary'.\n";
-        }
-        return error;
+    @GetMapping("/profiles/{id}")
+    public @ResponseBody ResponseEntity<Profile> getProfile(@PathVariable Long id, @RequestHeader("authorization") String sessionToken) {
+        return getProfile(id, LoginController.retrieveSessionID(sessionToken), false);
     }
 
     /**
-     * Method used to verify emails before adding them to the list.
-     * @param newProfile
-     * @return
+     * Updates a profile in the database given a request to do so.
+     * @param editedProfile a profile object created from the request
+     * @param id the ID of the profile being edited, pulled from the URL as a path variable.
+     * @param sessionToken the token containing this profile's session key, pulled from the request header.
+     * @return An HTTP response with an appropriate status code and the updated profile if there method was successful.
      */
-    private String verifyEmailsInProfile(Profile newProfile) {
-        String error = "";
-        if (newProfile.retrieveEmails().size() >= 1) {
-            boolean valid = true;
-            ArrayList<String> emailStrings = new ArrayList<>();
-            for (Email email: newProfile.retrieveEmails()) {
-                if (eRepository.existsByAddress(email.getAddress())) {
-                    valid = false;
-                } else {
-                    emailStrings.add(email.getAddress());
-                }
-            }
-
-            if (emailStrings.size() != (new HashSet(emailStrings)).size()) {
-                error += "There are duplicate email addresses used. User cannot enter same email multiple times in primary" +
-                        " and/or additional.\n";
-            } else if (!valid) {
-                error += "An email address you have entered is already in use by another Profile.\n";
-            }
-        }
-        return error;
+    @PutMapping("/profiles/{id}")
+    public @ResponseBody ResponseEntity<String> updateProfile(@RequestBody Profile editedProfile, @RequestHeader("authorization") String sessionToken, @PathVariable Long id) {
+        return updateProfile(editedProfile, LoginController.retrieveSessionID(sessionToken), id, false);
     }
 
     /**
-     * This method adds a new email to a given profile, isPrimary set to false by default. This method will be called directly for testing,
-     * when running, it will call the method with only profile and newAddress as parameters which sets testing to false and both repositories
-     * to null so objects are saved to their actual repositories rather than given test repositories.
-     * @param profile where we want to associate the email
-     * @param newAddress new address we want to add
-     * @param testing true if testing, false otherwise
-     * @param repo ProfileRepository object used for testing, false otherwise
-     * @param erepo EmailRepository object used for testing, false otherwise
-     * @return true if added, false otherwise
+     * Deletes a profile from the repository given that it exists in the database.
+     * @param id the id of the profile to be deleted
+     * @return http response code and feedback message on the result of the delete operation
      */
-    private boolean addNewEmailToProfile(Profile profile, String newAddress, boolean testing, ProfileRepository repo, EmailRepository erepo) {
-        boolean isAdded = false;
-        if (!testing) {
-            if (!eRepository.existsByAddress(newAddress)) {
-                Email emailToAdd = new Email(newAddress);
-                isAdded = profile.addEmail(emailToAdd);
-                if (isAdded) {
-                    eRepository.save(emailToAdd);
-                    repository.save(profile);
-                }
-            }
+    @DeleteMapping(value="/profiles/{id}")
+    public @ResponseBody ResponseEntity<String> deleteProfile(@PathVariable Long id) {
+        //if(loginController.checkCredentials(id.intValue(), sessionID)) {
+        if (repository.existsById(id)) {
+            Profile profile_to_delete = repository.findById(id).get();
+
+            repository.delete(profile_to_delete);
+            return new ResponseEntity<String>("The Profile does exist in the database.", HttpStatus.OK);
         } else {
-            if (!erepo.existsByAddress(newAddress)) {
-                Email emailToAdd = new Email(newAddress);
-                isAdded = profile.addEmail(emailToAdd);
-                if (isAdded) {
-                    erepo.save(emailToAdd);
-                    repo.save(profile);
-                }
-            }
+            return new ResponseEntity<String>("The profile does not exist in the database.", HttpStatus.NOT_FOUND);
         }
-        return isAdded;
+        //} else {
+        //    return new ResponseEntity<String>("Not logged in as that profile", HttpStatus.UNAUTHORIZED);
+        //}
+    }
+
+    /**
+     * Updates a profile's emails in the database given a request to do so.
+     * @param newEmails The profile's new primary/additional emails embedded in an EmailUpdateRequest.
+     * @param id the ID of the profile being edited, pulled from the URL as a path variable.
+     * @param sessionToken session ID generated at login that is associated with this profile, pulled from the request header.
+     * @return An HTTP response with an appropriate status code and, if there was a problem with the request, an error message.
+     */
+    @PutMapping("/profiles/{id}/emails")
+    public ResponseEntity<String> editEmails (@RequestBody EmailUpdateRequest newEmails, @PathVariable Long id, @RequestHeader("authorization") String sessionToken) {
+        return editEmails (newEmails, id, LoginController.retrieveSessionID(sessionToken), false);
     }
 
     @PutMapping("/profiles/{id}/password")
@@ -213,6 +152,10 @@ public class ProfileController {
         return new ResponseEntity<>("Successfully changed password.", HttpStatus.OK);
     }
 
+    protected ProfileRepository getRepository() {
+        return repository;
+    }
+
     /**
      * Takes the plaintext password and hashes it
      * @param plainPassword the plaintext password to input
@@ -230,13 +173,48 @@ public class ProfileController {
     }
 
     /**
+     * This method adds a new email to a given profile, isPrimary set to false by default. This method will be called directly for testing,
+     * when running, it will call the method with only profile and newAddress as parameters which sets testing to false and both repositories
+     * to null so objects are saved to their actual repositories rather than given test repositories.
+     * @param profile where we want to associate the email
+     * @param newAddress new address we want to add
+     * @param testing true if testing, false otherwise
+     * @param repo ProfileRepository object used for testing, false otherwise
+     * @param erepo EmailRepository object used for testing, false otherwise
+     * @return true if added, false otherwise
+     */
+    protected boolean addNewEmailToProfile(Profile profile, String newAddress, boolean testing, ProfileRepository repo, EmailRepository erepo) {
+        boolean isAdded = false;
+        if (!testing) {
+            if (!eRepository.existsByAddress(newAddress)) {
+                Email emailToAdd = new Email(newAddress);
+                isAdded = profile.addEmail(emailToAdd);
+                if (isAdded) {
+                    eRepository.save(emailToAdd);
+                    repository.save(profile);
+                }
+            }
+        } else {
+            if (!erepo.existsByAddress(newAddress)) {
+                Email emailToAdd = new Email(newAddress);
+                isAdded = profile.addEmail(emailToAdd);
+                if (isAdded) {
+                    erepo.save(emailToAdd);
+                    repo.save(profile);
+                }
+            }
+        }
+        return isAdded;
+    }
+
+    /**
      * Retrieves data corresponding to the given profile ID from the database.
      * @param sessionID session token to make sure user logged in
      * @param testing if true, will skip the credential check
      * @param id gets the profile object and if it exists and authorization is approved, it will return the object
      * @return the Profile object corresponding to the given ID.
      */
-    public ResponseEntity<Profile> getProfile(Long id, Long sessionID, boolean testing) {
+    protected ResponseEntity<Profile> getProfile(Long id, Long sessionID, boolean testing) {
         if (testing || loginController.checkCredentials(id.intValue(), sessionID)) {
             Optional<Profile> profile_with_id = repository.findById(id);
             if (profile_with_id.isPresent()) {
@@ -249,24 +227,6 @@ public class ProfileController {
         }
     }
 
-    @GetMapping("/profiles/{id}")
-    public @ResponseBody ResponseEntity<Profile> getProfile(@PathVariable Long id, @RequestHeader("authorization") String sessionToken) {
-        return getProfile(id, LoginController.retrieveSessionID(sessionToken), false);
-    }
-
-
-    /**
-     * Updates a profile in the database given a request to do so.
-     * @param editedProfile a profile object created from the request
-     * @param id the ID of the profile being edited, pulled from the URL as a path variable.
-     * @param sessionToken the token containing this profile's session key, pulled from the request header.
-     * @return An HTTP response with an appropriate status code and the updated profile if there method was successful.
-     */
-    @PutMapping("/profiles/{id}")
-    public @ResponseBody ResponseEntity<String> updateProfile(@RequestBody Profile editedProfile, @RequestHeader("authorization") String sessionToken, @PathVariable Long id) {
-        return updateProfile(editedProfile, LoginController.retrieveSessionID(sessionToken), id, false);
-    }
-
     /**
      * Updates a profile in the database given a request to do so. This version contains a flag to disable authentication
      * for the purposes of automated testing.
@@ -276,7 +236,7 @@ public class ProfileController {
      * @param testing flag to indicate that method is being tested and should ignore authentication
      * @return An HTTP response with an appropriate status code and the updated profile if there method was successful.
      */
-    public ResponseEntity<String> updateProfile(Profile editedProfile, long sessionID, Long id, boolean testing){
+    protected ResponseEntity<String> updateProfile(Profile editedProfile, long sessionID, Long id, boolean testing){
         if(!testing && !loginController.checkCredentials(id.intValue(), sessionID)){
             return new ResponseEntity<String>("Invalid session key.", HttpStatus.UNAUTHORIZED);
         }
@@ -305,18 +265,6 @@ public class ProfileController {
     }
 
     /**
-     * Updates a profile's emails in the database given a request to do so.
-     * @param newEmails The profile's new primary/additional emails embedded in an EmailUpdateRequest.
-     * @param id the ID of the profile being edited, pulled from the URL as a path variable.
-     * @param sessionToken session ID generated at login that is associated with this profile, pulled from the request header.
-     * @return An HTTP response with an appropriate status code and, if there was a problem with the request, an error message.
-     */
-    @PutMapping("/profiles/{id}/emails")
-    public ResponseEntity<String> editEmails (@RequestBody EmailUpdateRequest newEmails, @PathVariable Long id, @RequestHeader("authorization") String sessionToken) {
-        return editEmails (newEmails, id, LoginController.retrieveSessionID(sessionToken), false);
-    }
-
-    /**
      * Updates a profile's emails in the database given a request to do so. This version contains a flag to disable authentication
      * for the purposes of automated testing.
      * @param newEmails The profile's new primary/additional emails embedded in an EmailUpdateRequest
@@ -325,7 +273,7 @@ public class ProfileController {
      * @param testing flag to indicate that method is being tested and should ignore authentication
      * @return An HTTP response with an appropriate status code and, if there was a problem with the request, an error message.
      */
-    public ResponseEntity<String> editEmails (EmailUpdateRequest newEmails, Long id, Long sessionID, boolean testing){
+    protected ResponseEntity<String> editEmails (EmailUpdateRequest newEmails, Long id, Long sessionID, boolean testing){
         if(false && !testing && !loginController.checkCredentials(id.intValue(), sessionID)){
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
@@ -406,29 +354,81 @@ public class ProfileController {
 
     }
 
-    /**
-     * Deletes a profile from the repository given that it exists in the database.
-     * @param id the id of the profile to be deleted
-     * @return http response code and feedback message on the result of the delete operation
-     */
-    @DeleteMapping(value="/profiles/{id}")
-    public @ResponseBody ResponseEntity<String> deleteProfile(@PathVariable Long id) {
-        //if(loginController.checkCredentials(id.intValue(), sessionID)) {
-            if (repository.existsById(id)) {
-                Profile profile_to_delete = repository.findById(id).get();
+    private void saveEmails(Profile newProfile) {
+        Set<Email> emailsFromNewProfile = newProfile.retrieveEmails();
+        for (Email email: emailsFromNewProfile) {
+            email.setProfile(newProfile);
+            eRepository.save(email);
+        }
+    }
 
-                repository.delete(profile_to_delete);
-                return new ResponseEntity<String>("The Profile does exist in the database.", HttpStatus.OK);
-            } else {
-                return new ResponseEntity<String>("The profile does not exist in the database.", HttpStatus.NOT_FOUND);
+    private String verifyProfile(Profile newProfile) {
+        String error = "";
+        if (newProfile.retrievePrimaryEmail().getAddress() == "" ||
+                newProfile.retrievePrimaryEmail().getAddress() == null) {
+            error += "The email field is blank.\n";
+        }
+        if (newProfile.getFirstname() == "" ||
+                newProfile.getFirstname() == null) {
+            error += "The First Name field is blank.\n";
+        }
+        if (newProfile.getLastname() == "" ||
+                newProfile.getLastname() == null) {
+            error += "The Last Name field is blank.\n";
+        }
+        if (newProfile.getPassword().length() < 8) {
+            error += "The Password is not long enough.\n";
+        }
+        if (newProfile.getFitnessLevel() > 4 || newProfile.getFitnessLevel() < 0) {
+            error += "The fitness level isn't valid.\n";
+        }
+        if (newProfile.getDateOfBirth() == "" ||
+                newProfile.getDateOfBirth() == null) {
+            error += "The Date of Birth field is blank.\n";
+        }
+        if (!newProfile.getPassportCountries().isEmpty()) {
+            for(PassportCountry passportCountry : newProfile.getPassportCountries()){
+                if (!pcRepository.existsByCountryName(passportCountry.getCountryName())) {
+                    error += String.format("Country %s does not exist in the database.", passportCountry.getCountryName());
+                }
             }
-        //} else {
-        //    return new ResponseEntity<String>("Not logged in as that profile", HttpStatus.UNAUTHORIZED);
-        //}
+        }
+
+        error += verifyEmailsInProfile(newProfile);
+
+        if (!((newProfile.getGender().equals("male")) ||
+                (newProfile.getGender().equals("female")) ||
+                (newProfile.getGender().equals("non-Binary")))) {
+            error += "The Gender field must contain either 'male', 'female' or 'non-binary'.\n";
+        }
+        return error;
     }
 
-    protected ProfileRepository getRepository() {
-        return repository;
-    }
+    /**
+     * Method used to verify emails before adding them to the list.
+     * @param newProfile
+     * @return
+     */
+    private String verifyEmailsInProfile(Profile newProfile) {
+        String error = "";
+        if (newProfile.retrieveEmails().size() >= 1) {
+            boolean valid = true;
+            ArrayList<String> emailStrings = new ArrayList<>();
+            for (Email email: newProfile.retrieveEmails()) {
+                if (eRepository.existsByAddress(email.getAddress())) {
+                    valid = false;
+                } else {
+                    emailStrings.add(email.getAddress());
+                }
+            }
 
+            if (emailStrings.size() != (new HashSet(emailStrings)).size()) {
+                error += "There are duplicate email addresses used. User cannot enter same email multiple times in primary" +
+                        " and/or additional.\n";
+            } else if (!valid) {
+                error += "An email address you have entered is already in use by another Profile.\n";
+            }
+        }
+        return error;
+    }
 }

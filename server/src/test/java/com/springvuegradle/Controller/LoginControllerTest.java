@@ -26,7 +26,7 @@ class LoginControllerTest {
     private LoginController loginController;
 
     @Autowired
-    private ProfileController profileController;
+    private Profile_Controller profileController;
 
     /**
      * This test ensures profiles login in properly with the correct credentials

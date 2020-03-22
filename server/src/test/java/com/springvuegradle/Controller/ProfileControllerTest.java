@@ -33,7 +33,7 @@ class ProfileControllerTest {
     private EmailRepository erepo;
 
     @Autowired
-    private ProfileController profileController;
+    private Profile_Controller profileController;
 
     /**
      * This tests to ensure profiles structured correctly can be added to the database.
@@ -160,6 +160,11 @@ class ProfileControllerTest {
 
         ResponseEntity<String> response_entity = profileController.createProfile(jimmy);
         assertEquals(HttpStatus.CREATED, response_entity.getStatusCode());
+    }
+
+    @Test
+    void a(){
+
     }
 
     /**
