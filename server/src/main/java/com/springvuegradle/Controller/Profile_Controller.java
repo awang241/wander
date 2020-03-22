@@ -72,7 +72,7 @@ public class Profile_Controller {
     }
 
     @GetMapping("/profiles/{id}")
-    public @ResponseBody ResponseEntity<Profile> getProfile(@PathVariable Long id, @RequestHeader("authorization") String sessionToken) {
+    public @ResponseBody ResponseEntity<Profile> getProfile(@PathVariable Long id, @RequestHeader("authorization") Long sessionToken) {
         if (loginController.checkCredentials(id, sessionToken)) {
             return getProfile(id);
         } else {
@@ -88,7 +88,7 @@ public class Profile_Controller {
      * @return An HTTP response with an appropriate status code and the updated profile if there method was successful.
      */
     @PutMapping("/profiles/{id}")
-    public @ResponseBody ResponseEntity<String> updateProfile(@RequestBody Profile editedProfile, @RequestHeader("authorization") String sessionToken, @PathVariable Long id) {
+    public @ResponseBody ResponseEntity<String> updateProfile(@RequestBody Profile editedProfile, @RequestHeader("authorization") Long sessionToken, @PathVariable Long id) {
         if (loginController.checkCredentials(id, sessionToken)) {
             return updateProfile(editedProfile, id);
         } else {
@@ -115,7 +115,7 @@ public class Profile_Controller {
     }
 
     @PostMapping("/profiles/{id}/emails")
-    public @ResponseBody ResponseEntity<String> addEmails(@RequestBody EmailAddRequest request, @PathVariable Long id, @RequestHeader("authorization") String sessionToken) {
+    public @ResponseBody ResponseEntity<String> addEmails(@RequestBody EmailAddRequest request, @PathVariable Long id, @RequestHeader("authorization") Long sessionToken) {
         HttpStatus status;
         String message;
         long sessionID = LoginController.retrieveSessionID(sessionToken);
@@ -149,7 +149,7 @@ public class Profile_Controller {
      * @return An HTTP response with an appropriate status code and, if there was a problem with the request, an error message.
      */
     @PutMapping("/profiles/{id}/emails")
-    public ResponseEntity<String> editEmails (@RequestBody EmailUpdateRequest newEmails, @PathVariable Long id, @RequestHeader("authorization") String sessionToken) {
+    public ResponseEntity<String> editEmails (@RequestBody EmailUpdateRequest newEmails, @PathVariable Long id, @RequestHeader("authorization") Long sessionToken) {
         if (loginController.checkCredentials(id, sessionToken)) {
             return editEmails (newEmails, id);
         } else {
@@ -158,7 +158,7 @@ public class Profile_Controller {
     }
 
     @PutMapping("/profiles/{id}/password")
-    public ResponseEntity<String> changePassword (@RequestBody ChangePasswordRequest newPasswordRequest, @PathVariable Long id, @RequestHeader("authorization") String sessionToken) {
+    public ResponseEntity<String> changePassword (@RequestBody ChangePasswordRequest newPasswordRequest, @PathVariable Long id, @RequestHeader("authorization") Long sessionToken) {
         if(!loginController.checkCredentials(id.intValue(), sessionToken)){
             return new ResponseEntity<>("Invalid session ID.", HttpStatus.UNAUTHORIZED);
         }
