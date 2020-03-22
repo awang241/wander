@@ -31,14 +31,14 @@ public class Profile {
     private Calendar dateOfBirth;
     @NotNull
     private String gender;
-    //@NotNull @Column(name = "fitness_level")@Min(value = 0) @Max(value = 4)
-    private int fitnessLevel;
+    @NotNull @Column(name = "fitness") @Min(value = 0) @Max(value = 4)
+    private int fitness;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "profile_passport_country",
             inverseJoinColumns = @JoinColumn(name = "passport_country_id", referencedColumnName = "id"),
             joinColumns = @JoinColumn(name = "profile_id", referencedColumnName = "id"))
-    private Set<PassportCountry> passportCountries;
+    private Set<PassportCountry> passports;
 
     /**
      * No argument constructor for Profile, can be used for creating new profiles directly from JSON data.
@@ -70,8 +70,8 @@ public class Profile {
                    @JsonProperty("bio") String bio,
                    @JsonProperty("date_of_birth") Calendar dateOfBirth,
                    @JsonProperty("gender") String gender,
-                   @JsonProperty("fitness_level") int fitness_level,
-                   @JsonProperty("passport_countries") String[] passportCountries) {
+                   @JsonProperty("fitness") int fitnessLevel,
+                   @JsonProperty("passports") String[] passports) {
         this.firstname = firstname;
         this.lastname = lastname;
         this.middlename = middlename;
@@ -89,9 +89,9 @@ public class Profile {
         this.bio = bio;
         this.dateOfBirth = dateOfBirth;
         this.gender = gender;
-        this.fitnessLevel = fitness_level;
-        this.passportCountries = new HashSet<>();
-        for (String name: passportCountries) {
+        this.fitness = fitnessLevel;
+        this.passports = new HashSet<>();
+        for (String name: passports) {
             addPassportCountry(new PassportCountry(name));
         }
     }
@@ -175,28 +175,29 @@ public class Profile {
      * Gets the passport countries as a string of names instead of objects
      * @return list of country name strings
      */
-    public List<String> getPassportCountryNames() {
+    public List<String> getPassports() {
         List<String> countryNames = new ArrayList<>();
-        for (PassportCountry country : passportCountries){
+        for (PassportCountry country : passports){
             countryNames.add(country.getCountryName());
         }
         return countryNames;
     }
 
-    public Set<PassportCountry> getPassportCountries() {
-        return this.passportCountries;
+    @JsonIgnore
+    public Set<PassportCountry> getPassportObjects() {
+        return this.passports;
     }
 
-    public void setPassportCountries(Set<PassportCountry> passport_countries) {
-        this.passportCountries = passport_countries;
+    public void setPassports(Set<PassportCountry> passport_countries) {
+        this.passports = passport_countries;
     }
 
     public void addPassportCountry(PassportCountry passportCountry) {
-        passportCountries.add(passportCountry);
+        passports.add(passportCountry);
     }
 
     public void removePassportCountry(PassportCountry passportCountry) {
-        passportCountries.remove(passportCountry);
+        passports.remove(passportCountry);
     }
 
     /**
@@ -213,8 +214,8 @@ public class Profile {
         this.bio = editedProfile.bio;
         this.dateOfBirth = editedProfile.dateOfBirth;
         this.gender = editedProfile.gender;
-        this.fitnessLevel = editedProfile.fitnessLevel;
-        this.passportCountries = editedProfile.passportCountries;
+        this.fitness = editedProfile.fitness;
+        this.passports = editedProfile.passports;
     }
 
     /**
@@ -236,8 +237,8 @@ public class Profile {
                     this.bio.equals(other.bio) &&
                     this.getDateOfBirth().equals(other.getDateOfBirth()) &&
                     this.gender.equals(other.gender) &&
-                    this.fitnessLevel == other.fitnessLevel &&
-                    this.passportCountries.equals(other.passportCountries);
+                    this.fitness == other.fitness &&
+                    this.passports.equals(other.passports);
         } else {
             return false;
         }
@@ -245,7 +246,7 @@ public class Profile {
 
     @Override
     public int hashCode() {
-        return Objects.hash(firstname, lastname, middlename, nickname, emails, password, bio, dateOfBirth, gender, fitnessLevel, passportCountries);
+        return Objects.hash(firstname, lastname, middlename, nickname, emails, password, bio, dateOfBirth, gender, fitness, passports);
     }
 
     /** Series of Getters and Getters **/
@@ -266,9 +267,9 @@ public class Profile {
         this.gender = gender;
     }
 
-    public int getFitnessLevel(){return fitnessLevel;}
+    public int getFitness(){return fitness;}
 
-    public void setFitnessLevel(int fitness_level){this.fitnessLevel = fitness_level;}
+    public void setFitness(int fitness_level){this.fitness = fitness_level;}
 
 
 
@@ -337,6 +338,7 @@ public class Profile {
         return emailStrings;
     }
 
+    @JsonIgnore
     public String getPassword() {
         return password;
     }

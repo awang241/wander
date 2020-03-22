@@ -95,7 +95,7 @@ public class ValidationHelper {
         // removing all the passport countries not part of the API from each user if they are not in the passport country repository
         List<Profile> allProfiles = repository.findAll();
         for (Profile profile: allProfiles) {
-            profile.getPassportCountries().removeIf(country -> !updatedAPICountries.contains(country));
+            profile.getPassportObjects().removeIf(country -> !updatedAPICountries.contains(country));
             repository.save(profile);
         }
         // removing all the passport countries which are in the repository but not in the API

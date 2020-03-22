@@ -1,9 +1,9 @@
 package com.springvuegradle.Controller;
 
 
-import com.springvuegradle.Model.LoginRequest;
-import com.springvuegradle.Model.LoginResponse;
-import com.springvuegradle.Model.LogoutRequest;
+import com.springvuegradle.dto.LoginRequest;
+import com.springvuegradle.dto.LoginResponse;
+import com.springvuegradle.dto.LogoutRequest;
 import com.springvuegradle.Model.Profile;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

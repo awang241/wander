@@ -1,4 +1,4 @@
-package com.springvuegradle.Model;
+package com.springvuegradle.dto;
 
 import javax.persistence.Entity;
 

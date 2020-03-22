@@ -1,11 +1,13 @@
 package com.springvuegradle.Controller;
 
+import com.springvuegradle.Controller.enums.AuthenticationErrorMessage;
 import com.springvuegradle.Model.*;
 import com.springvuegradle.Repositories.EmailRepository;
 import com.springvuegradle.Repositories.PassportCountryRepository;
-import com.springvuegradle.Utilities.ValidationHelper;
+import com.springvuegradle.dto.ChangePasswordRequest;
+import com.springvuegradle.dto.EmailAddRequest;
+import com.springvuegradle.dto.EmailUpdateRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -54,12 +56,12 @@ public class Profile_Controller {
                 return new ResponseEntity<>("Error hashing password.", HttpStatus.INTERNAL_SERVER_ERROR);
             }
             Set<PassportCountry> updated = new HashSet<PassportCountry>();
-            for(PassportCountry passportCountry : newProfile.getPassportCountries()){
+            for(PassportCountry passportCountry : newProfile.getPassportObjects()){
                 List<PassportCountry> result = pcRepository.findByCountryName(passportCountry.getCountryName());{
                     updated.add(result.get(0));
                 }
             }
-            newProfile.setPassportCountries(updated);
+            newProfile.setPassports(updated);
             repository.save(newProfile);
             saveEmails(newProfile);
             //save profile to database
@@ -71,7 +73,12 @@ public class Profile_Controller {
 
     @GetMapping("/profiles/{id}")
     public @ResponseBody ResponseEntity<Profile> getProfile(@PathVariable Long id, @RequestHeader("authorization") String sessionToken) {
-        return getProfile(id, LoginController.retrieveSessionID(sessionToken), false);
+        if (loginController.checkCredentials(id, sessionToken)) {
+            return getProfile(id, LoginController.retrieveSessionID(sessionToken), false);
+        } else {
+            return getProfile(id, LoginController.retrieveSessionID(sessionToken), false);
+        }
+
     }
 
     /**
@@ -105,6 +112,33 @@ public class Profile_Controller {
         //} else {
         //    return new ResponseEntity<String>("Not logged in as that profile", HttpStatus.UNAUTHORIZED);
         //}
+    }
+
+    @PostMapping("/profiles/{id}/emails")
+    public @ResponseBody ResponseEntity<String> addEmails(@RequestBody EmailAddRequest request, @PathVariable Long id, @RequestHeader("authorization") String sessionToken) {
+        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+        String message = "";
+        long sessionID = LoginController.retrieveSessionID(sessionToken);
+        if (loginController.checkCredentials(id, sessionID)) {
+            Optional<Profile> result = repository.findById(id);
+            if (Boolean.TRUE.equals(result.isPresent())) {
+                Profile targetProfile = result.get();
+                for (String address: request.getEmails()) {
+                    addAdditionalEmailToProfile(targetProfile, address);
+                }
+                status = HttpStatus.CREATED;
+                message = "";
+            } else {
+                status = HttpStatus.FORBIDDEN;
+                message = AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage();
+
+            }
+        } else {
+            status = HttpStatus.UNAUTHORIZED;
+            message = AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage();
+        }
+
+        return new ResponseEntity<>(message, status);
     }
 
     /**
@@ -156,6 +190,14 @@ public class Profile_Controller {
         return repository;
     }
 
+    protected PassportCountryRepository getPassportCountryRepository() {
+        return pcRepository;
+    }
+
+    protected EmailRepository getEmailRepository() {
+        return eRepository;
+    }
+
     /**
      * Takes the plaintext password and hashes it
      * @param plainPassword the plaintext password to input
@@ -178,30 +220,16 @@ public class Profile_Controller {
      * to null so objects are saved to their actual repositories rather than given test repositories.
      * @param profile where we want to associate the email
      * @param newAddress new address we want to add
-     * @param testing true if testing, false otherwise
-     * @param repo ProfileRepository object used for testing, false otherwise
-     * @param erepo EmailRepository object used for testing, false otherwise
      * @return true if added, false otherwise
      */
-    protected boolean addNewEmailToProfile(Profile profile, String newAddress, boolean testing, ProfileRepository repo, EmailRepository erepo) {
+    protected boolean addAdditionalEmailToProfile(Profile profile, String newAddress) {
         boolean isAdded = false;
-        if (!testing) {
-            if (!eRepository.existsByAddress(newAddress)) {
-                Email emailToAdd = new Email(newAddress);
-                isAdded = profile.addEmail(emailToAdd);
-                if (isAdded) {
-                    eRepository.save(emailToAdd);
-                    repository.save(profile);
-                }
-            }
-        } else {
-            if (!erepo.existsByAddress(newAddress)) {
-                Email emailToAdd = new Email(newAddress);
-                isAdded = profile.addEmail(emailToAdd);
-                if (isAdded) {
-                    erepo.save(emailToAdd);
-                    repo.save(profile);
-                }
+        if (!eRepository.existsByAddress(newAddress)) {
+            Email emailToAdd = new Email(newAddress);
+            isAdded = profile.addEmail(emailToAdd);
+            if (isAdded) {
+                eRepository.save(emailToAdd);
+                repository.save(profile);
             }
         }
         return isAdded;
@@ -215,15 +243,11 @@ public class Profile_Controller {
      * @return the Profile object corresponding to the given ID.
      */
     protected ResponseEntity<Profile> getProfile(Long id, Long sessionID, boolean testing) {
-        if (testing || loginController.checkCredentials(id.intValue(), sessionID)) {
-            Optional<Profile> profile_with_id = repository.findById(id);
-            if (profile_with_id.isPresent()) {
-                return new ResponseEntity(profile_with_id.get(), HttpStatus.OK);
-            } else {
-                return new ResponseEntity(null, HttpStatus.NOT_FOUND);
-            }
+        Optional<Profile> profileWithId = repository.findById(id);
+        if (profileWithId.isPresent()) {
+            return new ResponseEntity(profileWithId.get(), HttpStatus.OK);
         } else {
-            return new ResponseEntity(null, HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity(null, HttpStatus.NOT_FOUND);
         }
     }
 
@@ -247,12 +271,12 @@ public class Profile_Controller {
         Profile db_profile = repository.findById(id).get();
         db_profile.updateProfile(editedProfile);
         Set<PassportCountry> updatedCountries = new HashSet<>();
-        for(PassportCountry passportCountry : editedProfile.getPassportCountries()){
+        for(PassportCountry passportCountry : editedProfile.getPassportObjects()){
             List<PassportCountry> result = pcRepository.findByCountryName(passportCountry.getCountryName());{
                 updatedCountries.add(result.get(0));
             }
         }
-        db_profile.setPassportCountries(updatedCountries);
+        db_profile.setPassports(updatedCountries);
 
         EmailUpdateRequest mockRequest = new EmailUpdateRequest(new ArrayList<String>(db_profile.getAdditional_email()), db_profile.getPrimary_email(), id.intValue());
         ResponseEntity<String> response = editEmails(mockRequest, id, sessionID, testing);
@@ -379,15 +403,15 @@ public class Profile_Controller {
         if (newProfile.getPassword().length() < 8) {
             error += "The Password is not long enough.\n";
         }
-        if (newProfile.getFitnessLevel() > 4 || newProfile.getFitnessLevel() < 0) {
+        if (newProfile.getFitness() > 4 || newProfile.getFitness() < 0) {
             error += "The fitness level isn't valid.\n";
         }
         if (newProfile.getDateOfBirth() == "" ||
                 newProfile.getDateOfBirth() == null) {
             error += "The Date of Birth field is blank.\n";
         }
-        if (!newProfile.getPassportCountries().isEmpty()) {
-            for(PassportCountry passportCountry : newProfile.getPassportCountries()){
+        if (!newProfile.getPassportObjects().isEmpty()) {
+            for(PassportCountry passportCountry : newProfile.getPassportObjects()){
                 if (!pcRepository.existsByCountryName(passportCountry.getCountryName())) {
                     error += String.format("Country %s does not exist in the database.", passportCountry.getCountryName());
                 }
@@ -431,4 +455,5 @@ public class Profile_Controller {
         }
         return error;
     }
+
 }

@@ -1,8 +1,8 @@
 package com.springvuegradle.Controller;
 
-import com.springvuegradle.Model.LoginRequest;
-import com.springvuegradle.Model.LoginResponse;
-import com.springvuegradle.Model.LogoutRequest;
+import com.springvuegradle.dto.LoginRequest;
+import com.springvuegradle.dto.LoginResponse;
+import com.springvuegradle.dto.LogoutRequest;
 import com.springvuegradle.Model.Profile;
 import com.springvuegradle.Repositories.EmailRepository;
 import com.springvuegradle.Repositories.ProfileRepository;
@@ -102,11 +102,24 @@ public class LoginController {
      * @return true if the session ID matches the user ID; false otherwise.
      */
     public boolean checkCredentials(long userID, long sessionID){
-
         if (activeSessions.containsKey(userID)) {
             return sessionID == activeSessions.get(userID);
         } else {
+            return false;
+        }
+    }
 
+    /**
+     *  Given a request's user ID and session token, checks for a match with an existing session.
+     * @param userID the user ID
+     * @param sessionToken the session token pulled from a HTTP request header to be validated
+     * @return true if the session ID matches the user ID; false otherwise.
+     */
+    public boolean checkCredentials(long userID, String sessionToken){
+        long sessionID = retrieveSessionID(sessionToken);
+        if (activeSessions.containsKey(userID)) {
+            return sessionID == activeSessions.get(userID);
+        } else {
             return false;
         }
     }

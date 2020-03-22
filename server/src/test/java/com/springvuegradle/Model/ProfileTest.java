@@ -48,8 +48,8 @@ class ProfileTest {
 
     @Test
     void testGetListOfCountryNames(){
-        assertEquals(2, firstProfile.getPassportCountryNames().size());
-        assertEquals(firstProfile.getPassportCountryNames().get(0).getClass(), String.class);
+        assertEquals(2, firstProfile.getPassports().size());
+        assertEquals(firstProfile.getPassports().get(0).getClass(), String.class);
     }
 
     @Test
