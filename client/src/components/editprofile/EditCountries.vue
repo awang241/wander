@@ -70,6 +70,7 @@
                     "gender": profileStore.data.gender,
                     "fitness": profileStore.data.fitnessLevel,
                     "passports":profileStore.data.passportCountries,
+                    "additional_email": profileStore.data.optionalEmails
                 }
                 Api.editProfile(authenticationStore.methods.getUserId(), updatedProfile, authenticationStore.methods.getSessionId())
 

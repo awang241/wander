@@ -7,7 +7,8 @@
                     <h1 class="title is-1">
                         {{ firstName }} {{ middleName }} {{ lastName }}
                     </h1>
-                    <h2 class="subtitle is-3">
+                    <br>
+                    <h2 class="subtitle is-5">
                         {{ nickName }}
                     </h2>
 
@@ -48,7 +49,7 @@
         </nav>
         <div class="section-heading">
             <div class="center container containerColor">
-                <p>{{ bio }} Temporary bio templated, until user bio data can be inputted. I like rock climbing and merge conflicts. gg.</p>
+                <p>{{ bio }}</p>
             </div>
         </div>
         <section class="section" id="about">
@@ -77,8 +78,13 @@
                                         <td>{{ dateOfBirth }}</td>
                                     </tr>
                                     <tr>
-                                        <td>Email:</td>
+                                        <td>Primary Email:</td>
                                         <td>{{ primaryEmail }}</td>
+                                    </tr>
+
+                                     <tr v-for="email in additionalEmails" :key="email">
+                                        <td>Additional Email:</td>
+                                        <td>{{email}}</td>
                                     </tr>
                                 </table>
                             </div>

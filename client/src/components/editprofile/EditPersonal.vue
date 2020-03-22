@@ -4,7 +4,7 @@
 
         <h1 class="title is-5">Edit Basic Info</h1>
 
-        <form @submit="sendUpdatedData">
+        <form @submit.prevent="sendUpdatedData">
             <b-field group-multiline grouped>
                 <b-field label="First Name" expanded >
                     <b-input v-model="firstName" placeholder="First Name" required></b-input>
@@ -121,7 +121,7 @@
                 const personalDetails = {"firstname": this.firstName,
                                  "lastname": this.lastName,
                                 "middlename": this.middleName,
-                                "nickname": this.nickname,
+                                "nickname": this.nickName,
                                 "bio": this.bio,
                                 "date_of_birth": this.dateOfBirth,
                                 "gender": this.gender,

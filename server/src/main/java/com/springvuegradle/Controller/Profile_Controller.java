@@ -45,7 +45,7 @@ public class Profile_Controller {
      */
     @PostMapping("/profiles")
     public ResponseEntity<String> createProfile (@RequestBody Profile newProfile) {
-        String error = verifyProfile(newProfile);
+        String error = verifyProfile(newProfile, false);
 
         if (error.equals("")) {
             // case nothing goes wrong
@@ -248,12 +248,14 @@ public class Profile_Controller {
      * @return An HTTP response with an appropriate status code and the updated profile if there method was successful.
      */
     protected ResponseEntity<String> updateProfile(Profile editedProfile, Long id){
-        String verificationMsg = verifyProfile(editedProfile);
+        editedProfile.setPassword("temporary");
+        String verificationMsg = verifyProfile(editedProfile, true);
         if (!verificationMsg.equals("")) {
             return new ResponseEntity<>(verificationMsg, HttpStatus.BAD_REQUEST);
         }
+
         Profile db_profile = repository.findById(id).get();
-        db_profile.updateProfile(editedProfile);
+        db_profile.updateProfileExceptEmailsPassword(editedProfile);
         Set<PassportCountry> updatedCountries = new HashSet<>();
         for(PassportCountry passportCountry : editedProfile.getPassportObjects()){
             List<PassportCountry> result = pcRepository.findByCountryName(passportCountry.getCountryName());{
@@ -305,11 +307,14 @@ public class Profile_Controller {
         }
 
         //primary email
+
+
+
         if(primaryEmail != null) {
             List<Email> emailsReturnedFromSearch = eRepository.findAllByAddress(primaryEmail);
             if (emailsReturnedFromSearch.isEmpty()) {
                 newEmailSet.add(new Email(primaryEmail, true, db_profile));
-            } else if (emailsReturnedFromSearch.get(0).getId() == id) {
+            } else if (emailsReturnedFromSearch.get(0).getProfile().getId() == id) {
                 //case where primary email already associated with profile
                 Email email = emailsReturnedFromSearch.get(0);
                 email.setPrimary(true);
@@ -325,7 +330,7 @@ public class Profile_Controller {
             List<Email> emailsReturnedFromSearch = eRepository.findAllByAddress(optionalEmail);
             if (emailsReturnedFromSearch.isEmpty()) {
                 newEmailSet.add(new Email(optionalEmail, false, db_profile));
-            } else if (emailsReturnedFromSearch.get(0).getId() == id) {
+            } else if (emailsReturnedFromSearch.get(0).getProfile().getId() == id) {
                 Email email = emailsReturnedFromSearch.get(0);
                 email.setPrimary(false);
                 newEmailSet.add(email);
@@ -365,7 +370,7 @@ public class Profile_Controller {
         }
     }
 
-    private String verifyProfile(Profile newProfile) {
+    private String verifyProfile(Profile newProfile, boolean edit_mode) {
         String error = "";
         if (newProfile.retrievePrimaryEmail().getAddress() == "" ||
                 newProfile.retrievePrimaryEmail().getAddress() == null) {
@@ -396,8 +401,10 @@ public class Profile_Controller {
                 }
             }
         }
+        if (!edit_mode) {
+            error += verifyEmailsInProfile(newProfile);
+        }
 
-        error += verifyEmailsInProfile(newProfile);
 
         if (!((newProfile.getGender().equals("male")) ||
                 (newProfile.getGender().equals("female")) ||

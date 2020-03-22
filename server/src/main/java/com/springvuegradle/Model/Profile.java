@@ -204,13 +204,11 @@ public class Profile {
      * This method is used to update a profile with the given profile's details.
      * @param editedProfile is the profile that we want to take the updated data from to place in the db profile.
      */
-    public void updateProfile(Profile editedProfile) {
+    public void updateProfileExceptEmailsPassword(Profile editedProfile) {
         this.firstname = editedProfile.firstname;
         this.lastname = editedProfile.lastname;
         this.middlename = editedProfile.middlename;
         this.nickname = editedProfile.nickname;
-        this.emails = editedProfile.emails;
-        this.password = editedProfile.password;
         this.bio = editedProfile.bio;
         this.dateOfBirth = editedProfile.dateOfBirth;
         this.gender = editedProfile.gender;
