@@ -40,10 +40,9 @@ class ProfileTest {
 
     @Test
     void testUpdateProfileWithNewInfo(){
-        firstProfile.updateProfile(secondProfile);
+        firstProfile.updateProfileExceptEmailsPassword(secondProfile);
         assertEquals(firstProfile.getFirstname(), secondProfile.getFirstname());
         assertEquals(firstProfile.getNickname(), secondProfile.getNickname());
-        assertEquals(firstProfile.getPrimary_email(), secondProfile.getPrimary_email());
     }
 
     @Test
