@@ -74,11 +74,10 @@ public class Profile_Controller {
     @GetMapping("/profiles/{id}")
     public @ResponseBody ResponseEntity<Profile> getProfile(@PathVariable Long id, @RequestHeader("authorization") String sessionToken) {
         if (loginController.checkCredentials(id, sessionToken)) {
-            return getProfile(id, LoginController.retrieveSessionID(sessionToken), false);
+            return getProfile(id);
         } else {
-            return getProfile(id, LoginController.retrieveSessionID(sessionToken), false);
+            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
-
     }
 
     /**
@@ -90,7 +89,12 @@ public class Profile_Controller {
      */
     @PutMapping("/profiles/{id}")
     public @ResponseBody ResponseEntity<String> updateProfile(@RequestBody Profile editedProfile, @RequestHeader("authorization") String sessionToken, @PathVariable Long id) {
-        return updateProfile(editedProfile, LoginController.retrieveSessionID(sessionToken), id, false);
+        if (loginController.checkCredentials(id, sessionToken)) {
+            return updateProfile(editedProfile, id);
+        } else {
+            return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(), HttpStatus.UNAUTHORIZED);
+        }
+
     }
 
     /**
@@ -100,24 +104,20 @@ public class Profile_Controller {
      */
     @DeleteMapping(value="/profiles/{id}")
     public @ResponseBody ResponseEntity<String> deleteProfile(@PathVariable Long id) {
-        //if(loginController.checkCredentials(id.intValue(), sessionID)) {
-        if (repository.existsById(id)) {
-            Profile profile_to_delete = repository.findById(id).get();
-
-            repository.delete(profile_to_delete);
-            return new ResponseEntity<String>("The Profile does exist in the database.", HttpStatus.OK);
+        Optional<Profile> result = repository.findById(id);
+        if (Boolean.TRUE.equals(result.isPresent())) {
+            Profile profileToDelete = result.get();
+            repository.delete(profileToDelete);
+            return new ResponseEntity<>("The Profile does exist in the database.", HttpStatus.OK);
         } else {
-            return new ResponseEntity<String>("The profile does not exist in the database.", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("The profile does not exist in the database.", HttpStatus.NOT_FOUND);
         }
-        //} else {
-        //    return new ResponseEntity<String>("Not logged in as that profile", HttpStatus.UNAUTHORIZED);
-        //}
     }
 
     @PostMapping("/profiles/{id}/emails")
     public @ResponseBody ResponseEntity<String> addEmails(@RequestBody EmailAddRequest request, @PathVariable Long id, @RequestHeader("authorization") String sessionToken) {
-        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
-        String message = "";
+        HttpStatus status;
+        String message;
         long sessionID = LoginController.retrieveSessionID(sessionToken);
         if (loginController.checkCredentials(id, sessionID)) {
             Optional<Profile> result = repository.findById(id);
@@ -127,10 +127,10 @@ public class Profile_Controller {
                     addAdditionalEmailToProfile(targetProfile, address);
                 }
                 status = HttpStatus.CREATED;
-                message = "";
+                message = "Emails added successfully.";
             } else {
                 status = HttpStatus.FORBIDDEN;
-                message = AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage();
+                message = "That profile does not exist.";
 
             }
         } else {
@@ -150,13 +150,16 @@ public class Profile_Controller {
      */
     @PutMapping("/profiles/{id}/emails")
     public ResponseEntity<String> editEmails (@RequestBody EmailUpdateRequest newEmails, @PathVariable Long id, @RequestHeader("authorization") String sessionToken) {
-        return editEmails (newEmails, id, LoginController.retrieveSessionID(sessionToken), false);
+        if (loginController.checkCredentials(id, sessionToken)) {
+            return editEmails (newEmails, id);
+        } else {
+            return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(), HttpStatus.UNAUTHORIZED);
+        }
     }
 
     @PutMapping("/profiles/{id}/password")
     public ResponseEntity<String> changePassword (@RequestBody ChangePasswordRequest newPasswordRequest, @PathVariable Long id, @RequestHeader("authorization") String sessionToken) {
-        long sessionID = LoginController.retrieveSessionID(sessionToken);
-        if(!loginController.checkCredentials(id.intValue(), sessionID)){
+        if(!loginController.checkCredentials(id.intValue(), sessionToken)){
             return new ResponseEntity<>("Invalid session ID.", HttpStatus.UNAUTHORIZED);
         }
 
@@ -165,7 +168,7 @@ public class Profile_Controller {
         }
 
         Optional<Profile> result = repository.findById(id);
-        if (!result.isPresent()) {
+        if (result.isEmpty()) {
             return new ResponseEntity<>("Could not find profile in repository.", HttpStatus.NOT_FOUND);
         }
         Profile dbProfile = result.get();
@@ -184,18 +187,6 @@ public class Profile_Controller {
         dbProfile.setPassword(newHashedPassword);
         repository.save(dbProfile);
         return new ResponseEntity<>("Successfully changed password.", HttpStatus.OK);
-    }
-
-    protected ProfileRepository getRepository() {
-        return repository;
-    }
-
-    protected PassportCountryRepository getPassportCountryRepository() {
-        return pcRepository;
-    }
-
-    protected EmailRepository getEmailRepository() {
-        return eRepository;
     }
 
     /**
@@ -224,7 +215,7 @@ public class Profile_Controller {
      */
     protected boolean addAdditionalEmailToProfile(Profile profile, String newAddress) {
         boolean isAdded = false;
-        if (!eRepository.existsByAddress(newAddress)) {
+        if (Boolean.FALSE.equals(eRepository.existsByAddress(newAddress))) {
             Email emailToAdd = new Email(newAddress);
             isAdded = profile.addEmail(emailToAdd);
             if (isAdded) {
@@ -237,12 +228,10 @@ public class Profile_Controller {
 
     /**
      * Retrieves data corresponding to the given profile ID from the database.
-     * @param sessionID session token to make sure user logged in
-     * @param testing if true, will skip the credential check
      * @param id gets the profile object and if it exists and authorization is approved, it will return the object
      * @return the Profile object corresponding to the given ID.
      */
-    protected ResponseEntity<Profile> getProfile(Long id, Long sessionID, boolean testing) {
+    protected ResponseEntity<Profile> getProfile(Long id) {
         Optional<Profile> profileWithId = repository.findById(id);
         if (profileWithId.isPresent()) {
             return new ResponseEntity(profileWithId.get(), HttpStatus.OK);
@@ -256,14 +245,9 @@ public class Profile_Controller {
      * for the purposes of automated testing.
      * @param editedProfile a profile object created from the request
      * @param id the ID of the profile being edited, pulled from the URL as a path variable.
-     * @param sessionID session ID generated at login that is associated with this profile, pulled from the request header.
-     * @param testing flag to indicate that method is being tested and should ignore authentication
      * @return An HTTP response with an appropriate status code and the updated profile if there method was successful.
      */
-    protected ResponseEntity<String> updateProfile(Profile editedProfile, long sessionID, Long id, boolean testing){
-        if(!testing && !loginController.checkCredentials(id.intValue(), sessionID)){
-            return new ResponseEntity<String>("Invalid session key.", HttpStatus.UNAUTHORIZED);
-        }
+    protected ResponseEntity<String> updateProfile(Profile editedProfile, Long id){
         String verificationMsg = verifyProfile(editedProfile);
         if (!verificationMsg.equals("")) {
             return new ResponseEntity<>(verificationMsg, HttpStatus.BAD_REQUEST);
@@ -279,7 +263,7 @@ public class Profile_Controller {
         db_profile.setPassports(updatedCountries);
 
         EmailUpdateRequest mockRequest = new EmailUpdateRequest(new ArrayList<String>(db_profile.getAdditional_email()), db_profile.getPrimary_email(), id.intValue());
-        ResponseEntity<String> response = editEmails(mockRequest, id, sessionID, testing);
+        ResponseEntity<String> response = editEmails(mockRequest, id);
         if (!response.getStatusCode().equals(HttpStatus.OK)) {
             return new ResponseEntity<>(response.getBody(), response.getStatusCode());
         }
@@ -293,14 +277,9 @@ public class Profile_Controller {
      * for the purposes of automated testing.
      * @param newEmails The profile's new primary/additional emails embedded in an EmailUpdateRequest
      * @param id the ID of the profile being edited
-     * @param sessionID session ID generated at login that is associated with this profile
-     * @param testing flag to indicate that method is being tested and should ignore authentication
      * @return An HTTP response with an appropriate status code and, if there was a problem with the request, an error message.
      */
-    protected ResponseEntity<String> editEmails (EmailUpdateRequest newEmails, Long id, Long sessionID, boolean testing){
-        if(false && !testing && !loginController.checkCredentials(id.intValue(), sessionID)){
-            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
-        }
+    protected ResponseEntity<String> editEmails (EmailUpdateRequest newEmails, Long id){
 
         Profile db_profile = repository.findById(id).get();
         String primaryEmail = newEmails.getPrimary_email();

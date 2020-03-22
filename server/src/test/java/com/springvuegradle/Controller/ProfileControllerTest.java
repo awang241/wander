@@ -5,6 +5,7 @@ import com.springvuegradle.Model.Profile;
 import com.springvuegradle.Repositories.EmailRepository;
 import com.springvuegradle.Repositories.ProfileRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +43,7 @@ class ProfileControllerTest {
     void createProfileTest() {
         Profile jimmy = createNormalProfileJimmy();
         int expected_in_repo = 0;
-        assertEquals(expected_in_repo, profileController.getRepository().count());
+        assertEquals(expected_in_repo, repo.count());
 
         ResponseEntity<String> response_entity = profileController.createProfile(jimmy);
         assertEquals(HttpStatus.CREATED, response_entity.getStatusCode());
@@ -65,6 +66,18 @@ class ProfileControllerTest {
         assertEquals(expected_in_repo, repo.count());
     }
 
+    @Disabled
+    @Test
+    void testCreateProfileWithMinimalFields() {
+        Profile testProfile = createProfileWithMinimalFields();
+        assertEquals(0, repo.count(), "Sanity check: profile repository is empty");
+        assertEquals(0, erepo.count(), "Sanity check: email repository is empty");
+        profileController.createProfile(testProfile);
+
+        List<Profile> result = repo.findByPrimaryEmail(testProfile.getPrimary_email());
+        assertTrue(result.contains(testProfile));
+    }
+
     /**
      * This method tests that the profile without the mandatory fields filled in is not saved to the database.
      */
@@ -73,7 +86,7 @@ class ProfileControllerTest {
         Profile dummy_maurice = createInvalidFieldsProfileMaurice();
 
         int expected_in_repo = 0;
-        assertEquals(expected_in_repo, profileController.getRepository().count());
+        assertEquals(expected_in_repo, repo.count());
 
         ResponseEntity<String> response_entity = profileController.createProfile(dummy_maurice);
         System.out.println(response_entity.getBody());
@@ -136,7 +149,7 @@ class ProfileControllerTest {
 
         long expected_id = repo.findAll().get(0).getId();
 
-        ResponseEntity<Profile> response_entity_new = profileController.getProfile(expected_id, null, true);
+        ResponseEntity<Profile> response_entity_new = profileController.getProfile(expected_id, null);
         assertEquals(HttpStatus.OK, response_entity_new.getStatusCode());
         Profile db_jimmy = response_entity_new.getBody();
         assertEquals(jimmy, db_jimmy);
@@ -146,7 +159,7 @@ class ProfileControllerTest {
     void getProfileDoesNotExistTest() {
         int expected_in_repo = 0;
         assertEquals(expected_in_repo, repo.count());
-        ResponseEntity<Profile> response_entity = profileController.getProfile((long) 1, null, true);
+        ResponseEntity<Profile> response_entity = profileController.getProfile(1L, null);
         assertEquals(HttpStatus.NOT_FOUND, response_entity.getStatusCode());
     }
 
@@ -162,10 +175,6 @@ class ProfileControllerTest {
         assertEquals(HttpStatus.CREATED, response_entity.getStatusCode());
     }
 
-    @Test
-    void a(){
-
-    }
 
     /**
      * Needs to be run before each test to ensure the repository starts empty.
@@ -212,6 +221,15 @@ class ProfileControllerTest {
         return new Profile(null, "", "", "Jack", "Jacky", "", new String[]{"additionaldoda@email.com"}, "hush",
                 "Jacky loves to ride his bike on crazy mountains.", new GregorianCalendar(1985, Calendar.DECEMBER,
                 20), "Male", 10, new String[]{"New Zealand", "India"});
+    }
+
+    /**
+     * @return a profile with the minimal required fields to be successfully created
+     */
+    private Profile createProfileWithMinimalFields() {
+        return new Profile(null, "Steven", "Stevenson", null, null,
+                "steven@steven.com", new String[]{}, "12345678", null, new GregorianCalendar(1992,
+                Calendar.JUNE, 10), "Male", 0, new String[]{});
     }
 }
 
