@@ -118,7 +118,7 @@ public class Profile_Controller {
     public @ResponseBody ResponseEntity<String> addEmails(@RequestBody EmailAddRequest request, @PathVariable Long id, @RequestHeader("authorization") Long sessionToken) {
         HttpStatus status;
         String message;
-        long sessionID = LoginController.retrieveSessionID(sessionToken);
+        long sessionID = sessionToken;
         if (loginController.checkCredentials(id, sessionID)) {
             Optional<Profile> result = repository.findById(id);
             if (Boolean.TRUE.equals(result.isPresent())) {

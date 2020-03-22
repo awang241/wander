@@ -66,7 +66,6 @@ class ProfileControllerTest {
         assertEquals(expected_in_repo, repo.count());
     }
 
-    @Disabled
     @Test
     void testCreateProfileWithMinimalFields() {
         Profile testProfile = createProfileWithMinimalFields();
@@ -74,7 +73,7 @@ class ProfileControllerTest {
         assertEquals(0, erepo.count(), "Sanity check: email repository is empty");
         profileController.createProfile(testProfile);
 
-        List<Profile> result = repo.findByPrimaryEmail(testProfile.getPrimary_email());
+        List<Profile> result = repo.findAll();
         assertTrue(result.contains(testProfile));
     }
 
