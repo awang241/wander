@@ -52,12 +52,20 @@
                         "confPassword": this.confPassword
                     }
                     api.editPassword(passwordDetails, authenticationStore.methods.getUserId(), authenticationStore.methods.getSessionId())
-                        .catch(error => this.showMessage(this.displayError(error.response.status)))
+                        .catch(error => this.showError(this.displayError(error.response.status)))
                         .then(response => this.showMessage(this.displayError(response.status)))
                     // this.showMessage(this.displayError(status))
                 }
             },
             showMessage(message) {
+                this.$buefy.toast.open({
+                    duration: 5500,
+                    message: message,
+                    type: 'is-success',
+                    position: 'is-top'
+                })
+            },
+            showError(message) {
                 this.$buefy.toast.open({
                     duration: 5500,
                     message: message,

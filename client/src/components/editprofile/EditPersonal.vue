@@ -63,7 +63,7 @@
                 <b-input v-model="bio" maxlength="200" type="textarea" placeholder="Enter a bio"></b-input>
             </b-field>
             <b-field>
-                <b-button type="is-info" native-type="submit" @click="sendUpdatedData">Save</b-button>
+                <b-button type="is-info" native-type="submit">Save</b-button>
             </b-field>
         </form>
 
@@ -125,7 +125,7 @@
                                 "bio": this.bio,
                                 "date_of_birth": this.dateOfBirth,
                                 "gender": this.gender,
-                                "fitness": this.fitnessLevel,
+                                "fitness": this.fitness_level
                 }
                 profileStore.methods.updatePersonal(personalDetails)
                 const updatedProfile = {
@@ -142,6 +142,33 @@
                     "passports":profileStore.data.passportCountries
                 }
                 api.editProfile(authenticationStore.methods.getUserId(), updatedProfile, authenticationStore.methods.getSessionId())
+                    .catch(error => this.showError(this.displayError(error.response.status)))
+                    .then(response => this.showMessage(this.displayError(response.status)))
+            },
+            showMessage(message) {
+                this.$buefy.toast.open({
+                    duration: 2000,
+                    message: message,
+                    type: 'is-success',
+                    position: 'is-top'
+                })
+            },
+            showError(message) {
+                this.$buefy.toast.open({
+                    duration: 2000,
+                    message: message,
+                    type: 'is-danger',
+                    position: 'is-top'
+                })
+            },
+            displayError(statusCode) {
+                let message = ""
+                if (statusCode == 200) {
+                    message = "Details updated successfully"
+                } else if (statusCode == 400 || statusCode == 403 || statusCode == 401) {
+                    message = "Please fill in all required fields"
+                }
+                return message;
             }
         }
     }
