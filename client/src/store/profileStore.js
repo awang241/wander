@@ -16,8 +16,8 @@ const profileStore = {
 
     },
     methods: {
-        setPassportCountries(passports) {
-            profileStore.data.passportCountries = passports;
+        setPassportCountries(passport_countries) {
+            profileStore.data.passportCountries = passport_countries;
         },
         setPrimaryEmail(primary_email) {
             profileStore.data.primaryEmail = primary_email;
@@ -33,7 +33,7 @@ const profileStore = {
             profileStore.data.bio = updatedProfile.bio;
             profileStore.data.dateOfBirth = updatedProfile.date_of_birth;
             profileStore.data.gender = updatedProfile.gender;
-            profileStore.data.fitnessLevel = updatedProfile.fitness_level;
+            profileStore.data.fitnessLevel = updatedProfile.fitness;
         },
         setProfile(profile){
             profileStore.methods.updatePersonal(profile)

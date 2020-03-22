@@ -136,8 +136,8 @@
                         bio: this.bio,
                         date_of_birth: this.dateOfBirth,
                         gender: this.gender,
-                        fitness_level: this.fitness,
-                        passport_countries: []
+                        fitness: this.fitness,
+                        passports: []
                     })
                         .then((response => {
                             console.log(response)

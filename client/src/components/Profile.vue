@@ -229,9 +229,9 @@
                     this.bio = response.data.bio;
                     this.primaryEmail = response.data.primary_email;
                     this.additionalEmails = response.data.additional_email;
-                    this.fitness_level = response.data.fitness_level;
-                    this.chosenCountries = response.data.passport_countries;
-                    switch(response.data.fitness_level) {
+                    this.fitness_level = response.data.fitness;
+                    this.chosenCountries = response.data.passports;
+                    switch(response.data.fitness) {
                         case 0 :
                             this.fitness_statement = "Beginner: I am not active at all";
                             break;

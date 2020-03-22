@@ -48,6 +48,7 @@
                 this.chosenCountries = this.chosenCountries.filter(country => country != chosenCountry)
             },
             addCountry() {
+                console.log("adding country")
                 if (this.newCountry === ""){
                     this.showWarning("No country selected")
                 } else if (this.chosenCountries.includes(this.newCountry)) {
