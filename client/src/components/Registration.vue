@@ -137,7 +137,8 @@
                         date_of_birth: this.dateOfBirth,
                         gender: this.gender,
                         fitness: this.fitness,
-                        passports: []
+                        passports: [],
+                        activities: []
                     })
                         .then((response => {
                             console.log(response)

@@ -1,12 +1,15 @@
 package com.springvuegradle.Controller;
 
+import com.springvuegradle.Model.Activity;
 import com.springvuegradle.Model.Profile;
 
+import com.springvuegradle.Repositories.ActivityRepository;
 import com.springvuegradle.Repositories.EmailRepository;
 import com.springvuegradle.Repositories.ProfileRepository;
 import com.springvuegradle.dto.ChangePasswordRequest;
 import com.springvuegradle.dto.EmailAddRequest;
 import com.springvuegradle.dto.EmailUpdateRequest;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -36,6 +39,9 @@ class ProfileControllerTest {
 
     @Autowired
     private EmailRepository erepo;
+
+    @Autowired
+    private ActivityRepository arepo;
 
     @Autowired
     private Profile_Controller profileController;
@@ -102,7 +108,8 @@ class ProfileControllerTest {
                 "The Last Name field is blank.\n" +
                 "The Password is not long enough.\n" +
                 "The fitness level isn't valid.\n" +
-                "The Gender field must contain either 'male', 'female' or 'non-binary'.\n";
+                "Activity random does not exist in the database.\n" +
+                "The Gender field must contain either 'male', 'female' or 'non-Binary'.\n";
         assertEquals(expected_error_message, actual_error_message);
         assertEquals(expected_in_repo, repo.count());
     }
@@ -236,6 +243,7 @@ class ProfileControllerTest {
         assertEquals(expected_in_repo, repo.count());
 
         ResponseEntity<String> response_entity = profileController.createProfile(jimmy);
+        System.out.println("error string: " + response_entity.getBody());
         assertEquals(HttpStatus.CREATED, response_entity.getStatusCode());
 
         expected_in_repo = 1;
@@ -388,6 +396,13 @@ class ProfileControllerTest {
     void setup() {
         repo.deleteAll();
         erepo.deleteAll();
+        arepo.deleteAll();
+        arepo.save(new Activity("Football"));
+        arepo.save(new Activity("Tennis"));
+        arepo.save(new Activity("Hockey"));
+        arepo.save(new Activity("Basketball"));
+        arepo.save(new Activity("Hiking"));
+        arepo.save(new Activity("Rock Climbing"));
     }
 
     /* Below are a set of ready-made Profile objects which can be used for various tests. */
@@ -398,7 +413,7 @@ class ProfileControllerTest {
     static Profile createNormalProfileJimmy() {
         return new Profile(null, "Jimmy", "Quick", "Jones", "Jim-Jam", "jimjam@hotmail.com", new String[]{"additional@email.com"}, "hushhush",
                 "The quick brown fox jumped over the lazy dog.", new GregorianCalendar(1999, Calendar.NOVEMBER,
-                28), "male", 1, new String[]{"New Zealand", "India"});
+                28), "male", 1, new String[]{"New Zealand", "India"}, new String[]{"Football"});
     }
 
     /**
@@ -407,7 +422,7 @@ class ProfileControllerTest {
     static Profile createInvalidCountryProfileJimmy() {
         return new Profile(null, "Jimmy", "Quick", "Jones", "Jim-Jam", "jimjam@hotmail.com", new String[]{"additional@email.com"}, "hushhush",
                 "The quick brown fox jumped over the lazy dog.", new GregorianCalendar(1999, Calendar.NOVEMBER,
-                28), "male", 1, new String[]{"Cowabunga"});
+                28), "male", 1, new String[]{"Cowabunga"}, new String[]{"Hockey"});
     }
 
     /**
@@ -416,7 +431,7 @@ class ProfileControllerTest {
     static Profile createNormalProfileMaurice() {
         return new Profile(null, "Maurice", "Benson", "Jack", "Jacky", "jacky@google.com", new String[]{"additionaldoda@email.com"}, "jacky'sSecuredPwd",
                 "Jacky loves to ride his bike on crazy mountains.", new GregorianCalendar(1985, Calendar.DECEMBER,
-                20), "male", 1, new String[]{"New Zealand", "India"});
+                20), "male", 1, new String[]{"New Zealand", "India"}, new String[]{"Tennis"});
     }
 
     /**
@@ -425,7 +440,7 @@ class ProfileControllerTest {
     static Profile createInvalidFieldsProfileMaurice() {
         return new Profile(null, "", "", "Jack", "Jacky", "", new String[]{"additionaldoda@email.com"}, "hush",
                 "Jacky loves to ride his bike on crazy mountains.", new GregorianCalendar(1985, Calendar.DECEMBER,
-                20), "Male", 10, new String[]{"New Zealand", "India"});
+                20), "Male", 10, new String[]{"New Zealand", "India"}, new String[]{"random"});
     }
 
     /**
@@ -434,7 +449,7 @@ class ProfileControllerTest {
     private Profile createProfileWithMinimalFields() {
         return new Profile(null, "Steven", "Stevenson", "", "",
                 "steven@steven.com", new String[]{}, "12345678", "", new GregorianCalendar(1992,
-                Calendar.JUNE, 10), "male", 0, new String[]{});
+                Calendar.JUNE, 10), "male", 0, new String[]{}, new String[]{});
     }
 }
 

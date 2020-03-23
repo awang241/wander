@@ -258,6 +258,13 @@
                     }
                 })
                 .catch(error => console.log(error));
+
+            api.getActivitesList(authenticationStore.methods.getUserId(), authenticationStore.methods.getSessionId())
+                .then((response)) => {
+
+                profileStore.methods.setProfile(response.data)
+            }
+
         },
     }
 </script>

@@ -97,6 +97,16 @@ public class Profile {
     private Set<PassportCountry> passports;
 
     /**
+     * Holds the user's activities and establishes a many to many relationship as a Profile object can be associated with
+     * multiple Activity objects.
+     */
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinTable(name = "profile_activity",
+            inverseJoinColumns = @JoinColumn(name = "activity_id", referencedColumnName = "id"),
+            joinColumns = @JoinColumn(name = "profile_id", referencedColumnName = "id"))
+    private Set<Activity> activities;
+
+    /**
      * No argument constructor for Profile, can be used for creating new profiles directly from JSON data.
      */
     public Profile() {}
@@ -127,7 +137,8 @@ public class Profile {
                    @JsonProperty("date_of_birth") Calendar dateOfBirth,
                    @JsonProperty("gender") String gender,
                    @JsonProperty("fitness") int fitnessLevel,
-                   @JsonProperty("passports") String[] passports) {
+                   @JsonProperty("passports") String[] passports,
+                   @JsonProperty("activities") String[] activities) {
         this.firstname = firstname;
         this.lastname = lastname;
         this.middlename = middlename;
@@ -149,6 +160,10 @@ public class Profile {
         this.passports = new HashSet<>();
         for (String name: passports) {
             addPassportCountry(new PassportCountry(name));
+        }
+        this.activities = new HashSet<>();
+        for (String activity: activities) {
+            addActivity(new Activity(activity));
         }
     }
 
@@ -260,6 +275,23 @@ public class Profile {
         passports.remove(passportCountry);
     }
 
+    @JsonIgnore
+    public Set<Activity> getActivityObjects() {
+        return this.activities;
+    }
+
+    public void setActivities(Set<Activity> activities) {
+        this.activities = activities;
+    }
+
+    public void addActivity(Activity activity) {
+        activities.add(activity);
+    }
+
+    public void removeActivity(Activity activity) {
+        activities.remove(activity);
+    }
+
     /**
      * This method is used to update a profile with the given profile's details. Not used to update emails or password.
      * @param editedProfile is the profile that we want to take the updated data from to place in the db profile.
@@ -274,6 +306,7 @@ public class Profile {
         this.gender = editedProfile.gender;
         this.fitness = editedProfile.fitness;
         this.passports = editedProfile.passports;
+        this.activities = editedProfile.activities;
     }
 
     /**
@@ -296,7 +329,8 @@ public class Profile {
                     this.getDateOfBirth().equals(other.getDateOfBirth()) &&
                     this.gender.equals(other.gender) &&
                     this.fitness == other.fitness &&
-                    this.passports.equals(other.passports);
+                    this.passports.equals(other.passports) &&
+                    this.activities.equals(other.activities);
         } else {
             return false;
         }
@@ -304,7 +338,7 @@ public class Profile {
 
     @Override
     public int hashCode() {
-        return Objects.hash(firstname, lastname, middlename, nickname, emails, password, bio, dateOfBirth, gender, fitness, passports);
+        return Objects.hash(firstname, lastname, middlename, nickname, emails, password, bio, dateOfBirth, gender, fitness, passports, activities);
     }
 
     /** Series of Getters and Getters **/

@@ -2,6 +2,7 @@ package com.springvuegradle.Controller;
 
 import com.springvuegradle.Controller.enums.AuthenticationErrorMessage;
 import com.springvuegradle.Model.*;
+import com.springvuegradle.Repositories.ActivityRepository;
 import com.springvuegradle.Repositories.EmailRepository;
 import com.springvuegradle.Repositories.PassportCountryRepository;
 import com.springvuegradle.dto.ChangePasswordRequest;
@@ -50,6 +51,13 @@ public class Profile_Controller {
     private EmailRepository eRepository;
 
     /**
+     * Way to access Activity Repository (Activity table in db).
+     */
+    @Autowired
+    private ActivityRepository aRepository;
+
+
+    /**
      * Way to access methods of the Login Controller, such as for checking authentication.
      */
     private LoginController loginController = new LoginController();
@@ -78,6 +86,17 @@ public class Profile_Controller {
                 }
             }
             newProfile.setPassports(updated);
+
+            Set<Activity> updatedActivity = new HashSet<Activity>();
+            for(Activity activity : newProfile.getActivityObjects()){
+                List<Activity> resultActivities = aRepository.findByActivityName(activity.getActivityName());{
+                    updatedActivity.add(resultActivities.get(0));
+                }
+            }
+            newProfile.setActivities(updatedActivity);
+
+
+
             repository.save(newProfile);
             saveEmails(newProfile);
             return new ResponseEntity<>("New profile has been created.", HttpStatus.CREATED);
@@ -316,6 +335,15 @@ public class Profile_Controller {
         }
         db_profile.setPassports(updatedCountries);
 
+        // verifying activities
+        Set<Activity> updatedActivities = new HashSet<>();
+        for(Activity activity : editedProfile.getActivityObjects()){
+            List<Activity> resultActivities = aRepository.findByActivityName(activity.getActivityName());{
+                updatedActivities.add(resultActivities.get(0));
+            }
+        }
+        db_profile.setActivities(updatedActivities);
+
         // verifying emails, reuses the editEmails method
         EmailUpdateRequest mockRequest = new EmailUpdateRequest(new ArrayList<String>(db_profile.getAdditional_email()), db_profile.getPrimary_email(), id.intValue());
         ResponseEntity<String> response = editEmails(mockRequest, id);
@@ -474,10 +502,18 @@ public class Profile_Controller {
         if (!newProfile.getPassportObjects().isEmpty()) {
             for(PassportCountry passportCountry : newProfile.getPassportObjects()){
                 if (!pcRepository.existsByCountryName(passportCountry.getCountryName())) {
-                    error += String.format("Country %s does not exist in the database.", passportCountry.getCountryName());
+                    error += String.format("Country %s does not exist in the database.\n", passportCountry.getCountryName());
                 }
             }
         }
+        if (!newProfile.getActivityObjects().isEmpty()) {
+            for(Activity activity : newProfile.getActivityObjects()){
+                if (!aRepository.existsByActivityName(activity.getActivityName())) {
+                    error += String.format("Activity %s does not exist in the database.\n", activity.getActivityName());
+                }
+            }
+        }
+
         if (!edit_mode) {
             error += verifyEmailsInProfile(newProfile);
         }
@@ -486,7 +522,7 @@ public class Profile_Controller {
         if (!((newProfile.getGender().equals("male")) ||
                 (newProfile.getGender().equals("female")) ||
                 (newProfile.getGender().equals("non-Binary")))) {
-            error += "The Gender field must contain either 'male', 'female' or 'non-binary'.\n";
+            error += "The Gender field must contain either 'male', 'female' or 'non-Binary'.\n";
         }
         return error;
     }

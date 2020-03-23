@@ -40,6 +40,9 @@ const profileStore = {
             profileStore.data.primaryEmail = profile.primary_email;
             profileStore.data.optionalEmails = profile.additional_email;
             profileStore.data.passportCountries = profile.passports;
+        },
+        setAllActivities(acitivies_list) {
+            profileStore.data.allActivities = activites_list;
         }
     }
 };
