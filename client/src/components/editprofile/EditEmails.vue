@@ -48,13 +48,16 @@
         components: {List},
         methods: {
             addEmail() {
-                if(this.optionalEmails.length > 3){
+                if (this.optionalEmails.length > 3) {
                     //Todo change this to inform the user
-                  this.showWarning("Maximum emails reached")
-                } else if(this.optionalEmails.includes(this.newEmail) || this.newEmail === this.primaryEmail){
+                    this.showWarning("Maximum emails reached")
+                } else if (this.optionalEmails.includes(this.newEmail) || this.newEmail === this.primaryEmail) {
                     this.showWarning("Email is already in use")
+                } else if (this.newEmail === "" || this.newEmail.trim().length === 0) {
+                    console.log("no buddy");
+                    this.showWarning("Please enter in an email")
                 } else {
-                    this.optionalEmails.push(this.newEmail);
+                    this.optionalEmails.push(this.newEmail)
                 }
             },
             changePrimaryEmail() {
