@@ -273,7 +273,6 @@ public class Profile {
         this.dateOfBirth = editedProfile.dateOfBirth;
         this.gender = editedProfile.gender;
         this.fitness = editedProfile.fitness;
-        this.passports = editedProfile.passports;
     }
 
     /**
