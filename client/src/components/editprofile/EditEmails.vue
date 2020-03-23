@@ -49,20 +49,42 @@
         methods: {
             addEmail() {
                 if (this.optionalEmails.length > 3) {
-                    //Todo change this to inform the user
-                    this.showWarning("Maximum emails reached")
+                    this.$buefy.toast.open({
+                        duration: 5000,
+                        message: "Maximum email addresses reached",
+                        type: 'is-danger',
+                        position: 'is-top',
+                        queue: false,
+                    });
                 } else if (this.optionalEmails.includes(this.newEmail) || this.newEmail === this.primaryEmail) {
-                    this.showWarning("Email is already in use")
-                } else if (this.newEmail === "" || this.newEmail.trim().length === 0) {
-                    console.log("no buddy");
-                    this.showWarning("Please enter in an email")
+                    this.$buefy.toast.open({
+                        duration: 5000,
+                        message: "Email address is already in use!",
+                        type: 'is-danger',
+                        position: 'is-top',
+                        queue: false,
+                    });
+                } else if (this.newEmail === "" || this.newEmail.trim().length === 0 || !this.newEmail.includes('@', 0)) {
+                    this.$buefy.toast.open({
+                        duration: 5000,
+                        message: "Please enter in a valid email address",
+                        type: 'is-danger',
+                        position: 'is-top',
+                        queue: false,
+                    });
                 } else {
                     this.optionalEmails.push(this.newEmail)
                 }
             },
             changePrimaryEmail() {
                 if(this.newPrimaryEmail === "") {
-                    this.showWarning("No email selected")
+                    this.$buefy.toast.open({
+                        duration: 5000,
+                        message: "No additional email address selected",
+                        type: 'is-danger',
+                        position: 'is-top',
+                        queue: false,
+                    });
                 } else {
                     this.optionalEmails.push(this.primaryEmail);
                     this.optionalEmails = this.optionalEmails.filter(email => email != this.newPrimaryEmail)
