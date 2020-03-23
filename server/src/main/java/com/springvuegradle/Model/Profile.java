@@ -1,42 +1,100 @@
 package com.springvuegradle.Model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.*;
 
-import javax.management.AttributeList;
 import javax.persistence.*;
-import java.sql.Date;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
+import java.util.*;
 
+/**
+ * Profile class.
+ * Profile objects are used to structure the user data and enable the user data to be saved in an organised way.
+ */
 @Entity
 public class Profile {
 
+    /**
+     * Holds the user id. Generated and assigned when the object is saved in the database.
+     */
     @Id @GeneratedValue
     private Long id;
 
+    /**
+     * Holds the user's firstname.
+     */
+    @NotNull
     private String firstname;
-    private String lastname;
-    private String middlename;
-    private String nickname;
-    private String email;
-    private String password;
-    private String bio;
-    private Calendar date_of_birth;
-    private String gender;
-    private int fitness_level;
 
+    /**
+     * Holds the user's lastname.
+     */
+    @NotNull
+    private String lastname;
+
+    /**
+     * Holds the user's middlename (optional).
+     */
+    private String middlename;
+
+    /**
+     * Holds the user's nickname (optional).
+     */
+    private String nickname;
+
+    /**
+     * Holds the user's emails, this includes primary and additional emails. Only one of these emails will have a
+     * primary tag set to true and is necessary to be included in a valid profile object, hence, not null with min size
+     * of 1. One to Many relationship also established as a user can have many emails but each email can only be assigned
+     * to one user at a time.
+     * Essentially a multi-valued attribute, hence why Email objects are used.
+     */
+    @NotNull @Size(min = 1, max = 5)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "profile")
+    private Set<Email> emails = new HashSet<>();
+
+    /**
+     * The user's password (taken from JSON as plaintext and stored as a hash).
+     */
+    @NotNull
+    private String password;
+
+    /**
+     * Holds the user's detailed description of what they are like.
+     */
+    private String bio;
+
+    /**
+     * Stores the user's date of birth as a Calender object.
+     */
+    @NotNull
+    private Calendar dateOfBirth;
+
+    /**
+     * Stored the gender as a string, e.g. male, female, non-binary.
+     */
+    @NotNull
+    private String gender;
+
+    /**
+     * Holds the fitness value of the user, where a 0 means the user does little to no fitness while 4 means that the
+     * user exercises quite frequently.
+     */
+    @NotNull @Column(name = "fitness") @Min(value = 0) @Max(value = 4)
+    private int fitness;
+
+    /**
+     * Holds the user's passports and estabishes a Many to Many relationship as a Profile object can be associated with
+     * multiple PassportCountry.
+     */
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "profile_passport_country",
-            inverseJoinColumns = @JoinColumn(name = "profile_id", referencedColumnName = "id"),
-            joinColumns = @JoinColumn(name = "passport_country_id", referencedColumnName = "id"))
-    @JsonBackReference
-    private List<PassportCountry> passport_countries;
-
+            inverseJoinColumns = @JoinColumn(name = "passport_country_id", referencedColumnName = "id"),
+            joinColumns = @JoinColumn(name = "profile_id", referencedColumnName = "id"))
+    private Set<PassportCountry> passports;
 
     /**
      * No argument constructor for Profile, can be used for creating new profiles directly from JSON data.
@@ -44,30 +102,209 @@ public class Profile {
     public Profile() {}
 
     /**
-     * Constructor for Profile.
-     * @param firstname
-     * @param lastname
-     * @param middlename
-     * @param nickname
-     * @param email
+     * Constructor for Profile. The way the JSONProperty is structured is how the getProfile method should display the
+     * users details as well.
+     * @param firstname first name of user
+     * @param lastname last name of user
+     * @param middlename middle name of user
+     * @param nickname nickname of user
+     * @param primaryEmail users primary email address
      * @param password (encrypted)
-     * @param bio
-     * @param date_of_birth (xxxx_xx_xx -> year_month_day)
+     * @param bio other information about the user that they wish to enter
+     * @param dateOfBirth (xxxx_xx_xx -> year_month_day)
      * @param gender (Male, Female, Other)
      */
-    public Profile(String firstname, String lastname, String middlename, String nickname, String email, String password,
-                      String bio, Calendar date_of_birth, String gender, int fitness_level, List<PassportCountry> passport_countries) {
+    @JsonCreator
+    public Profile(@JsonProperty("id") Long id,
+                   @JsonProperty("firstname") String firstname,
+                   @JsonProperty("lastname") String lastname,
+                   @JsonProperty("middlename") String middlename,
+                   @JsonProperty("nickname") String nickname,
+                   @JsonProperty("primary_email") String primaryEmail,
+                   @JsonProperty("additional_email") String[] additionalEmails,
+                   @JsonProperty("password") String password,
+                   @JsonProperty("bio") String bio,
+                   @JsonProperty("date_of_birth") Calendar dateOfBirth,
+                   @JsonProperty("gender") String gender,
+                   @JsonProperty("fitness") int fitnessLevel,
+                   @JsonProperty("passports") String[] passports) {
         this.firstname = firstname;
         this.lastname = lastname;
         this.middlename = middlename;
         this.nickname = nickname;
-        this.email = email;
+
+        this.emails = new HashSet<>();
+
+        addEmail(new Email(primaryEmail, true));
+
+        for (String email: additionalEmails) {
+            addEmail(new Email(email));
+        }
+
         this.password = password;
         this.bio = bio;
-        this.date_of_birth = date_of_birth;
+        this.dateOfBirth = dateOfBirth;
         this.gender = gender;
-        this.fitness_level = fitness_level;
-        this.passport_countries = passport_countries;
+        this.fitness = fitnessLevel;
+        this.passports = new HashSet<>();
+        for (String name: passports) {
+            addPassportCountry(new PassportCountry(name));
+        }
+    }
+
+    /**
+     * Adds the email to the set. Does not check repository to see if the email address is alredy in use. Trying to keep
+     * db related queries in Controller classes. Though, it does check if the email is already in the list of emails as
+     * well as if the list of emails is already at the max capacity (5).
+     * @param email
+     * @return
+     */
+    public boolean addEmail(Email email) {
+        boolean alreadyInEmails = false;
+        for (Email tEmail: emails) {
+            if (tEmail.getAddress() == email.getAddress()) {
+                alreadyInEmails = true;
+            }
+        }
+        if (alreadyInEmails || emails.size() >= 5) {
+            return false;
+        } else {
+            email.setProfile(this);
+            this.emails.add(email);
+            return true;
+        }
+    }
+
+    /**
+     * This method removes an email from the set of emails given that it is already in the set of emails. Also checks to
+     * make sure that the email is not a primary email, if it is then it does not remove the email and just returns false.
+     * The method also returns false if it cannot find an email with the same address in the associated set of emails.
+     * @param email that we want to remove.
+     * @return true if email is removed, false otherwise.
+     */
+    public boolean removeEmail(Email email) {
+        for (Email currentEmail: emails) {
+            if (currentEmail.getAddress() == email.getAddress() && !currentEmail.isPrimary()) {
+                emails.remove(currentEmail);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Changes the primary email to the given email object given that is already in the set of emails.
+     * @param newPrimary new Email object already in set we want to set primary.
+     */
+    public boolean changePrimary(Email newPrimary) {
+        boolean primaryChanged = false;
+        for (Email currentEmail: emails) {
+            if (currentEmail.getAddress() == newPrimary.getAddress()) {
+                currentEmail.setPrimary(true);
+                primaryChanged = true;
+            } else {
+                currentEmail.setPrimary(false);
+            }
+        }
+        return primaryChanged;
+    }
+
+
+    /**
+     * Gets the email objects.
+     * @return set of Email objects
+     */
+    public Set<Email> retrieveEmails() {
+        return emails;
+    }
+
+    public void setEmails(Set<Email> emails) {
+        this.emails = emails;
+    }
+
+
+    public String getDateOfBirth() {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        format.setCalendar(dateOfBirth);
+        return format.format(dateOfBirth.getTime());
+    }
+
+
+
+    /**
+     * Gets the passport countries as a string of names instead of objects
+     * @return list of country name strings
+     */
+    public List<String> getPassports() {
+        List<String> countryNames = new ArrayList<>();
+        for (PassportCountry country : passports){
+            countryNames.add(country.getCountryName());
+        }
+        return countryNames;
+    }
+
+    @JsonIgnore
+    public Set<PassportCountry> getPassportObjects() {
+        return this.passports;
+    }
+
+    public void setPassports(Set<PassportCountry> passport_countries) {
+        this.passports = passport_countries;
+    }
+
+    public void addPassportCountry(PassportCountry passportCountry) {
+        passports.add(passportCountry);
+    }
+
+    public void removePassportCountry(PassportCountry passportCountry) {
+        passports.remove(passportCountry);
+    }
+
+    /**
+     * This method is used to update a profile with the given profile's details. Not used to update emails or password.
+     * @param editedProfile is the profile that we want to take the updated data from to place in the db profile.
+     */
+    public void updateProfileExceptEmailsPassword(Profile editedProfile) {
+        this.firstname = editedProfile.firstname;
+        this.lastname = editedProfile.lastname;
+        this.middlename = editedProfile.middlename;
+        this.nickname = editedProfile.nickname;
+        this.bio = editedProfile.bio;
+        this.dateOfBirth = editedProfile.dateOfBirth;
+        this.gender = editedProfile.gender;
+        this.fitness = editedProfile.fitness;
+        this.passports = editedProfile.passports;
+    }
+
+    /**
+     * Checks the equality of two profile objects by comparing all fields
+     * @param o The profile object. other objects can be passed in but will return false for equality
+     * @return boolean result - true if all fields are equal, false otherwise
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof Profile) {
+            Profile other = (Profile) o;
+            return this.firstname.equals(other.firstname) &&
+                    this.lastname.equals(other.lastname) &&
+                    this.middlename.equals(other.middlename) &&
+                    this.nickname.equals(other.nickname) &&
+                    this.getPrimary_email().equals(other.getPrimary_email()) &&
+                    this.getAdditional_email().equals(other.getAdditional_email()) &&
+                    this.password.equals(other.password) &&
+                    this.bio.equals(other.bio) &&
+                    this.getDateOfBirth().equals(other.getDateOfBirth()) &&
+                    this.gender.equals(other.gender) &&
+                    this.fitness == other.fitness &&
+                    this.passports.equals(other.passports);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(firstname, lastname, middlename, nickname, emails, password, bio, dateOfBirth, gender, fitness, passports);
     }
 
     /** Series of Getters and Getters **/
@@ -75,6 +312,24 @@ public class Profile {
     public Long getId() {
         return id;
     }
+
+    public void setDateOfBirth(Calendar date_of_birth) {
+        this.dateOfBirth = date_of_birth;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public int getFitness(){return fitness;}
+
+    public void setFitness(int fitness_level){this.fitness = fitness_level;}
+
+
 
     public void setId(Long id) {
         this.id = id;
@@ -112,14 +367,36 @@ public class Profile {
         this.nickname = nickname;
     }
 
-    public String getEmail() {
-        return email;
+    public Email retrievePrimaryEmail() {
+        for (Email email: emails) {
+            if (email.isPrimary()) {
+                return email;
+            }
+        }
+        return null;
+    };
+
+    public String getPrimary_email() {
+        for (Email email: emails) {
+            if (email.isPrimary()) {
+                return email.getAddress();
+            }
+        }
+        return null;
+    };
+
+    public Set<String> getAdditional_email() {
+        Set<String> emailStrings = new HashSet<>();
+        for (Email email: emails) {
+            if (!email.isPrimary()) {
+                emailStrings.add(email.getAddress());
+            }
+
+        }
+        return emailStrings;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
+    @JsonIgnore
     public String getPassword() {
         return password;
     }
@@ -135,78 +412,5 @@ public class Profile {
     public void setBio(String bio) {
         this.bio = bio;
     }
-
-    public String getDate_of_birth() {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-        format.setCalendar(date_of_birth);
-        return format.format(date_of_birth.getTime());
-    }
-
-    public void setDate_of_birth(Calendar date_of_birth) {
-        this.date_of_birth = date_of_birth;
-    }
-
-    public String getGender() {
-        return gender;
-    }
-
-    public void setGender(String gender) {
-        this.gender = gender;
-    }
-
-    public int getFitness_level(){return fitness_level;}
-
-    public void setFitness_level(int fitness_level){this.fitness_level = fitness_level;}
-
-    public List<PassportCountry> getPassport_countries() {
-        return passport_countries;
-    }
-
-    public void setPassport_countries(List<PassportCountry> passport_countries) {
-        this.passport_countries = passport_countries;
-    }
-
-    /** Helper methods for ProfileController **/
-
-    /**
-     * This method is used to update a profile with the given profile's details.
-     * @param editedProfile is the profile that we want to take the updated data from to place in the db profile.
-     */
-    public void updateProfile(Profile editedProfile) {
-        this.firstname = editedProfile.firstname;
-        this.lastname = editedProfile.lastname;
-        this.middlename = editedProfile.middlename;
-        this.nickname = editedProfile.nickname;
-        this.email = editedProfile.email;
-        this.password = editedProfile.password;
-        this.bio = editedProfile.bio;
-        this.date_of_birth = editedProfile.date_of_birth;
-        this.gender = editedProfile.gender;
-        this.fitness_level = editedProfile.fitness_level;
-        this.passport_countries = editedProfile.passport_countries;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o instanceof Profile) {
-            Profile other = (Profile) o;
-            return this.firstname == other.firstname &&
-                    this.lastname == other.lastname &&
-                    this.middlename == other.middlename &&
-                    this.nickname == other.nickname &&
-                    this.email == other.email &&
-                    this.password == other.password &&
-                    this.bio == other.bio &&
-                    //this.getDate_of_birth() == other.getDate_of_birth() &&
-                    this.gender == other.gender &&
-                    this.fitness_level == other.fitness_level &&
-                    this.passport_countries == other.passport_countries;
-        } else {
-            return false;
-        }
-
-
-    }
-
 
 }

@@ -1,26 +1,21 @@
-import axios from 'axios'  
-  
+import axios from 'axios'
+
+
 const SERVER_URL = process.env.VUE_APP_SERVER_ADD;
 console.log(SERVER_URL + "@@@");
+
   
-const instance = axios.create({  
+const localAxiosInstance = axios.create({
   baseURL: SERVER_URL,  
   timeout: 1000  
 });  
   
 export default {
-
-
-  // (C)reate  
-  createNew: (name) => instance.post('students', {name}),  
-  // (R)ead  
-  getAll: () => instance.get('students', {  
-    transformResponse: [function (data) {  
-      return data? JSON.parse(data)._embedded.students : data;  
-    }]  
-  }),  
-  // (U)pdate  
-  updateForId: (id, name) => instance.put('students/'+id, {name}), 
-  // (D)elete  
-  removeForId: (id) => instance.delete('students/'+id)  
+  createProfile: (user) => localAxiosInstance.post('/profiles', user),
+  login: (user) => localAxiosInstance.post('login', user),
+  editProfile: (userId, newData, sessionId) => localAxiosInstance.put('/profiles/' + userId, newData, {headers: {"authorization":sessionId}}),
+  logout: (userId, sessionId) => localAxiosInstance.post('logout/', userId, {headers: {"authorization":sessionId}}),
+  getProfile: (userId, sessionId) => localAxiosInstance.get('profiles/'+userId, {headers: {"authorization":sessionId}}),
+  editEmail: (emails, userId, sessionId) => localAxiosInstance.put('profiles/'+userId+'/emails', emails, {headers: {"authorization":sessionId}}),
+  editPassword: (passwordDetails, userId, sessionId) => localAxiosInstance.put('profiles/'+ userId+'/password', passwordDetails, {headers: {"authorization":sessionId}})
 }

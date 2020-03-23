@@ -1,79 +1,91 @@
 <template>
-    <div class="card">
+    <div class="container">
         <div class="form-container sign-in-container">
-            <h1>Login</h1>
-            <form action="" method="post" class="form-register">
-                <input type="text" name="email" v-model="input.email" placeholder="Email">
-                <input type="password" name="password" v-model="input.password" placeholder="Password"/>
-                <button class="btn-light" type="button" v-on:click="login()">Login</button>
-            </form>
+            <section>
+                <form action="" method="post" class="form-register">
+                    <h1 class="title">Login</h1>
+                    <b-field label="Email">
+                        <b-input class="help" placeholder="Email"
+                                 v-model="email"
+
+                                 maxlength="40">
+                        </b-input>
+                    </b-field>
+
+                    <b-field label="Password">
+                        <b-input placeholder="Password"
+                                 v-model="password"
+                                 type="password"
+                                 maxlength="20">
+                        </b-input>
+                    </b-field>
+                    <b-button @click="login"
+                              type="is-info">
+                        Login
+                    </b-button>
+                </form>
+            </section>
         </div>
     </div>
 </template>
 
 <script>
-    import axios from "axios";
-    import authenticationStore  from "../store/authentication";
+    import api from '../Api';
+    import router from "../router";
+    import authenticationStore from "../store/authenticationStore";
+
     export default {
         name: 'Login',
         data() {
             return {
-                input: {
-                    email: "",
-                    password: "",
-                    error: false,
-                    allUsers: null
-                }
+                email: "",
+                password: "",
             }
-        },
-        mounted() {
-            axios.get("https://f91246de-53d1-425e-9b1b-5524c2b62a0e.mock.pstmn.io/getusers")
-                .then(response => this.allUsers = response.data)
-                .catch(error => console.log(error));
         },
         methods: {
             login() {
-                let logged = false;
-                if (this.input.email != "" && this.input.password != "") {
-                    for (const user of this.allUsers.users) {
-                        console.log(user.email);
-                        if (this.input.email == user.email && this.input.password == user.password) {
-                            logged = true;
-                            authenticationStore.methods.setAuthenticated(true)
-                            this.$router.replace({ name: "profile" });
-                            break;
-                        }
-                    }
-                    if (logged == false) {
-                        this.error = true;
-                        window.alert("Incorrect email or password");
-                    }
-                    console.log();
-                } else {
-                    window.alert("A email and password must be present");
+                api.login({
+                    email: this.email,
+                    password: this.password,
+                }).then((response => {
+                    authenticationStore.methods.setUserId(response.data.userId)
+                    authenticationStore.methods.setSessionId(response.data.sessionId)
+                    authenticationStore.methods.setAuthenticated(true)
+
+                    router.push('Profile')
+                }))
+                    .catch(error => this.displayError(error.response.status))
+            },
+
+            displayError(errorStatusCode){
+                const message = this.getErrorMessageFromStatusCode(errorStatusCode)
+                this.$buefy.toast.open({
+                    duration:5500,
+                    message: message,
+                    type: 'is-danger',
+                    position: 'is-top'
+                })
+            },
+            getErrorMessageFromStatusCode(statusCode){
+                let message = "Incorrect email or password"
+                if(statusCode === 401){
+                    message = "Incorrect email or password"
                 }
+                return message;
             }
         }
     }
 </script>
 
 <style scoped>
-
-    h1 {
-        padding: 1.5rem 0;
-        font-weight: bold;
-        margin: 0;
-        text-align: center;
+    .container {
+        width: 500px;
     }
 
-    .card {
-        min-height: 300px;
+    @media only screen and (max-width: 600px) {
+        .container {
+            width: 100%;
+        }
     }
-
-    .sign-in-container {
-        left: 0;
-        width: 100%;
-    }
-
 
 </style>

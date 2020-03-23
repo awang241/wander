@@ -1,102 +1,159 @@
 <template>
-    <div class="card">
-        <div class="form-container sign-up-container">
-            <h1>Create Account</h1>
-            <form @submit.prevent="createUser" id="formRegister">
-                <div class="required">
-                    <input v-model="firstName" type="text" placeholder="First Name" name="First Name" id="firstName" maxlength="25" required>
-                </div>
-                <div>
-                    <input v-model="middleName" type="text" placeholder="Middle Name" name="Last Name" id="middleName" maxlength="25">
-                </div>
-                <div class="required">
-                    <input v-model="lastName" type="text" placeholder="Last Name" name="Last Name" id="lastName" maxlength="25" required>
-                </div>
-                <div class="required">
-                    <input v-model="email" type="email" placeholder="Email" name="email" id="email" maxlength="40" required>
-                </div>
-                <div class="required">
-                    <label for="dateOfBirth">Date of birth </label>
-                    <input ref="dateOfBirth" v-model="dateOfBirth" type="date" name="dateOfBirth" id="dateOfBirth" required>
-                </div>
-                <div class="required">
-                    <label for="gender">Gender: </label>
-                    <select id="gender" name="gender" v-model="gender" required>
-                        <option value="female">Female</option>
-                        <option value="male">Male</option>
-                        <option value="nonBinary">Non Binary</option>
-                    </select>
-                </div>
+        <div class="container">
+                <h1 class="title">Create Account</h1>
+                    <form @submit.prevent="createUser">
 
-                <div class="required">
-                    <input v-model="password" placeholder="Password" type="password" name="password" id="password" required>
-                </div>
-                <div>
-                    <input type="text" name="nickname" placeholder="Nickname" id="nickname" maxlength="25" v-model="nickName">
-                    <textarea v-model="bio" placeholder="Bio" id="bio" name="bio" rows="2" cols="30"></textarea>
-                </div>
-                <button class="btn btn-light" type="submit">Submit</button>
-                <p>* Indicates a required field</p>
+                        <b-field group-multiline grouped>
+                        <b-field label="First Name" expanded >
+                            <b-input v-model="firstName" placeholder="First Name" required></b-input>
+                        </b-field>
+<!--                        <b-field label="Middle Name" expanded>-->
+<!--                            <b-input v-model="middleName" placeholder="Middle Name"></b-input>-->
+<!--                         </b-field>-->
+                        <b-field label="Last Name" expanded>
+                            <b-input v-model="lastName" placeholder="Last Name" required></b-input>
+                        </b-field>
+                        </b-field>
+
+                        <b-field label="Email" expanded>
+                                 <b-input type="email"
+                                     v-model="email"
+                                     placeholder="Email"
+                                     required>
+                                 </b-input>
+                        </b-field>
+
+                        <b-field label="Password" expanded>
+                            <b-input v-model="password" type="password" placeholder="Password"
+                                     required></b-input>
+                        </b-field>
+
+                        <b-field label="Confirm Password"
+                                 :message="[{'Passwords do not match':isDisabled}]" expanded>
+                            <b-input v-model="confpassword" type="password" placeholder="Confirm Password"
+                                     required></b-input>
+                        </b-field>
+
+
+                        <b-field group-multiline grouped>
+                            <b-field label="Date of Birth" expanded>
+                                <b-datepicker
+                                        editable
+                                        :use-html5-validation="false"
+                                        placeholder="Select Date of Birth"
+                                        :min-date="minDate"
+                                        :max-date="maxDate" ref="dateOfBirth"
+                                        v-model="dateOfBirth"
+                                        type="date" required
+                                        validation-message="Please enter a valid date"
+                                        pattern="^(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]))\1|(?:(?:29|30)(\/|-|\.)(?:0?[13-9]|1[0-2])\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/|-|\.)0?2\3(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\d|2[0-8])(\/|-|\.)(?:(?:0?[1-9])|(?:1[0-2]))\4(?:(?:1[6-9]|[2-9]\d)?\d{2})$">>
+                                </b-datepicker>
+                            </b-field>
+
+                            <b-field label="Gender" expanded>
+                                <b-select
+                                        placeholder="Choose a gender"
+                                        v-model="gender" required expanded>
+                                    <option value="female">Female</option>
+                                    <option value="male">Male</option>
+                                    <option value="non-Binary">Non-Binary</option>
+                                </b-select>
+                            </b-field>
+                        </b-field>
+
+                            <b-field label="Fitness Level" expanded >
+                                <b-select v-model="fitness" placeholder="Fitness Level" expanded>
+                                    <option value="0">Beginner: I am not active at all </option>
+                                    <option value="1">Novice: I do a low level of exercise (walking)</option>
+                                    <option value="2">Intermediate: I work out 1-2 times per week</option>
+                                    <option value="3">Advanced: I work out 3-4 times per week</option>
+                                    <option value="4">Pro: I work out 5+ times per week</option>
+                                </b-select>
+                            </b-field>
+
+                    <b-field>
+                        <b-button native-type="submit" :disabled="isDisabled">Submit</b-button>
+                    </b-field>
             </form>
-
         </div>
-    </div>
+
 </template>
 
+
+
 <script>
-    import axios from 'axios'
+    import api from '../Api';
     import router from '../router.js'
 
     export default {
         name: "Registration",
         data() {
+            const today = new Date()
             return {
                 firstName: "",
                 lastName: "",
                 middleName: "",
                 nickName: "",
-                email: "",
+                primary_email: "",
                 password: "",
+                confpassword: "",
                 bio: "",
                 dateOfBirth: "",
-                gender: "",
-                allUsers: null
+                gender: null,
+                fitness: null,
+                allUsers: null,
+                date: new Date(),
+                maxDate: new Date(today.getFullYear(), today.getMonth(), today.getDate()),
+                minDate: new Date(today.getFullYear() -100, today.getMonth(), today.getDate())
+
+
             }
         },
         mounted() {
             let today = new Date().toISOString().split('T')[0];
             this.$refs.dateOfBirth.setAttribute('max', today);
-
-            axios.get("https://f91246de-53d1-425e-9b1b-5524c2b62a0e.mock.pstmn.io/getusers")
-                .then(response => this.allUsers = response.data)
-                .catch(error => console.log(error));
-
         },
+
+        computed: {
+            isDisabled() {
+                return !(this.password == this.confpassword);
+            }
+        },
+
         methods: {
             createUser() {
-                let emailUsed = false;
-                for (const user of this.allUsers.users) {
-                    if (this.email == user.email) {
-                        emailUsed = true;
-                    }
-                }
-                if (emailUsed == false) {
-                    axios.post('https://f91246de-53d1-425e-9b1b-5524c2b62a0e.mock.pstmn.io/createprofile', {
-                        lastName: this.lastName,
-                        firstName: this.firstName,
-                        middleName: this.middleName,
-                        nickName: this.nickName,
-                        email: this.email,
+                if(this.password.length < 8) {
+                    this.showWarning("Password must be 8 characters long")
+                } else {
+                    api.createProfile({
+                        lastname: this.lastName,
+                        firstname: this.firstName,
+                        middlename: this.middleName,
+                        nickname: this.nickName,
+                        primary_email: this.email,
+                        additional_email: [],
                         password: this.password,
                         bio: this.bio,
                         date_of_birth: this.dateOfBirth,
-                        gender: this.gender
+                        gender: this.gender,
+                        fitness: this.fitness,
+                        passports: []
                     })
-                    router.push('Login');
-                } else {
-                    window.alert("The email you have entered is already registered. \n" +
-                        "Please enter a different email.");
+                        .then((response => {
+                            console.log(response)
+                            router.push('Login')
+                        }))
+                        .catch(error => window.alert(error.response.data))
                 }
+            },
+            showWarning(errorStatusCode) {
+                const message = errorStatusCode
+                this.$buefy.toast.open({
+                    duration: 5500,
+                    message: message,
+                    type: 'is-danger',
+                    position: 'is-top'
+                })
             }
         }
     }
@@ -104,20 +161,14 @@
 
 
 <style scoped>
-    .card  {
-        min-height: 700px;
+    .container {
+        width: 800px;
     }
 
-    h1 {
-        padding: 1.5rem 0;
-        font-weight: bold;
-        margin: 0;
-        text-align: center;
+    @media only screen and (max-width: 600px) {
+        .container {
+            width: 100%;
+        }
     }
-
-    h2 {
-        text-align: center;
-    }
-
 
 </style>
