@@ -22,7 +22,7 @@
 
             <b-field label="Enter in an email address and click the + sign to add it to your profile! (5 email limit)" expanded></b-field>
             <b-field group-multiline grouped>
-                <b-input type="email" class="addForm" v-model="newEmail" placeholder="n emails left" maxlength="30" expanded ></b-input>
+                <b-input type="email" class="addForm" v-model="newEmail" placeholder="Enter an email" maxlength="30" expanded ></b-input>
                 <b-button class="addButton" type="is-info" @click="addEmail()">Add</b-button>
             </b-field>
         </form>
