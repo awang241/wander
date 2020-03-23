@@ -55,13 +55,13 @@ public class LoginController {
         } else {
             Profile profile = result.get(0);
             String hashedPassword = Profile_Controller.hashPassword(request.getPassword());
-            if (activeSessions.containsKey(profile.getId())) {
+            if (!result.get(0).getPassword().equals(hashedPassword)) {
+                status = HttpStatus.UNAUTHORIZED;}
+            else if (activeSessions.containsKey(profile.getId())) {
                 status = HttpStatus.OK;
                 activeSessions.remove(result.get(0).getId());
                 body = new LoginResponse(++sessionCounter, result.get(0).getId());
                 activeSessions.put(profile.getId(), sessionCounter);
-            } else if (!result.get(0).getPassword().equals(hashedPassword)) {
-                status = HttpStatus.UNAUTHORIZED;
             } else {
                 body = new LoginResponse(++sessionCounter, result.get(0).getId());
                 status = HttpStatus.OK;
@@ -124,11 +124,19 @@ public class LoginController {
         }
     }
 
+    /**
+     * Strips extra information out of the authorization header to get just the session ID
+     * @param rawAuthorizationField the authorization field string
+     * @return Long of the session ID from the auth header
+     */
     public static long retrieveSessionID(String rawAuthorizationField) {
         return Long.parseLong(rawAuthorizationField.substring(6).strip());
     }
 
-
+    /**
+     * returns the current session counter of the controller
+     * @return the current session counter value
+     */
     public long getSessionCounter() {
         return sessionCounter;
     }
