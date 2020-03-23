@@ -7,6 +7,13 @@ public class ChangePasswordRequest {
     private String newPassword;
     private String confPassword;
 
+    /**
+     * Constructor for a changepasswordrequest with parameters. for JSON parsing with spring requestmapping methods.
+     * @param userId ID of the user changing password
+     * @param currentPassword Existing password for verification
+     * @param newPassword New password they want to change to
+     * @param confPassword another field of their new password used for match checking
+     */
     public ChangePasswordRequest(Long userId, String currentPassword, String newPassword, String confPassword) {
         this.userId = userId;
         this.currentPassword = currentPassword;
