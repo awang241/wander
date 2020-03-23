@@ -12,7 +12,8 @@ const profileStore = {
         dateOfBirth: "",
         gender: "",
         passportCountries: [],
-        fitnessLevel: 1
+        fitnessLevel: 1,
+        allActivities: []
 
     },
     methods: {
@@ -41,8 +42,8 @@ const profileStore = {
             profileStore.data.optionalEmails = profile.additional_email;
             profileStore.data.passportCountries = profile.passports;
         },
-        setAllActivities(acitivies_list) {
-            profileStore.data.allActivities = activites_list;
+        setAllActivities(allActivities) {
+            profileStore.data.allActivities = allActivities.activities_list;
         }
     }
 };

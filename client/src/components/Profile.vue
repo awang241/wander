@@ -237,7 +237,7 @@
                     this.additionalEmails = response.data.additional_email;
                     this.fitness_level = response.data.fitness;
                     this.chosenCountries = response.data.passports;
-                    switch(response.data.fitness) {
+                    switch (response.data.fitness) {
                         case 0 :
                             this.fitness_statement = "Beginner: I am not active at all";
                             break;
@@ -259,12 +259,11 @@
                 })
                 .catch(error => console.log(error));
 
-            api.getActivitesList(authenticationStore.methods.getUserId(), authenticationStore.methods.getSessionId())
-                .then((response)) => {
-
-                profileStore.methods.setProfile(response.data)
-            }
-
+            api.getActivitiesList()
+                .then((response) => {
+                profileStore.methods.setAllActivities(response.data)
+                })
+                .catch(error => console.log(error));
         },
     }
 </script>

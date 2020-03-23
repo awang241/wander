@@ -18,5 +18,5 @@ export default {
   getProfile: (userId, sessionId) => localAxiosInstance.get('profiles/'+userId, {headers: {"authorization":sessionId}}),
   editEmail: (emails, userId, sessionId) => localAxiosInstance.put('profiles/'+userId+'/emails', emails, {headers: {"authorization":sessionId}}),
   editPassword: (passwordDetails, userId, sessionId) => localAxiosInstance.put('profiles/'+ userId+'/password', passwordDetails, {headers: {"authorization":sessionId}}),
-  getActivitiesList: (userId, sessionId) => localAxiosInstance.get('/profiles/'+userId, {headers: {"authorization":sessionId}})
+  getActivitiesList: () => localAxiosInstance.get('/profiles')
 }
