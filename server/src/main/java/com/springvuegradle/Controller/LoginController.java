@@ -124,11 +124,19 @@ public class LoginController {
         }
     }
 
+    /**
+     * Strips extra information out of the authorization header to get just the session ID
+     * @param rawAuthorizationField the authorization field string
+     * @return Long of the session ID from the auth header
+     */
     public static long retrieveSessionID(String rawAuthorizationField) {
         return Long.parseLong(rawAuthorizationField.substring(6).strip());
     }
 
-
+    /**
+     * returns the current session counter of the controller
+     * @return the current session counter value
+     */
     public long getSessionCounter() {
         return sessionCounter;
     }
