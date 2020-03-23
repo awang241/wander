@@ -105,8 +105,6 @@
                 date: new Date(),
                 maxDate: new Date(today.getFullYear(), today.getMonth(), today.getDate()),
                 minDate: new Date(today.getFullYear() -100, today.getMonth(), today.getDate())
-
-
             }
         },
         mounted() {
@@ -141,6 +139,7 @@
                         activities: []
                     })
                         .then((response => {
+                            this.showMessage(this.displayError(response.status))
                             console.log(response)
                             router.push('Login')
                         }))
@@ -155,6 +154,18 @@
                     type: 'is-danger',
                     position: 'is-top'
                 })
+            },
+            showMessage(message) {
+                this.$buefy.toast.open({
+                    duration: 5500,
+                    message: message,
+                    type: 'is-success',
+                    position: 'is-top'
+                })
+            },
+            displayError(){
+                let message = "Account created successfully"
+                return message;
             }
         }
     }

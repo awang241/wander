@@ -99,6 +99,11 @@ public class Email {
         return this.isPrimary;
     }
 
+    /**
+     * Overrive of the equals method for testing if two email objects are equal but different objects
+     * @param o the second email object being checked
+     * @return boolean of the results of the equality
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

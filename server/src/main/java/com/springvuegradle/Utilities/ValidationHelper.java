@@ -40,6 +40,12 @@ public class ValidationHelper {
         return countries;
     }
 
+    /**
+     * Checks if a country is contained within a list of country strings
+     * @param testCountry a PassportCountry Object being tested
+     * @param countries the list of country strings to test membership of
+     * @return boolean result of the test
+     */
     public static boolean validateCountry(PassportCountry testCountry, List<String> countries) {
         boolean test = false;
         for (String country : countries) {

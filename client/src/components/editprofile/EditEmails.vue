@@ -22,7 +22,7 @@
 
             <b-field label="Enter in an email address and click the + sign to add it to your profile! (5 email limit)" expanded></b-field>
             <b-field group-multiline grouped>
-                <b-input type="email" class="addForm" v-model="newEmail" placeholder="n emails left" maxlength="30" expanded ></b-input>
+                <b-input type="email" class="addForm" v-model="newEmail" placeholder="Enter an email" maxlength="30" expanded ></b-input>
                 <b-button class="addButton" type="is-info" @click="addEmail()">Add</b-button>
             </b-field>
         </form>
@@ -48,18 +48,43 @@
         components: {List},
         methods: {
             addEmail() {
-                if(this.optionalEmails.length > 3){
-                    //Todo change this to inform the user
-                  this.showWarning("Maximum emails reached")
-                } else if(this.optionalEmails.includes(this.newEmail) || this.newEmail === this.primaryEmail){
-                    this.showWarning("Email is already in use")
+                if (this.optionalEmails.length > 3) {
+                    this.$buefy.toast.open({
+                        duration: 5000,
+                        message: "Maximum email addresses reached",
+                        type: 'is-danger',
+                        position: 'is-top',
+                        queue: false,
+                    });
+                } else if (this.optionalEmails.includes(this.newEmail) || this.newEmail === this.primaryEmail) {
+                    this.$buefy.toast.open({
+                        duration: 5000,
+                        message: "Email address is already in use!",
+                        type: 'is-danger',
+                        position: 'is-top',
+                        queue: false,
+                    });
+                } else if (this.newEmail === "" || this.newEmail.trim().length === 0 || !this.newEmail.includes('@', 0)) {
+                    this.$buefy.toast.open({
+                        duration: 5000,
+                        message: "Please enter in a valid email address",
+                        type: 'is-danger',
+                        position: 'is-top',
+                        queue: false,
+                    });
                 } else {
-                    this.optionalEmails.push(this.newEmail);
+                    this.optionalEmails.push(this.newEmail)
                 }
             },
             changePrimaryEmail() {
                 if(this.newPrimaryEmail === "") {
-                    this.showWarning("No email selected")
+                    this.$buefy.toast.open({
+                        duration: 5000,
+                        message: "No additional email address selected",
+                        type: 'is-danger',
+                        position: 'is-top',
+                        queue: false,
+                    });
                 } else {
                     this.optionalEmails.push(this.primaryEmail);
                     this.optionalEmails = this.optionalEmails.filter(email => email != this.newPrimaryEmail)

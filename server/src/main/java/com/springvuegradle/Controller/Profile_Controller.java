@@ -450,6 +450,11 @@ public class Profile_Controller {
 
     }
 
+    /**
+     * Validation pattern for emails strings to test they contain an @ with something either side
+     * @param emailStr the string being tested
+     * @return boolean of whether the string meets the validation
+     */
     private boolean invalidEmail(String emailStr) {
         String pattern = ".*@.*";
 
