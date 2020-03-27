@@ -351,9 +351,8 @@ public class Profile_Controller {
         // verifying activities
         Set<Activity> updatedActivities = new HashSet<>();
         for(Activity activity : editedProfile.getActivityObjects()){
-            List<Activity> resultActivities = aRepository.findByActivityName(activity.getActivityName());{
-                updatedActivities.add(resultActivities.get(0));
-            }
+            List<Activity> resultActivities = aRepository.findByActivityName(activity.getActivityName());
+            updatedActivities.add(resultActivities.get(0));
         }
         db_profile.setActivities(updatedActivities);
 
