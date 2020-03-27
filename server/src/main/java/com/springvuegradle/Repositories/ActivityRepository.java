@@ -16,4 +16,7 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
     List<Activity> findByActivityName(@Param("activityName") String activityName);
 
     boolean existsByActivityName(String name);
+
+    @Query("SELECT a.activityName FROM Activity a")
+    List<String> findAllCountryNames();
 }

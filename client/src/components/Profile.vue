@@ -184,6 +184,17 @@
                 </div>
             </div>
         </section>
+        <section class="section">
+            <div class="section-heading">
+                <h3 class="center activitiesTitle title is-2">Activities</h3>
+                <h4 class="subtitle is-5"></h4>
+            </div>
+            <div class="container containerColor">
+                <div class="box">
+                    <h3 v-for="activity in chosenActivities" :key="activity" class="title is-4">{{activity}}</h3>
+                </div>
+            </div>
+        </section>
     </div>
 </template>
 
@@ -210,7 +221,9 @@
                 fitness_level: null,
                 fitness_statement: null,
                 possibleCountries: [],
-                chosenCountries: []
+                chosenCountries: [],
+                possibleActivities: [],
+                chosenActivities: []
             }
         },
         methods: {
@@ -237,6 +250,7 @@
                     this.additionalEmails = response.data.additional_email;
                     this.fitness_level = response.data.fitness;
                     this.chosenCountries = response.data.passports;
+                    this.chosenActivities = response.data.activities;
                     switch (response.data.fitness) {
                         case 0 :
                             this.fitness_statement = "Beginner: I am not active at all";

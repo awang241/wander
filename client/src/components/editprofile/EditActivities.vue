@@ -19,7 +19,6 @@
 
 <script>
     import List from "../List";
-    import axios from "axios";
     import Api from "../../Api";
     import profileStore from "../../store/profileStore";
     import authenticationStore from "../../store/authenticationStore";
@@ -45,19 +44,20 @@
                 })
             },
             deleteActivity(chosenActivity) {
-                this.chosenActivity = this.chosenActivities.filter(activity => activity != chosenActivity)
+                this.chosenActivities = this.chosenActivities.filter(activity => activity != chosenActivity)
             },
             addActivity() {
                 console.log("adding activity")
+                console.log("chosenActivities: " + this.chosenActivities)
                 if (this.newActivity === ""){
-                    this.showWarning("No country selected")
+                    this.showWarning("No activity selected")
                 } else if (this.chosenActivities.includes(this.newActivity)) {
                     this.showWarning("Activity already in list")
                 } else {
                     this.chosenActivities = [...this.chosenActivities, this.newActivity]
                 }
             },
-            submitActivities(){
+            submitActivities() {
                 profileStore.methods.setActivities(this.chosenActivities)
                 const updatedProfile = {
                     "lastname": profileStore.data.lastName,
@@ -78,17 +78,9 @@
             }
         },
         mounted() {
-            axios.get("https://restcountries.eu/rest/v2/all")
-                .then(response => {
-                    const data = response.data
-                    const possibleCountries = []
-                    for (let activity in data){
-                        possibleActivities.push(data[activity].name)
-                    }
-                    this.possibleActivities = possibleActivities;
-                })
-                .catch(error => console.log(error));
-        },
+            this.possibleActivities = profileStore.data.allActivities
+            //this.chosenActivities = profileStore.data.activities
+        }
     }
 </script>
 

@@ -5,6 +5,7 @@ import com.springvuegradle.Model.*;
 import com.springvuegradle.Repositories.ActivityRepository;
 import com.springvuegradle.Repositories.EmailRepository;
 import com.springvuegradle.Repositories.PassportCountryRepository;
+import com.springvuegradle.dto.ActivitiesResponse;
 import com.springvuegradle.dto.ChangePasswordRequest;
 import com.springvuegradle.dto.EmailAddRequest;
 import com.springvuegradle.dto.EmailUpdateRequest;
@@ -218,6 +219,17 @@ public class Profile_Controller {
     }
 
     /**
+     * Queries the Database to find all the country names.
+     * @return a response with all the activities in the database.
+     */
+    @GetMapping("/activities")
+    public ResponseEntity<ActivitiesResponse> getActivitiesList() {
+        List<String> allActivities = aRepository.findAllCountryNames();
+        ActivitiesResponse activitiesResponse = new ActivitiesResponse(allActivities);
+        return new ResponseEntity<ActivitiesResponse>(activitiesResponse, HttpStatus.OK);
+    }
+
+    /**
      * Updates a user's password. Completes verification to ensure that the old password is correct and the two new passwords match.
      * @param newPasswordRequest form contains old password as well as two strings which are both the new password and should be identical
      * @param id the id of the profile we want to change the password for
@@ -275,6 +287,8 @@ public class Profile_Controller {
         String failPassword = "Hash Failed";
         return failPassword;
     }
+
+
 
     /**
      * This method adds a new email to a given profile, isPrimary set to false by default. This method will be called directly for testing,

@@ -258,6 +258,14 @@ public class Profile {
         return countryNames;
     }
 
+    public List<String> getActivities() {
+        List<String> activityNames = new ArrayList<>();
+        for (Activity activity : activities){
+            activityNames.add(activity.getActivityName());
+        }
+        return activityNames;
+    }
+
     @JsonIgnore
     public Set<PassportCountry> getPassportObjects() {
         return this.passports;
