@@ -173,7 +173,7 @@ public class Profile_Controller {
     }
 
     /**
-     * Called my the endpoint defined above
+     * Called by the endpoint defined above
      * @param testing indicates whether called from test or endpoint. Tests can skip authentication.
      */
     protected ResponseEntity<String> addEmails(EmailAddRequest request, Long id, Long sessionToken, Boolean testing) {
@@ -343,9 +343,8 @@ public class Profile_Controller {
         db_profile.updateProfileExceptEmailsPassword(editedProfile);
         Set<PassportCountry> updatedCountries = new HashSet<>();
         for(PassportCountry passportCountry : editedProfile.getPassportObjects()){
-            List<PassportCountry> result = pcRepository.findByCountryName(passportCountry.getCountryName());{
-                updatedCountries.add(result.get(0));
-            }
+            List<PassportCountry> result = pcRepository.findByCountryName(passportCountry.getCountryName());
+            updatedCountries.add(result.get(0));
         }
         db_profile.setPassports(updatedCountries);
 
@@ -359,7 +358,7 @@ public class Profile_Controller {
         db_profile.setActivities(updatedActivities);
 
         // verifying emails, reuses the editEmails method
-        EmailUpdateRequest mockRequest = new EmailUpdateRequest(new ArrayList<String>(db_profile.getAdditional_email()), db_profile.getPrimary_email(), id.intValue());
+        EmailUpdateRequest mockRequest = new EmailUpdateRequest(new ArrayList<String>(editedProfile.getAdditional_email()), editedProfile.getPrimary_email(), id.intValue());
         ResponseEntity<String> response = editEmails(mockRequest, id);
         if (!response.getStatusCode().equals(HttpStatus.OK)) {
             return new ResponseEntity<>(response.getBody(), response.getStatusCode());

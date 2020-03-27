@@ -1,10 +1,12 @@
 package com.springvuegradle.Controller;
 
 import com.springvuegradle.Model.Activity;
+import com.springvuegradle.Model.PassportCountry;
 import com.springvuegradle.Model.Profile;
 
 import com.springvuegradle.Repositories.ActivityRepository;
 import com.springvuegradle.Repositories.EmailRepository;
+import com.springvuegradle.Repositories.PassportCountryRepository;
 import com.springvuegradle.Repositories.ProfileRepository;
 import com.springvuegradle.dto.ChangePasswordRequest;
 import com.springvuegradle.dto.EmailAddRequest;
@@ -43,6 +45,8 @@ class ProfileControllerTest {
     @Autowired
     private ActivityRepository arepo;
 
+    @Autowired
+    private PassportCountryRepository passportCountryRepository;
     @Autowired
     private Profile_Controller profileController;
 
@@ -204,6 +208,84 @@ class ProfileControllerTest {
         List<String> emails_from_db_profile = new ArrayList<>(db_profile.getAdditional_email());
 
         assertEquals("randomEmail@gmail.com", emails_from_db_profile.get(0));
+    }
+
+    @Test
+    void testEditProfileNormal(){
+        Profile testProfile = createNormalProfileJimmy();
+        Profile updateData = createNormalProfileMaurice();
+        Profile expectedProfile = createNormalProfileMaurice();
+        Set<PassportCountry> realPassports = new HashSet<>();
+        for (PassportCountry passportCountry: expectedProfile.getPassportObjects()){
+            realPassports.add(passportCountryRepository.findByCountryName(passportCountry.getCountryName()).get(0));
+        }
+        expectedProfile.setPassword(profileController.hashPassword(testProfile.getPassword()));
+        expectedProfile.setPassports(realPassports);
+        profileController.createProfile(testProfile);
+        long id = repo.findByPrimaryEmail(testProfile.getPrimary_email()).get(0).getId();
+        assertEquals(testProfile, repo.findById(id).get(), "Sanity check: profile and ID saved successfully");
+
+        ResponseEntity<String> actualResponse = profileController.updateProfile(updateData, id);
+
+        Profile updatedProfile = repo.findById(id).get();
+        assertEquals(expectedProfile, updatedProfile, "Check profile updated successfully");
+        assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
+    }
+
+    @Test
+    void testEditProfileWithInvalidData(){
+        Profile testProfile = createNormalProfileJimmy();
+        Profile updateData = createInvalidFieldsProfileMaurice();
+        Profile expectedProfile = createNormalProfileJimmy();
+        Set<PassportCountry> realPassports = new HashSet<>();
+        for (PassportCountry passportCountry: expectedProfile.getPassportObjects()){
+            realPassports.add(passportCountryRepository.findByCountryName(passportCountry.getCountryName()).get(0));
+        }
+        expectedProfile.setPassword(profileController.hashPassword(testProfile.getPassword()));
+        expectedProfile.setPassports(realPassports);
+        profileController.createProfile(testProfile);
+        long id = repo.findByPrimaryEmail(testProfile.getPrimary_email()).get(0).getId();
+        assertEquals(testProfile, repo.findById(id).get(), "Sanity check: profile and ID saved successfully");
+
+        ResponseEntity<String> actualResponse = profileController.updateProfile(updateData, id);
+
+        Profile updatedProfile = repo.findById(id).get();
+        assertEquals(expectedProfile, updatedProfile, "Check profile left unchanged");
+        assertEquals(HttpStatus.BAD_REQUEST, actualResponse.getStatusCode());
+    }
+
+    @Test
+    void testAddEmailsNormal(){
+        Profile testProfile = createNormalProfileJimmy();
+        profileController.createProfile(testProfile);
+        long id = repo.findByPrimaryEmail(testProfile.getPrimary_email()).get(0).getId();
+        ResponseEntity<String> expectedResponse = new ResponseEntity<>("Emails added successfully.", HttpStatus.CREATED);
+        assertEquals(testProfile, repo.findById(id).get(), "Sanity check: profile and ID saved successfully");
+
+        List<String> newEmails = Arrays.asList("newEmail@xtra.co.nz", "newEmail2@yahoo.co.nz");
+        Set<String> expectedAdditionalEmails = new HashSet<String>(testProfile.getAdditional_email());
+        expectedAdditionalEmails.addAll(newEmails);
+        EmailAddRequest testRequest = new EmailAddRequest(newEmails);
+
+        ResponseEntity<String> actualResponse =  profileController.addEmails(testRequest, id, null, true);
+
+        Profile updatedProfile = repo.findById(id).get();
+        assertEquals(testProfile.getPrimary_email(), updatedProfile.getPrimary_email(), "Check that the primary email is unchanged");
+        assertEquals(expectedAdditionalEmails, updatedProfile.getAdditional_email(), "Check that the emails have been added successfully");
+        assertEquals(expectedResponse, actualResponse, "Check response has correct message and status code (201).");
+    }
+
+    @Test
+    void testAddEmailsWithInvalidProfileID(){
+        List<String> newEmails = Arrays.asList("newEmail@xtra.co.nz", "newEmail2@yahoo.co.nz");
+        EmailAddRequest testRequest = new EmailAddRequest(newEmails);
+        ResponseEntity<String> expectedResponse = new ResponseEntity<>("That profile does not exist.", HttpStatus.FORBIDDEN);
+        long dummyID = 1657568479;
+        assertEquals(0, repo.count());
+
+        ResponseEntity<String> actualResponse =  profileController.addEmails(testRequest, dummyID, null, true);
+        assertEquals(0, repo.count());
+        assertEquals(expectedResponse, actualResponse, "Check response has correct message and status code (403).");
     }
 
     /**
