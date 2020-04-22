@@ -81,6 +81,20 @@ class ProfileControllerTest {
     }
 
     @Test
+    void testCreateProfileWithActivityTypes(){
+        Profile profile = createProfileWithActivityTypes();
+        ResponseEntity<String> response_entity = profileController.createProfile(profile);
+        assertEquals(HttpStatus.CREATED, response_entity.getStatusCode());
+    }
+
+    @Test
+    void testCreateProfileWithInvalidActivityTypes(){
+        Profile profile = createProfileWithInvalidActivityTypes();
+        ResponseEntity<String> response_entity = profileController.createProfile(profile);
+        assertEquals(HttpStatus.FORBIDDEN, response_entity.getStatusCode());
+    }
+
+    @Test
     void testCreateProfileWithMinimalFields() {
         Profile testProfile = createProfileWithMinimalFields();
         assertEquals(0, repo.count(), "Sanity check: profile repository is empty");
@@ -525,6 +539,24 @@ class ProfileControllerTest {
     }
 
     /**
+     * @return a valid profile object with activity types
+     */
+    static Profile createProfileWithActivityTypes() {
+        return new Profile(null, "Jimmy", "Quick", "Jones", "Jim-Jam", "jimjam@hotmail.com", new String[]{"additional@email.com"}, "hushhush",
+                "The quick brown fox jumped over the lazy dog.", new GregorianCalendar(1999, Calendar.NOVEMBER,
+                28), "male", 1, new String[]{"New Zealand", "India"}, new String[]{"Football", "Tennis"});
+    }
+
+    /**
+     * @return a profile object with invalid activity types
+     */
+    static Profile createProfileWithInvalidActivityTypes() {
+        return new Profile(null, "Jimmy", "Quick", "Jones", "Jim-Jam", "jimjam@hotmail.com", new String[]{"additional@email.com"}, "hushhush",
+                "The quick brown fox jumped over the lazy dog.", new GregorianCalendar(1999, Calendar.NOVEMBER,
+                28), "male", 1, new String[]{"New Zealand", "India"}, new String[]{"Not a real activity", "Tennis"});
+    }
+
+    /**
      * @return a valid profile object with 3 activities.
      */
     static Profile createNormalActivitiesProfile() {
@@ -577,6 +609,5 @@ class ProfileControllerTest {
                 "steven@steven.com", new String[]{}, "12345678", "", new GregorianCalendar(1992,
                 Calendar.JUNE, 10), "male", 0, new String[]{}, new String[]{});
     }
-
 }
 
