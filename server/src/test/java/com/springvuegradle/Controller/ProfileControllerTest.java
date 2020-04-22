@@ -224,6 +224,25 @@ class ProfileControllerTest {
         assertEquals("randomEmail@gmail.com", emails_from_db_profile.get(0));
     }
 
+    /**
+     * Tests to make sure changing the activities works
+     */
+    @Test
+    void changeActivitiesTest() {
+        Profile originalProfile = createNormalActivitiesProfile();
+        profileController.createProfile(originalProfile);
+        long profileId = repo.findByPrimaryEmail(originalProfile.getPrimary_email()).get(0).getId();
+        Profile expectedProfile = repo.findById(profileId).get();
+
+        Profile updatedProfile = createUpdatedActivitiesProfile();
+        assertEquals(expectedProfile.getActivities().size(), 3, "Check profile saved successfully");
+        profileController.updateProfile(updatedProfile, profileId);
+
+        expectedProfile = repo.findById(profileId).get();
+        assertEquals(expectedProfile.getActivities().size(), 1, "Check activities updated successfully");
+        assertEquals(expectedProfile.getActivities(), updatedProfile.getActivities(), "Check activities updated successfully");
+    }
+
 //    @Test
 //    void testEditProfileNormal(){
 //        Profile testProfile = createNormalProfileJimmy();
@@ -535,6 +554,24 @@ class ProfileControllerTest {
         return new Profile(null, "Jimmy", "Quick", "Jones", "Jim-Jam", "jimjam@hotmail.com", new String[]{"additional@email.com"}, "hushhush",
                 "The quick brown fox jumped over the lazy dog.", new GregorianCalendar(1999, Calendar.NOVEMBER,
                 28), "male", 1, new String[]{"New Zealand", "India"}, new String[]{"Not a real activity", "Tennis"});
+    }
+
+    /**
+     * @return a valid profile object with 3 activities.
+     */
+    static Profile createNormalActivitiesProfile() {
+        return new Profile(null, "Jimmy", "Quick", "Jones", "Jim-Jam", "jimjam@hotmail.com", new String[]{"additional@email.com"}, "hushhush",
+                "The quick brown fox jumped over the lazy dog.", new GregorianCalendar(1999, Calendar.NOVEMBER,
+                28), "male", 1, new String[]{}, new String[]{"Football", "Hockey", "Basketball"});
+    }
+
+    /**
+     * @return a valid profile object with updated activities.
+     */
+    static Profile createUpdatedActivitiesProfile() {
+        return new Profile(null, "Jimmy", "Quick", "Jones", "Jim-Jam", "jimjam@hotmail.com", new String[]{"additional@email.com"}, "hushhush",
+                "The quick brown fox jumped over the lazy dog.", new GregorianCalendar(1999, Calendar.NOVEMBER,
+                28), "male", 1, new String[]{}, new String[]{"Hiking"});
     }
 
     /**
