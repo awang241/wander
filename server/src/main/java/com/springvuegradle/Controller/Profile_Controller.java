@@ -5,10 +5,8 @@ import com.springvuegradle.Model.*;
 import com.springvuegradle.Repositories.ActivityRepository;
 import com.springvuegradle.Repositories.EmailRepository;
 import com.springvuegradle.Repositories.PassportCountryRepository;
-import com.springvuegradle.dto.ActivitiesResponse;
-import com.springvuegradle.dto.ChangePasswordRequest;
-import com.springvuegradle.dto.EmailAddRequest;
-import com.springvuegradle.dto.EmailUpdateRequest;
+import com.springvuegradle.dto.*;
+import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.xml.bind.DatatypeConverter;
+import java.lang.reflect.Array;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -219,6 +218,21 @@ public class Profile_Controller {
     }
 
     /**
+     * Updates a profile's activity types in the database given a request to do so.
+     * @param newActivityTypes The profile's new primary/additional emails embedded in an EmailUpdateRequest.
+     * @param id the ID of the profile being edited, pulled from the URL as a path variable.
+     * @param sessionToken session ID generated at login that is associated with this profile, pulled from the request header.
+     * @return An HTTP response with an appropriate status code and, if there was a problem with the request, an error message.
+     */
+    @PutMapping("/profiles/{id}/activity-types")
+    public ResponseEntity<String> editActivityTypes (@RequestBody ActivityTypeUpdateRequest newActivityTypes, @PathVariable Long id, @RequestHeader("authorization") Long sessionToken) {
+        if (!loginController.checkCredentials(id, sessionToken)) {
+            return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(), HttpStatus.UNAUTHORIZED);
+        }
+        return editActivityTypes(newActivityTypes.getActivityTypes(), id);
+    }
+
+    /**
      * Queries the Database to find all the country names.
      * @return a response with all the activities in the database.
      */
@@ -365,6 +379,30 @@ public class Profile_Controller {
 
         repository.save(db_profile);
         return new ResponseEntity<>(db_profile.toString(), HttpStatus.OK);
+    }
+
+    /**
+     * Updates the activity types for a user
+     * @param newActivityTypeStrings an arraylist of strings representing the new activities
+     * @param id the Id of the user we are editing
+     * @return HTTP status code indicating if the operation was successful
+     */
+    protected ResponseEntity<String> editActivityTypes(ArrayList<String> newActivityTypeStrings, Long id){
+        Profile profile = repository.findById(id).get();
+
+        HashSet<Activity> newActivityTypes = new HashSet<>();
+        for (String activityString: newActivityTypeStrings) {
+
+            //Check if the activity is of a valid type
+            if(!aRepository.existsByActivityName(activityString)){
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            newActivityTypes.add(aRepository.findByActivityName(activityString).get(0));
+        }
+
+        profile.setActivities(newActivityTypes);
+        repository.save(profile);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     /**
