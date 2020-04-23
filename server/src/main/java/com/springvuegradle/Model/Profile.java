@@ -97,14 +97,14 @@ public class Profile {
     private Set<PassportCountry> passports;
 
     /**
-     * Holds the user's activities and establishes a many to many relationship as a Profile object can be associated with
-     * multiple Activity objects.
+     * Holds the user's activityTypes and establishes a many to many relationship as a Profile object can be associated with
+     * multiple ActivityType objects.
      */
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinTable(name = "profile_activity",
-            inverseJoinColumns = @JoinColumn(name = "activity_id", referencedColumnName = "id"),
+    @JoinTable(name = "profile_activityType",
+            inverseJoinColumns = @JoinColumn(name = "activityType_id", referencedColumnName = "id"),
             joinColumns = @JoinColumn(name = "profile_id", referencedColumnName = "id"))
-    private Set<Activity> activities;
+    private Set<ActivityType> activityTypes;
 
     /**
      * No argument constructor for Profile, can be used for creating new profiles directly from JSON data.
@@ -138,7 +138,7 @@ public class Profile {
                    @JsonProperty("gender") String gender,
                    @JsonProperty("fitness") int fitnessLevel,
                    @JsonProperty("passports") String[] passports,
-                   @JsonProperty("activities") String[] activities) {
+                   @JsonProperty("activityTypes") String[] activityTypes) {
         this.firstname = firstname;
         this.lastname = lastname;
         this.middlename = middlename;
@@ -161,9 +161,9 @@ public class Profile {
         for (String name: passports) {
             addPassportCountry(new PassportCountry(name));
         }
-        this.activities = new HashSet<>();
-        for (String activity: activities) {
-            addActivity(new Activity(activity));
+        this.activityTypes = new HashSet<>();
+        for (String activityType: activityTypes) {
+            addActivityType(new ActivityType(activityType));
         }
     }
 
@@ -258,12 +258,12 @@ public class Profile {
         return countryNames;
     }
 
-    public List<String> getActivities() {
-        List<String> activityNames = new ArrayList<>();
-        for (Activity activity : activities){
-            activityNames.add(activity.getActivityName());
+    public List<String> getActivityTypes() {
+        List<String> activityTypeNames = new ArrayList<>();
+        for (ActivityType activityType : activityTypes){
+            activityTypeNames.add(activityType.getActivityTypeName());
         }
-        return activityNames;
+        return activityTypeNames;
     }
 
     @JsonIgnore
@@ -284,20 +284,20 @@ public class Profile {
     }
 
     @JsonIgnore
-    public Set<Activity> getActivityObjects() {
-        return this.activities;
+    public Set<ActivityType> getActivityTypeObjects() {
+        return this.activityTypes;
     }
 
-    public void setActivities(Set<Activity> activities) {
-        this.activities = activities;
+    public void setActivityTypes(Set<ActivityType> activityTypes) {
+        this.activityTypes = activityTypes;
     }
 
-    public void addActivity(Activity activity) {
-        activities.add(activity);
+    public void addActivityType(ActivityType activityType) {
+        activityTypes.add(activityType);
     }
 
-    public void removeActivity(Activity activity) {
-        activities.remove(activity);
+    public void removeActivityType(ActivityType activityType) {
+        activityTypes.remove(activityType);
     }
 
     /**
@@ -314,7 +314,7 @@ public class Profile {
         this.gender = editedProfile.gender;
         this.fitness = editedProfile.fitness;
         this.passports = editedProfile.passports;
-        this.activities = editedProfile.activities;
+        this.activityTypes = editedProfile.activityTypes;
     }
 
     /**
@@ -338,7 +338,7 @@ public class Profile {
                     this.gender.equals(other.gender) &&
                     this.fitness == other.fitness &&
                     this.passports.equals(other.passports) &&
-                    this.activities.equals(other.activities);
+                    this.activityTypes.equals(other.activityTypes);
         } else {
             return false;
         }
@@ -346,7 +346,7 @@ public class Profile {
 
     @Override
     public int hashCode() {
-        return Objects.hash(firstname, lastname, middlename, nickname, emails, password, bio, dateOfBirth, gender, fitness, passports, activities);
+        return Objects.hash(firstname, lastname, middlename, nickname, emails, password, bio, dateOfBirth, gender, fitness, passports, activityTypes);
     }
 
     /** Series of Getters and Getters **/

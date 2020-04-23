@@ -1,25 +1,21 @@
 package com.springvuegradle.Controller;
 
-import com.springvuegradle.Model.Activity;
+import com.springvuegradle.Model.ActivityType;
 import com.springvuegradle.Model.PassportCountry;
 import com.springvuegradle.Model.Profile;
 
-import com.springvuegradle.Repositories.ActivityRepository;
+import com.springvuegradle.Repositories.ActivityTypeRepository;
 import com.springvuegradle.Repositories.EmailRepository;
 import com.springvuegradle.Repositories.PassportCountryRepository;
 import com.springvuegradle.Repositories.ProfileRepository;
-import com.springvuegradle.dto.ActivitiesResponse;
 import com.springvuegradle.dto.ChangePasswordRequest;
 import com.springvuegradle.dto.EmailAddRequest;
 import com.springvuegradle.dto.EmailUpdateRequest;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.data.rest.webmvc.ProfileController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -44,7 +40,7 @@ class ProfileControllerTest {
     private EmailRepository erepo;
 
     @Autowired
-    private ActivityRepository arepo;
+    private ActivityTypeRepository arepo;
 
     @Autowired
     private PassportCountryRepository pcrepo;
@@ -127,7 +123,7 @@ class ProfileControllerTest {
                 "The Last Name field is blank.\n" +
                 "The Password is not long enough.\n" +
                 "The fitness level isn't valid.\n" +
-                "Activity random does not exist in the database.\n" +
+                "ActivityType random does not exist in the database.\n" +
                 "The Gender field must contain either 'male', 'female' or 'non-Binary'.\n";
         assertEquals(expected_error_message, actual_error_message);
         assertEquals(expected_in_repo, repo.count());
@@ -226,22 +222,22 @@ class ProfileControllerTest {
     }
 
     /**
-     * Tests to make sure changing the activities works
+     * Tests to make sure changing the activityTypes works
      */
     @Test
-    void changeActivitiesTest() {
-        Profile originalProfile = createNormalActivitiesProfile();
+    void changeActivityTypesTest() {
+        Profile originalProfile = createNormalActivityTypesProfile();
         profileController.createProfile(originalProfile);
         long profileId = repo.findByPrimaryEmail(originalProfile.getPrimary_email()).get(0).getId();
         Profile expectedProfile = repo.findById(profileId).get();
 
-        Profile updatedProfile = createUpdatedActivitiesProfile();
-        assertEquals(expectedProfile.getActivities().size(), 3, "Check profile saved successfully");
+        Profile updatedProfile = createUpdatedActivityTypesProfile();
+        assertEquals(expectedProfile.getActivityTypes().size(), 3, "Check profile saved successfully");
         profileController.updateProfile(updatedProfile, profileId);
 
         expectedProfile = repo.findById(profileId).get();
-        assertEquals(expectedProfile.getActivities().size(), 1, "Check activities updated successfully");
-        assertEquals(expectedProfile.getActivities(), updatedProfile.getActivities(), "Check activities updated successfully");
+        assertEquals(expectedProfile.getActivityTypes().size(), 1, "Check activityTypes updated successfully");
+        assertEquals(expectedProfile.getActivityTypes(), updatedProfile.getActivityTypes(), "Check activityTypes updated successfully");
     }
 
 //    @Test
@@ -256,11 +252,11 @@ class ProfileControllerTest {
 //        expectedProfile.setPassword(profileController.hashPassword(testProfile.getPassword()));
 //        expectedProfile.setPassports(realPassports);
 //
-//        Set<Activity> realActivities = new HashSet<>();
-//        for (Activity activity: expectedProfile.getActivityObjects()){
-//            realActivities.add(arepo.findByActivityName(activity.getActivityName()).get(0));
+//        Set<ActivityType> realActivityTypes = new HashSet<>();
+//        for (ActivityType activityType: expectedProfile.getActivityTypeObjects()){
+//            realActivityTypes.add(arepo.findByActivityTypeName(activityType.getActivityTypeName()).get(0));
 //        }
-//        expectedProfile.setActivities(realActivities);
+//        expectedProfile.setActivityTypes(realActivityTypes);
 //
 //        profileController.createProfile(testProfile);
 //        long id = repo.findByPrimaryEmail(testProfile.getPrimary_email()).get(0).getId();
@@ -328,7 +324,7 @@ class ProfileControllerTest {
     void testEditInvalidProfileActivityTypes(){
         Profile testProfile = createNormalProfileJimmy();
         profileController.createProfile(testProfile);
-        ArrayList<String> newActivityTypes = new ArrayList<String>(Arrays.asList("Not real Activity", "Tennis"));
+        ArrayList<String> newActivityTypes = new ArrayList<String>(Arrays.asList("Not real ActivityType", "Tennis"));
         assertEquals(profileController.editActivityTypes(newActivityTypes, testProfile.getId()), new ResponseEntity<>(HttpStatus.BAD_REQUEST));
     }
 
@@ -536,12 +532,12 @@ class ProfileControllerTest {
         repo.deleteAll();
         erepo.deleteAll();
         arepo.deleteAll();
-        arepo.save(new Activity("Football"));
-        arepo.save(new Activity("Tennis"));
-        arepo.save(new Activity("Hockey"));
-        arepo.save(new Activity("Basketball"));
-        arepo.save(new Activity("Hiking"));
-        arepo.save(new Activity("Rock Climbing"));
+        arepo.save(new ActivityType("Football"));
+        arepo.save(new ActivityType("Tennis"));
+        arepo.save(new ActivityType("Hockey"));
+        arepo.save(new ActivityType("Basketball"));
+        arepo.save(new ActivityType("Hiking"));
+        arepo.save(new ActivityType("Rock Climbing"));
     }
 
     /* Below are a set of ready-made Profile objects which can be used for various tests. */
@@ -556,7 +552,7 @@ class ProfileControllerTest {
     }
 
     /**
-     * @return a valid profile object with activity types
+     * @return a valid profile object with activityType types
      */
     static Profile createProfileWithActivityTypes() {
         return new Profile(null, "Jimmy", "Quick", "Jones", "Jim-Jam", "jimjam@hotmail.com", new String[]{"additional@email.com"}, "hushhush",
@@ -565,27 +561,27 @@ class ProfileControllerTest {
     }
 
     /**
-     * @return a profile object with invalid activity types
+     * @return a profile object with invalid activityType types
      */
     static Profile createProfileWithInvalidActivityTypes() {
         return new Profile(null, "Jimmy", "Quick", "Jones", "Jim-Jam", "jimjam@hotmail.com", new String[]{"additional@email.com"}, "hushhush",
                 "The quick brown fox jumped over the lazy dog.", new GregorianCalendar(1999, Calendar.NOVEMBER,
-                28), "male", 1, new String[]{"New Zealand", "India"}, new String[]{"Not a real activity", "Tennis"});
+                28), "male", 1, new String[]{"New Zealand", "India"}, new String[]{"Not a real activityType", "Tennis"});
     }
 
     /**
-     * @return a valid profile object with 3 activities.
+     * @return a valid profile object with 3 activityTypes.
      */
-    static Profile createNormalActivitiesProfile() {
+    static Profile createNormalActivityTypesProfile() {
         return new Profile(null, "Jimmy", "Quick", "Jones", "Jim-Jam", "jimjam@hotmail.com", new String[]{"additional@email.com"}, "hushhush",
                 "The quick brown fox jumped over the lazy dog.", new GregorianCalendar(1999, Calendar.NOVEMBER,
                 28), "male", 1, new String[]{}, new String[]{"Football", "Hockey", "Basketball"});
     }
 
     /**
-     * @return a valid profile object with updated activities.
+     * @return a valid profile object with updated activityTypes.
      */
-    static Profile createUpdatedActivitiesProfile() {
+    static Profile createUpdatedActivityTypesProfile() {
         return new Profile(null, "Jimmy", "Quick", "Jones", "Jim-Jam", "jimjam@hotmail.com", new String[]{"additional@email.com"}, "hushhush",
                 "The quick brown fox jumped over the lazy dog.", new GregorianCalendar(1999, Calendar.NOVEMBER,
                 28), "male", 1, new String[]{}, new String[]{"Hiking"});

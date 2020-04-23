@@ -2,7 +2,7 @@ package com.springvuegradle.Controller;
 
 import com.springvuegradle.Controller.enums.AuthenticationErrorMessage;
 import com.springvuegradle.Model.*;
-import com.springvuegradle.Repositories.ActivityRepository;
+import com.springvuegradle.Repositories.ActivityTypeRepository;
 import com.springvuegradle.Repositories.EmailRepository;
 import com.springvuegradle.Repositories.PassportCountryRepository;
 import com.springvuegradle.dto.*;
@@ -51,10 +51,10 @@ public class Profile_Controller {
     private EmailRepository eRepository;
 
     /**
-     * Way to access Activity Repository (Activity table in db).
+     * Way to access ActivityType Repository (ActivityType table in db).
      */
     @Autowired
-    private ActivityRepository aRepository;
+    private ActivityTypeRepository aRepository;
 
 
     /**
@@ -87,13 +87,13 @@ public class Profile_Controller {
             }
             newProfile.setPassports(updated);
 
-            Set<Activity> updatedActivity = new HashSet<Activity>();
-            for(Activity activity : newProfile.getActivityObjects()){
-                List<Activity> resultActivities = aRepository.findByActivityName(activity.getActivityName());{
-                    updatedActivity.add(resultActivities.get(0));
+            Set<ActivityType> updatedActivityType = new HashSet<ActivityType>();
+            for(ActivityType activityType : newProfile.getActivityTypeObjects()){
+                List<ActivityType> resultActivityTypes = aRepository.findByActivityTypeName(activityType.getActivityTypeName());{
+                    updatedActivityType.add(resultActivityTypes.get(0));
                 }
             }
-            newProfile.setActivities(updatedActivity);
+            newProfile.setActivityTypes(updatedActivityType);
 
 
 
@@ -218,13 +218,13 @@ public class Profile_Controller {
     }
 
     /**
-     * Updates a profile's activity types in the database given a request to do so.
+     * Updates a profile's activityType types in the database given a request to do so.
      * @param newActivityTypes The profile's new primary/additional emails embedded in an EmailUpdateRequest.
      * @param id the ID of the profile being edited, pulled from the URL as a path variable.
      * @param sessionToken session ID generated at login that is associated with this profile, pulled from the request header.
      * @return An HTTP response with an appropriate status code and, if there was a problem with the request, an error message.
      */
-    @PutMapping("/profiles/{id}/activity-types")
+    @PutMapping("/profiles/{id}/activityType-types")
     public ResponseEntity<String> editActivityTypes (@RequestBody ActivityTypeUpdateRequest newActivityTypes, @PathVariable Long id, @RequestHeader("authorization") Long sessionToken) {
         if (!loginController.checkCredentials(id, sessionToken)) {
             return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(), HttpStatus.UNAUTHORIZED);
@@ -234,13 +234,13 @@ public class Profile_Controller {
 
     /**
      * Queries the Database to find all the country names.
-     * @return a response with all the activities in the database.
+     * @return a response with all the activityTypes in the database.
      */
-    @GetMapping("/activities")
-    public ResponseEntity<ActivitiesResponse> getActivitiesList() {
-        List<String> allActivities = aRepository.findAllCountryNames();
-        ActivitiesResponse activitiesResponse = new ActivitiesResponse(allActivities);
-        return new ResponseEntity<ActivitiesResponse>(activitiesResponse, HttpStatus.OK);
+    @GetMapping("/activityTypes")
+    public ResponseEntity<ActivityTypesResponse> getActivityTypesList() {
+        List<String> allActivityTypes = aRepository.findAllCountryNames();
+        ActivityTypesResponse activityTypesResponse = new ActivityTypesResponse(allActivityTypes);
+        return new ResponseEntity<ActivityTypesResponse>(activityTypesResponse, HttpStatus.OK);
     }
 
     /**
@@ -362,13 +362,13 @@ public class Profile_Controller {
         }
         db_profile.setPassports(updatedCountries);
 
-        // verifying activities
-        Set<Activity> updatedActivities = new HashSet<>();
-        for(Activity activity : editedProfile.getActivityObjects()){
-            List<Activity> resultActivities = aRepository.findByActivityName(activity.getActivityName());
-            updatedActivities.add(resultActivities.get(0));
+        // verifying activityTypes
+        Set<ActivityType> updatedActivityTypes = new HashSet<>();
+        for(ActivityType activityType : editedProfile.getActivityTypeObjects()){
+            List<ActivityType> resultActivityTypes = aRepository.findByActivityTypeName(activityType.getActivityTypeName());
+            updatedActivityTypes.add(resultActivityTypes.get(0));
         }
-        db_profile.setActivities(updatedActivities);
+        db_profile.setActivityTypes(updatedActivityTypes);
 
         // verifying emails, reuses the editEmails method
         EmailUpdateRequest mockRequest = new EmailUpdateRequest(new ArrayList<String>(editedProfile.getAdditional_email()), editedProfile.getPrimary_email(), id.intValue());
@@ -382,25 +382,25 @@ public class Profile_Controller {
     }
 
     /**
-     * Updates the activity types for a user
-     * @param newActivityTypeStrings an arraylist of strings representing the new activities
+     * Updates the activityType types for a user
+     * @param newActivityTypeStrings an arraylist of strings representing the new activityTypes
      * @param id the Id of the user we are editing
      * @return HTTP status code indicating if the operation was successful
      */
     protected ResponseEntity<String> editActivityTypes(ArrayList<String> newActivityTypeStrings, Long id){
         Profile profile = repository.findById(id).get();
 
-        HashSet<Activity> newActivityTypes = new HashSet<>();
-        for (String activityString: newActivityTypeStrings) {
+        HashSet<ActivityType> newActivityTypes = new HashSet<>();
+        for (String activityTypeString: newActivityTypeStrings) {
 
-            //Check if the activity is of a valid type
-            if(!aRepository.existsByActivityName(activityString)){
+            //Check if the activityType is of a valid type
+            if(!aRepository.existsByActivityTypeName(activityTypeString)){
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
-            newActivityTypes.add(aRepository.findByActivityName(activityString).get(0));
+            newActivityTypes.add(aRepository.findByActivityTypeName(activityTypeString).get(0));
         }
 
-        profile.setActivities(newActivityTypes);
+        profile.setActivityTypes(newActivityTypes);
         repository.save(profile);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -561,10 +561,10 @@ public class Profile_Controller {
                 }
             }
         }
-        if (!newProfile.getActivityObjects().isEmpty()) {
-            for(Activity activity : newProfile.getActivityObjects()){
-                if (!aRepository.existsByActivityName(activity.getActivityName())) {
-                    error += String.format("Activity %s does not exist in the database.\n", activity.getActivityName());
+        if (!newProfile.getActivityTypeObjects().isEmpty()) {
+            for(ActivityType activityType : newProfile.getActivityTypeObjects()){
+                if (!aRepository.existsByActivityTypeName(activityType.getActivityTypeName())) {
+                    error += String.format("ActivityType %s does not exist in the database.\n", activityType.getActivityTypeName());
                 }
             }
         }

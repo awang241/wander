@@ -11,52 +11,52 @@ import java.util.Objects;
 import java.util.Set;
 
 @Entity
-public class Activity {
+public class ActivityType {
 
     /**
-     * Holds the automatically generated activity id assigned when the object is saved to the database.
+     * Holds the automatically generated activityType id assigned when the object is saved to the database.
      */
     @Id
     @GeneratedValue
     private long id;
 
     /**
-     * Holds the activity name its referring to.
+     * Holds the activityType name its referring to.
      */
     @Column
     @NotNull
-    private String activityName;
+    private String activityTypeName;
 
     /**
-     * Each activity object can have multiple profiles with the activities being referred.
+     * Each activityType object can have multiple profiles with the activityTypes being referred.
      */
-    @ManyToMany(mappedBy = "activities")
+    @ManyToMany(mappedBy = "activityTypes")
     @JsonBackReference
     private Set<Profile> profiles = new HashSet<Profile>();
 
-    public Activity(){};
+    public ActivityType(){};
 
     @JsonCreator
-    public Activity(
+    public ActivityType(
             @JsonProperty("name") String countryName) {
-        this.activityName = countryName;
+        this.activityTypeName = countryName;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Activity activity = (Activity) o;
-        return activityName.equals(activity.activityName);
+        ActivityType activityType = (ActivityType) o;
+        return activityTypeName.equals(activityType.activityTypeName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(activityName);
+        return Objects.hash(activityTypeName);
     }
 
 
-    public String getActivityName() {
-        return activityName;
+    public String getActivityTypeName() {
+        return activityTypeName;
     }
 }

@@ -1,7 +1,7 @@
 package com.springvuegradle;
 
-import com.springvuegradle.Model.Activity;
-import com.springvuegradle.Repositories.ActivityRepository;
+import com.springvuegradle.Model.ActivityType;
+import com.springvuegradle.Repositories.ActivityTypeRepository;
 import com.springvuegradle.Repositories.EmailRepository;
 import com.springvuegradle.Repositories.PassportCountryRepository;
 import com.springvuegradle.Repositories.ProfileRepository;
@@ -30,13 +30,13 @@ public class Application {
 
     @Bean
     CommandLineRunner init(EmailRepository emailRepository, ProfileRepository profileRepository,
-                           PassportCountryRepository passportCountryRepository, ActivityRepository activityRepository) {
+                           PassportCountryRepository passportCountryRepository, ActivityTypeRepository activityTypeRepository) {
         return args -> {
             System.out.println(emailRepository.findByPrimaryEmail("jacky123@google.com"));
             ValidationHelper.updatePassportCountryRepository(passportCountryRepository, profileRepository);
             profileRepository.findAll().forEach(System.out::println); // prints all the profile objects in the repository.
             System.out.println("-----Program should be running now-----");
-            System.out.println(activityRepository.existsByActivityName("Football"));
+            System.out.println(activityTypeRepository.existsByActivityTypeName("Football"));
         };
     }
 
