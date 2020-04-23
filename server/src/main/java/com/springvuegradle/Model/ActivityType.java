@@ -38,8 +38,8 @@ public class ActivityType {
 
     @JsonCreator
     public ActivityType(
-            @JsonProperty("name") String countryName) {
-        this.activityTypeName = countryName;
+            @JsonProperty("name") String activityTypeName) {
+        this.activityTypeName = activityTypeName;
     }
 
     @Override

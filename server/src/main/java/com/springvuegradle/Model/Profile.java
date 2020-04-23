@@ -101,8 +101,8 @@ public class Profile {
      * multiple ActivityType objects.
      */
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinTable(name = "profile_activityType",
-            inverseJoinColumns = @JoinColumn(name = "activityType_id", referencedColumnName = "id"),
+    @JoinTable(name = "profile_activity_type",
+            inverseJoinColumns = @JoinColumn(name = "activity_type_id", referencedColumnName = "id"),
             joinColumns = @JoinColumn(name = "profile_id", referencedColumnName = "id"))
     private Set<ActivityType> activityTypes;
 

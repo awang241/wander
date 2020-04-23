@@ -238,7 +238,7 @@ public class Profile_Controller {
      */
     @GetMapping("/activityTypes")
     public ResponseEntity<ActivityTypesResponse> getActivityTypesList() {
-        List<String> allActivityTypes = aRepository.findAllCountryNames();
+        List<String> allActivityTypes = aRepository.findAllActivityTypeNames();
         ActivityTypesResponse activityTypesResponse = new ActivityTypesResponse(allActivityTypes);
         return new ResponseEntity<ActivityTypesResponse>(activityTypesResponse, HttpStatus.OK);
     }

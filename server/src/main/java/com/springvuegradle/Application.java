@@ -37,6 +37,15 @@ public class Application {
             profileRepository.findAll().forEach(System.out::println); // prints all the profile objects in the repository.
             System.out.println("-----Program should be running now-----");
             System.out.println(activityTypeRepository.existsByActivityTypeName("Football"));
+
+            if (activityTypeRepository.count() ==0) {
+                activityTypeRepository.save(new ActivityType("Football"));
+                activityTypeRepository.save(new ActivityType("Tennis"));
+                activityTypeRepository.save(new ActivityType("Hockey"));
+                activityTypeRepository.save(new ActivityType("Basketball"));
+                activityTypeRepository.save(new ActivityType("Hiking"));
+                activityTypeRepository.save(new ActivityType("Rock Climbing"));
+            }
         };
     }
 
