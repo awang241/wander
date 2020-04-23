@@ -1,5 +1,7 @@
 package com.springvuegradle.Controller;
 
+import com.springvuegradle.Services.MyUserDetailsService;
+import com.springvuegradle.Utilities.JwtUtil;
 import com.springvuegradle.dto.LoginRequest;
 import com.springvuegradle.dto.LoginResponse;
 import com.springvuegradle.dto.LogoutRequest;
@@ -9,6 +11,10 @@ import com.springvuegradle.Repositories.ProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -24,7 +30,16 @@ import java.util.Map;
 public class LoginController {
 
     @Autowired
+    private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private MyUserDetailsService userDetailsService;
+
+    @Autowired
     private ProfileRepository profileRepository;
+
+    @Autowired
+    private JwtUtil jwtTokenUtil;
 
     @Autowired
     private EmailRepository eRepo;
@@ -35,6 +50,28 @@ public class LoginController {
         sessionCounter = 0;
     }
 
+    @GetMapping("/hello")
+    public String hello(){
+        return "Hello world";
+    }
+
+    @PostMapping("/authenticate")
+    public ResponseEntity<?> createAuthenticationToken(@RequestBody LoginRequest loginRequest){
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
+            );
+        } catch (BadCredentialsException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        final UserDetails userDetails = userDetailsService.loadUserByUsername(loginRequest.getEmail());
+        final String jwt = jwtTokenUtil.generateToken(userDetails);
+
+        long id = 3;
+        return ResponseEntity.ok(new LoginResponse(jwt, id));
+    }
+
     /**
      * Attempts to log in a user given a login request. If the credentials are correct, the user is logged
      * in and the session is recorded; otherwise, returns an error code.
@@ -42,34 +79,34 @@ public class LoginController {
      * @return a response containing either the user's profile ID and session ID upon a successful login, or an
      * appropriate error code and status otherwise.
      */
-    @PostMapping("/login")
-    @ResponseBody
-    public ResponseEntity<LoginResponse> loginUser(@RequestBody LoginRequest request) {
-        LoginResponse body = null;
-        HttpStatus status = null;
-        List<Profile> result = eRepo.findByPrimaryEmail(request.getEmail());
-        if (result.size() > 1) {
-            status = HttpStatus.INTERNAL_SERVER_ERROR;
-        } else if (result.size() == 0) {
-            status = HttpStatus.UNAUTHORIZED;
-        } else {
-            Profile profile = result.get(0);
-            String hashedPassword = Profile_Controller.hashPassword(request.getPassword());
-            if (!result.get(0).getPassword().equals(hashedPassword)) {
-                status = HttpStatus.UNAUTHORIZED;}
-            else if (activeSessions.containsKey(profile.getId())) {
-                status = HttpStatus.OK;
-                activeSessions.remove(result.get(0).getId());
-                body = new LoginResponse(++sessionCounter, result.get(0).getId());
-                activeSessions.put(profile.getId(), sessionCounter);
-            } else {
-                body = new LoginResponse(++sessionCounter, result.get(0).getId());
-                status = HttpStatus.OK;
-                activeSessions.put(profile.getId(), sessionCounter);
-            }
-        }
-        return new ResponseEntity<>(body, status);
-    }
+//    @PostMapping("/login")
+//    @ResponseBody
+//    public ResponseEntity<LoginResponse> loginUser(@RequestBody LoginRequest request) {
+//        LoginResponse body = null;
+//        HttpStatus status = null;
+//        List<Profile> result = eRepo.findByPrimaryEmail(request.getEmail());
+//        if (result.size() > 1) {
+//            status = HttpStatus.INTERNAL_SERVER_ERROR;
+//        } else if (result.size() == 0) {
+//            status = HttpStatus.UNAUTHORIZED;
+//        } else {
+//            Profile profile = result.get(0);
+//            String hashedPassword = Profile_Controller.hashPassword(request.getPassword());
+//            if (!result.get(0).getPassword().equals(hashedPassword)) {
+//                status = HttpStatus.UNAUTHORIZED;}
+//            else if (activeSessions.containsKey(profile.getId())) {
+//                status = HttpStatus.OK;
+//                activeSessions.remove(result.get(0).getId());
+//                body = new LoginResponse(++sessionCounter, result.get(0).getId());
+//                activeSessions.put(profile.getId(), sessionCounter);
+//            } else {
+//                body = new LoginResponse(++sessionCounter, result.get(0).getId());
+//                status = HttpStatus.OK;
+//                activeSessions.put(profile.getId(), sessionCounter);
+//            }
+//        }
+//        return new ResponseEntity<>(body, status);
+//    }
 
     /**
      * Attempts to log out the user given a HTTP logout request. Only succeeds if the user's credentials are correct.
