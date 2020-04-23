@@ -1,6 +1,6 @@
 <template>
     <div class="container">
-        <h4 class="title is-5">Add ActivityTypes</h4>
+        <h4 class="title is-5">Add Activity Types</h4>
         <b-field>
             <b-select placeholder="Select an activityType" v-model="newActivityType" expanded>
                 <option
