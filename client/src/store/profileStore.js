@@ -45,7 +45,7 @@ const profileStore = {
             profileStore.data.primaryEmail = profile.primary_email;
             profileStore.data.optionalEmails = profile.additional_email;
             profileStore.data.passportCountries = profile.passports;
-            profileStore.data.activityTypes = profile.activityTypes;
+            profileStore.data.activityTypes = profile.activities;
         },
         setAllActivityTypes(allActivityTypes) {
             profileStore.data.allActivityTypes = allActivityTypes.allActivityTypes;

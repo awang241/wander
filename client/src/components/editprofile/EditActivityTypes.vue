@@ -50,9 +50,9 @@
                 console.log("adding activityType")
                 console.log("chosenActivityTypes: " + this.chosenActivityTypes)
                 if (this.newActivityType === ""){
-                    this.showWarning("No activityType selected")
+                    this.showWarning("No activity selected")
                 } else if (this.chosenActivityTypes.includes(this.newActivityType)) {
-                    this.showWarning("ActivityType already in list")
+                    this.showWarning("Activity already in list")
                 } else {
                     this.chosenActivityTypes = [...this.chosenActivityTypes, this.newActivityType]
                 }
@@ -71,7 +71,7 @@
                     "fitness": profileStore.data.fitnessLevel,
                     "passports":profileStore.data.passportCountries,
                     "additional_email": profileStore.data.optionalEmails,
-                    "activityTypes": profileStore.data.activityTypes
+                    "activities": profileStore.data.activityTypes
                 }
                 Api.editProfile(authenticationStore.methods.getUserId(), updatedProfile, authenticationStore.methods.getSessionId())
 

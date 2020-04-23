@@ -138,7 +138,7 @@ public class Profile {
                    @JsonProperty("gender") String gender,
                    @JsonProperty("fitness") int fitnessLevel,
                    @JsonProperty("passports") String[] passports,
-                   @JsonProperty("activityTypes") String[] activityTypes) {
+                   @JsonProperty("activities") String[] activityTypes) {
         this.firstname = firstname;
         this.lastname = lastname;
         this.middlename = middlename;

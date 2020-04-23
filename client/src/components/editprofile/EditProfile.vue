@@ -1,4 +1,4 @@
-<!--Container that holds all other edit componenets and allows switching between them-->
+<!--Container that holds all other edit components and allows switching between them-->
 
 <template>
     <div class="container containerColor">
@@ -9,7 +9,7 @@
                 <li><a v-on:click="changeToPersonal">Basic Info</a></li>
                 <li><a v-on:click="changeToPassword">Change Password</a></li>
                 <li><a v-on:click="changeToCountries">Passport Countries</a></li>
-                <li><a v-on:click="changeToActivityTypes">ActivityTypes</a></li>
+                <li><a v-on:click="changeToActivityTypes">Activity Types</a></li>
                 <li><a v-on:click="changeToEmail">Emails</a></li>
             </ul>
             <div>
