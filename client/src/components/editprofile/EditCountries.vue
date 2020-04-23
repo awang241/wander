@@ -71,7 +71,7 @@
                     "fitness": profileStore.data.fitnessLevel,
                     "passports":profileStore.data.passportCountries,
                     "additional_email": profileStore.data.optionalEmails,
-                    "activities": profileStore.data.activities
+                    "activityTypes": profileStore.data.activityTypes
                 }
                 Api.editProfile(authenticationStore.methods.getUserId(), updatedProfile, authenticationStore.methods.getSessionId())
 

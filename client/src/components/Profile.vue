@@ -114,10 +114,10 @@
                 </div>
             </div>
         </section>
-        <!-- Activities -->
+        <!-- ActivityTypes -->
         <section class="section" id="services">
             <div class="section-heading">
-                <h3 class="center activitiesTitle title is-3">Activities</h3>
+                <h3 class="center activityTypesTitle title is-3">ActivityTypes</h3>
                 <h4 class="subtitle is-5"></h4>
             </div>
             <div class="container containerColor">
@@ -175,7 +175,7 @@
 
         <section class="section">
             <div class="section-heading">
-                <h3 class="center activitiesTitle title is-2">Countries</h3>
+                <h3 class="center activityTypesTitle title is-2">Countries</h3>
                 <h4 class="subtitle is-5"></h4>
             </div>
             <div class="container containerColor">
@@ -186,12 +186,12 @@
         </section>
         <section class="section">
             <div class="section-heading">
-                <h3 class="center activitiesTitle title is-2">Activities</h3>
+                <h3 class="center activityTypesTitle title is-2">ActivityTypes</h3>
                 <h4 class="subtitle is-5"></h4>
             </div>
             <div class="container containerColor">
                 <div class="box">
-                    <h3 v-for="activity in chosenActivities" :key="activity" class="title is-4">{{activity}}</h3>
+                    <h3 v-for="activityType in chosenActivityTypes" :key="activityType" class="title is-4">{{activityType}}</h3>
                 </div>
             </div>
         </section>
@@ -222,8 +222,8 @@
                 fitness_statement: null,
                 possibleCountries: [],
                 chosenCountries: [],
-                possibleActivities: [],
-                chosenActivities: []
+                possibleActivityTypes: [],
+                chosenActivityTypes: []
             }
         },
         methods: {
@@ -250,7 +250,7 @@
                     this.additionalEmails = response.data.additional_email;
                     this.fitness_level = response.data.fitness;
                     this.chosenCountries = response.data.passports;
-                    this.chosenActivities = response.data.activities;
+                    this.chosenActivityTypes = response.data.activityTypes;
                     switch (response.data.fitness) {
                         case 0 :
                             this.fitness_statement = "Beginner: I am not active at all";
@@ -273,9 +273,9 @@
                 })
                 .catch(error => console.log(error));
 
-            api.getActivitiesList()
+            api.getActivityTypesList()
                 .then((response) => {
-                profileStore.methods.setAllActivities(response.data)
+                profileStore.methods.setAllActivityTypes(response.data)
                 })
                 .catch(error => console.log(error));
         },

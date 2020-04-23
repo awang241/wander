@@ -136,7 +136,7 @@
                         gender: this.gender,
                         fitness: this.fitness,
                         passports: [],
-                        activities: []
+                        activityTypes: []
                     })
                         .then((response => {
                             this.showMessage(this.displayError(response.status))

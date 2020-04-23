@@ -13,8 +13,8 @@ const profileStore = {
         gender: "",
         passportCountries: [],
         fitnessLevel: 1,
-        activities: [],
-        allActivities: []
+        activityTypes: [],
+        allActivityTypes: []
 
     },
     methods: {
@@ -24,8 +24,8 @@ const profileStore = {
         setPrimaryEmail(primary_email) {
             profileStore.data.primaryEmail = primary_email;
         },
-        setActivities(activities) {
-            profileStore.data.activities = activities;
+        setActivityTypes(activityTypes) {
+            profileStore.data.activityTypes = activityTypes;
         },
         setOptionalEmails(additional_email) {
             profileStore.data.optionalEmails = additional_email;
@@ -45,10 +45,10 @@ const profileStore = {
             profileStore.data.primaryEmail = profile.primary_email;
             profileStore.data.optionalEmails = profile.additional_email;
             profileStore.data.passportCountries = profile.passports;
-            profileStore.data.activities = profile.activities;
+            profileStore.data.activityTypes = profile.activityTypes;
         },
-        setAllActivities(allActivities) {
-            profileStore.data.allActivities = allActivities.allActivities;
+        setAllActivityTypes(allActivityTypes) {
+            profileStore.data.allActivityTypes = allActivityTypes.allActivityTypes;
         }
     }
 };

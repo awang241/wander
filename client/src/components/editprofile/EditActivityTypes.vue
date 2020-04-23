@@ -1,19 +1,19 @@
 <template>
     <div class="container">
-        <h4 class="title is-5">Add Activities</h4>
+        <h4 class="title is-5">Add ActivityTypes</h4>
         <b-field>
-            <b-select placeholder="Select an activity" v-model="newActivity" expanded>
+            <b-select placeholder="Select an activityType" v-model="newActivityType" expanded>
                 <option
-                        v-for="activity in possibleActivities"
-                        :value="activity"
-                        :key="activity">
-                    {{ activity }}
+                        v-for="activityType in possibleActivityTypes"
+                        :value="activityType"
+                        :key="activityType">
+                    {{ activityType }}
                 </option>
             </b-select>
-            <b-button type="is-primary" @click="addActivity">Add</b-button>
+            <b-button type="is-primary" @click="addActivityType">Add</b-button>
         </b-field>
-        <List v-bind:chosenItems="chosenActivities" v-on:deleteListItem="deleteActivity"></List>
-        <b-button type="is-primary" @click="submitActivities">Save</b-button>
+        <List v-bind:chosenItems="chosenActivityTypes" v-on:deleteListItem="deleteActivityType"></List>
+        <b-button type="is-primary" @click="submitActivityTypes">Save</b-button>
     </div>
 </template>
 
@@ -24,13 +24,13 @@
     import authenticationStore from "../../store/authenticationStore";
 
     export default {
-        name: "EditActivities",
+        name: "EditActivityTypes",
         components: {List},
         data(){
             return {
-                possibleActivities: "",
-                newActivity: "",
-                chosenActivities: profileStore.data.activities,
+                possibleActivityTypes: "",
+                newActivityType: "",
+                chosenActivityTypes: profileStore.data.activityTypes,
             }
         },
         methods: {
@@ -43,22 +43,22 @@
                     queue: false,
                 })
             },
-            deleteActivity(chosenActivity) {
-                this.chosenActivities = this.chosenActivities.filter(activity => activity != chosenActivity)
+            deleteActivityType(chosenActivityType) {
+                this.chosenActivityTypes = this.chosenActivityTypes.filter(activityType => activityType != chosenActivityType)
             },
-            addActivity() {
-                console.log("adding activity")
-                console.log("chosenActivities: " + this.chosenActivities)
-                if (this.newActivity === ""){
-                    this.showWarning("No activity selected")
-                } else if (this.chosenActivities.includes(this.newActivity)) {
-                    this.showWarning("Activity already in list")
+            addActivityType() {
+                console.log("adding activityType")
+                console.log("chosenActivityTypes: " + this.chosenActivityTypes)
+                if (this.newActivityType === ""){
+                    this.showWarning("No activityType selected")
+                } else if (this.chosenActivityTypes.includes(this.newActivityType)) {
+                    this.showWarning("ActivityType already in list")
                 } else {
-                    this.chosenActivities = [...this.chosenActivities, this.newActivity]
+                    this.chosenActivityTypes = [...this.chosenActivityTypes, this.newActivityType]
                 }
             },
-            submitActivities() {
-                profileStore.methods.setActivities(this.chosenActivities)
+            submitActivityTypes() {
+                profileStore.methods.setActivityTypes(this.chosenActivityTypes)
                 const updatedProfile = {
                     "lastname": profileStore.data.lastName,
                     "firstname": profileStore.data.firstName,
@@ -71,15 +71,15 @@
                     "fitness": profileStore.data.fitnessLevel,
                     "passports":profileStore.data.passportCountries,
                     "additional_email": profileStore.data.optionalEmails,
-                    "activities": profileStore.data.activities
+                    "activityTypes": profileStore.data.activityTypes
                 }
                 Api.editProfile(authenticationStore.methods.getUserId(), updatedProfile, authenticationStore.methods.getSessionId())
 
             }
         },
         mounted() {
-            this.possibleActivities = profileStore.data.allActivities
-            //this.chosenActivities = profileStore.data.activities
+            this.possibleActivityTypes = profileStore.data.allActivityTypes
+            //this.chosenActivityTypes = profileStore.data.activityTypes
         }
     }
 </script>
