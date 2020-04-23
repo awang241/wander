@@ -8,6 +8,7 @@ import com.springvuegradle.Repositories.ActivityRepository;
 import com.springvuegradle.Repositories.EmailRepository;
 import com.springvuegradle.Repositories.PassportCountryRepository;
 import com.springvuegradle.Repositories.ProfileRepository;
+import com.springvuegradle.dto.ActivitiesResponse;
 import com.springvuegradle.dto.ChangePasswordRequest;
 import com.springvuegradle.dto.EmailAddRequest;
 import com.springvuegradle.dto.EmailUpdateRequest;
@@ -313,6 +314,22 @@ class ProfileControllerTest {
         assertEquals(testProfile.getPrimary_email(), updatedProfile.getPrimary_email(), "Check that the primary email is unchanged");
         assertEquals(expectedAdditionalEmails, updatedProfile.getAdditional_email(), "Check that the emails have been added successfully");
         assertEquals(expectedResponse, actualResponse, "Check response has correct message and status code (201).");
+    }
+
+    @Test
+    void testEditProfileActivityTypes(){
+        Profile testProfile = createNormalProfileJimmy();
+        profileController.createProfile(testProfile);
+        ArrayList<String> newActivityTypes = new ArrayList<String>(Arrays.asList("Football", "Tennis"));
+        assertEquals(profileController.editActivityTypes(newActivityTypes, testProfile.getId()), new ResponseEntity<>(HttpStatus.OK));
+    }
+
+    @Test
+    void testEditInvalidProfileActivityTypes(){
+        Profile testProfile = createNormalProfileJimmy();
+        profileController.createProfile(testProfile);
+        ArrayList<String> newActivityTypes = new ArrayList<String>(Arrays.asList("Not real Activity", "Tennis"));
+        assertEquals(profileController.editActivityTypes(newActivityTypes, testProfile.getId()), new ResponseEntity<>(HttpStatus.BAD_REQUEST));
     }
 
     @Test
