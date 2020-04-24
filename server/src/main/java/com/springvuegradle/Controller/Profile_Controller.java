@@ -114,7 +114,7 @@ public class Profile_Controller {
      */
     @GetMapping("/profiles/{id}")
     public @ResponseBody ResponseEntity<Profile> getProfile(@PathVariable Long id, @RequestHeader("authorization") Long sessionToken) {
-        if (loginController.checkCredentials(id, sessionToken)) {
+        if (loginController.checkCredentials(id, sessionToken, repository)) {
             return getProfile(id);
         } else {
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
@@ -131,7 +131,7 @@ public class Profile_Controller {
      */
     @PutMapping("/profiles/{id}")
     public @ResponseBody ResponseEntity<String> updateProfile(@RequestBody Profile editedProfile, @RequestHeader("authorization") Long sessionToken, @PathVariable Long id) {
-        if (loginController.checkCredentials(id, sessionToken)) {
+        if (loginController.checkCredentials(id, sessionToken, repository)) {
             return updateProfile(editedProfile, id);
         } else {
             return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(), HttpStatus.UNAUTHORIZED);
@@ -179,7 +179,7 @@ public class Profile_Controller {
         HttpStatus status;
         String message;
         Long sessionID = sessionToken;
-        if (testing || loginController.checkCredentials(id, sessionID)) {
+        if (testing || loginController.checkCredentials(id, sessionID, repository)) {
             Optional<Profile> result = repository.findById(id);
             if (Boolean.TRUE.equals(result.isPresent())) {
                 Profile targetProfile = result.get();
@@ -210,7 +210,7 @@ public class Profile_Controller {
      */
     @PutMapping("/profiles/{id}/emails")
     public ResponseEntity<String> editEmails (@RequestBody EmailUpdateRequest newEmails, @PathVariable Long id, @RequestHeader("authorization") Long sessionToken) {
-        if (loginController.checkCredentials(id, sessionToken)) {
+        if (loginController.checkCredentials(id, sessionToken, repository)) {
             return editEmails (newEmails, id);
         } else {
             return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(), HttpStatus.UNAUTHORIZED);
@@ -225,8 +225,8 @@ public class Profile_Controller {
      * @return An HTTP response with an appropriate status code and, if there was a problem with the request, an error message.
      */
     @PutMapping("/profiles/{id}/activityType-types")
-    public ResponseEntity<String> editActivityTypes (@RequestBody ActivityTypeUpdateRequest newActivityTypes, @PathVariable Long id, @RequestHeader("authorization") Long sessionToken) {
-        if (!loginController.checkCredentials(id, sessionToken)) {
+    public ResponseEntity<String> editActivityTypes(@RequestBody ActivityTypeUpdateRequest newActivityTypes, @PathVariable Long id, @RequestHeader("authorization") Long sessionToken) {
+        if (!loginController.checkCredentials(id, sessionToken, repository)) {
             return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(), HttpStatus.UNAUTHORIZED);
         }
         return editActivityTypes(newActivityTypes.getActivityTypes(), id);
@@ -256,7 +256,7 @@ public class Profile_Controller {
     }
 
     public ResponseEntity<String> changePassword(ChangePasswordRequest newPasswordRequest, Long id, Long sessionToken, Boolean testing) {
-        if(!testing && !loginController.checkCredentials(id.intValue(), sessionToken)){
+        if(!testing && !loginController.checkCredentials(id.intValue(), sessionToken, repository)){
             return new ResponseEntity<>("Invalid session ID.", HttpStatus.UNAUTHORIZED);
         }
 
@@ -349,6 +349,7 @@ public class Profile_Controller {
         editedProfile.setPassword("temporary");
         String verificationMsg = verifyProfile(editedProfile, true);
         if (!verificationMsg.equals("")) {
+            System.out.println("Verification message: " + verificationMsg);
             return new ResponseEntity<>(verificationMsg, HttpStatus.BAD_REQUEST);
         }
 
@@ -448,7 +449,7 @@ public class Profile_Controller {
             List<Email> emailsReturnedFromSearch = eRepository.findAllByAddress(primaryEmail);
             if (emailsReturnedFromSearch.isEmpty()) {
                 newEmailSet.add(new Email(primaryEmail, true, db_profile));
-            } else if (emailsReturnedFromSearch.get(0).getProfile().getId() == id) {
+            } else if (emailsReturnedFromSearch.get(0).getProfile().getId().equals(id)) {
                 //case where primary email already associated with profile
                 Email email = emailsReturnedFromSearch.get(0);
                 email.setPrimary(true);

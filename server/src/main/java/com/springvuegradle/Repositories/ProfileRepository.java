@@ -22,4 +22,7 @@ public interface ProfileRepository extends JpaRepository<Profile, Long> {
     @Query("SELECT p FROM Profile p WHERE p.auth_level = :auth_level")
     List<Profile> findByAuthLevel(@Param("auth_level") Integer auth_level);
 
+    @Query("SELECT p FROM Profile p WHERE p.id = :id")
+    List<Profile> findAllById(@Param("id") Long id);
+
 }

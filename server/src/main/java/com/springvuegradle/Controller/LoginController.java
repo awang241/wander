@@ -11,10 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Basic implementation of a login controller class.
@@ -25,7 +22,7 @@ import java.util.Optional;
 public class LoginController {
 
     @Autowired
-    private ProfileRepository profileRepository;
+    private ProfileRepository repo;
 
     @Autowired
     private EmailRepository eRepo;
@@ -61,6 +58,7 @@ public class LoginController {
         LoginResponse body = null;
         HttpStatus status = null;
         List<Profile> result = eRepo.findByPrimaryEmail(request.getEmail());
+        System.out.println(repo.count());
         if (result.size() > 1) {
             status = HttpStatus.INTERNAL_SERVER_ERROR;
         } else if (result.size() == 0) {
@@ -100,7 +98,7 @@ public class LoginController {
         String message = null;
         HttpStatus status = null;
         Long sessionID = Long.parseLong(field.split(" ")[0]);
-        if (checkCredentials(userId.getUserId(), sessionID)){
+        if (checkCredentials(userId.getUserId(), sessionID, repo)){
             message = "Logout successful.";
             status = HttpStatus.OK;
             activeSessions.remove(userId.getUserId());
@@ -120,13 +118,15 @@ public class LoginController {
      * @return true if the session ID matches the user ID or user with higher auth level accessing details of user
      * with lower auth level; false otherwise.
      */
-    public boolean checkCredentials(long userID, long sessionID) {
-        int authLevelFromSessionID = getAuthLevelFromSessionID(sessionID);
+    public boolean checkCredentials(long userID, long sessionID, ProfileRepository repo) {
+        System.out.println("Printed from checkCredentials: " + repo.findById((long)7008));
+
+        int authLevelFromSessionID = getAuthLevelFromSessionID(sessionID, repo);
         if (authLevelFromSessionID == -1) {
             return false;
         }
 
-        int authLevelFromUserID = getAuthLevelFromId(userID);
+        int authLevelFromUserID = getAuthLevelFromId(userID, repo);
         if (authLevelFromUserID == -1) {
             return false;
         }
@@ -134,20 +134,20 @@ public class LoginController {
         return activeSessionsInverse.get(sessionID) == userID || authLevelFromSessionID > authLevelFromUserID;
     }
 
-    /**
-     *  Given a request's user ID and session token, checks for a match with an existing session.
-     * @param userID the user ID
-     * @param sessionToken the session token pulled from a HTTP request header to be validated
-     * @return true if the session ID matches the user ID; false otherwise.
-     */
-    public boolean checkCredentials(long userID, String sessionToken){
-        long sessionID = retrieveSessionID(sessionToken);
-        if (activeSessions.containsKey(userID)) {
-            return sessionID == activeSessions.get(userID);
-        } else {
-            return false;
-        }
-    }
+//    /**
+//     *  Given a request's user ID and session token, checks for a match with an existing session.
+//     * @param userID the user ID
+//     * @param sessionToken the session token pulled from a HTTP request header to be validated
+//     * @return true if the session ID matches the user ID; false otherwise.
+//     */
+//    public boolean checkCredentials(long userID, String sessionToken){
+//        long sessionID = retrieveSessionID(sessionToken);
+//        if (activeSessions.containsKey(userID)) {
+//            return sessionID == activeSessions.get(userID);
+//        } else {
+//            return false;
+//        }
+//    }
 
     /**
      * Given a session ID, fetches the associated ID then gets the profile from the database. Then returns the
@@ -156,13 +156,12 @@ public class LoginController {
      * @return the authentication level associated with the profile associated with the given session id, else if the
      * session ID is invalid, return -1.
      */
-    public int getAuthLevelFromSessionID(long sessionID) {
+    public int getAuthLevelFromSessionID(long sessionID, ProfileRepository repo) {
         if (! activeSessionsInverse.containsKey(sessionID)) {
             return -1;
         }
-        long profileID = activeSessionsInverse.get(sessionID);
-        Optional<Profile> optionalProfile = profileRepository.findById(profileID);
-        Profile profile = optionalProfile.get();
+        Long profileID = activeSessionsInverse.get(sessionID);
+        Profile profile = repo.findById((long)profileID).get();
         return profile.getAuthLevel();
     }
 
@@ -173,8 +172,8 @@ public class LoginController {
      * @return the authentication level associated with the profile, else if the
      * user ID is invalid, return -1.
      */
-    public int getAuthLevelFromId(long userID) {
-        Optional<Profile> optionalProfile = profileRepository.findById(userID);
+    public int getAuthLevelFromId(long userID, ProfileRepository repo) {
+        Optional<Profile> optionalProfile = repo.findById(userID);
         if (optionalProfile.isEmpty()) {
             return -1;
         }
