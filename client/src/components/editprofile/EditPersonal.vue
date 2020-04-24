@@ -29,6 +29,7 @@
                         editable
                         :use-html5-validation="false"
                         placeholder="Select Date of Birth"
+                        :date-formatter="dateFormatter"
                         :min-date="minDate"
                         :max-date="maxDate"
                         ref="dateOfBirth"
@@ -170,6 +171,9 @@
                     message = "Please fill in all required fields"
                 }
                 return message;
+            },
+            dateFormatter(dt){
+                return dt.toLocaleDateString('en-GB', { year: 'numeric', month: 'numeric', day: 'numeric' });
             }
         }
     }
