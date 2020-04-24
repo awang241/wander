@@ -56,6 +56,7 @@
                 authenticationStore.methods.setSessionId(0)
                 authenticationStore.methods.setUserId(0)
                 authenticationStore.methods.setAuthenticated(false)
+                localStorage.removeItem('testToken')
                 router.push('Login')
             }
         }

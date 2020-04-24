@@ -51,6 +51,7 @@
                     authenticationStore.methods.setUserId(response.data.userId)
                     authenticationStore.methods.setSessionId(response.data.sessionId)
                     authenticationStore.methods.setAuthenticated(true)
+                    localStorage.setItem('testToken', 'tempToken')
 
                     router.push('Profile')
                 }))
