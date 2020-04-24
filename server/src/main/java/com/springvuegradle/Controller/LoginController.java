@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Basic implementation of a login controller class.
@@ -28,7 +29,19 @@ public class LoginController {
 
     @Autowired
     private EmailRepository eRepo;
+
+    /**
+     * Key: Profile ID
+     * Value: Session ID
+     */
     private static Map<Long, Long> activeSessions = new HashMap<Long, Long>();
+
+    /**
+     * Key: Session ID
+     * Value: Profile ID
+     */
+    private static Map<Long, Long> activeSessionsInverse = new HashMap<Long, Long>();
+
     private long sessionCounter;
 
     public LoginController() {
@@ -59,13 +72,17 @@ public class LoginController {
                 status = HttpStatus.UNAUTHORIZED;}
             else if (activeSessions.containsKey(profile.getId())) {
                 status = HttpStatus.OK;
+                long tempSessionID = activeSessions.get(profile.getId());
                 activeSessions.remove(result.get(0).getId());
+                activeSessionsInverse.remove(tempSessionID);
                 body = new LoginResponse(++sessionCounter, result.get(0).getId());
                 activeSessions.put(profile.getId(), sessionCounter);
+                activeSessionsInverse.put(sessionCounter, profile.getId());
             } else {
                 body = new LoginResponse(++sessionCounter, result.get(0).getId());
                 status = HttpStatus.OK;
                 activeSessions.put(profile.getId(), sessionCounter);
+                activeSessionsInverse.put(sessionCounter, profile.getId());
             }
         }
         return new ResponseEntity<>(body, status);
@@ -87,6 +104,7 @@ public class LoginController {
             message = "Logout successful.";
             status = HttpStatus.OK;
             activeSessions.remove(userId.getUserId());
+            activeSessionsInverse.remove(sessionID);
         } else {
             message = "Invalid session key pair.";
             status = HttpStatus.UNAUTHORIZED;
@@ -99,14 +117,21 @@ public class LoginController {
      *  Given a request's user ID and session ID, checks for a match with an existing session.
      * @param userID the user ID
      * @param sessionID the session ID to be validated
-     * @return true if the session ID matches the user ID; false otherwise.
+     * @return true if the session ID matches the user ID or user with higher auth level accessing details of user
+     * with lower auth level; false otherwise.
      */
-    public boolean checkCredentials(long userID, long sessionID){
-        if (activeSessions.containsKey(userID)) {
-            return sessionID == activeSessions.get(userID);
-        } else {
+    public boolean checkCredentials(long userID, long sessionID) {
+        int authLevelFromSessionID = getAuthLevelFromSessionID(sessionID);
+        if (authLevelFromSessionID == -1) {
             return false;
         }
+
+        int authLevelFromUserID = getAuthLevelFromId(userID);
+        if (authLevelFromUserID == -1) {
+            return false;
+        }
+
+        return activeSessionsInverse.get(sessionID) == userID || authLevelFromSessionID > authLevelFromUserID;
     }
 
     /**
@@ -122,6 +147,39 @@ public class LoginController {
         } else {
             return false;
         }
+    }
+
+    /**
+     * Given a session ID, fetches the associated ID then gets the profile from the database. Then returns the
+     * authorisation level associated with that profile.
+     * @param sessionID the session ID
+     * @return the authentication level associated with the profile associated with the given session id, else if the
+     * session ID is invalid, return -1.
+     */
+    public int getAuthLevelFromSessionID(long sessionID) {
+        if (! activeSessionsInverse.containsKey(sessionID)) {
+            return -1;
+        }
+        long profileID = activeSessionsInverse.get(sessionID);
+        Optional<Profile> optionalProfile = profileRepository.findById(profileID);
+        Profile profile = optionalProfile.get();
+        return profile.getAuthLevel();
+    }
+
+    /**
+     * Given a user ID, fetches the associated profile from the database. Then returns the
+     * authorisation level associated with that profile.
+     * @param userID the user ID
+     * @return the authentication level associated with the profile, else if the
+     * user ID is invalid, return -1.
+     */
+    public int getAuthLevelFromId(long userID) {
+        Optional<Profile> optionalProfile = profileRepository.findById(userID);
+        if (optionalProfile.isEmpty()) {
+            return -1;
+        }
+        Profile profile = optionalProfile.get();
+        return profile.getAuthLevel();
     }
 
     /**

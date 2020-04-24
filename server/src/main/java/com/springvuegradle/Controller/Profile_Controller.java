@@ -291,7 +291,7 @@ public class Profile_Controller {
      * @param plainPassword the plaintext password to input
      * @return the hashed password
      */
-    protected static String hashPassword(String plainPassword) {
+    public static String hashPassword(String plainPassword) {
         try {
             MessageDigest hashedPassword = MessageDigest.getInstance("SHA-256");
             return DatatypeConverter.printHexBinary(hashedPassword.digest(plainPassword.getBytes(StandardCharsets.UTF_8)));
@@ -515,7 +515,7 @@ public class Profile_Controller {
      * Used in the create profile stage to save the new emails to the database, assumes verified already.
      * @param newProfile we want each email to be associated, also contains the email objects.
      */
-    private void saveEmails(Profile newProfile) {
+    void saveEmails(Profile newProfile) {
         Set<Email> emailsFromNewProfile = newProfile.retrieveEmails();
         for (Email email: emailsFromNewProfile) {
             email.setProfile(newProfile);

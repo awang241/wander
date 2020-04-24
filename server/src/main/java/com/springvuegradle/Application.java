@@ -1,10 +1,13 @@
 package com.springvuegradle;
 
 import com.springvuegradle.Model.ActivityType;
+import com.springvuegradle.Model.Email;
+import com.springvuegradle.Model.Profile;
 import com.springvuegradle.Repositories.ActivityTypeRepository;
 import com.springvuegradle.Repositories.EmailRepository;
 import com.springvuegradle.Repositories.PassportCountryRepository;
 import com.springvuegradle.Repositories.ProfileRepository;
+import com.springvuegradle.Utilities.InitialDataHelper;
 import com.springvuegradle.Utilities.ValidationHelper;
 import com.sun.xml.bind.v2.runtime.output.SAXOutput;
 import org.springframework.boot.CommandLineRunner;
@@ -21,6 +24,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
+import static com.springvuegradle.Controller.Profile_Controller.hashPassword;
+
 @SpringBootApplication @ComponentScan({"com.springvuegradle.Controller"})
 public class Application {
 
@@ -32,20 +37,13 @@ public class Application {
     CommandLineRunner init(EmailRepository emailRepository, ProfileRepository profileRepository,
                            PassportCountryRepository passportCountryRepository, ActivityTypeRepository activityTypeRepository) {
         return args -> {
-            System.out.println(emailRepository.findByPrimaryEmail("jacky123@google.com"));
             ValidationHelper.updatePassportCountryRepository(passportCountryRepository, profileRepository);
-            profileRepository.findAll().forEach(System.out::println); // prints all the profile objects in the repository.
-            System.out.println("-----Program should be running now-----");
-            System.out.println(activityTypeRepository.existsByActivityTypeName("Football"));
+            InitialDataHelper.init(activityTypeRepository, profileRepository, emailRepository);
 
-            if (activityTypeRepository.count() ==0) {
-                activityTypeRepository.save(new ActivityType("Football"));
-                activityTypeRepository.save(new ActivityType("Tennis"));
-                activityTypeRepository.save(new ActivityType("Hockey"));
-                activityTypeRepository.save(new ActivityType("Basketball"));
-                activityTypeRepository.save(new ActivityType("Hiking"));
-                activityTypeRepository.save(new ActivityType("Rock Climbing"));
-            }
+
+            profileRepository.findByAuthLevel(0).forEach(System.out::println);
+
+            System.out.println("-----Program should be running now-----");
         };
     }
 
