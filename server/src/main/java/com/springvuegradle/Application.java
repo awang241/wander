@@ -40,11 +40,6 @@ public class Application {
             ValidationHelper.updatePassportCountryRepository(passportCountryRepository, profileRepository);
             //InitialDataHelper.init(activityTypeRepository, profileRepository, emailRepository);
 
-
-            //profileRepository.findByAuthLevel(0).forEach(System.out::println);
-
-            System.out.println(profileRepository.findById((long)7008).get());
-
             System.out.println("-----Program should be running now-----");
         };
     }
