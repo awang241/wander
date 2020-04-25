@@ -73,6 +73,12 @@
                     "additional_email": profileStore.data.optionalEmails,
                     "activities": profileStore.data.activityTypes
                 }
+                this.$buefy.toast.open({
+                    duration: 2000,
+                    message: "Saved!",
+                    type: 'is-success',
+                    position: 'is-top'
+                })
                 Api.editProfile(authenticationStore.methods.getUserId(), updatedProfile, authenticationStore.methods.getSessionId())
 
             }
