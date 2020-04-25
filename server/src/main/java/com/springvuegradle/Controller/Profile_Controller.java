@@ -171,6 +171,56 @@ public class Profile_Controller {
         return addEmails(request, id, sessionToken, false);
     }
 
+//    @GetMapping("/profiles/{id}")
+//    public @ResponseBody ResponseEntity<Profile> getProfile(@PathVariable Long id, @RequestHeader("authorization") Long sessionToken) {
+//        if (loginController.checkCredentials(id, sessionToken)) {
+//            return getProfile(id);
+//        } else {
+//            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+//        }
+//    }
+
+//    /**
+//     * Retrieves data corresponding to the given profile ID from the database.
+//     * @param id gets the profile object and if it exists and authorization is approved, it will return the object
+//     * @return the Profile object corresponding to the given ID.
+//     */
+//    protected ResponseEntity<Profile> getProfile(Long id) {
+//        Optional<Profile> profileWithId = repository.findById(id);
+//        if (profileWithId.isPresent()) {
+//            return new ResponseEntity(profileWithId.get(), HttpStatus.OK);
+//        } else {
+//            return new ResponseEntity(null, HttpStatus.NOT_FOUND);
+//        }
+//    }
+
+    /**
+     * Endpoint for getting all profiles for admin
+     * @param adminId? Do we need to check if user is admin? If so we need auth_level somehow
+     * @param sessionToken to check if the user is currently authenticated
+     * @return an array of profiles?
+     */
+    @GetMapping("/profiles")
+    public @ResponseBody ResponseEntity<String> getAdminProfiles(@RequestHeader("authorization") Long sessionToken) {
+        if(loginController.checkCredentials(adminid, sessionToken)) {
+            return getAdminProfiles();
+        } else {
+            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+        }
+    }
+    /**
+     * Retrieves all profile data relevant for admin to view
+     * @Param AuthLevel
+     * @return array of
+     *         List<String> allActivityTypes = aRepository.findAllActivityTypeNames();
+     *         ActivityTypesResponse activityTypesResponse = new ActivityTypesResponse(allActivityTypes);
+     *         return new ResponseEntity<ActivityTypesResponse>(activityTypesResponse, HttpStatus.OK);
+     */
+    protected ResponseEntity<String> getAdminProfiles(int authLevel) {
+        List<Profile> profilesForAdmin = repository.findAll(0);
+        return new ResponseEntity<String>(profilesForAdmin, HttpStatus.OK);
+    }
+
     /**
      * Called by the endpoint defined above
      * @param testing indicates whether called from test or endpoint. Tests can skip authentication.
