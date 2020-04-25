@@ -1,9 +1,9 @@
 package com.springvuegradle.Utilities;
 
+import com.springvuegradle.Model.Profile;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -21,7 +21,7 @@ public class JwtUtil {
 
     private String SECRET_KEY = "key";
 
-    public String extractUsername(String token) {
+    public String extractEmail(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
@@ -43,13 +43,13 @@ public class JwtUtil {
 
     /**
      * Takes the userdetails object from the user details service and creates a JWT from it
-     * @param userDetails
+     * @param email the email associated with the user
      * @return a JWT generated from the users details
      */
-    public String generateToken(UserDetails userDetails) {
+    public String generateToken(String email) {
         //Can pass in claims to be used in the JWT payload in this map
         Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, userDetails.getUsername());
+        return createToken(claims, email);
     }
 
     /**
@@ -71,8 +71,8 @@ public class JwtUtil {
      * @param userDetails
      * @return
      */
-    public Boolean validateToken(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    public Boolean validateToken(String token, Profile profile) {
+        final String email = extractEmail(token);
+        return (email.equals(profile.getPrimary_email()) && !isTokenExpired(token));
     }
 }
