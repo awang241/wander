@@ -16,6 +16,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(SpringExtension.class)
@@ -28,13 +31,14 @@ class LoginControllerTest {
     @Autowired
     private Profile_Controller profileController;
 
+
     /**
      * This test ensures profiles login in properly with the correct credentials
      * using the loginUser method
      */
     @BeforeEach
     void beforeEach() {
-        Profile maurice = ProfileControllerTest.createNormalProfileMaurice();
+        Profile maurice = createNormalProfileMaurice();
         profileController.createProfile(maurice);
     }
 
@@ -104,7 +108,14 @@ class LoginControllerTest {
 
     }
 
+    /**
+     * @return a valid profile object.
+     */
+    static Profile createNormalProfileMaurice() {
+        return new Profile(null, "Maurice", "Benson", "Jack", "Jacky", "jacky@google.com", new String[]{"additionaldoda@email.com"}, "jacky'sSecuredPwd",
+                "Jacky loves to ride his bike on crazy mountains.", new GregorianCalendar(1985, Calendar.DECEMBER,
+                20), "male", 1, new String[]{"New Zealand", "India"}, new String[]{}, 5);
+    }
 
 
-//        ResponseEntity<LoginReponse> response_entity = loginController
 }

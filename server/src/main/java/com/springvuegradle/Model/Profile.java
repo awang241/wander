@@ -87,6 +87,15 @@ public class Profile {
     private int fitness;
 
     /**
+     * Holds the authority level of the user, the lower the number, the higher authority the user has.
+     * level 0 - default admin
+     * level 1 - regular admin
+     * level 2 - regular user
+     */
+    @NotNull @Column(name = "authLevel") @Min(value = 0) @Max(value = 5)
+    private int authLevel;
+
+    /**
      * Holds the user's passports and estabishes a Many to Many relationship as a Profile object can be associated with
      * multiple PassportCountry.
      */
@@ -95,6 +104,16 @@ public class Profile {
             inverseJoinColumns = @JoinColumn(name = "passport_country_id", referencedColumnName = "id"),
             joinColumns = @JoinColumn(name = "profile_id", referencedColumnName = "id"))
     private Set<PassportCountry> passports;
+
+    /**
+     * Holds the user's activityTypes and establishes a many to many relationship as a Profile object can be associated with
+     * multiple ActivityType objects.
+     */
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinTable(name = "profile_activity_type",
+            inverseJoinColumns = @JoinColumn(name = "activity_type_id", referencedColumnName = "id"),
+            joinColumns = @JoinColumn(name = "profile_id", referencedColumnName = "id"))
+    private Set<ActivityType> activityTypes;
 
     /**
      * No argument constructor for Profile, can be used for creating new profiles directly from JSON data.
@@ -127,7 +146,9 @@ public class Profile {
                    @JsonProperty("date_of_birth") Calendar dateOfBirth,
                    @JsonProperty("gender") String gender,
                    @JsonProperty("fitness") int fitnessLevel,
-                   @JsonProperty("passports") String[] passports) {
+                   @JsonProperty("passports") String[] passports,
+                   @JsonProperty("activities") String[] activityTypes,
+                   @JsonProperty("authLevel") int authLevel) {
         this.firstname = firstname;
         this.lastname = lastname;
         this.middlename = middlename;
@@ -150,6 +171,11 @@ public class Profile {
         for (String name: passports) {
             addPassportCountry(new PassportCountry(name));
         }
+        this.activityTypes = new HashSet<>();
+        for (String activityType: activityTypes) {
+            addActivityType(new ActivityType(activityType));
+        }
+        this.authLevel = authLevel;
     }
 
     /**
@@ -243,6 +269,14 @@ public class Profile {
         return countryNames;
     }
 
+    public List<String> getActivityTypes() {
+        List<String> activityTypeNames = new ArrayList<>();
+        for (ActivityType activityType : activityTypes){
+            activityTypeNames.add(activityType.getActivityTypeName());
+        }
+        return activityTypeNames;
+    }
+
     @JsonIgnore
     public Set<PassportCountry> getPassportObjects() {
         return this.passports;
@@ -260,6 +294,23 @@ public class Profile {
         passports.remove(passportCountry);
     }
 
+    @JsonIgnore
+    public Set<ActivityType> getActivityTypeObjects() {
+        return this.activityTypes;
+    }
+
+    public void setActivityTypes(Set<ActivityType> activityTypes) {
+        this.activityTypes = activityTypes;
+    }
+
+    public void addActivityType(ActivityType activityType) {
+        activityTypes.add(activityType);
+    }
+
+    public void removeActivityType(ActivityType activityType) {
+        activityTypes.remove(activityType);
+    }
+
     /**
      * This method is used to update a profile with the given profile's details. Not used to update emails or password.
      * @param editedProfile is the profile that we want to take the updated data from to place in the db profile.
@@ -273,6 +324,8 @@ public class Profile {
         this.dateOfBirth = editedProfile.dateOfBirth;
         this.gender = editedProfile.gender;
         this.fitness = editedProfile.fitness;
+        this.passports = editedProfile.passports;
+        this.activityTypes = editedProfile.activityTypes;
     }
 
     /**
@@ -295,7 +348,8 @@ public class Profile {
                     this.getDateOfBirth().equals(other.getDateOfBirth()) &&
                     this.gender.equals(other.gender) &&
                     this.fitness == other.fitness &&
-                    this.passports.equals(other.passports);
+                    this.passports.equals(other.passports) &&
+                    this.activityTypes.equals(other.activityTypes);
         } else {
             return false;
         }
@@ -303,7 +357,7 @@ public class Profile {
 
     @Override
     public int hashCode() {
-        return Objects.hash(firstname, lastname, middlename, nickname, emails, password, bio, dateOfBirth, gender, fitness, passports);
+        return Objects.hash(firstname, lastname, middlename, nickname, emails, password, bio, dateOfBirth, gender, fitness, passports, activityTypes);
     }
 
     /** Series of Getters and Getters **/
@@ -327,6 +381,10 @@ public class Profile {
     public int getFitness(){return fitness;}
 
     public void setFitness(int fitness_level){this.fitness = fitness_level;}
+
+    public int getAuthLevel(){return authLevel;}
+
+    public void setAuthLevel(int authLevel){this.authLevel = authLevel;}
 
 
 

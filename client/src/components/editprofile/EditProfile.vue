@@ -1,4 +1,4 @@
-<!--Container that holds all other edit componenets and allows switching between them-->
+<!--Container that holds all other edit components and allows switching between them-->
 
 <template>
     <div class="container containerColor">
@@ -9,7 +9,7 @@
                 <li><a v-on:click="changeToPersonal">Basic Info</a></li>
                 <li><a v-on:click="changeToPassword">Change Password</a></li>
                 <li><a v-on:click="changeToCountries">Passport Countries</a></li>
-                <li><a v-on:click="changeToActivities">Activities</a></li>
+                <li><a v-on:click="changeToActivityTypes">Activity Types</a></li>
                 <li><a v-on:click="changeToEmail">Emails</a></li>
             </ul>
             <div>
@@ -28,7 +28,7 @@
     import editPersonal from "./EditPersonal";
     import editPassword from "./EditPassword";
     import editCountries from "./EditCountries";
-    import editActivities from "./EditActivities";
+    import editActivityTypes from "./EditActivityTypes";
     import editEmails from "./EditEmails";
     import router from "../../router";
     export default {
@@ -52,8 +52,8 @@
             changeToCountries() {
                 this.component = editCountries
             },
-            changeToActivities() {
-                this.component = editActivities
+            changeToActivityTypes() {
+                this.component = editActivityTypes
             },
             changeToEmail() {
                 this.component = editEmails

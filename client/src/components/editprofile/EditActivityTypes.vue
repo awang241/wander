@@ -1,37 +1,36 @@
 <template>
     <div class="container">
-        <h4 class="title is-5">Add Countries</h4>
+        <h4 class="title is-5">Add Activity Types</h4>
         <b-field>
-            <b-select placeholder="Select a country" v-model="newCountry" expanded>
+            <b-select placeholder="Select an activityType" v-model="newActivityType" expanded>
                 <option
-                        v-for="country in possibleCountries"
-                        :value="country"
-                        :key="country">
-                    {{ country }}
+                        v-for="activityType in possibleActivityTypes"
+                        :value="activityType"
+                        :key="activityType">
+                    {{ activityType }}
                 </option>
             </b-select>
-            <b-button type="is-primary" @click="addCountry">Add</b-button>
+            <b-button type="is-primary" @click="addActivityType">Add</b-button>
         </b-field>
-        <List v-bind:chosenItems="chosenCountries" v-on:deleteListItem="deleteCountry"></List>
-        <b-button type="is-primary" @click="submitCountries">Save</b-button>
+        <List v-bind:chosenItems="chosenActivityTypes" v-on:deleteListItem="deleteActivityType"></List>
+        <b-button type="is-primary" @click="submitActivityTypes">Save</b-button>
     </div>
 </template>
 
 <script>
     import List from "../List";
-    import axios from "axios";
     import Api from "../../Api";
     import profileStore from "../../store/profileStore";
     import authenticationStore from "../../store/authenticationStore";
 
     export default {
-        name: "EditCountries",
+        name: "EditActivityTypes",
         components: {List},
         data(){
             return {
-                possibleCountries: "",
-                newCountry: "",
-                chosenCountries: profileStore.data.passportCountries,
+                possibleActivityTypes: "",
+                newActivityType: "",
+                chosenActivityTypes: profileStore.data.activityTypes,
             }
         },
         methods: {
@@ -44,21 +43,22 @@
                     queue: false,
                 })
             },
-            deleteCountry(chosenCountry) {
-                this.chosenCountries = this.chosenCountries.filter(country => country != chosenCountry)
+            deleteActivityType(chosenActivityType) {
+                this.chosenActivityTypes = this.chosenActivityTypes.filter(activityType => activityType != chosenActivityType)
             },
-            addCountry() {
-                console.log("adding country")
-                if (this.newCountry === ""){
-                    this.showWarning("No country selected")
-                } else if (this.chosenCountries.includes(this.newCountry)) {
-                    this.showWarning("Country already in list")
+            addActivityType() {
+                console.log("adding activityType")
+                console.log("chosenActivityTypes: " + this.chosenActivityTypes)
+                if (this.newActivityType === ""){
+                    this.showWarning("No activity selected")
+                } else if (this.chosenActivityTypes.includes(this.newActivityType)) {
+                    this.showWarning("Activity already in list")
                 } else {
-                    this.chosenCountries = [...this.chosenCountries, this.newCountry]
+                    this.chosenActivityTypes = [...this.chosenActivityTypes, this.newActivityType]
                 }
             },
-            submitCountries(){
-                profileStore.methods.setPassportCountries(this.chosenCountries)
+            submitActivityTypes() {
+                profileStore.methods.setActivityTypes(this.chosenActivityTypes)
                 const updatedProfile = {
                     "lastname": profileStore.data.lastName,
                     "firstname": profileStore.data.firstName,
@@ -78,17 +78,9 @@
             }
         },
         mounted() {
-            axios.get("https://restcountries.eu/rest/v2/all")
-                .then(response => {
-                    const data = response.data
-                    const possibleCountries = []
-                    for (let country in data){
-                        possibleCountries.push(data[country].name)
-                    }
-                    this.possibleCountries = possibleCountries;
-                })
-                .catch(error => console.log(error));
-        },
+            this.possibleActivityTypes = profileStore.data.allActivityTypes
+            //this.chosenActivityTypes = profileStore.data.activityTypes
+        }
     }
 </script>
 

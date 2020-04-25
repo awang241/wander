@@ -12,7 +12,9 @@ const profileStore = {
         dateOfBirth: "",
         gender: "",
         passportCountries: [],
-        fitnessLevel: 1
+        fitnessLevel: 1,
+        activityTypes: [],
+        allActivityTypes: []
 
     },
     methods: {
@@ -21,6 +23,9 @@ const profileStore = {
         },
         setPrimaryEmail(primary_email) {
             profileStore.data.primaryEmail = primary_email;
+        },
+        setActivityTypes(activityTypes) {
+            profileStore.data.activityTypes = activityTypes;
         },
         setOptionalEmails(additional_email) {
             profileStore.data.optionalEmails = additional_email;
@@ -40,6 +45,10 @@ const profileStore = {
             profileStore.data.primaryEmail = profile.primary_email;
             profileStore.data.optionalEmails = profile.additional_email;
             profileStore.data.passportCountries = profile.passports;
+            profileStore.data.activityTypes = profile.activities;
+        },
+        setAllActivityTypes(allActivityTypes) {
+            profileStore.data.allActivityTypes = allActivityTypes.allActivityTypes;
         }
     }
 };

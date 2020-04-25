@@ -114,73 +114,27 @@
                 </div>
             </div>
         </section>
-        <!-- Activities -->
-        <section class="section" id="services">
-            <div class="section-heading">
-                <h3 class="center activitiesTitle title is-3">Activities</h3>
-                <h4 class="subtitle is-5"></h4>
-            </div>
-            <div class="container containerColor">
-                <div class="columns">
-                    <div class="column">
-                        <div class="box">
-                            <div class="content">
-                                <h4 class="title is-5">Rock Climbing</h4>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="column">
-                        <div class="box">
-                            <div class="content">
-                                <h4 class="title is-5">Tennis</h4>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="column">
-                        <div class="box">
-                            <div class="content">
-                                <h4 class="title is-5">Football</h4>
-                            </div>
-                        </div>
-                    </div>
 
-                    <div class="column">
-                        <div class="box">
-                            <div class="content">
-                                <h4 class="title is-5">Basketball</h4>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-
-                <div class="columns">
-                    <div class="column">
-                        <div class="box">
-                            <div class="content">
-                                <h4 class="title is-5">Basketball</h4>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="column">
-                        <div class="box">
-                            <div class="content">
-                                <h4 class="title is-5">Hiking</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
 
         <section class="section">
             <div class="section-heading">
-                <h3 class="center activitiesTitle title is-2">Countries</h3>
+                <h3 class="center activityTypesTitle title is-2">Countries</h3>
                 <h4 class="subtitle is-5"></h4>
             </div>
             <div class="container containerColor">
                 <div class="box">
                     <h3 v-for="country in chosenCountries" :key="country" class="title is-4">{{country}}</h3>
+                </div>
+            </div>
+        </section>
+        <section class="section">
+            <div class="section-heading">
+                <h3 class="center activityTypesTitle title is-2">Activity Types</h3>
+                <h4 class="subtitle is-5"></h4>
+            </div>
+            <div class="container containerColor">
+                <div class="box">
+                    <h3 v-for="activityType in chosenActivityTypes" :key="activityType" class="title is-4">{{activityType}}</h3>
                 </div>
             </div>
         </section>
@@ -210,7 +164,9 @@
                 fitness_level: null,
                 fitness_statement: null,
                 possibleCountries: [],
-                chosenCountries: []
+                chosenCountries: [],
+                possibleActivityTypes: [],
+                chosenActivityTypes: []
             }
         },
         methods: {
@@ -237,7 +193,8 @@
                     this.additionalEmails = response.data.additional_email;
                     this.fitness_level = response.data.fitness;
                     this.chosenCountries = response.data.passports;
-                    switch(response.data.fitness) {
+                    this.chosenActivityTypes = response.data.activities;
+                    switch (response.data.fitness) {
                         case 0 :
                             this.fitness_statement = "Beginner: I am not active at all";
                             break;
@@ -256,6 +213,12 @@
                         default:
                             this.fitness_statement = "Beginner: I am not active at all";
                     }
+                })
+                .catch(error => console.log(error));
+
+            api.getActivityTypesList()
+                .then((response) => {
+                profileStore.methods.setAllActivityTypes(response.data)
                 })
                 .catch(error => console.log(error));
         },

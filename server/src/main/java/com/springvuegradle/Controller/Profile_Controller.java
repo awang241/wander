@@ -2,11 +2,11 @@ package com.springvuegradle.Controller;
 
 import com.springvuegradle.Controller.enums.AuthenticationErrorMessage;
 import com.springvuegradle.Model.*;
+import com.springvuegradle.Repositories.ActivityTypeRepository;
 import com.springvuegradle.Repositories.EmailRepository;
 import com.springvuegradle.Repositories.PassportCountryRepository;
-import com.springvuegradle.dto.ChangePasswordRequest;
-import com.springvuegradle.dto.EmailAddRequest;
-import com.springvuegradle.dto.EmailUpdateRequest;
+import com.springvuegradle.dto.*;
+import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.xml.bind.DatatypeConverter;
+import java.lang.reflect.Array;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -50,6 +51,13 @@ public class Profile_Controller {
     private EmailRepository eRepository;
 
     /**
+     * Way to access ActivityType Repository (ActivityType table in db).
+     */
+    @Autowired
+    private ActivityTypeRepository aRepository;
+
+
+    /**
      * Way to access methods of the Login Controller, such as for checking authentication.
      */
     private LoginController loginController = new LoginController();
@@ -78,6 +86,17 @@ public class Profile_Controller {
                 }
             }
             newProfile.setPassports(updated);
+
+            Set<ActivityType> updatedActivityType = new HashSet<ActivityType>();
+            for(ActivityType activityType : newProfile.getActivityTypeObjects()){
+                List<ActivityType> resultActivityTypes = aRepository.findByActivityTypeName(activityType.getActivityTypeName());{
+                    updatedActivityType.add(resultActivityTypes.get(0));
+                }
+            }
+            newProfile.setActivityTypes(updatedActivityType);
+
+
+
             repository.save(newProfile);
             saveEmails(newProfile);
             return new ResponseEntity<>("New profile has been created.", HttpStatus.CREATED);
@@ -199,6 +218,32 @@ public class Profile_Controller {
     }
 
     /**
+     * Updates a profile's activityType types in the database given a request to do so.
+     * @param newActivityTypes The profile's new primary/additional emails embedded in an EmailUpdateRequest.
+     * @param id the ID of the profile being edited, pulled from the URL as a path variable.
+     * @param sessionToken session ID generated at login that is associated with this profile, pulled from the request header.
+     * @return An HTTP response with an appropriate status code and, if there was a problem with the request, an error message.
+     */
+    @PutMapping("/profiles/{id}/activityType-types")
+    public ResponseEntity<String> editActivityTypes (@RequestBody ActivityTypeUpdateRequest newActivityTypes, @PathVariable Long id, @RequestHeader("authorization") Long sessionToken) {
+        if (!loginController.checkCredentials(id, sessionToken)) {
+            return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(), HttpStatus.UNAUTHORIZED);
+        }
+        return editActivityTypes(newActivityTypes.getActivityTypes(), id);
+    }
+
+    /**
+     * Queries the Database to find all the country names.
+     * @return a response with all the activityTypes in the database.
+     */
+    @GetMapping("/activityTypes")
+    public ResponseEntity<ActivityTypesResponse> getActivityTypesList() {
+        List<String> allActivityTypes = aRepository.findAllActivityTypeNames();
+        ActivityTypesResponse activityTypesResponse = new ActivityTypesResponse(allActivityTypes);
+        return new ResponseEntity<ActivityTypesResponse>(activityTypesResponse, HttpStatus.OK);
+    }
+
+    /**
      * Updates a user's password. Completes verification to ensure that the old password is correct and the two new passwords match.
      * @param newPasswordRequest form contains old password as well as two strings which are both the new password and should be identical
      * @param id the id of the profile we want to change the password for
@@ -256,6 +301,8 @@ public class Profile_Controller {
         String failPassword = "Hash Failed";
         return failPassword;
     }
+
+
 
     /**
      * This method adds a new email to a given profile, isPrimary set to false by default. This method will be called directly for testing,
@@ -315,6 +362,14 @@ public class Profile_Controller {
         }
         db_profile.setPassports(updatedCountries);
 
+        // verifying activityTypes
+        Set<ActivityType> updatedActivityTypes = new HashSet<>();
+        for(ActivityType activityType : editedProfile.getActivityTypeObjects()){
+            List<ActivityType> resultActivityTypes = aRepository.findByActivityTypeName(activityType.getActivityTypeName());
+            updatedActivityTypes.add(resultActivityTypes.get(0));
+        }
+        db_profile.setActivityTypes(updatedActivityTypes);
+
         // verifying emails, reuses the editEmails method
         EmailUpdateRequest mockRequest = new EmailUpdateRequest(new ArrayList<String>(editedProfile.getAdditional_email()), editedProfile.getPrimary_email(), id.intValue());
         ResponseEntity<String> response = editEmails(mockRequest, id);
@@ -324,6 +379,30 @@ public class Profile_Controller {
 
         repository.save(db_profile);
         return new ResponseEntity<>(db_profile.toString(), HttpStatus.OK);
+    }
+
+    /**
+     * Updates the activityType types for a user
+     * @param newActivityTypeStrings an arraylist of strings representing the new activityTypes
+     * @param id the Id of the user we are editing
+     * @return HTTP status code indicating if the operation was successful
+     */
+    protected ResponseEntity<String> editActivityTypes(ArrayList<String> newActivityTypeStrings, Long id){
+        Profile profile = repository.findById(id).get();
+
+        HashSet<ActivityType> newActivityTypes = new HashSet<>();
+        for (String activityTypeString: newActivityTypeStrings) {
+
+            //Check if the activityType is of a valid type
+            if(!aRepository.existsByActivityTypeName(activityTypeString)){
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            newActivityTypes.add(aRepository.findByActivityTypeName(activityTypeString).get(0));
+        }
+
+        profile.setActivityTypes(newActivityTypes);
+        repository.save(profile);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     /**
@@ -478,10 +557,18 @@ public class Profile_Controller {
         if (!newProfile.getPassportObjects().isEmpty()) {
             for(PassportCountry passportCountry : newProfile.getPassportObjects()){
                 if (!pcRepository.existsByCountryName(passportCountry.getCountryName())) {
-                    error += String.format("Country %s does not exist in the database.", passportCountry.getCountryName());
+                    error += String.format("Country %s does not exist in the database.\n", passportCountry.getCountryName());
                 }
             }
         }
+        if (!newProfile.getActivityTypeObjects().isEmpty()) {
+            for(ActivityType activityType : newProfile.getActivityTypeObjects()){
+                if (!aRepository.existsByActivityTypeName(activityType.getActivityTypeName())) {
+                    error += String.format("ActivityType %s does not exist in the database.\n", activityType.getActivityTypeName());
+                }
+            }
+        }
+
         if (!edit_mode) {
             error += verifyEmailsInProfile(newProfile);
         }
@@ -490,7 +577,7 @@ public class Profile_Controller {
         if (!((newProfile.getGender().equals("male")) ||
                 (newProfile.getGender().equals("female")) ||
                 (newProfile.getGender().equals("non-Binary")))) {
-            error += "The Gender field must contain either 'male', 'female' or 'non-binary'.\n";
+            error += "The Gender field must contain either 'male', 'female' or 'non-Binary'.\n";
         }
         return error;
     }

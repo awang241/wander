@@ -14,6 +14,7 @@ class ProfileTest {
     private Profile firstProfileAgain;
     private String[] passportCountries = {"USA", "UK"};
     private String[] extraEmails = {"throwayway1@gmail.com", "throwaway2@gmail.com"};
+    private String[] activityTypes = {"Basketball", "Football"};
 
     @BeforeEach
     void setUp() {
@@ -22,13 +23,13 @@ class ProfileTest {
 
         firstProfile = new Profile(1L, "Steve", "Tester", "The", "Stevetest",
                 "Steve@test.com", extraEmails, "987654321", "Here to run some tests!", calendar,
-                "Male", 2, passportCountries);
+                "Male", 2, passportCountries, activityTypes, 5);
         secondProfile = new Profile(2L, "Dave", "Tester", "The", "Davetest",
                 "Dave@test.com", extraEmails, "987654321", "Here to run some tests!", calendar,
-                "Male", 2, passportCountries);
+                "Male", 2, passportCountries, activityTypes, 5);
         firstProfileAgain = new Profile(3L, "Steve", "Tester", "The", "Stevetest",
                 "Steve@test.com", extraEmails, "987654321", "Here to run some tests!", calendar,
-                "Male", 2, passportCountries);
+                "Male", 2, passportCountries, activityTypes, 5);
 
 
     }

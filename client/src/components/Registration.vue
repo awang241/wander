@@ -135,7 +135,9 @@
                         date_of_birth: this.dateOfBirth,
                         gender: this.gender,
                         fitness: this.fitness,
-                        passports: []
+                        passports: [],
+                        activities: [],
+                        authLevel: 5
                     })
                         .then((response => {
                             this.showMessage(this.displayError(response.status))
