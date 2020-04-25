@@ -134,6 +134,18 @@ public class LoginController {
         return activeSessionsInverse.get(sessionID) == userID || authLevelFromSessionID > authLevelFromUserID;
     }
 
+    /**
+     *
+     */
+    public boolean checkCredentials(long sessionID, ProfileRepository repo) {
+
+        int authLevelFromSessionID = getAuthLevelFromSessionID(sessionID, repo);
+        if (authLevelFromSessionID == -1) {
+            return false;
+        }
+        return authLevelFromSessionID == 0 || authLevelFromSessionID == 1;
+    }
+
 //    /**
 //     *  Given a request's user ID and session token, checks for a match with an existing session.
 //     * @param userID the user ID

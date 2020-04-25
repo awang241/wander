@@ -171,39 +171,15 @@ public class Profile_Controller {
         return addEmails(request, id, sessionToken, false);
     }
 
-//    @GetMapping("/profiles/{id}")
-//    public @ResponseBody ResponseEntity<Profile> getProfile(@PathVariable Long id, @RequestHeader("authorization") Long sessionToken) {
-//        if (loginController.checkCredentials(id, sessionToken)) {
-//            return getProfile(id);
-//        } else {
-//            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
-//        }
-//    }
-
-//    /**
-//     * Retrieves data corresponding to the given profile ID from the database.
-//     * @param id gets the profile object and if it exists and authorization is approved, it will return the object
-//     * @return the Profile object corresponding to the given ID.
-//     */
-//    protected ResponseEntity<Profile> getProfile(Long id) {
-//        Optional<Profile> profileWithId = repository.findById(id);
-//        if (profileWithId.isPresent()) {
-//            return new ResponseEntity(profileWithId.get(), HttpStatus.OK);
-//        } else {
-//            return new ResponseEntity(null, HttpStatus.NOT_FOUND);
-//        }
-//    }
-
     /**
      * Endpoint for getting all profiles for admin
-     * @param adminId? Do we need to check if user is admin? If so we need auth_level somehow
      * @param sessionToken to check if the user is currently authenticated
      * @return an array of profiles?
      */
     @GetMapping("/profiles")
-    public @ResponseBody ResponseEntity<String> getAdminProfiles(@RequestHeader("authorization") Long sessionToken) {
-        if(loginController.checkCredentials(adminid, sessionToken)) {
-            return getAdminProfiles();
+    public @ResponseBody ResponseEntity<List<SimplifiedProfileResponse>> getAdminProfiles(@RequestHeader("authorization") Long sessionToken) {
+        if(loginController.checkCredentials(sessionToken, repository)) {
+            return getAdminProfiles(loginController.getAuthLevelFromSessionID(sessionToken, repository));
         } else {
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
@@ -216,10 +192,27 @@ public class Profile_Controller {
      *         ActivityTypesResponse activityTypesResponse = new ActivityTypesResponse(allActivityTypes);
      *         return new ResponseEntity<ActivityTypesResponse>(activityTypesResponse, HttpStatus.OK);
      */
-    protected ResponseEntity<String> getAdminProfiles(int authLevel) {
-        List<Profile> profilesForAdmin = repository.findAll(0);
-        return new ResponseEntity<String>(profilesForAdmin, HttpStatus.OK);
+    protected ResponseEntity<List<SimplifiedProfileResponse>> getAdminProfiles(int authLevel) {
+        List<Profile> profilesForAdmin = repository.findAllBelowAuthlevel(authLevel);
+        List<SimplifiedProfileResponse> simplifiedProfiles = createSimplifiedProfiles(profilesForAdmin);
+        return new ResponseEntity<List<SimplifiedProfileResponse>>(simplifiedProfiles, HttpStatus.OK);
     }
+
+    /**
+     * Converts a list of normal profiles into a list of simplified profiles
+     * @Param profiles
+     */
+    protected List<SimplifiedProfileResponse> createSimplifiedProfiles(List<Profile> profiles) {
+
+        List<SimplifiedProfileResponse> simplifiedProfiles = new ArrayList<>();
+        for(Profile profile: profiles) {
+            String tempEmail = eRepository.findPrimaryByProfile(profile);
+            simplifiedProfiles.add(new SimplifiedProfileResponse(profile.getId(), profile.getFirstname(), profile.getLastname(),
+                    tempEmail, profile.getGender()));
+        }
+        return simplifiedProfiles;
+    }
+
 
     /**
      * Called by the endpoint defined above
