@@ -114,7 +114,7 @@ class LoginControllerTest {
     static Profile createNormalProfileMaurice() {
         return new Profile(null, "Maurice", "Benson", "Jack", "Jacky", "jacky@google.com", new String[]{"additionaldoda@email.com"}, "jacky'sSecuredPwd",
                 "Jacky loves to ride his bike on crazy mountains.", new GregorianCalendar(1985, Calendar.DECEMBER,
-                20), "male", 1, new String[]{"New Zealand", "India"}, new String[]{});
+                20), "male", 1, new String[]{"New Zealand", "India"}, new String[]{}, 5);
     }
 
 
