@@ -21,7 +21,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
-@SpringBootApplication @ComponentScan({"com.springvuegradle.Controller"})
+@SpringBootApplication
+@ComponentScan({"com.springvuegradle.Controller", "com.springvuegradle.Utilities"})
 public class Application {
 
     public static void main(String[] args) {

@@ -23,13 +23,13 @@ class ProfileTest {
 
         firstProfile = new Profile(1L, "Steve", "Tester", "The", "Stevetest",
                 "Steve@test.com", extraEmails, "987654321", "Here to run some tests!", calendar,
-                "Male", 2, passportCountries, activityTypes);
+                "Male", 2, passportCountries, activityTypes, 5);
         secondProfile = new Profile(2L, "Dave", "Tester", "The", "Davetest",
                 "Dave@test.com", extraEmails, "987654321", "Here to run some tests!", calendar,
-                "Male", 2, passportCountries, activityTypes);
+                "Male", 2, passportCountries, activityTypes, 5);
         firstProfileAgain = new Profile(3L, "Steve", "Tester", "The", "Stevetest",
                 "Steve@test.com", extraEmails, "987654321", "Here to run some tests!", calendar,
-                "Male", 2, passportCountries, activityTypes);
+                "Male", 2, passportCountries, activityTypes, 5);
 
 
     }
