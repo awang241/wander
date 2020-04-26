@@ -44,6 +44,10 @@
     import authenticationStore  from "../store/authenticationStore";
     import router from "../router";
     import api from "../Api";
+    import store from '../store';
+    import Vuex from 'vuex';
+    import Vue from "vue";
+    Vue.use(Vuex)
 
     export default {
         name: "NavBar",
@@ -61,7 +65,10 @@
                 authenticationStore.methods.setSessionId(0)
                 authenticationStore.methods.setUserId(0)
                 authenticationStore.methods.setAuthenticated(false)
-                localStorage.removeItem('testToken')
+                localStorage.removeItem('authToken')
+                localStorage.removeItem('userId')
+                let payload = {'token': null, 'userId': null}
+                store.dispatch('resetTokenAndUserId', payload, {root:true});
                 router.push('Login')
             },
             goToProfile(){

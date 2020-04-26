@@ -51,8 +51,8 @@
                     authenticationStore.methods.setUserId(response.data.userId)
                     authenticationStore.methods.setSessionId(response.data.token)
                     authenticationStore.methods.setAuthenticated(true)
-                    let token = response.data.token
-                    localStorage.setItem('auth_token', token)
+                    localStorage.setItem('authToken', response.data.token)
+                    localStorage.setItem('userId', response.data.userId)
                     router.push('Profile')
                 }))
                     .catch(error => this.displayError(error.response.status))
