@@ -63,83 +63,8 @@ public class LoginController {
             return new ResponseEntity(null, HttpStatus.UNAUTHORIZED);
         }
 
-        String token = jwtUtil.generateToken(request.getEmail());
+        String token = jwtUtil.generateToken(profile.getId());
 
         return ResponseEntity.ok(new LoginResponse(token, profile.getId()));
-    }
-
-    /**
-     * Attempts to log out the user given a HTTP logout request. Only succeeds if the user's credentials are correct.
-     *
-     * @param userId the user's profile ID from the request body.
-     * @param field  the Authorization field in the request header.
-     * @return An HTTP response with the appropriate message and HTTP code depending on the logout success
-     */
-    @PostMapping("/logout")
-    @ResponseBody
-    public ResponseEntity<String> logoutUser(@RequestBody LogoutRequest userId, @RequestHeader("authorization") String field) {
-        String message = null;
-        HttpStatus status = null;
-        Long sessionID = Long.parseLong(field.split(" ")[0]);
-        if (checkCredentials(userId.getUserId(), sessionID)) {
-            message = "Logout successful.";
-            status = HttpStatus.OK;
-            activeSessions.remove(userId.getUserId());
-        } else {
-            message = "Invalid session key pair.";
-            status = HttpStatus.UNAUTHORIZED;
-        }
-
-        return new ResponseEntity<>(message, status);
-    }
-
-    /**
-     * Given a request's user ID and session ID, checks for a match with an existing session.
-     *
-     * @param userID    the user ID
-     * @param sessionID the session ID to be validated
-     * @return true if the session ID matches the user ID; false otherwise.
-     */
-    public boolean checkCredentials(long userID, long sessionID) {
-        if (activeSessions.containsKey(userID)) {
-            return sessionID == activeSessions.get(userID);
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * Given a request's user ID and session token, checks for a match with an existing session.
-     *
-     * @param userID       the user ID
-     * @param sessionToken the session token pulled from a HTTP request header to be validated
-     * @return true if the session ID matches the user ID; false otherwise.
-     */
-    public boolean checkCredentials(long userID, String sessionToken) {
-        long sessionID = retrieveSessionID(sessionToken);
-        if (activeSessions.containsKey(userID)) {
-            return sessionID == activeSessions.get(userID);
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * Strips extra information out of the authorization header to get just the session ID
-     *
-     * @param rawAuthorizationField the authorization field string
-     * @return Long of the session ID from the auth header
-     */
-    public static long retrieveSessionID(String rawAuthorizationField) {
-        return Long.parseLong(rawAuthorizationField.substring(6).strip());
-    }
-
-    /**
-     * returns the current session counter of the controller
-     *
-     * @return the current session counter value
-     */
-    public long getSessionCounter() {
-        return sessionCounter;
     }
 }

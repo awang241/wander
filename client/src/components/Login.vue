@@ -49,7 +49,7 @@
                     password: this.password,
                 }).then((response => {
                     authenticationStore.methods.setUserId(response.data.userId)
-                    authenticationStore.methods.setSessionId(response.data.sessionId)
+                    authenticationStore.methods.setSessionId(response.data.token)
                     authenticationStore.methods.setAuthenticated(true)
 
                     router.push('Profile')

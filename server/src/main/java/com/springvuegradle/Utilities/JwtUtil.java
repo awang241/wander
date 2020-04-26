@@ -13,16 +13,16 @@ import java.util.function.Function;
 
 
 //Class to handle JWT specific functionality
-//Code sourced from spring security with JWT tutorial
+//Code based on example from spring security with JWT tutorial
 //https://github.com/koushikkothagal/spring-security-jwt/blob/master/src/main/java/io/javabrains/springsecurityjwt/util/JwtUtil.java
 @Service
 public class JwtUtil {
 
 
-    private String SECRET_KEY = "key";
+    private String SECRET_KEY = "keyjklijaijsifjdksnfkdjakfjdkajhlhujdhsgjhfjghkjfhgjkhreuhrehwjkhjfkjhsjgkhfsjkhgkjfsdhgjfjkgshfdkhgfdjgkhs";
 
-    public String extractEmail(String token) {
-        return extractClaim(token, Claims::getSubject);
+    public Long extractId(String token) {
+        return Long.parseLong(extractClaim(token, Claims::getSubject));
     }
 
     public Date extractExpiration(String token) {
@@ -43,18 +43,18 @@ public class JwtUtil {
 
     /**
      * Takes the userdetails object from the user details service and creates a JWT from it
-     * @param email the email associated with the user
+     * @param id the id associated with the user
      * @return a JWT generated from the users details
      */
-    public String generateToken(String email) {
+    public String generateToken(Long id) {
         //Can pass in claims to be used in the JWT payload in this map
         Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, email);
+        return createToken(claims, Long.toString(id));
     }
 
     /**
      * Calls JWT API to build a JWT from the person
-     * @param claims
+     * @param claims a list of claims on the token
      * @param subject the user that is being authenticated
      * @return a string showing the JWT
      */
@@ -68,11 +68,11 @@ public class JwtUtil {
     /**
      * Gets the username and checks whether the username is the same as the username in the user details
      * @param token
-     * @param userDetails
-     * @return
+     * @param profileId The Id of the profile we are checking
+     * @return Whether the token is valid
      */
-    public Boolean validateToken(String token, Profile profile) {
-        final String email = extractEmail(token);
-        return (email.equals(profile.getPrimary_email()) && !isTokenExpired(token));
+    public Boolean validateToken(String token, Long profileId) {
+        final Long tokenId = extractId(token);
+        return (profileId.equals(tokenId) && !isTokenExpired(token));
     }
 }
