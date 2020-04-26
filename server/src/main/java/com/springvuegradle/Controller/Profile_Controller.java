@@ -5,6 +5,7 @@ import com.springvuegradle.Model.*;
 import com.springvuegradle.Repositories.ActivityTypeRepository;
 import com.springvuegradle.Repositories.EmailRepository;
 import com.springvuegradle.Repositories.PassportCountryRepository;
+import com.springvuegradle.Utilities.JwtUtil;
 import com.springvuegradle.dto.*;
 import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,9 @@ public class Profile_Controller {
      */
     @Autowired
     private ProfileRepository repository;
+
+    @Autowired
+    private JwtUtil jwtUtil;
 
     /**
      * Way to access PassportCountry Repository (Passport Country table in db).
@@ -108,13 +112,13 @@ public class Profile_Controller {
     /**
      * Endpoint for getting profiles.
      * @param id referencing the profile
-     * @param sessionToken to check if the user is logged in
+     * @param token to check if the user is logged in
      * @return response entities holding a profile object returned, sent to the front-end as json data in the format defined
      * by the Profile model class, along with a status code.
      */
     @GetMapping("/profiles/{id}")
-    public @ResponseBody ResponseEntity<Profile> getProfile(@PathVariable Long id, @RequestHeader("authorization") Long sessionToken) {
-        if (loginController.checkCredentials(id, sessionToken, repository)) {
+    public @ResponseBody ResponseEntity<Profile> getProfile(@PathVariable Long id, @RequestHeader("authorization") String token) {
+        if (jwtUtil.validateToken(token, id)) {
             return getProfile(id);
         } else {
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
@@ -126,12 +130,12 @@ public class Profile_Controller {
      * Updates a profile in the database given a request to do so.
      * @param editedProfile a profile object created from the request
      * @param id the ID of the profile being edited, pulled from the URL as a path variable.
-     * @param sessionToken the token containing this profile's session key, pulled from the request header.
+     * @param token the jwt token stored on the client
      * @return An HTTP response with an appropriate status code and the updated profile if there method was successful.
      */
     @PutMapping("/profiles/{id}")
-    public @ResponseBody ResponseEntity<String> updateProfile(@RequestBody Profile editedProfile, @RequestHeader("authorization") Long sessionToken, @PathVariable Long id) {
-        if (loginController.checkCredentials(id, sessionToken, repository)) {
+    public @ResponseBody ResponseEntity<String> updateProfile(@RequestBody Profile editedProfile, @RequestHeader("authorization") String token, @PathVariable Long id) {
+        if (jwtUtil.validateToken(token, id)) {
             return updateProfile(editedProfile, id);
         } else {
             return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(), HttpStatus.UNAUTHORIZED);
@@ -163,12 +167,12 @@ public class Profile_Controller {
      * Endpoint for adding emails. Not used by front-end but is required by the specification.
      * @param request form containing a list of emails
      * @param id referring to the profile
-     * @param sessionToken to check if the user is currently authenticated
+     * @param token the jwt token stored on the client
      * @return response entity which can return a string if there is an error, all cases will return status code
      */
     @PostMapping("/profiles/{id}/emails")
-    public @ResponseBody ResponseEntity<String> addEmails(@RequestBody EmailAddRequest request, @PathVariable Long id, @RequestHeader("authorization") Long sessionToken) {
-        return addEmails(request, id, sessionToken, false);
+    public @ResponseBody ResponseEntity<String> addEmails(@RequestBody EmailAddRequest request, @PathVariable Long id, @RequestHeader("authorization") String token) {
+        return addEmails(request, id, token, false);
     }
 
     /**
@@ -177,9 +181,9 @@ public class Profile_Controller {
      * @return an array of profiles?
      */
     @GetMapping("/profiles")
-    public @ResponseBody ResponseEntity<List<SimplifiedProfileResponse>> getAdminProfiles(@RequestHeader("authorization") Long sessionToken) {
-        if(loginController.checkCredentials(sessionToken, repository)) {
-            return getAdminProfiles(loginController.getAuthLevelFromSessionID(sessionToken, repository));
+    public @ResponseBody ResponseEntity<List<SimplifiedProfileResponse>> getAdminProfiles(@RequestHeader("authorization") String token) {
+        if(jwtUtil.validateToken(token)) {
+            return getAdminProfiles(jwtUtil.getAuthLevelFromToken(token));
         } else {
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
@@ -218,11 +222,10 @@ public class Profile_Controller {
      * Called by the endpoint defined above
      * @param testing indicates whether called from test or endpoint. Tests can skip authentication.
      */
-    protected ResponseEntity<String> addEmails(EmailAddRequest request, Long id, Long sessionToken, Boolean testing) {
+    protected ResponseEntity<String> addEmails(EmailAddRequest request, Long id, String token, Boolean testing) {
         HttpStatus status;
         String message;
-        Long sessionID = sessionToken;
-        if (testing || loginController.checkCredentials(id, sessionID, repository)) {
+        if (testing || jwtUtil.validateToken(token, id)) {
             Optional<Profile> result = repository.findById(id);
             if (Boolean.TRUE.equals(result.isPresent())) {
                 Profile targetProfile = result.get();
@@ -248,12 +251,12 @@ public class Profile_Controller {
      * Updates a profile's emails in the database given a request to do so.
      * @param newEmails The profile's new primary/additional emails embedded in an EmailUpdateRequest.
      * @param id the ID of the profile being edited, pulled from the URL as a path variable.
-     * @param sessionToken session ID generated at login that is associated with this profile, pulled from the request header.
+     * @param token the jwt token stored on the client
      * @return An HTTP response with an appropriate status code and, if there was a problem with the request, an error message.
      */
     @PutMapping("/profiles/{id}/emails")
-    public ResponseEntity<String> editEmails (@RequestBody EmailUpdateRequest newEmails, @PathVariable Long id, @RequestHeader("authorization") Long sessionToken) {
-        if (loginController.checkCredentials(id, sessionToken, repository)) {
+    public ResponseEntity<String> editEmails (@RequestBody EmailUpdateRequest newEmails, @PathVariable Long id, @RequestHeader("authorization") String token) {
+        if (jwtUtil.validateToken(token, id)) {
             return editEmails (newEmails, id);
         } else {
             return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(), HttpStatus.UNAUTHORIZED);
@@ -264,12 +267,12 @@ public class Profile_Controller {
      * Updates a profile's activityType types in the database given a request to do so.
      * @param newActivityTypes The profile's new primary/additional emails embedded in an EmailUpdateRequest.
      * @param id the ID of the profile being edited, pulled from the URL as a path variable.
-     * @param sessionToken session ID generated at login that is associated with this profile, pulled from the request header.
+     * @param token the jwt token stored on the client
      * @return An HTTP response with an appropriate status code and, if there was a problem with the request, an error message.
      */
     @PutMapping("/profiles/{id}/activityType-types")
-    public ResponseEntity<String> editActivityTypes(@RequestBody ActivityTypeUpdateRequest newActivityTypes, @PathVariable Long id, @RequestHeader("authorization") Long sessionToken) {
-        if (!loginController.checkCredentials(id, sessionToken, repository)) {
+    public ResponseEntity<String> editActivityTypes (@RequestBody ActivityTypeUpdateRequest newActivityTypes, @PathVariable Long id, @RequestHeader("authorization") String token) {
+        if (!jwtUtil.validateToken(token, id)) {
             return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(), HttpStatus.UNAUTHORIZED);
         }
         return editActivityTypes(newActivityTypes.getActivityTypes(), id);
@@ -290,16 +293,16 @@ public class Profile_Controller {
      * Updates a user's password. Completes verification to ensure that the old password is correct and the two new passwords match.
      * @param newPasswordRequest form contains old password as well as two strings which are both the new password and should be identical
      * @param id the id of the profile we want to change the password for
-     * @param sessionToken used to check if the user is authenticated
+     * @param token the jwt token stored on the client
      * @return response entity which can return a string if there is an error, all cases will return status code
      */
     @PutMapping("/profiles/{id}/password")
-    public ResponseEntity<String> changePassword (@RequestBody ChangePasswordRequest newPasswordRequest, @PathVariable Long id, @RequestHeader("authorization") Long sessionToken) {
-        return changePassword(newPasswordRequest, id, sessionToken, false);
+    public ResponseEntity<String> changePassword (@RequestBody ChangePasswordRequest newPasswordRequest, @PathVariable Long id, @RequestHeader("authorization") String token) {
+        return changePassword(newPasswordRequest, id, token, false);
     }
 
-    public ResponseEntity<String> changePassword(ChangePasswordRequest newPasswordRequest, Long id, Long sessionToken, Boolean testing) {
-        if(!testing && !loginController.checkCredentials(id.intValue(), sessionToken, repository)){
+    public ResponseEntity<String> changePassword(ChangePasswordRequest newPasswordRequest, Long id, String token, Boolean testing) {
+        if(!testing && !jwtUtil.validateToken(token, id)){
             return new ResponseEntity<>("Invalid session ID.", HttpStatus.UNAUTHORIZED);
         }
 
@@ -334,7 +337,7 @@ public class Profile_Controller {
      * @param plainPassword the plaintext password to input
      * @return the hashed password
      */
-    public static String hashPassword(String plainPassword) {
+    protected static String hashPassword(String plainPassword) {
         try {
             MessageDigest hashedPassword = MessageDigest.getInstance("SHA-256");
             return DatatypeConverter.printHexBinary(hashedPassword.digest(plainPassword.getBytes(StandardCharsets.UTF_8)));
@@ -392,7 +395,6 @@ public class Profile_Controller {
         editedProfile.setPassword("temporary");
         String verificationMsg = verifyProfile(editedProfile, true);
         if (!verificationMsg.equals("")) {
-            System.out.println("Verification message: " + verificationMsg);
             return new ResponseEntity<>(verificationMsg, HttpStatus.BAD_REQUEST);
         }
 
@@ -559,7 +561,7 @@ public class Profile_Controller {
      * Used in the create profile stage to save the new emails to the database, assumes verified already.
      * @param newProfile we want each email to be associated, also contains the email objects.
      */
-    void saveEmails(Profile newProfile) {
+    private void saveEmails(Profile newProfile) {
         Set<Email> emailsFromNewProfile = newProfile.retrieveEmails();
         for (Email email: emailsFromNewProfile) {
             email.setProfile(newProfile);

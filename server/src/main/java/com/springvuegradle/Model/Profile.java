@@ -26,11 +26,13 @@ public class Profile {
     /**
      * Holds the user's firstname.
      */
+    @NotNull
     private String firstname;
 
     /**
      * Holds the user's lastname.
      */
+    @NotNull
     private String lastname;
 
     /**
@@ -50,7 +52,7 @@ public class Profile {
      * to one user at a time.
      * Essentially a multi-valued attribute, hence why Email objects are used.
      */
-    @Size(min = 1, max = 5)
+    @NotNull @Size(min = 1, max = 5)
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "profile")
     private Set<Email> emails = new HashSet<>();
 
@@ -68,26 +70,30 @@ public class Profile {
     /**
      * Stores the user's date of birth as a Calender object.
      */
+    @NotNull
     private Calendar dateOfBirth;
 
     /**
      * Stored the gender as a string, e.g. male, female, non-binary.
      */
+    @NotNull
     private String gender;
 
     /**
      * Holds the fitness value of the user, where a 0 means the user does little to no fitness while 4 means that the
      * user exercises quite frequently.
      */
-    @Column(name = "fitness") @Min(value = 0) @Max(value = 4)
+    @NotNull @Column(name = "fitness") @Min(value = 0) @Max(value = 4)
     private int fitness;
 
     /**
-     * Holds the authorisation level of the user, where 0 corresponds to the default admin, 1 corresponds to a regular
-     * user, and a 5 corresponds to a regular user.
+     * Holds the authority level of the user, the lower the number, the higher authority the user has.
+     * level 0 - default admin
+     * level 1 - regular admin
+     * level 5 - regular user
      */
-    @NotNull @Column @Min(value = 0) @Max(value = 5)
-    private int auth_level = 5;
+    @NotNull @Column(name = "authLevel") @Min(value = 0) @Max(value = 5)
+    private int authLevel = 5;
 
     /**
      * Holds the user's passports and estabishes a Many to Many relationship as a Profile object can be associated with
@@ -97,7 +103,7 @@ public class Profile {
     @JoinTable(name = "profile_passport_country",
             inverseJoinColumns = @JoinColumn(name = "passport_country_id", referencedColumnName = "id"),
             joinColumns = @JoinColumn(name = "profile_id", referencedColumnName = "id"))
-    private Set<PassportCountry> passports = new HashSet<>();
+    private Set<PassportCountry> passports;
 
     /**
      * Holds the user's activityTypes and establishes a many to many relationship as a Profile object can be associated with
@@ -107,18 +113,12 @@ public class Profile {
     @JoinTable(name = "profile_activity_type",
             inverseJoinColumns = @JoinColumn(name = "activity_type_id", referencedColumnName = "id"),
             joinColumns = @JoinColumn(name = "profile_id", referencedColumnName = "id"))
-    private Set<ActivityType> activityTypes = new HashSet<>();
+    private Set<ActivityType> activityTypes;
 
     /**
      * No argument constructor for Profile, can be used for creating new profiles directly from JSON data.
      */
     public Profile() {}
-
-    public Profile(String email, String password) {
-        addEmail(new Email(email, true));
-        this.auth_level = 0;
-        this.password = password;
-    }
 
     /**
      * Constructor for Profile. The way the JSONProperty is structured is how the getProfile method should display the
@@ -153,6 +153,8 @@ public class Profile {
         this.middlename = middlename;
         this.nickname = nickname;
 
+        this.emails = new HashSet<>();
+
         addEmail(new Email(primaryEmail, true));
 
         for (String email: additionalEmails) {
@@ -164,9 +166,11 @@ public class Profile {
         this.dateOfBirth = dateOfBirth;
         this.gender = gender;
         this.fitness = fitnessLevel;
+        this.passports = new HashSet<>();
         for (String name: passports) {
             addPassportCountry(new PassportCountry(name));
         }
+        this.activityTypes = new HashSet<>();
         for (String activityType: activityTypes) {
             addActivityType(new ActivityType(activityType));
         }
@@ -376,6 +380,11 @@ public class Profile {
 
     public void setFitness(int fitness_level){this.fitness = fitness_level;}
 
+    @JsonIgnore
+    public int getAuthLevel(){return authLevel;}
+
+    public void setAuthLevel(int authLevel){this.authLevel = authLevel;}
+
 
 
     public void setId(Long id) {
@@ -458,19 +467,6 @@ public class Profile {
 
     public void setBio(String bio) {
         this.bio = bio;
-    }
-
-    @JsonIgnore
-    public int getAuthLevel() {
-        return auth_level;
-    }
-
-    public boolean setAuthLevel(int auth_level) {
-        if (auth_level <= 5 && auth_level >= 0) {
-            this.auth_level = auth_level;
-            return true;
-        }
-        return false;
     }
 
 }
