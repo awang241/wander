@@ -1,6 +1,5 @@
 package com.springvuegradle.Utilities;
 
-import com.springvuegradle.Model.Profile;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;

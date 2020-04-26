@@ -548,7 +548,7 @@ class ProfileControllerTest {
     static Profile createNormalProfileJimmy() {
         return new Profile(null, "Jimmy", "Quick", "Jones", "Jim-Jam", "jimjam@hotmail.com", new String[]{"additional@email.com"}, "hushhush",
                 "The quick brown fox jumped over the lazy dog.", new GregorianCalendar(1999, Calendar.NOVEMBER,
-                28), "male", 1, new String[]{"New Zealand", "India"}, new String[]{}, 5);
+                28), "male", 1, new String[]{"New Zealand", "India"}, new String[]{});
     }
 
     /**
@@ -557,7 +557,7 @@ class ProfileControllerTest {
     static Profile createProfileWithActivityTypes() {
         return new Profile(null, "Jimmy", "Quick", "Jones", "Jim-Jam", "jimjam@hotmail.com", new String[]{"additional@email.com"}, "hushhush",
                 "The quick brown fox jumped over the lazy dog.", new GregorianCalendar(1999, Calendar.NOVEMBER,
-                28), "male", 1, new String[]{"New Zealand", "India"}, new String[]{"Football", "Tennis"}, 5);
+                28), "male", 1, new String[]{"New Zealand", "India"}, new String[]{"Football", "Tennis"});
     }
 
     /**
@@ -566,7 +566,7 @@ class ProfileControllerTest {
     static Profile createProfileWithInvalidActivityTypes() {
         return new Profile(null, "Jimmy", "Quick", "Jones", "Jim-Jam", "jimjam@hotmail.com", new String[]{"additional@email.com"}, "hushhush",
                 "The quick brown fox jumped over the lazy dog.", new GregorianCalendar(1999, Calendar.NOVEMBER,
-                28), "male", 1, new String[]{"New Zealand", "India"}, new String[]{"Not a real activityType", "Tennis"}, 5);
+                28), "male", 1, new String[]{"New Zealand", "India"}, new String[]{"Not a real activityType", "Tennis"});
     }
 
     /**
@@ -575,7 +575,7 @@ class ProfileControllerTest {
     static Profile createNormalActivityTypesProfile() {
         return new Profile(null, "Jimmy", "Quick", "Jones", "Jim-Jam", "jimjam@hotmail.com", new String[]{"additional@email.com"}, "hushhush",
                 "The quick brown fox jumped over the lazy dog.", new GregorianCalendar(1999, Calendar.NOVEMBER,
-                28), "male", 1, new String[]{}, new String[]{"Football", "Hockey", "Basketball"}, 5);
+                28), "male", 1, new String[]{}, new String[]{"Football", "Hockey", "Basketball"});
     }
 
     /**
@@ -584,7 +584,7 @@ class ProfileControllerTest {
     static Profile createUpdatedActivityTypesProfile() {
         return new Profile(null, "Jimmy", "Quick", "Jones", "Jim-Jam", "jimjam@hotmail.com", new String[]{"additional@email.com"}, "hushhush",
                 "The quick brown fox jumped over the lazy dog.", new GregorianCalendar(1999, Calendar.NOVEMBER,
-                28), "male", 1, new String[]{}, new String[]{"Hiking"}, 5);
+                28), "male", 1, new String[]{}, new String[]{"Hiking"});
     }
 
     /**
@@ -593,7 +593,7 @@ class ProfileControllerTest {
     static Profile createInvalidCountryProfileJimmy() {
         return new Profile(null, "Jimmy", "Quick", "Jones", "Jim-Jam", "jimjam@hotmail.com", new String[]{"additional@email.com"}, "hushhush",
                 "The quick brown fox jumped over the lazy dog.", new GregorianCalendar(1999, Calendar.NOVEMBER,
-                28), "male", 1, new String[]{"Cowabunga"}, new String[]{}, 5);
+                28), "male", 1, new String[]{"Cowabunga"}, new String[]{});
     }
 
     /**
@@ -602,7 +602,7 @@ class ProfileControllerTest {
     static Profile createNormalProfileMaurice() {
         return new Profile(null, "Maurice", "Benson", "Jack", "Jacky", "jacky@google.com", new String[]{"additionaldoda@email.com"}, "jacky'sSecuredPwd",
                 "Jacky loves to ride his bike on crazy mountains.", new GregorianCalendar(1985, Calendar.DECEMBER,
-                20), "male", 1, new String[]{"New Zealand", "China"}, new String[]{}, 5);
+                20), "male", 1, new String[]{"New Zealand", "China"}, new String[]{});
     }
 
     /**
@@ -611,7 +611,7 @@ class ProfileControllerTest {
     static Profile createInvalidFieldsProfileMaurice() {
         return new Profile(null, "", "", "Jack", "Jacky", "", new String[]{"additionaldoda@email.com"}, "hush",
                 "Jacky loves to ride his bike on crazy mountains.", new GregorianCalendar(1985, Calendar.DECEMBER,
-                20), "Male", 10, new String[]{"New Zealand", "India"}, new String[]{"random"}, 5);
+                20), "Male", 10, new String[]{"New Zealand", "India"}, new String[]{"random"});
     }
 
     /**
@@ -620,6 +620,6 @@ class ProfileControllerTest {
     private Profile createProfileWithMinimalFields() {
         return new Profile(null, "Steven", "Stevenson", "", "",
                 "steven@steven.com", new String[]{}, "12345678", "", new GregorianCalendar(1992,
-                Calendar.JUNE, 10), "male", 0, new String[]{}, new String[]{}, 5);
+                Calendar.JUNE, 10), "male", 0, new String[]{}, new String[]{});
     }
 }

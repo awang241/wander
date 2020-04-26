@@ -175,19 +175,20 @@ public class Profile_Controller {
         return addEmails(request, id, token, false);
     }
 
-    /**
-     * Endpoint for getting all profiles for admin
-     * @param sessionToken to check if the user is currently authenticated
-     * @return an array of profiles?
-     */
-    @GetMapping("/profiles")
-    public @ResponseBody ResponseEntity<List<SimplifiedProfileResponse>> getAdminProfiles(@RequestHeader("authorization") String token) {
-        if(jwtUtil.validateToken(token)) {
-            return getAdminProfiles(jwtUtil.getAuthLevelFromToken(token));
-        } else {
-            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
-        }
-    }
+//    /**
+//     * Endpoint for getting all profiles for admin
+//     * @param sessionToken to check if the user is currently authenticated
+//     * @return an array of profiles?
+//     */
+//    @GetMapping("/profiles")
+//    public @ResponseBody ResponseEntity<List<SimplifiedProfileResponse>> getAdminProfiles(@RequestHeader("authorization") String token) {
+//        if(jwtUtil.validateToken(token)) {
+//            return getAdminProfiles(jwtUtil.getAuthLevelFromToken(token));
+//        } else {
+//            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+//        }
+//    }
+
     /**
      * Retrieves all profile data relevant for admin to view
      * @Param AuthLevel
@@ -337,7 +338,7 @@ public class Profile_Controller {
      * @param plainPassword the plaintext password to input
      * @return the hashed password
      */
-    protected static String hashPassword(String plainPassword) {
+    public static String hashPassword(String plainPassword) {
         try {
             MessageDigest hashedPassword = MessageDigest.getInstance("SHA-256");
             return DatatypeConverter.printHexBinary(hashedPassword.digest(plainPassword.getBytes(StandardCharsets.UTF_8)));
