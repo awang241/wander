@@ -23,6 +23,11 @@
                               type="is-light">
                         Register
                     </b-button>
+                    <b-button  @click="goToProfile"
+                               v-if="authenticationStore.authenticated"
+                               type="is-light">
+                        Profile
+                    </b-button>
                     <b-button  @click="logout"
                                v-if="authenticationStore.authenticated"
                                type="is-light">
@@ -58,6 +63,9 @@
                 authenticationStore.methods.setAuthenticated(false)
                 localStorage.removeItem('testToken')
                 router.push('Login')
+            },
+            goToProfile(){
+                router.push('Profile')
             }
         }
     }
