@@ -178,7 +178,7 @@ public class Profile_Controller {
     /**
      * Endpoint for getting all profiles for admin
      * @param token to check if the user is currently authenticated
-     * @return an array of profiles?
+     * @return response entity which contains a list of simplified profiles and an ok status code or an unauthorized status code
      */
     @GetMapping("/profiles")
     public @ResponseBody ResponseEntity<List<SimplifiedProfileResponse>> getUserProfiles(@RequestHeader("authorization") String token) {
@@ -191,11 +191,8 @@ public class Profile_Controller {
 
     /**
      * Retrieves all profile data relevant for admin to view
-     * @Param AuthLevel
-     * @return array of
-     *         List<String> allActivityTypes = aRepository.findAllActivityTypeNames();
-     *         ActivityTypesResponse activityTypesResponse = new ActivityTypesResponse(allActivityTypes);
-     *         return new ResponseEntity<ActivityTypesResponse>(activityTypesResponse, HttpStatus.OK);
+     * @param authLevel the authentication level of the user
+     * @return list of simplified profile responses
      */
     protected ResponseEntity<List<SimplifiedProfileResponse>> getUserProfiles(int authLevel) {
         List<Profile> profilesForAdmin = repository.findAllBelowAuthlevel(authLevel);
@@ -205,7 +202,8 @@ public class Profile_Controller {
 
     /**
      * Converts a list of normal profiles into a list of simplified profiles
-     * @Param profiles
+     * @param profiles a list of normal profile objects to be simplified
+     * @return a list of simplified profiles
      */
     protected List<SimplifiedProfileResponse> createSimplifiedProfiles(List<Profile> profiles) {
 
