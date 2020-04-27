@@ -181,9 +181,9 @@ public class Profile_Controller {
      * @return an array of profiles?
      */
     @GetMapping("/profiles")
-    public @ResponseBody ResponseEntity<List<SimplifiedProfileResponse>> getAdminProfiles(@RequestHeader("authorization") String token) {
+    public @ResponseBody ResponseEntity<List<SimplifiedProfileResponse>> getUserProfiles(@RequestHeader("authorization") String token) {
         if(jwtUtil.validateToken(token)) {
-            return getAdminProfiles(jwtUtil.extractPermission(token));
+            return getUserProfiles(jwtUtil.extractPermission(token));
         } else {
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
@@ -197,7 +197,7 @@ public class Profile_Controller {
      *         ActivityTypesResponse activityTypesResponse = new ActivityTypesResponse(allActivityTypes);
      *         return new ResponseEntity<ActivityTypesResponse>(activityTypesResponse, HttpStatus.OK);
      */
-    protected ResponseEntity<List<SimplifiedProfileResponse>> getAdminProfiles(int authLevel) {
+    protected ResponseEntity<List<SimplifiedProfileResponse>> getUserProfiles(int authLevel) {
         List<Profile> profilesForAdmin = repository.findAllBelowAuthlevel(authLevel);
         List<SimplifiedProfileResponse> simplifiedProfiles = createSimplifiedProfiles(profilesForAdmin);
         return new ResponseEntity<List<SimplifiedProfileResponse>>(simplifiedProfiles, HttpStatus.OK);
@@ -385,6 +385,21 @@ public class Profile_Controller {
             return new ResponseEntity(null, HttpStatus.NOT_FOUND);
         }
     }
+
+    /**
+     * Retrieves authentication level corresponding to the given token ID.
+     * @param token gets the profile object and if it exists and authorization is approved, it will return the object
+     * @return the Profile object corresponding to the given ID.
+     */
+    @GetMapping("/authLevel")
+    protected ResponseEntity<Integer> getAuthLevel(@RequestHeader("authorization") String token) {
+        if(jwtUtil.validateToken(token)) {
+            return new ResponseEntity<>(jwtUtil.extractPermission(token), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+        }
+    }
+
 
     /**
      * Updates a profile in the database given a request to do so.

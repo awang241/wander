@@ -14,7 +14,8 @@ const profileStore = {
         passportCountries: [],
         fitnessLevel: 1,
         activityTypes: [],
-        allActivityTypes: []
+        allActivityTypes: [],
+        authLevel: 5
 
     },
     methods: {
@@ -49,6 +50,9 @@ const profileStore = {
         },
         setAllActivityTypes(allActivityTypes) {
             profileStore.data.allActivityTypes = allActivityTypes.allActivityTypes;
+        },
+        setAuthLevel(authLevel) {
+            profileStore.data.authLevel = authLevel;
         }
     }
 };
