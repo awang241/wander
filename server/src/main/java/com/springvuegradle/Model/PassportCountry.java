@@ -19,7 +19,7 @@ public class PassportCountry {
     private long id;
 
     /**
-     * Holds the contry name its referring to.
+     * Holds the country name its referring to.
      */
     @Column
     @NotNull

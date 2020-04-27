@@ -175,19 +175,19 @@ public class Profile_Controller {
         return addEmails(request, id, token, false);
     }
 
-//    /**
-//     * Endpoint for getting all profiles for admin
-//     * @param sessionToken to check if the user is currently authenticated
-//     * @return an array of profiles?
-//     */
-//    @GetMapping("/profiles")
-//    public @ResponseBody ResponseEntity<List<SimplifiedProfileResponse>> getAdminProfiles(@RequestHeader("authorization") String token) {
-//        if(jwtUtil.validateToken(token)) {
-//            return getAdminProfiles(jwtUtil.getAuthLevelFromToken(token));
-//        } else {
-//            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
-//        }
-//    }
+    /**
+     * Endpoint for getting all profiles for admin
+     * @param token to check if the user is currently authenticated
+     * @return an array of profiles?
+     */
+    @GetMapping("/profiles")
+    public @ResponseBody ResponseEntity<List<SimplifiedProfileResponse>> getAdminProfiles(@RequestHeader("authorization") String token) {
+        if(jwtUtil.validateToken(token)) {
+            return getAdminProfiles(jwtUtil.extractPermission(token));
+        } else {
+            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+        }
+    }
 
     /**
      * Retrieves all profile data relevant for admin to view
