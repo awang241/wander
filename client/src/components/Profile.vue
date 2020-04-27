@@ -174,6 +174,13 @@
                         profileStore.methods.setAllActivityTypes(response.data)
                     })
                     .catch(error => console.log(error));
+            },
+            setAuthLevel(){
+                api.getAuthLevel(authenticationStore.methods.getSessionId())
+                    .then((response) => {
+                        profileStore.methods.setAuthLevel(response.data)
+                    })
+                    .catch(error => console.log(error));
             }
         },
 
@@ -201,6 +208,7 @@
             // Retrieves user data using their id number. Will change to token at some point
             this.setProfile()
             this.setActivityTypes()
+            this.setAuthLevel()
         },
     }
 </script>

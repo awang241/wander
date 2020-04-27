@@ -37,6 +37,7 @@ public class InitialDataHelper {
             Profile admin = new Profile(null, "Admin", "Profile", "", "",
                     "default@admin.com", new String[]{}, Profile_Controller.hashPassword("admin"), "", new GregorianCalendar(1992,
                     Calendar.JUNE, 10), "male", 0, new String[]{}, new String[]{});
+            admin.setAuthLevel(0);
             repo.save(admin);
             Email adminEmail = admin.retrievePrimaryEmail();
             adminEmail.setProfile(admin);

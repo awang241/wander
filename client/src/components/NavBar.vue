@@ -24,7 +24,7 @@
                         Register
                     </b-button>
                     <b-button  @click="goToAdminDashboard"
-                               v-if="authenticationStore.authenticated"
+                               v-if="authenticationStore.authenticated && (profileStore.authLevel == 0 || profileStore.authLevel == 1)"
                                type="is-light">
                         Admin Dashboard
                     </b-button>
@@ -48,6 +48,7 @@
 
 <script>
     import authenticationStore  from "../store/authenticationStore";
+    import profileStore from "../store/profileStore";
     import router from "../router";
     import api from "../Api";
     import store from '../store';
@@ -60,6 +61,7 @@
         data: () => {
             return {
                 authenticationStore: authenticationStore.data,
+                profileStore: profileStore.data,
             }
         },
         methods: {
@@ -82,8 +84,10 @@
             },
             goToAdminDashboard(){
                 router.push('AdminDashboard')
-            }
+            },
+
         }
+
     }
 </script>
 
