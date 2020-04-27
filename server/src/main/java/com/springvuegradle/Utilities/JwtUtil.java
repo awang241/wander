@@ -21,7 +21,7 @@ import java.util.function.Function;
 @Service
 public class JwtUtil {
 
-    private final String PERMISSION_KEY = "authLevel";
+    public final String PERMISSION_KEY = "authLevel";
 
     SecretKey SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
@@ -33,9 +33,9 @@ public class JwtUtil {
         return extractClaim(token, Claims::getExpiration);
     }
 
-    public Long extractPermission(String token) {
+    public int extractPermission(String token) {
         String permission = String.valueOf(extractAllClaims(token).get(PERMISSION_KEY));
-        return Long.valueOf(permission);
+        return Integer.parseInt(permission);
     }
 
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
