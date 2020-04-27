@@ -23,6 +23,11 @@
                               type="is-light">
                         Register
                     </b-button>
+                    <b-button  @click="goToAdminDashboard"
+                               v-if="authenticationStore.authenticated"
+                               type="is-light">
+                        Admin Dashboard
+                    </b-button>
                     <b-button  @click="goToProfile"
                                v-if="authenticationStore.authenticated"
                                type="is-light">
@@ -33,6 +38,7 @@
                                type="is-light">
                         Logout
                     </b-button>
+
                 </div>
             </b-navbar-item>
         </template>
@@ -73,6 +79,9 @@
             },
             goToProfile(){
                 router.push('Profile')
+            },
+            goToAdminDashboard(){
+                router.push('AdminDashboard')
             }
         }
     }
