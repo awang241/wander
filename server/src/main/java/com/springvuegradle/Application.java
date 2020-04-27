@@ -38,7 +38,7 @@ public class Application {
     CommandLineRunner init(EmailRepository emailRepository, ProfileRepository profileRepository,
                            PassportCountryRepository passportCountryRepository, ActivityTypeRepository activityTypeRepository) {
         return args -> {
-            //ValidationHelper.updatePassportCountryRepository(passportCountryRepository, profileRepository);
+            ValidationHelper.updatePassportCountryRepository(passportCountryRepository, profileRepository);
             //InitialDataHelper.init(activityTypeRepository, profileRepository, emailRepository);
 
             System.out.println("-----Program should be running now-----");
