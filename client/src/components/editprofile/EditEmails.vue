@@ -8,7 +8,7 @@
         <br>
 
         <form>
-            <div>
+            <div v-if="optionalEmails.length>0">
             <b-field label="Change your primary email">
                 <b-select v-model="newPrimaryEmail" class="selectNewPEList" expanded>
                     <option class="singleEmail" v-for="email in optionalEmails" :key="email">{{email}}</option>
@@ -30,7 +30,7 @@
         <list v-bind:chosenItems="optionalEmails" v-on:deleteListItem="deleteEmail"></list>
 
         <b-field>
-            <b-button type="is-info" @click="submitEmails">Save</b-button>
+            <b-button type="is-info" @click="submitEmails()">Save</b-button>
         </b-field>
 
     </div>
@@ -74,6 +74,7 @@
                     });
                 } else {
                     this.optionalEmails.push(this.newEmail)
+                    this.newEmail = ""
                 }
             },
             changePrimaryEmail() {
@@ -97,11 +98,17 @@
             submitEmails(){
                 profileStore.methods.setOptionalEmails(this.optionalEmails)
                 profileStore.methods.setPrimaryEmail(this.primaryEmail)
+                this.$buefy.toast.open({
+                    duration: 5000,
+                    message: "Changes Saved!",
+                    type: 'is-success',
+                    position: 'is-top',
+                    queue: false,
+                });
                 Api.editEmail({
                     "primary_email": profileStore.data.primaryEmail,
                     "additional_email": profileStore.data.optionalEmails
                 }, authenticationStore.methods.getUserId(), authenticationStore.methods.getSessionId())
-                this.showSuccess("Emails submitted")
                 }
             }  ,
             showWarning(message) {
@@ -118,7 +125,7 @@
                     duration:5500,
                     message: message,
                     type: 'success',
-                    position: 'is-bottom'
+                    position: 'is-top'
                 })
             },
         data() {
