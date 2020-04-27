@@ -63,7 +63,7 @@ class LoginControllerTest {
         LoginRequest jackyRequest = new LoginRequest("jacky@google.com", "jacky'sSecuredPwd");
         ResponseEntity<LoginResponse> response = loginController.loginUser(jackyRequest);
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertTrue(jwtUtil.validateToken(response.getBody().getToken(), response.getBody().getUserId()));
+        assertTrue(jwtUtil.validateToken(response.getBody().getToken()));
     }
 
     /**

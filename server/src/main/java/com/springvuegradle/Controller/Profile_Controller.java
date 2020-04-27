@@ -118,7 +118,7 @@ public class Profile_Controller {
      */
     @GetMapping("/profiles/{id}")
     public @ResponseBody ResponseEntity<Profile> getProfile(@PathVariable Long id, @RequestHeader("authorization") String token) {
-        if (jwtUtil.validateToken(token, id)) {
+        if (jwtUtil.validateToken(token)) {
             return getProfile(id);
         } else {
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
@@ -135,7 +135,7 @@ public class Profile_Controller {
      */
     @PutMapping("/profiles/{id}")
     public @ResponseBody ResponseEntity<String> updateProfile(@RequestBody Profile editedProfile, @RequestHeader("authorization") String token, @PathVariable Long id) {
-        if (jwtUtil.validateToken(token, id)) {
+        if (jwtUtil.validateToken(token)) {
             return updateProfile(editedProfile, id);
         } else {
             return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(), HttpStatus.UNAUTHORIZED);
@@ -226,7 +226,7 @@ public class Profile_Controller {
     protected ResponseEntity<String> addEmails(EmailAddRequest request, Long id, String token, Boolean testing) {
         HttpStatus status;
         String message;
-        if (testing || jwtUtil.validateToken(token, id)) {
+        if (testing || jwtUtil.validateToken(token)) {
             Optional<Profile> result = repository.findById(id);
             if (Boolean.TRUE.equals(result.isPresent())) {
                 Profile targetProfile = result.get();
@@ -257,7 +257,7 @@ public class Profile_Controller {
      */
     @PutMapping("/profiles/{id}/emails")
     public ResponseEntity<String> editEmails (@RequestBody EmailUpdateRequest newEmails, @PathVariable Long id, @RequestHeader("authorization") String token) {
-        if (jwtUtil.validateToken(token, id)) {
+        if (jwtUtil.validateToken(token)) {
             return editEmails (newEmails, id);
         } else {
             return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(), HttpStatus.UNAUTHORIZED);
@@ -273,7 +273,7 @@ public class Profile_Controller {
      */
     @PutMapping("/profiles/{id}/activityType-types")
     public ResponseEntity<String> editActivityTypes (@RequestBody ActivityTypeUpdateRequest newActivityTypes, @PathVariable Long id, @RequestHeader("authorization") String token) {
-        if (!jwtUtil.validateToken(token, id)) {
+        if (!jwtUtil.validateToken(token)) {
             return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(), HttpStatus.UNAUTHORIZED);
         }
         return editActivityTypes(newActivityTypes.getActivityTypes(), id);
@@ -303,7 +303,7 @@ public class Profile_Controller {
     }
 
     public ResponseEntity<String> changePassword(ChangePasswordRequest newPasswordRequest, Long id, String token, Boolean testing) {
-        if(!testing && !jwtUtil.validateToken(token, id)){
+        if(!testing && !jwtUtil.validateToken(token)){
             return new ResponseEntity<>("Invalid session ID.", HttpStatus.UNAUTHORIZED);
         }
 

@@ -56,7 +56,7 @@ public class LoginController {
             return new ResponseEntity(null, HttpStatus.UNAUTHORIZED);
         }
 
-        String token = jwtUtil.generateToken(profile.getId());
+        String token = jwtUtil.generateToken(profile);
 
         return ResponseEntity.ok(new LoginResponse(token, profile.getId()));
     }
