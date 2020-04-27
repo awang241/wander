@@ -18,17 +18,19 @@ class ProfileTest {
 
     @BeforeEach
     void setUp() {
-        Calendar calendar = new GregorianCalendar(2000, 11, 15);
+        Calendar calendar1 = new GregorianCalendar(2000, 11, 10);
+        Calendar calendar2 = new GregorianCalendar(2000, 11, 20);
+        Calendar calendar3 = new GregorianCalendar(2000, 11, 10);
 
 
         firstProfile = new Profile(1L, "Steve", "Tester", "The", "Stevetest",
-                "Steve@test.com", extraEmails, "987654321", "Here to run some tests!", calendar,
+                "Steve@test.com", extraEmails, "987654321", "Here to run some tests!", calendar1,
                 "Male", 2, passportCountries, activityTypes);
         secondProfile = new Profile(2L, "Dave", "Tester", "The", "Davetest",
-                "Dave@test.com", extraEmails, "987654321", "Here to run some tests!", calendar,
+                "Dave@test.com", extraEmails, "987654321", "Here to run some tests!", calendar2,
                 "Male", 2, passportCountries, activityTypes);
         firstProfileAgain = new Profile(3L, "Steve", "Tester", "The", "Stevetest",
-                "Steve@test.com", extraEmails, "987654321", "Here to run some tests!", calendar,
+                "Steve@test.com", extraEmails, "987654321", "Here to run some tests!", calendar3,
                 "Male", 2, passportCountries, activityTypes);
 
 
@@ -54,7 +56,7 @@ class ProfileTest {
 
     @Test
     void testGetDateOfBirthInCorrectStringFormat(){
-        String expectedString = "2000-12-15";
+        String expectedString = "2000-12-11";
         assertEquals(expectedString, firstProfile.getDateOfBirth());
     }
 

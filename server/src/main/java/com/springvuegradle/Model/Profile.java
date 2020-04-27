@@ -164,6 +164,7 @@ public class Profile {
         this.password = password;
         this.bio = bio;
         this.dateOfBirth = dateOfBirth;
+        this.dateOfBirth.add(Calendar.DATE, 1);
         this.gender = gender;
         this.fitness = fitnessLevel;
         this.passports = new HashSet<>();
@@ -177,7 +178,7 @@ public class Profile {
     }
 
     /**
-     * Adds the email to the set. Does not check repository to see if the email address is alredy in use. Trying to keep
+     * Adds the email to the set. Does not check repository to see if the email address is already in use. Trying to keep
      * db related queries in Controller classes. Though, it does check if the email is already in the list of emails as
      * well as if the list of emails is already at the max capacity (5).
      * @param email
