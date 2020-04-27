@@ -39,7 +39,7 @@
         data() {
             return {
                 email: "",
-                password: "",
+                password: ""
             }
         },
         methods: {
@@ -49,9 +49,10 @@
                     password: this.password,
                 }).then((response => {
                     authenticationStore.methods.setUserId(response.data.userId)
-                    authenticationStore.methods.setSessionId(response.data.sessionId)
+                    authenticationStore.methods.setSessionId(response.data.token)
                     authenticationStore.methods.setAuthenticated(true)
-
+                    localStorage.setItem('authToken', response.data.token)
+                    localStorage.setItem('userId', response.data.userId)
                     router.push('Profile')
                 }))
                     .catch(error => this.displayError(error.response.status))

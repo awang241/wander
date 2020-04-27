@@ -87,6 +87,15 @@ public class Profile {
     private int fitness;
 
     /**
+     * Holds the authority level of the user, the lower the number, the higher authority the user has.
+     * level 0 - default admin
+     * level 1 - regular admin
+     * level 5 - regular user
+     */
+    @NotNull @Column(name = "authLevel") @Min(value = 0) @Max(value = 5)
+    private int authLevel = 5;
+
+    /**
      * Holds the user's passports and estabishes a Many to Many relationship as a Profile object can be associated with
      * multiple PassportCountry.
      */
@@ -370,6 +379,11 @@ public class Profile {
     public int getFitness(){return fitness;}
 
     public void setFitness(int fitness_level){this.fitness = fitness_level;}
+
+    @JsonIgnore
+    public int getAuthLevel(){return authLevel;}
+
+    public void setAuthLevel(int authLevel){this.authLevel = authLevel;}
 
 
 

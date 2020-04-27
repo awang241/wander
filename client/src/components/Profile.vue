@@ -5,11 +5,11 @@
             <div class=" hero-body level-item">
                 <div class="container containerColor">Hello! I am
                     <h1 class="title is-1">
-                        {{ firstName }} {{ middleName }} {{ lastName }}
+                        {{ profile.firstname }} {{ profile.middlename }} {{ profile.lastname }}
                     </h1>
                     <br>
                     <h2 class="subtitle is-5">
-                        {{ nickName }}
+                        {{ profile.nickname }}
                     </h2>
 
                 </div>
@@ -49,7 +49,7 @@
         </nav>
         <div class="section-heading">
             <div class="center container containerColor">
-                <p>{{ bio }}</p>
+                <p>{{ profile.bio }}</p>
             </div>
         </div>
         <section class="section" id="about">
@@ -71,18 +71,18 @@
                                     </tr>
                                     <tr>
                                         <td>Gender:</td>
-                                        <td>{{ gender }}</td>
+                                        <td>{{ profile.gender }}</td>
                                     </tr>
                                     <tr>
                                         <td>Birthday:</td>
-                                        <td>{{ dateOfBirth }}</td>
+                                        <td>{{ profile.date_of_birth }}</td>
                                     </tr>
                                     <tr>
                                         <td>Primary Email:</td>
-                                        <td>{{ primaryEmail }}</td>
+                                        <td>{{ profile.primary_email }}</td>
                                     </tr>
 
-                                     <tr v-for="email in additionalEmails" :key="email">
+                                     <tr v-for="email in profile.additional_email" :key="email">
                                         <td>Additional Email:</td>
                                         <td>{{email}}</td>
                                     </tr>
@@ -103,7 +103,7 @@
                                     <div class="media-content">
                                         <div class="content">
                                             <p>
-                                                <strong>{{ fitness_statement }}</strong>
+                                                <strong>{{ fitnessStatement }}</strong>
                                             </p>
                                         </div>
                                     </div>
@@ -123,7 +123,7 @@
             </div>
             <div class="container containerColor">
                 <div class="box">
-                    <h3 v-for="country in chosenCountries" :key="country" class="title is-4">{{country}}</h3>
+                    <h3 v-for="country in profile.passports" :key="country" class="title is-4">{{country}}</h3>
                 </div>
             </div>
         </section>
@@ -134,7 +134,7 @@
             </div>
             <div class="container containerColor">
                 <div class="box">
-                    <h3 v-for="activityType in chosenActivityTypes" :key="activityType" class="title is-4">{{activityType}}</h3>
+                    <h3 v-for="activityType in profile.activities" :key="activityType" class="title is-4">{{activityType}}</h3>
                 </div>
             </div>
         </section>
@@ -151,76 +151,56 @@
         name: "Profile",
         data() {
             return {
-                currentUser: null,
-                firstName: null,
-                lastName: null,
-                middleName: null,
-                nickName: null,
-                dateOfBirth: null,
-                gender: null,
-                bio: null,
-                primaryEmail: null,
-                additionalEmails: [],
-                fitness_level: null,
-                fitness_statement: null,
-                possibleCountries: [],
-                chosenCountries: [],
-                possibleActivityTypes: [],
-                chosenActivityTypes: []
+                profile: null,
             }
         },
         methods: {
-
             editProfile(){
                 router.push('EditProfile');
             },
+            setProfile(){
+                api.getProfile(authenticationStore.methods.getUserId(), authenticationStore.methods.getSessionId())
+                    .then((response) => {
+                        //Save to auth store
+                        profileStore.methods.setProfile(response.data)
+                        this.profile = response.data
+
+                    })
+                    .catch(error => console.log(error));
+            },
+            setActivityTypes(){
+                api.getActivityTypesList()
+                    .then((response) => {
+                        profileStore.methods.setAllActivityTypes(response.data)
+                    })
+                    .catch(error => console.log(error));
+            }
         },
+
+        computed: {
+            // a computed getter
+            fitnessStatement: function () {
+                switch (this.profile.fitness_statement) {
+                    case 0 :
+                        return "Beginner: I am not active at all";
+                    case 1 :
+                        return "Novice: I do a low level of exercise (walking)";
+                    case 2 :
+                        return"Intermediate: I work out 1-2 times per week";
+                    case 3 :
+                        return "Advanced: I work out 3-4 times per week";
+                    case 4 :
+                        return "Pro: I work out 5+ times per week";
+                    default:
+                       return "Beginner: I am not active at all";
+                }
+            }
+        },
+
         mounted() {
             // Retrieves user data using their id number. Will change to token at some point
-            api.getProfile(authenticationStore.methods.getUserId(), authenticationStore.methods.getSessionId())
-                .then((response) => {
-                    //Save to auth store
-                    profileStore.methods.setProfile(response.data)
-
-                    this.firstName = response.data.firstname;
-                    this.lastName = response.data.lastname;
-                    this.middleName = response.data.middlename;
-                    this.nickName = response.data.nickname;
-                    this.dateOfBirth = response.data.date_of_birth;
-                    this.gender = response.data.gender;
-                    this.bio = response.data.bio;
-                    this.primaryEmail = response.data.primary_email;
-                    this.additionalEmails = response.data.additional_email;
-                    this.fitness_level = response.data.fitness;
-                    this.chosenCountries = response.data.passports;
-                    this.chosenActivityTypes = response.data.activities;
-                    switch (response.data.fitness) {
-                        case 0 :
-                            this.fitness_statement = "Beginner: I am not active at all";
-                            break;
-                        case 1 :
-                            this.fitness_statement = "Novice: I do a low level of exercise (walking)";
-                            break;
-                        case 2 :
-                            this.fitness_statement = "Intermediate: I work out 1-2 times per week";
-                            break;
-                        case 3 :
-                            this.fitness_statement = "Advanced: I work out 3-4 times per week";
-                            break;
-                        case 4 :
-                            this.fitness_statement = "Pro: I work out 5+ times per week";
-                            break;
-                        default:
-                            this.fitness_statement = "Beginner: I am not active at all";
-                    }
-                })
-                .catch(error => console.log(error));
-
-            api.getActivityTypesList()
-                .then((response) => {
-                profileStore.methods.setAllActivityTypes(response.data)
-                })
-                .catch(error => console.log(error));
+            this.setProfile()
+            this.setActivityTypes()
         },
     }
 </script>

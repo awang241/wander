@@ -23,11 +23,22 @@
                               type="is-light">
                         Register
                     </b-button>
+                    <b-button  @click="goToAdminDashboard"
+                               v-if="authenticationStore.authenticated"
+                               type="is-light">
+                        Admin Dashboard
+                    </b-button>
+                    <b-button  @click="goToProfile"
+                               v-if="authenticationStore.authenticated"
+                               type="is-light">
+                        Profile
+                    </b-button>
                     <b-button  @click="logout"
                                v-if="authenticationStore.authenticated"
                                type="is-light">
                         Logout
                     </b-button>
+
                 </div>
             </b-navbar-item>
         </template>
@@ -39,6 +50,10 @@
     import authenticationStore  from "../store/authenticationStore";
     import router from "../router";
     import api from "../Api";
+    import store from '../store';
+    import Vuex from 'vuex';
+    import Vue from "vue";
+    Vue.use(Vuex)
 
     export default {
         name: "NavBar",
@@ -56,7 +71,17 @@
                 authenticationStore.methods.setSessionId(0)
                 authenticationStore.methods.setUserId(0)
                 authenticationStore.methods.setAuthenticated(false)
+                localStorage.removeItem('authToken')
+                localStorage.removeItem('userId')
+                let payload = {'token': null, 'userId': null}
+                store.dispatch('resetTokenAndUserId', payload, {root:true});
                 router.push('Login')
+            },
+            goToProfile(){
+                router.push('Profile')
+            },
+            goToAdminDashboard(){
+                router.push('AdminDashboard')
             }
         }
     }
