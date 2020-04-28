@@ -2,12 +2,10 @@ package com.springvuegradle.Controller;
 
 import com.springvuegradle.Controller.enums.AuthenticationErrorMessage;
 import com.springvuegradle.Model.*;
-import com.springvuegradle.Repositories.ActivityTypeRepository;
-import com.springvuegradle.Repositories.EmailRepository;
-import com.springvuegradle.Repositories.PassportCountryRepository;
+import com.springvuegradle.Repositories.*;
+import com.springvuegradle.Utilities.FieldValidationHelper;
 import com.springvuegradle.Utilities.JwtUtil;
 import com.springvuegradle.dto.*;
-import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +16,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.xml.bind.DatatypeConverter;
-import java.lang.reflect.Array;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -37,7 +34,7 @@ public class Profile_Controller {
      * Way to access Profile repository (Profile table in db).
      */
     @Autowired
-    private ProfileRepository repository;
+    private ProfileRepository repo;
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -46,25 +43,19 @@ public class Profile_Controller {
      * Way to access PassportCountry Repository (Passport Country table in db).
      */
     @Autowired
-    private PassportCountryRepository pcRepository;
+    private PassportCountryRepository pcRepo;
 
     /**
      * Way to access Email Repository (Email table in db).
      */
     @Autowired
-    private EmailRepository eRepository;
+    private EmailRepository eRepo;
 
     /**
      * Way to access ActivityType Repository (ActivityType table in db).
      */
     @Autowired
-    private ActivityTypeRepository aRepository;
-
-
-    /**
-     * Way to access methods of the Login Controller, such as for checking authentication.
-     */
-    private LoginController loginController = new LoginController();
+    private ActivityTypeRepository aRepo;
 
     /**
      * Endpoint for creating profiles.
@@ -75,7 +66,7 @@ public class Profile_Controller {
      */
     @PostMapping("/profiles")
     public ResponseEntity<String> createProfile (@RequestBody Profile newProfile) {
-        String error = verifyProfile(newProfile, false);
+        String error = FieldValidationHelper.verifyProfile(newProfile, false, pcRepo, aRepo, eRepo);
         if (error.equals("")) {
             String hashedPassword = hashPassword(newProfile.getPassword());
             if (hashedPassword != "Hash Failed") {
@@ -85,7 +76,7 @@ public class Profile_Controller {
             }
             Set<PassportCountry> updated = new HashSet<PassportCountry>();
             for(PassportCountry passportCountry : newProfile.getPassportObjects()){
-                List<PassportCountry> result = pcRepository.findByCountryName(passportCountry.getCountryName());{
+                List<PassportCountry> result = pcRepo.findByCountryName(passportCountry.getCountryName());{
                     updated.add(result.get(0));
                 }
             }
@@ -93,7 +84,7 @@ public class Profile_Controller {
 
             Set<ActivityType> updatedActivityType = new HashSet<ActivityType>();
             for(ActivityType activityType : newProfile.getActivityTypeObjects()){
-                List<ActivityType> resultActivityTypes = aRepository.findByActivityTypeName(activityType.getActivityTypeName());{
+                List<ActivityType> resultActivityTypes = aRepo.findByActivityTypeName(activityType.getActivityTypeName());{
                     updatedActivityType.add(resultActivityTypes.get(0));
                 }
             }
@@ -101,7 +92,7 @@ public class Profile_Controller {
 
 
 
-            repository.save(newProfile);
+            repo.save(newProfile);
             saveEmails(newProfile);
             return new ResponseEntity<>("New profile has been created.", HttpStatus.CREATED);
         } else {
@@ -164,13 +155,13 @@ public class Profile_Controller {
      */
     @DeleteMapping(value="/profiles/{id}")
     public @ResponseBody ResponseEntity<String> deleteProfile(@PathVariable Long id) {
-        Optional<Profile> result = repository.findById(id);
+        Optional<Profile> result = repo.findById(id);
         if (Boolean.TRUE.equals(result.isPresent())) {
             Profile profileToDelete = result.get();
             for (Email email: profileToDelete.retrieveEmails()) {
-                eRepository.delete(email);
+                eRepo.delete(email);
             }
-            repository.delete(profileToDelete);
+            repo.delete(profileToDelete);
             return new ResponseEntity<>("The Profile does exist in the database.", HttpStatus.OK);
         } else {
             return new ResponseEntity<>("The profile does not exist in the database.", HttpStatus.NOT_FOUND);
@@ -209,7 +200,7 @@ public class Profile_Controller {
      * @return list of simplified profile responses
      */
     protected ResponseEntity<List<SimplifiedProfileResponse>> getUserProfiles(int authLevel) {
-        List<Profile> profilesForAdmin = repository.findAllBelowAuthlevel(authLevel);
+        List<Profile> profilesForAdmin = repo.findAllBelowAuthlevel(authLevel);
         List<SimplifiedProfileResponse> simplifiedProfiles = createSimplifiedProfiles(profilesForAdmin);
         return new ResponseEntity<List<SimplifiedProfileResponse>>(simplifiedProfiles, HttpStatus.OK);
     }
@@ -223,7 +214,7 @@ public class Profile_Controller {
 
         List<SimplifiedProfileResponse> simplifiedProfiles = new ArrayList<>();
         for(Profile profile: profiles) {
-            String tempEmail = eRepository.findPrimaryByProfile(profile);
+            String tempEmail = eRepo.findPrimaryByProfile(profile);
             simplifiedProfiles.add(new SimplifiedProfileResponse(profile.getId(), profile.getFirstname(), profile.getLastname(),
                     tempEmail, profile.getGender()));
         }
@@ -239,7 +230,7 @@ public class Profile_Controller {
         HttpStatus status;
         String message;
         if (testing || jwtUtil.validateToken(token)) {
-            Optional<Profile> result = repository.findById(id);
+            Optional<Profile> result = repo.findById(id);
             if (Boolean.TRUE.equals(result.isPresent())) {
                 Profile targetProfile = result.get();
                 for (String address: request.getEmails()) {
@@ -297,7 +288,7 @@ public class Profile_Controller {
      */
     @GetMapping("/activityTypes")
     public ResponseEntity<ActivityTypesResponse> getActivityTypesList() {
-        List<String> allActivityTypes = aRepository.findAllActivityTypeNames();
+        List<String> allActivityTypes = aRepo.findAllActivityTypeNames();
         ActivityTypesResponse activityTypesResponse = new ActivityTypesResponse(allActivityTypes);
         return new ResponseEntity<ActivityTypesResponse>(activityTypesResponse, HttpStatus.OK);
     }
@@ -323,7 +314,7 @@ public class Profile_Controller {
             return new ResponseEntity<>("Password must be 8 characters or greater.", HttpStatus.FORBIDDEN);
         }
 
-        Optional<Profile> result = repository.findById(id);
+        Optional<Profile> result = repo.findById(id);
         if (result.isEmpty()) {
             return new ResponseEntity<>("Could not find profile in repository.", HttpStatus.NOT_FOUND);
         }
@@ -341,7 +332,7 @@ public class Profile_Controller {
         }
         String newHashedPassword = hashPassword(newPasswordRequest.getNewPassword());
         dbProfile.setPassword(newHashedPassword);
-        repository.save(dbProfile);
+        repo.save(dbProfile);
         return new ResponseEntity<>("Successfully changed password.", HttpStatus.OK);
     }
 
@@ -373,12 +364,12 @@ public class Profile_Controller {
      */
     protected boolean addAdditionalEmailToProfile(Profile profile, String newAddress) {
         boolean isAdded = false;
-        if (Boolean.FALSE.equals(eRepository.existsByAddress(newAddress))) {
+        if (Boolean.FALSE.equals(eRepo.existsByAddress(newAddress))) {
             Email emailToAdd = new Email(newAddress);
             isAdded = profile.addEmail(emailToAdd);
             if (isAdded) {
-                eRepository.save(emailToAdd);
-                repository.save(profile);
+                eRepo.save(emailToAdd);
+                repo.save(profile);
             }
         }
         return isAdded;
@@ -390,7 +381,7 @@ public class Profile_Controller {
      * @return the Profile object corresponding to the given ID.
      */
     protected ResponseEntity<Profile> getProfile(Long id) {
-        Optional<Profile> profileWithId = repository.findById(id);
+        Optional<Profile> profileWithId = repo.findById(id);
         if (profileWithId.isPresent()) {
             return new ResponseEntity(profileWithId.get(), HttpStatus.OK);
         } else {
@@ -421,17 +412,17 @@ public class Profile_Controller {
      */
     protected ResponseEntity<String> updateProfile(Profile editedProfile, Long id){
         editedProfile.setPassword("temporary");
-        String verificationMsg = verifyProfile(editedProfile, true);
+        String verificationMsg = FieldValidationHelper.verifyProfile(editedProfile, true, pcRepo, aRepo, eRepo);
         if (!verificationMsg.equals("")) {
             return new ResponseEntity<>(verificationMsg, HttpStatus.BAD_REQUEST);
         }
 
         // verifying passport countries
-        Profile db_profile = repository.findById(id).get();
+        Profile db_profile = repo.findById(id).get();
         db_profile.updateProfileExceptEmailsPassword(editedProfile);
         Set<PassportCountry> updatedCountries = new HashSet<>();
         for(PassportCountry passportCountry : editedProfile.getPassportObjects()){
-            List<PassportCountry> result = pcRepository.findByCountryName(passportCountry.getCountryName());
+            List<PassportCountry> result = pcRepo.findByCountryName(passportCountry.getCountryName());
             updatedCountries.add(result.get(0));
         }
         db_profile.setPassports(updatedCountries);
@@ -439,7 +430,7 @@ public class Profile_Controller {
         // verifying activityTypes
         Set<ActivityType> updatedActivityTypes = new HashSet<>();
         for(ActivityType activityType : editedProfile.getActivityTypeObjects()){
-            List<ActivityType> resultActivityTypes = aRepository.findByActivityTypeName(activityType.getActivityTypeName());
+            List<ActivityType> resultActivityTypes = aRepo.findByActivityTypeName(activityType.getActivityTypeName());
             updatedActivityTypes.add(resultActivityTypes.get(0));
         }
         db_profile.setActivityTypes(updatedActivityTypes);
@@ -451,7 +442,7 @@ public class Profile_Controller {
             return new ResponseEntity<>(response.getBody(), response.getStatusCode());
         }
 
-        repository.save(db_profile);
+        repo.save(db_profile);
         return new ResponseEntity<>(db_profile.toString(), HttpStatus.OK);
     }
 
@@ -462,20 +453,20 @@ public class Profile_Controller {
      * @return HTTP status code indicating if the operation was successful
      */
     protected ResponseEntity<String> editActivityTypes(ArrayList<String> newActivityTypeStrings, Long id){
-        Profile profile = repository.findById(id).get();
+        Profile profile = repo.findById(id).get();
 
         HashSet<ActivityType> newActivityTypes = new HashSet<>();
         for (String activityTypeString: newActivityTypeStrings) {
 
             //Check if the activityType is of a valid type
-            if(!aRepository.existsByActivityTypeName(activityTypeString)){
+            if(!aRepo.existsByActivityTypeName(activityTypeString)){
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
-            newActivityTypes.add(aRepository.findByActivityTypeName(activityTypeString).get(0));
+            newActivityTypes.add(aRepo.findByActivityTypeName(activityTypeString).get(0));
         }
 
         profile.setActivityTypes(newActivityTypes);
-        repository.save(profile);
+        repo.save(profile);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -488,7 +479,7 @@ public class Profile_Controller {
      */
     protected ResponseEntity<String> editEmails (EmailUpdateRequest newEmails, Long id){
 
-        Profile db_profile = repository.findById(id).get();
+        Profile db_profile = repo.findById(id).get();
         String primaryEmail = newEmails.getPrimary_email();
 
         Set<Email> newEmailSet = new HashSet<>();
@@ -519,7 +510,7 @@ public class Profile_Controller {
 
         // processing primary email to new emails set
         if(primaryEmail != null) {
-            List<Email> emailsReturnedFromSearch = eRepository.findAllByAddress(primaryEmail);
+            List<Email> emailsReturnedFromSearch = eRepo.findAllByAddress(primaryEmail);
             if (emailsReturnedFromSearch.isEmpty()) {
                 newEmailSet.add(new Email(primaryEmail, true, db_profile));
             } else if (emailsReturnedFromSearch.get(0).getProfile().getId().equals(id)) {
@@ -536,7 +527,7 @@ public class Profile_Controller {
 
         // processing additional emails to new emails set
         for (String optionalEmail: newEmails.getAdditional_email()) {
-            List<Email> emailsReturnedFromSearch = eRepository.findAllByAddress(optionalEmail);
+            List<Email> emailsReturnedFromSearch = eRepo.findAllByAddress(optionalEmail);
             if (emailsReturnedFromSearch.isEmpty()) {
                 newEmailSet.add(new Email(optionalEmail, false, db_profile));
             } else if (emailsReturnedFromSearch.get(0).getProfile().getId() == id) {
@@ -557,18 +548,18 @@ public class Profile_Controller {
                 }
             }
             if (!found) {
-                eRepository.delete(emailFromOldSet);
+                eRepo.delete(emailFromOldSet);
             }
         }
 
         // saving all the new and old emails to the database now that they have associated profile objects
         for (Email email: newEmailSet) {
-            eRepository.save(email);
+            eRepo.save(email);
         }
 
         // assigning the emails to the profile and saving the profile object to the database
         db_profile.setEmails(newEmailSet);
-        repository.save(db_profile);
+        repo.save(db_profile);
 
         return new ResponseEntity<>(HttpStatus.OK);
 
@@ -593,95 +584,10 @@ public class Profile_Controller {
         Set<Email> emailsFromNewProfile = newProfile.retrieveEmails();
         for (Email email: emailsFromNewProfile) {
             email.setProfile(newProfile);
-            eRepository.save(email);
+            eRepo.save(email);
         }
     }
 
-    /**
-     * Used in the create profile and update profile methods for verification. Returns a string to let the user know what
-     * was entered incorrectly.
-     * @param newProfile object we want to complete verification on
-     * @param edit_mode indicates whether the method is being called from the update profile method to skip email authentication
-     * @return a string containing all the errors in the form, if any, else it will return an empty string
-     */
-    private String verifyProfile(Profile newProfile, boolean edit_mode) {
-        String error = "";
-        if (newProfile.retrievePrimaryEmail().getAddress() == "" ||
-                newProfile.retrievePrimaryEmail().getAddress() == null) {
-            error += "The email field is blank.\n";
-        }
-        if (newProfile.getFirstname() == "" ||
-                newProfile.getFirstname() == null) {
-            error += "The First Name field is blank.\n";
-        }
-        if (newProfile.getLastname() == "" ||
-                newProfile.getLastname() == null) {
-            error += "The Last Name field is blank.\n";
-        }
-        if (newProfile.getPassword().length() < 8) {
-            error += "The Password is not long enough.\n";
-        }
-        if (newProfile.getFitness() > 4 || newProfile.getFitness() < 0) {
-            error += "The fitness level isn't valid.\n";
-        }
-        if (newProfile.getDateOfBirth() == "" ||
-                newProfile.getDateOfBirth() == null) {
-            error += "The Date of Birth field is blank.\n";
-        }
-        if (!newProfile.getPassportObjects().isEmpty()) {
-            for(PassportCountry passportCountry : newProfile.getPassportObjects()){
-                if (!pcRepository.existsByCountryName(passportCountry.getCountryName())) {
-                    error += String.format("Country %s does not exist in the database.\n", passportCountry.getCountryName());
-                }
-            }
-        }
-        if (!newProfile.getActivityTypeObjects().isEmpty()) {
-            for(ActivityType activityType : newProfile.getActivityTypeObjects()){
-                if (!aRepository.existsByActivityTypeName(activityType.getActivityTypeName())) {
-                    error += String.format("ActivityType %s does not exist in the database.\n", activityType.getActivityTypeName());
-                }
-            }
-        }
 
-        if (!edit_mode) {
-            error += verifyEmailsInProfile(newProfile);
-        }
-
-
-        if (!((newProfile.getGender().equals("male")) ||
-                (newProfile.getGender().equals("female")) ||
-                (newProfile.getGender().equals("non-Binary")))) {
-            error += "The Gender field must contain either 'male', 'female' or 'non-Binary'.\n";
-        }
-        return error;
-    }
-
-    /**
-     * Method used to verify emails and check if the emails are already associated with a profile in the database.
-     * @param newProfile object we want to verify the emails for
-     * @return string containing error messages, if any, else empty string
-     */
-    private String verifyEmailsInProfile(Profile newProfile) {
-        String error = "";
-        if (newProfile.retrieveEmails().size() >= 1) {
-            boolean valid = true;
-            ArrayList<String> emailStrings = new ArrayList<>();
-            for (Email email: newProfile.retrieveEmails()) {
-                if (eRepository.existsByAddress(email.getAddress())) {
-                    valid = false;
-                } else {
-                    emailStrings.add(email.getAddress());
-                }
-            }
-
-            if (emailStrings.size() != (new HashSet(emailStrings)).size()) {
-                error += "There are duplicate email addresses used. User cannot enter same email multiple times in primary" +
-                        " and/or additional.\n";
-            } else if (!valid) {
-                error += "An email address you have entered is already in use by another Profile.\n";
-            }
-        }
-        return error;
-    }
 
 }

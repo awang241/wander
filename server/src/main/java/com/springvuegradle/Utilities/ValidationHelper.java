@@ -22,6 +22,7 @@ public class ValidationHelper {
      * @throws IOException (URL Type needs IOException for whatever reason)
      * @author Matthew Wong
      * @author Alan Wang
+     * @author Hamesh Ravji
      */
     public static Set<PassportCountry> GetRESTCountries() throws IOException {
         URL restCountries = new URL("https://restcountries.eu/rest/v2/all?fields=name;numericCode");
