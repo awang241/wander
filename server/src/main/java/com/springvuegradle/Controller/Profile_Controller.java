@@ -135,10 +135,24 @@ public class Profile_Controller {
      */
     @PutMapping("/profiles/{id}")
     public @ResponseBody ResponseEntity<String> updateProfile(@RequestBody Profile editedProfile, @RequestHeader("authorization") String token, @PathVariable Long id) {
-        if (jwtUtil.validateToken(token)) {
+        if (checkEditPermission(token, id)) {
             return updateProfile(editedProfile, id);
         } else {
             return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(), HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    /**
+     * Checks if user asking for permission to edit a profile has the right permission
+     * @param token the jwt token stored on the client (user asking for permissions token)
+     * @param id the id of the user being edited (can be null to check just the token permission)
+     * @return true if user has permission to edit the profile, false otherwise
+     */
+    private boolean checkEditPermission(String token, Long id) {
+        if (jwtUtil.validateToken(token) && (jwtUtil.extractPermission(token) == 0 || jwtUtil.extractPermission(token) == 1 || (jwtUtil.extractId(token).equals(id)))) {
+            return true;
+        } else {
+            return false;
         }
     }
 
