@@ -2,6 +2,7 @@ package com.springvuegradle.Model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.*;
@@ -34,7 +35,14 @@ public class ActivityType {
     @JsonBackReference
     private Set<Profile> profiles = new HashSet<Profile>();
 
-    public ActivityType(){};
+    @ManyToMany(mappedBy = "activityTypes")
+    @JsonIgnore
+    private Set<Activity> activities = new HashSet<Activity>();
+
+    public ActivityType() {
+    }
+
+    ;
 
     @JsonCreator
     public ActivityType(
