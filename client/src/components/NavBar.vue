@@ -77,9 +77,11 @@
                 localStorage.removeItem('userId')
                 let payload = {'token': null, 'userId': null}
                 store.dispatch('resetTokenAndUserId', payload, {root:true});
-                router.push('Login')
+                router.go(-1)
+                router.replace('Login')
             },
             goToProfile(){
+                router.go(-1)
                 router.push('Profile')
             },
             goToAdminDashboard(){

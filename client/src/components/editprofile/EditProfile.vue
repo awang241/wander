@@ -30,6 +30,8 @@
     import editCountries from "./EditCountries";
     import editActivityTypes from "./EditActivityTypes";
     import editEmails from "./EditEmails";
+    import api from '../../Api';
+    import authenticationStore from "../../store/authenticationStore";
     import router from "../../router";
     export default {
         name: "EditProfile",
@@ -38,8 +40,14 @@
         },
         data() {
             return {
-                component: "editPersonal"
+                component: "editPersonal",
+                //profileId: 2004,
+                profileId: this.$route.params.id,
+                profile: {}
             }
+        },
+        mounted(){
+          this.getProfile()
         },
         // These methods are used to dynamically swap between components on click
         methods: {
@@ -59,7 +67,13 @@
                 this.component = editEmails
             },
             changeToProfile() {
-                router.push('Profile');
+                //Goes to the previous component on the stack
+                router.go(-1)
+            },
+            getProfile(){
+                console.log("Attempting to get profile")
+                api.getProfile(authenticationStore.methods.getUserId(), authenticationStore.methods.getSessionId())
+                    .then(response => this.profile = response.data)
             }
         }
     }
