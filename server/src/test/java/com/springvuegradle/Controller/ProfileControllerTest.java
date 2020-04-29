@@ -12,6 +12,7 @@ import com.springvuegradle.dto.ChangePasswordRequest;
 import com.springvuegradle.dto.EmailAddRequest;
 import com.springvuegradle.dto.EmailUpdateRequest;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -240,34 +241,35 @@ class ProfileControllerTest {
         assertEquals(expectedProfile.getActivityTypes(), updatedProfile.getActivityTypes(), "Check activityTypes updated successfully");
     }
 
-//    @Test
-//    void testEditProfileNormal(){
-//        Profile testProfile = createNormalProfileJimmy();
-//        Profile updateData = createNormalProfileMaurice();
-//        Profile expectedProfile = createNormalProfileMaurice();
-//        Set<PassportCountry> realPassports = new HashSet<>();
-//        for (PassportCountry passportCountry: expectedProfile.getPassportObjects()){
-//            realPassports.add(pcrepo.findByCountryName(passportCountry.getCountryName()).get(0));
-//        }
-//        expectedProfile.setPassword(profileController.hashPassword(testProfile.getPassword()));
-//        expectedProfile.setPassports(realPassports);
-//
-//        Set<ActivityType> realActivityTypes = new HashSet<>();
-//        for (ActivityType activityType: expectedProfile.getActivityTypeObjects()){
-//            realActivityTypes.add(arepo.findByActivityTypeName(activityType.getActivityTypeName()).get(0));
-//        }
-//        expectedProfile.setActivityTypes(realActivityTypes);
-//
-//        profileController.createProfile(testProfile);
-//        long id = repo.findByPrimaryEmail(testProfile.getPrimary_email()).get(0).getId();
-//        assertEquals(testProfile, repo.findById(id).get(), "Sanity check: profile and ID saved successfully");
-//
-//        ResponseEntity<String> actualResponse = profileController.updateProfile(updateData, id);
-//
-//        Profile updatedProfile = repo.findById(id).get();
-//        assertEquals(expectedProfile, updatedProfile, "Check profile updated successfully");
-//        assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
-//    }
+    @Test
+    void testEditProfileNormal(){
+        Profile testProfile = createNormalProfileJimmy();
+        Profile updateData = createNormalProfileMaurice();
+        Profile expectedProfile = createNormalProfileMaurice();
+        Set<PassportCountry> realPassports = new HashSet<>();
+        for (PassportCountry passportCountry: expectedProfile.getPassportObjects()){
+            realPassports.add(pcrepo.findByCountryName(passportCountry.getCountryName()).get(0));
+        }
+        expectedProfile.setPassword(Profile_Controller.hashPassword(testProfile.getPassword()));
+        expectedProfile.setPassports(realPassports);
+        updateData.setPassports(realPassports);
+
+        Set<ActivityType> realActivityTypes = new HashSet<>();
+        for (ActivityType activityType: expectedProfile.getActivityTypeObjects()){
+            realActivityTypes.add(arepo.findByActivityTypeName(activityType.getActivityTypeName()).get(0));
+        }
+        expectedProfile.setActivityTypes(realActivityTypes);
+
+        profileController.createProfile(testProfile);
+        long id = repo.findByPrimaryEmail(testProfile.getPrimary_email()).get(0).getId();
+        assertEquals(testProfile, repo.findById(id).get(), "Sanity check: profile and ID saved successfully");
+
+        ResponseEntity<String> actualResponse = profileController.updateProfile(updateData, id);
+
+        Profile updatedProfile = repo.findById(id).get();
+        assertEquals(expectedProfile, updatedProfile, "Check profile updated successfully");
+        assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
+    }
 
     @Test
     void testEditProfileWithInvalidData(){
