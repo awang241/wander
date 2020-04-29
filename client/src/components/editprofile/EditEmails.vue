@@ -39,9 +39,6 @@
 <script>
 
     import List from "../List";
-    import authenticationStore from "../../store/authenticationStore";
-    import profileStore from "../../store/profileStore";
-    import Api from "../../Api";
 
     export default {
         name: "EditEmails",
@@ -50,29 +47,11 @@
         methods: {
             addEmail() {
                 if (this.optionalEmails.length > 3) {
-                    this.$buefy.toast.open({
-                        duration: 5000,
-                        message: "Maximum email addresses reached",
-                        type: 'is-danger',
-                        position: 'is-top',
-                        queue: false,
-                    });
+                    this.showWarning("Maximum email addresses reached")
                 } else if (this.optionalEmails.includes(this.newEmail) || this.newEmail === this.primaryEmail) {
-                    this.$buefy.toast.open({
-                        duration: 5000,
-                        message: "Email address is already in use!",
-                        type: 'is-danger',
-                        position: 'is-top',
-                        queue: false,
-                    });
+                    this.showWarning("Email address already in use")
                 } else if (this.newEmail === "" || this.newEmail.trim().length === 0 || !this.newEmail.includes('@', 0)) {
-                    this.$buefy.toast.open({
-                        duration: 5000,
-                        message: "Please enter in a valid email address",
-                        type: 'is-danger',
-                        position: 'is-top',
-                        queue: false,
-                    });
+                    this.showWarning("Please enter a valid email address")
                 } else {
                     this.optionalEmails.push(this.newEmail)
                     this.newEmail = ""
@@ -97,8 +76,6 @@
                 this.optionalEmails = this.optionalEmails.filter(email => email != emailToDelete)
             },
             submitEmails(){
-                profileStore.methods.setOptionalEmails(this.optionalEmails)
-                profileStore.methods.setPrimaryEmail(this.primaryEmail)
                 this.$buefy.toast.open({
                     duration: 5000,
                     message: "Changes Saved!",
@@ -106,20 +83,17 @@
                     position: 'is-top',
                     queue: false,
                 });
-                Api.editEmail({
-                    "primary_email": profileStore.data.primaryEmail,
-                    "additional_email": profileStore.data.optionalEmails
-                }, authenticationStore.methods.getUserId(), authenticationStore.methods.getSessionId())
+                this.$parent.updateEmails(this.primaryEmail, this.optionalEmails)
                 }
             }  ,
             showWarning(message) {
-                this.$buefy.snackbar.open({
+                this.$buefy.toast.open({
                     duration: 5000,
                     message: message,
                     type: 'is-danger',
-                    position: 'is-bottom-left',
+                    position: 'is-top',
                     queue: false,
-                })
+                });
             },
             showSuccess(message){
                 this.$buefy.toast.open({
@@ -131,10 +105,10 @@
             },
         data() {
             return {
-            primaryEmail: profileStore.data.primaryEmail,
+            primaryEmail: this.profile.primary_email,
+            optionalEmails: this.profile.additional_email,
             newEmail: "",
             newPrimaryEmail: "",
-            optionalEmails: profileStore.data.optionalEmails,
             }
         }
     }

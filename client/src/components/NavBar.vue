@@ -48,7 +48,6 @@
 
 <script>
     import authenticationStore  from "../store/authenticationStore";
-    import profileStore from "../store/profileStore";
     import router from "../router";
     import api from "../Api";
     import store from '../store';
@@ -61,7 +60,6 @@
         data: () => {
             return {
                 authenticationStore: authenticationStore.data,
-                profileStore: profileStore.data,
             }
         },
         methods: {

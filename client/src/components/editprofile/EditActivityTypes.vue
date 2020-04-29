@@ -20,7 +20,6 @@
 <script>
     import List from "../List";
     import Api from "../../Api";
-    import authenticationStore from "../../store/authenticationStore";
 
     export default {
         name: "EditActivityTypes",
@@ -33,9 +32,6 @@
                 chosenActivityTypes: this.profile.activities,
             }
         },
-
-
-
         methods: {
             showWarning(message) {
                 this.$buefy.snackbar.open({
@@ -64,7 +60,7 @@
                 }
             },
             submitActivityTypes() {
-                Api.editProfile(authenticationStore.methods.getUserId(), this.profile, authenticationStore.methods.getSessionId())
+                this.$parent.updateActivityTypes(this.chosenActivityTypes)
 
             }
         },

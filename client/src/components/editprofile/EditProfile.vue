@@ -75,6 +75,24 @@
                 console.log("Attempting to get profile")
                 api.getProfile(authenticationStore.methods.getUserId(), authenticationStore.methods.getSessionId())
                     .then(response => this.profile = response.data)
+            },
+
+            updateCountries(newCountries){
+                this.profile.passports = newCountries
+                api.editProfile(authenticationStore.methods.getUserId(), this.profile, authenticationStore.methods.getSessionId())
+            },
+
+            updateActivityTypes(newActivities){
+                this.profile.activities = newActivities
+                api.editProfile(authenticationStore.methods.getUserId(), this.profile, authenticationStore.methods.getSessionId())
+            },
+
+            updateEmails(primaryEmail, optionalEmails){
+                this.profile.primary_email = primaryEmail
+                this.profile.optional_email = optionalEmails
+                api.editEmail({"primary_email" : primaryEmail,
+                                        "additional_email": optionalEmails}, authenticationStore.methods.getUserId(), authenticationStore.methods.getSessionId())
+
             }
         }
     }

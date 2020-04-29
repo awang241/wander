@@ -20,8 +20,6 @@
 <script>
     import List from "../List";
     import axios from "axios";
-    import Api from "../../Api";
-    import authenticationStore from "../../store/authenticationStore";
 
     export default {
         name: "EditCountries",
@@ -58,9 +56,10 @@
                 }
             },
             submitCountries(){
-                this.profile.passports = this.chosenCountries
-                Api.editProfile(authenticationStore.methods.getUserId(), this.profile, authenticationStore.methods.getSessionId()
-                )
+                //this.profile.passports = this.chosenCountries
+                //Api.editProfile(authenticationStore.methods.getUserId(), this.profile, authenticationStore.methods.getSessionId()
+                //)
+                this.$parent.updateCountries(this.chosenCountries)
                 this.$buefy.toast.open({
                     duration: 2000,
                     message: "Saved!",
