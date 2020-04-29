@@ -4,7 +4,7 @@
         <b-field>
             <b-select placeholder="Select an activityType" v-model="newActivityType" expanded>
                 <option
-                        v-for="activityType in profile.activities"
+                        v-for="activityType in possibleActivityTypes"
                         :value="activityType"
                         :key="activityType">
                     {{ activityType }}
@@ -20,20 +20,22 @@
 <script>
     import List from "../List";
     import Api from "../../Api";
-    import profileStore from "../../store/profileStore";
     import authenticationStore from "../../store/authenticationStore";
 
     export default {
         name: "EditActivityTypes",
         components: {List},
+        props: ["profile"],
         data(){
             return {
-                possibleActivityTypes: "",
+                possibleActivityTypes: [],
                 newActivityType: "",
-                profile: null,
-                chosenActivityTypes: profileStore.data.activityTypes,
+                chosenActivityTypes: this.profile.activities,
             }
         },
+
+
+
         methods: {
             showWarning(message) {
                 this.$buefy.snackbar.open({
@@ -44,12 +46,15 @@
                     queue: false,
                 })
             },
+
+            getAllActivityTypes(){
+                Api.getActivityTypesList().then(response => this.possibleActivityTypes = response.data.allActivityTypes)
+            },
+
             deleteActivityType(chosenActivityType) {
                 this.chosenActivityTypes = this.chosenActivityTypes.filter(activityType => activityType != chosenActivityType)
             },
             addActivityType() {
-                console.log("adding activityType")
-                console.log("chosenActivityTypes: " + this.chosenActivityTypes)
                 if (this.newActivityType === ""){
                     this.showWarning("No activity selected")
                 } else if (this.chosenActivityTypes.includes(this.newActivityType)) {
@@ -59,28 +64,12 @@
                 }
             },
             submitActivityTypes() {
-                profileStore.methods.setActivityTypes(this.chosenActivityTypes)
-                const updatedProfile = {
-                    "lastname": profileStore.data.lastName,
-                    "firstname": profileStore.data.firstName,
-                    "middlename": profileStore.data.middleName,
-                    "nickname": profileStore.data.nickname,
-                    "primary_email": profileStore.data.primaryEmail,
-                    "bio": profileStore.data.bio,
-                    "date_of_birth": profileStore.data.dateOfBirth,
-                    "gender": profileStore.data.gender,
-                    "fitness": profileStore.data.fitnessLevel,
-                    "passports":profileStore.data.passportCountries,
-                    "additional_email": profileStore.data.optionalEmails,
-                    "activities": profileStore.data.activityTypes
-                }
-                Api.editProfile(authenticationStore.methods.getUserId(), updatedProfile, authenticationStore.methods.getSessionId())
+                Api.editProfile(authenticationStore.methods.getUserId(), this.profile, authenticationStore.methods.getSessionId())
 
             }
         },
         mounted() {
-            this.possibleActivityTypes = profileStore.data.allActivityTypes
-            //this.chosenActivityTypes = profileStore.data.activityTypes
+            this.getAllActivityTypes()
         }
     }
 </script>

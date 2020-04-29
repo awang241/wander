@@ -46,6 +46,7 @@
     export default {
         name: "EditEmails",
         components: {List},
+        props: ["profile"],
         methods: {
             addEmail() {
                 if (this.optionalEmails.length > 3) {

@@ -78,6 +78,7 @@
 
     export default {
         name: "EditPersonal",
+        props: ["profile"],
         data() {
             const today = new Date()
             return {

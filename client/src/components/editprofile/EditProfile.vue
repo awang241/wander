@@ -19,7 +19,8 @@
         </div>
 
         <div>
-            <component v-bind:is="component" />
+            <component v-bind:is="component"  v-bind:profile="profile"/>
+
         </div>
     </div>
 </template>
