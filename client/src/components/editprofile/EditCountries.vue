@@ -27,6 +27,7 @@
     export default {
         name: "EditCountries",
         components: {List},
+        props: ["profile"],
         data(){
             return {
                 possibleCountries: "",
@@ -80,20 +81,22 @@
                     position: 'is-top'
                 })
                 Api.editProfile(authenticationStore.methods.getUserId(), updatedProfile, authenticationStore.methods.getSessionId())
-
+            },
+            getAllCountries(){
+                axios.get("https://restcountries.eu/rest/v2/all")
+                    .then(response => {
+                        const data = response.data
+                        const possibleCountries = []
+                        for (let country in data){
+                            possibleCountries.push(data[country].name)
+                        }
+                        this.possibleCountries = possibleCountries;
+                    })
+                    .catch(error => console.log(error));
             }
         },
         mounted() {
-            axios.get("https://restcountries.eu/rest/v2/all")
-                .then(response => {
-                    const data = response.data
-                    const possibleCountries = []
-                    for (let country in data){
-                        possibleCountries.push(data[country].name)
-                    }
-                    this.possibleCountries = possibleCountries;
-                })
-                .catch(error => console.log(error));
+            this.getAllCountries()
         },
     }
 </script>

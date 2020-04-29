@@ -4,7 +4,7 @@
         <b-field>
             <b-select placeholder="Select an activityType" v-model="newActivityType" expanded>
                 <option
-                        v-for="activityType in possibleActivityTypes"
+                        v-for="activityType in profile.activities"
                         :value="activityType"
                         :key="activityType">
                     {{ activityType }}
@@ -30,6 +30,7 @@
             return {
                 possibleActivityTypes: "",
                 newActivityType: "",
+                profile: null,
                 chosenActivityTypes: profileStore.data.activityTypes,
             }
         },
