@@ -11,30 +11,30 @@
         <template slot="end">
             <b-navbar-item tag="div">
                 <div class="buttons">
-                    <b-button v-if="!authenticationStore.authenticated"
+                    <b-button v-if="!store.getters.getAuthenticationStatus"
                               tag="router-link"
                               to="/Login"
                               type="is-primary">
                         <strong>Login</strong>
                     </b-button>
-                    <b-button v-if="!authenticationStore.authenticated"
+                    <b-button v-if="!store.getters.getAuthenticationStatus"
                               tag="router-link"
                               to="/Registration"
                               type="is-light">
                         Register
                     </b-button>
                     <b-button  @click="goToAdminDashboard"
-                               v-if="authenticationStore.authenticated && (profileStore.authLevel == 0 || profileStore.authLevel == 1)"
+                               v-if="store.getters.getAuthenticationStatus && (profileStore.authLevel == 0 || profileStore.authLevel == 1)"
                                type="is-light">
                         Admin Dashboard
                     </b-button>
                     <b-button  @click="goToProfile"
-                               v-if="authenticationStore.authenticated"
+                               v-if="store.getters.getAuthenticationStatus"
                                type="is-light">
                         Profile
                     </b-button>
                     <b-button  @click="logout"
-                               v-if="authenticationStore.authenticated"
+                               v-if="store.getters.getAuthenticationStatus"
                                type="is-light">
                         Logout
                     </b-button>
@@ -47,7 +47,6 @@
 
 
 <script>
-    import authenticationStore  from "../store/authenticationStore";
     import profileStore from "../store/profileStore";
     import router from "../router";
     import api from "../Api";
@@ -60,23 +59,18 @@
         name: "NavBar",
         data: () => {
             return {
-                authenticationStore: authenticationStore.data,
                 profileStore: profileStore.data,
+                store: store
             }
         },
         methods: {
             logout(){
-                api.logout({userId: authenticationStore.methods.getUserId()}, authenticationStore.methods.getSessionId())
+                api.logout({userId: store.getters.getUserId}, localStorage.getItem('authToken'))
                     .catch(error => console.log(error))
-
-                //User is now logged out in authentication store
-                authenticationStore.methods.setSessionId(0)
-                authenticationStore.methods.setUserId(0)
-                authenticationStore.methods.setAuthenticated(false)
                 localStorage.removeItem('authToken')
                 localStorage.removeItem('userId')
-                let payload = {'token': null, 'userId': null}
-                store.dispatch('resetTokenAndUserId', payload, {root:true});
+                let payload = {'token': null, 'userId': null, 'authenticationStatus': false}
+                store.dispatch('resetUserData', payload, {root:true});
                 router.push('Login')
             },
             goToProfile(){
@@ -85,9 +79,7 @@
             goToAdminDashboard(){
                 router.push('AdminDashboard')
             },
-
         }
-
     }
 </script>
 

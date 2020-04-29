@@ -39,9 +39,9 @@
 <script>
 
     import List from "../List";
-    import authenticationStore from "../../store/authenticationStore";
     import profileStore from "../../store/profileStore";
     import Api from "../../Api";
+    import store from "../../store"
 
     export default {
         name: "EditEmails",
@@ -78,7 +78,7 @@
                 }
             },
             changePrimaryEmail() {
-                if(this.newPrimaryEmail === "") {
+                if (this.newPrimaryEmail === "") {
                     this.$buefy.toast.open({
                         duration: 5000,
                         message: "No additional email address selected",
@@ -92,10 +92,10 @@
                     this.primaryEmail = this.newPrimaryEmail;
                 }
             },
-            deleteEmail(emailToDelete){
+            deleteEmail(emailToDelete) {
                 this.optionalEmails = this.optionalEmails.filter(email => email != emailToDelete)
             },
-            submitEmails(){
+            submitEmails() {
                 profileStore.methods.setOptionalEmails(this.optionalEmails)
                 profileStore.methods.setPrimaryEmail(this.primaryEmail)
                 this.$buefy.toast.open({
@@ -108,9 +108,9 @@
                 Api.editEmail({
                     "primary_email": profileStore.data.primaryEmail,
                     "additional_email": profileStore.data.optionalEmails
-                }, authenticationStore.methods.getUserId(), authenticationStore.methods.getSessionId())
-                }
-            }  ,
+                }, store.getters.getUserId, localStorage.getItem('authToken'))
+            }
+        },
             showWarning(message) {
                 this.$buefy.snackbar.open({
                     duration: 5000,

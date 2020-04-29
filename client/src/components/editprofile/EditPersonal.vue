@@ -73,8 +73,8 @@
 
 <script>
     import api from "../../Api";
-    import authenticationStore from "../../store/authenticationStore";
     import profileStore from "../../store/profileStore";
+    import store from "../../store";
 
     export default {
         name: "EditPersonal",
@@ -143,7 +143,7 @@
                     "passports":profileStore.data.passportCountries,
                     "activities": profileStore.data.activityTypes
                 }
-                api.editProfile(authenticationStore.methods.getUserId(), updatedProfile, authenticationStore.methods.getSessionId())
+                api.editProfile(store.getters.getUserId, updatedProfile, localStorage.getItem('authToken'))
                     .catch(error => this.showError(this.displayError(error.response.status)))
                     .then(response => this.showMessage(this.displayError(response.status)))
             },

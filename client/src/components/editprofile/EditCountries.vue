@@ -22,7 +22,7 @@
     import axios from "axios";
     import Api from "../../Api";
     import profileStore from "../../store/profileStore";
-    import authenticationStore from "../../store/authenticationStore";
+    import store from "../../store";
 
     export default {
         name: "EditCountries",
@@ -79,8 +79,7 @@
                     type: 'is-success',
                     position: 'is-top'
                 })
-                Api.editProfile(authenticationStore.methods.getUserId(), updatedProfile, authenticationStore.methods.getSessionId())
-
+                Api.editProfile(store.getters.getUserId, updatedProfile, localStorage.getItem('authToken'))
             }
         },
         mounted() {

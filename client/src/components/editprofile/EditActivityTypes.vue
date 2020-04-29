@@ -21,7 +21,7 @@
     import List from "../List";
     import Api from "../../Api";
     import profileStore from "../../store/profileStore";
-    import authenticationStore from "../../store/authenticationStore";
+    import store from "../../store";
 
     export default {
         name: "EditActivityTypes",
@@ -73,7 +73,7 @@
                     "additional_email": profileStore.data.optionalEmails,
                     "activities": profileStore.data.activityTypes
                 }
-                Api.editProfile(authenticationStore.methods.getUserId(), updatedProfile, authenticationStore.methods.getSessionId())
+                Api.editProfile(store.getters.getUserId, updatedProfile, localStorage.getItem('authToken'))
 
             }
         },

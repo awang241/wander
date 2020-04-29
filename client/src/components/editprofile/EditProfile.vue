@@ -31,6 +31,7 @@
     import editActivityTypes from "./EditActivityTypes";
     import editEmails from "./EditEmails";
     import router from "../../router";
+
     export default {
         name: "EditProfile",
         components: {

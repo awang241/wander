@@ -143,9 +143,9 @@
 
 <script>
     import api from '../Api';
-    import authenticationStore from "../store/authenticationStore";
     import profileStore from "../store/profileStore";
     import router from "../router";
+    import store from "../store";
 
     export default {
         name: "Profile",
@@ -159,7 +159,7 @@
                 router.push('EditProfile');
             },
             setProfile(){
-                api.getProfile(authenticationStore.methods.getUserId(), authenticationStore.methods.getSessionId())
+                api.getProfile(store.getters.getUserId, localStorage.getItem('authToken'))
                     .then((response) => {
                         //Save to auth store
                         profileStore.methods.setProfile(response.data)
@@ -176,7 +176,7 @@
                     .catch(error => console.log(error));
             },
             setAuthLevel(){
-                api.getAuthLevel(authenticationStore.methods.getSessionId())
+                api.getAuthLevel(localStorage.getItem('authToken'))
                     .then((response) => {
                         profileStore.methods.setAuthLevel(response.data)
                     })
