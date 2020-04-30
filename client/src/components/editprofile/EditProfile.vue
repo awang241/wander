@@ -32,7 +32,6 @@
     import editActivityTypes from "./EditActivityTypes";
     import editEmails from "./EditEmails";
     import api from '../../Api';
-    import authenticationStore from "../../store/authenticationStore";
     import router from "../../router";
 
     export default {
@@ -69,25 +68,25 @@
                 router.go(-1)
             },
             getProfile(){
-                api.getProfile(authenticationStore.methods.getUserId(), authenticationStore.methods.getSessionId())
+                api.getProfile(this.$route.params.id, localStorage.getItem('authToken'))
                     .then(response => this.profile = response.data)
             },
 
             updateCountries(newCountries){
                 this.profile.passports = newCountries
-                api.editProfile(authenticationStore.methods.getUserId(), this.profile, authenticationStore.methods.getSessionId())
+                api.editProfile(this.$route.params.id, this.profile, localStorage.getItem('authToken'))
             },
 
             updateActivityTypes(newActivities){
                 this.profile.activities = newActivities
-                api.editProfile(authenticationStore.methods.getUserId(), this.profile, authenticationStore.methods.getSessionId())
+                api.editProfile(this.$route.params.id, this.profile, localStorage.getItem('authToken'))
             },
 
             updateEmails(primaryEmail, optionalEmails){
                 this.profile.primary_email = primaryEmail
                 this.profile.optional_email = optionalEmails
                 api.editEmail({"primary_email" : primaryEmail,
-                                        "additional_email": optionalEmails}, authenticationStore.methods.getUserId(), authenticationStore.methods.getSessionId())
+                                        "additional_email": optionalEmails},this.$route.params.id, localStorage.getItem('authToken'))
 
             },
 
@@ -100,7 +99,7 @@
                 this.profile.date_of_birth = personalDetails.date_of_birth
                 this.profile.gender = personalDetails.gender
                 this.profile.fitness = personalDetails.fitness
-                api.editProfile(authenticationStore.methods.getUserId(), this.profile, authenticationStore.methods.getSessionId())
+                api.editProfile(this.$route.params.id, this.profile, localStorage.getItem('authToken'))
 
             }
         }

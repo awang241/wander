@@ -129,6 +129,7 @@
                     "fitness": this.fitness_level
                     }
                 this.$parent.updatePersonal(personalDetails)
+                this.showMessage("Personal details saved!")
             },
             showMessage(message) {
                 this.$buefy.toast.open({
@@ -153,7 +154,7 @@
                 } else if (statusCode == 400 || statusCode == 403 || statusCode == 401) {
                     message = "Please fill in all required fields"
                 }
-                return message;
+                this.showError(message)
             },
             dateFormatter(dt){
                 return dt.toLocaleDateString('en-GB', { year: 'numeric', month: 'numeric', day: 'numeric' });

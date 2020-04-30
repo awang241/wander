@@ -48,7 +48,6 @@
 
 <script>
     import router from "../router";
-    import api from "../Api";
     import store from '../store';
     import Vuex from 'vuex';
     import Vue from "vue";
@@ -63,8 +62,6 @@
         },
         methods: {
             logout(){
-                api.logout({userId: store.getters.getUserId}, localStorage.getItem('authToken'))
-                    .catch(error => console.log(error))
                 localStorage.removeItem('authToken')
                 localStorage.removeItem('userId')
                 let payload = {'token': null, 'userId': null, 'authenticationStatus': false}
