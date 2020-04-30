@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
+import jwt_decode from 'jwt-decode';
 
 Vue.use(Vuex);
 
@@ -8,7 +9,8 @@ export default new Vuex.Store({
     state: {
         token: null,
         userId: null,
-        authenticationStatus: false
+        authenticationStatus: false,
+        authenticationLevel: 5
     },
     mutations: {
         SET_TOKEN(state, token) {
@@ -17,8 +19,11 @@ export default new Vuex.Store({
         SET_USER_ID(state, userId) {
             state.userId = userId
         },
-        SET_AUTHENTICATION(state,  authenticationStatus){
+        SET_AUTHENTICATION_STATUS(state,  authenticationStatus){
             state.authenticationStatus =  authenticationStatus
+        },
+        SET_AUTHENTICATION_LEVEL(state, authenticationLevel){
+            state.authenticationLevel = authenticationLevel
         }
     },
     getters: {
@@ -27,33 +32,32 @@ export default new Vuex.Store({
         },
         getUserId: state => {
             return state.userId
+        },
+        getAuthenticationLevel: state => {
+            return state.authenticationLevel
         }
     },
     actions: {
         async validateByTokenAndUserId({commit}, payload) {
             const token = payload.token
             const userId = payload.userId
-            // try {
-            //     api.getProfile(userId, token).then((response => {
-            //         profileStore.methods.setProfile(response.data)
-            //     }))
-            // } catch (err) {
-            //     console.log(err)
-            //     return;
-            // }
+            const authenticationLevel = jwt_decode(token);
             let authenticationStatus = true
             commit('SET_TOKEN', token)
             commit('SET_USER_ID', userId)
-            commit('SET_AUTHENTICATION', authenticationStatus)
+            commit('SET_AUTHENTICATION_STATUS', authenticationStatus)
+            commit('SET_AUTHENTICATION_LEVEL', authenticationLevel)
         },
         resetUserData({commit}, payload) {
             console.log('Resetting token and userId state to null')
             const token = payload.token
             const userId = payload.userId
             const authenticationStatus = payload.authenticationStatus
+            const authenticationLevel = payload.authenticationLevel
             commit('SET_TOKEN', token)
             commit('SET_USER_ID', userId)
-            commit('SET_AUTHENTICATION', authenticationStatus)
+            commit('SET_AUTHENTICATION_STATUS', authenticationStatus)
+            commit('SET_AUTHENTICATION_LEVEL', authenticationLevel)
             return;
         }
     }

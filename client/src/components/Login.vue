@@ -32,7 +32,7 @@
 <script>
     import api from '../Api';
     import router from "../router";
-    import store from '../store'
+    import store from '../store';
 
     export default {
         name: 'Login',

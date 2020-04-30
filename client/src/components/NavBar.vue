@@ -24,7 +24,7 @@
                         Register
                     </b-button>
                     <b-button  @click="goToAdminDashboard"
-                               v-if="store.getters.getAuthenticationStatus"
+                               v-if="store.getters.getAuthenticationStatus "
                                type="is-light">
                         Admin Dashboard
                     </b-button>
@@ -64,7 +64,7 @@
             logout(){
                 localStorage.removeItem('authToken')
                 localStorage.removeItem('userId')
-                let payload = {'token': null, 'userId': null, 'authenticationStatus': false}
+                let payload = {'token': null, 'userId': null, 'authenticationStatus': false, 'authenticationLevel': 5}
                 store.dispatch('resetUserData', payload, {root:true});
                 router.push({path: '/Login'});
             },
