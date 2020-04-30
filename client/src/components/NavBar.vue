@@ -24,7 +24,7 @@
                         Register
                     </b-button>
                     <b-button  @click="goToAdminDashboard"
-                               v-if="store.getters.getAuthenticationStatus "
+                               v-if="store.getters.getAuthenticationLevel <= 1"
                                type="is-light">
                         Admin Dashboard
                     </b-button>
@@ -38,7 +38,6 @@
                                type="is-light">
                         Logout
                     </b-button>
-
                 </div>
             </b-navbar-item>
         </template>
@@ -62,6 +61,7 @@
         },
         methods: {
             logout(){
+                console.log(this.store.getters.getAuthenticationLevel)
                 localStorage.removeItem('authToken')
                 localStorage.removeItem('userId')
                 let payload = {'token': null, 'userId': null, 'authenticationStatus': false, 'authenticationLevel': 5}

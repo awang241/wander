@@ -41,15 +41,15 @@ export default new Vuex.Store({
         async validateByTokenAndUserId({commit}, payload) {
             const token = payload.token
             const userId = payload.userId
-            const authenticationLevel = jwt_decode(token);
-            let authenticationStatus = true
+            const decoded = jwt_decode(token)
+            const authenticationLevel = decoded.authLevel
+            const authenticationStatus = true
             commit('SET_TOKEN', token)
             commit('SET_USER_ID', userId)
             commit('SET_AUTHENTICATION_STATUS', authenticationStatus)
             commit('SET_AUTHENTICATION_LEVEL', authenticationLevel)
         },
         resetUserData({commit}, payload) {
-            console.log('Resetting token and userId state to null')
             const token = payload.token
             const userId = payload.userId
             const authenticationStatus = payload.authenticationStatus
