@@ -24,7 +24,7 @@
 
 <script>
     import api from "../../Api";
-    import authenticationStore from "../../store/authenticationStore";
+    import store from "../../store";
 
     export default {
         name: "EditPassword",
@@ -51,7 +51,7 @@
                         "newPassword": this.password,
                         "confPassword": this.confPassword
                     }
-                    api.editPassword(passwordDetails, authenticationStore.methods.getUserId(), authenticationStore.methods.getSessionId())
+                    api.editPassword(passwordDetails, store.getters.getUserId, localStorage.getItem('authToken'))
                         .catch(error => this.showError(this.displayError(error.response.status)))
                         .then(response => this.showMessage(this.displayError(response.status)))
                     // this.showMessage(this.displayError(status))

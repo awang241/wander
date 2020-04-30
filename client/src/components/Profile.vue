@@ -143,8 +143,8 @@
 
 <script>
     import api from '../Api';
-    import authenticationStore from "../store/authenticationStore";
     import router from "../router";
+    import store from "../store";
 
     export default {
         name: "Profile",
@@ -155,10 +155,10 @@
         },
         methods: {
             editProfile(){
-                router.push('EditProfile/' + authenticationStore.methods.getUserId());
+                router.push('EditProfile/' + store.getters.getUserId);
             },
             getProfile(){
-                api.getProfile(authenticationStore.methods.getUserId(), authenticationStore.methods.getSessionId())
+                api.getProfile(store.getters.getUserId,localStorage.getItem('authToken'))
                     .then(response => this.profile = response.data)
             }
         },

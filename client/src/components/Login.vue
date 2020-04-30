@@ -32,7 +32,7 @@
 <script>
     import api from '../Api';
     import router from "../router";
-    import authenticationStore from "../store/authenticationStore";
+    import store from '../store'
 
     export default {
         name: 'Login',
@@ -48,11 +48,10 @@
                     email: this.email,
                     password: this.password,
                 }).then((response => {
-                    authenticationStore.methods.setUserId(response.data.userId)
-                    authenticationStore.methods.setSessionId(response.data.token)
-                    authenticationStore.methods.setAuthenticated(true)
                     localStorage.setItem('authToken', response.data.token)
                     localStorage.setItem('userId', response.data.userId)
+                    let payload = {'token': response.data.token, 'userId': response.data.userId}
+                    store.dispatch('validateByTokenAndUserId', payload).then()
                     router.push('Profile')
                 }))
                     .catch(error => this.displayError(error.response.status))

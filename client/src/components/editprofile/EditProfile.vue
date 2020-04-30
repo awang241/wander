@@ -34,6 +34,7 @@
     import api from '../../Api';
     import authenticationStore from "../../store/authenticationStore";
     import router from "../../router";
+
     export default {
         name: "EditProfile",
         data() {

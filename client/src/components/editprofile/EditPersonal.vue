@@ -92,6 +92,27 @@
                 minDate: new Date(today.getFullYear() -100, today.getMonth(), today.getDate())
             }
         },
+        mounted() {
+            switch(this.fitness_level) {
+                case 0 :
+                    this.fitness_statement = "Beginner: I am not active at all";
+                    break;
+                case 1 :
+                    this.fitness_statement = "Novice: I do a low level of exercise (walking)";
+                    break;
+                case 2 :
+                    this.fitness_statement = "Intermediate: I work out 1-2 times per week";
+                    break;
+                case 3 :
+                    this.fitness_statement = "Advanced: I work out 3-4 times per week";
+                    break;
+                case 4 :
+                    this.fitness_statement = "Pro: I work out 5+ times per week";
+                    break;
+                default:
+                    this.fitness_statement = "Beginner: I am not active at all";
+            }
+        },
 
         methods: {
             sendUpdatedData(){

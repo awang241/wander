@@ -11,30 +11,30 @@
         <template slot="end">
             <b-navbar-item tag="div">
                 <div class="buttons">
-                    <b-button v-if="!authenticationStore.authenticated"
+                    <b-button v-if="!store.getters.getAuthenticationStatus"
                               tag="router-link"
                               to="/Login"
                               type="is-primary">
                         <strong>Login</strong>
                     </b-button>
-                    <b-button v-if="!authenticationStore.authenticated"
+                    <b-button v-if="!store.getters.getAuthenticationStatus"
                               tag="router-link"
                               to="/Registration"
                               type="is-light">
                         Register
                     </b-button>
                     <b-button  @click="goToAdminDashboard"
-                               v-if="authenticationStore.authenticated"
+                               v-if="store.getters.getAuthenticationStatus"
                                type="is-light">
                         Admin Dashboard
                     </b-button>
                     <b-button  @click="goToProfile"
-                               v-if="authenticationStore.authenticated"
+                               v-if="store.getters.getAuthenticationStatus"
                                type="is-light">
                         Profile
                     </b-button>
                     <b-button  @click="logout"
-                               v-if="authenticationStore.authenticated"
+                               v-if="store.getters.getAuthenticationStatus"
                                type="is-light">
                         Logout
                     </b-button>
@@ -47,8 +47,8 @@
 
 
 <script>
-    import authenticationStore  from "../store/authenticationStore";
     import router from "../router";
+    import api from "../Api";
     import store from '../store';
     import Vuex from 'vuex';
     import Vue from "vue";
@@ -58,19 +58,17 @@
         name: "NavBar",
         data: () => {
             return {
-                authenticationStore: authenticationStore.data,
+                store: store
             }
         },
         methods: {
             logout(){
-                //User is now logged out in authentication store
-                authenticationStore.methods.setSessionId(0)
-                authenticationStore.methods.setUserId(0)
-                authenticationStore.methods.setAuthenticated(false)
+                api.logout({userId: store.getters.getUserId}, localStorage.getItem('authToken'))
+                    .catch(error => console.log(error))
                 localStorage.removeItem('authToken')
                 localStorage.removeItem('userId')
-                let payload = {'token': null, 'userId': null}
-                store.dispatch('resetTokenAndUserId', payload, {root:true});
+                let payload = {'token': null, 'userId': null, 'authenticationStatus': false}
+                store.dispatch('resetUserData', payload, {root:true});
                 router.push({path: '/Login'});
             },
             goToProfile(){
@@ -79,7 +77,9 @@
             goToAdminDashboard(){
                 router.push('AdminDashboard')
             },
+
         }
+
     }
 </script>
 

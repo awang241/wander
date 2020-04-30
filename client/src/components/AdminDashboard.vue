@@ -27,7 +27,6 @@
 
 <script>
     import api from '../Api';
-    import authenticationStore from "../store/authenticationStore";
     export default {
         name: "AdminDashboard",
         data() {
@@ -37,7 +36,7 @@
         },
         methods: {
             getProfilesForAdmin(){
-                api.getUserProfiles(authenticationStore.methods.getSessionId())
+                api.getUserProfiles(localStorage.getItem('authToken'))
                     .then((response) => {
                         this.allProfiles = response.data;
                     })
