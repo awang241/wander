@@ -7,7 +7,7 @@ console.log(SERVER_URL + "@@@");
   
 const localAxiosInstance = axios.create({
   baseURL: SERVER_URL,  
-  timeout: 1000  
+  timeout: 10000
 });  
   
 export default {
@@ -19,7 +19,4 @@ export default {
   editPassword: (passwordDetails, userId, sessionId) => localAxiosInstance.put('profiles/'+ userId+'/password', passwordDetails, {headers: {"authorization":sessionId}}),
   getActivityTypesList: () => localAxiosInstance.get('/activityTypes'),
   getUserProfiles: (sessionId) => localAxiosInstance.get('profiles/', {headers: {"authorization":sessionId}}),
-  getAuthLevel: (sessionId) => localAxiosInstance.get('authLevel/', {headers: {"authorization":sessionId}}),
-
-
 }
