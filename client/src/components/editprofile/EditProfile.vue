@@ -36,19 +36,15 @@
     import router from "../../router";
     export default {
         name: "EditProfile",
-        components: {
-            editPersonal
-        },
         data() {
             return {
                 component: "editPersonal",
-                //profileId: 2004,
                 profileId: this.$route.params.id,
                 profile: {}
             }
         },
-        mounted(){
-          this.getProfile()
+         mounted(){
+            this.getProfile()
         },
         // These methods are used to dynamically swap between components on click
         methods: {
@@ -72,7 +68,6 @@
                 router.go(-1)
             },
             getProfile(){
-                console.log("Attempting to get profile")
                 api.getProfile(authenticationStore.methods.getUserId(), authenticationStore.methods.getSessionId())
                     .then(response => this.profile = response.data)
             },
@@ -92,6 +87,19 @@
                 this.profile.optional_email = optionalEmails
                 api.editEmail({"primary_email" : primaryEmail,
                                         "additional_email": optionalEmails}, authenticationStore.methods.getUserId(), authenticationStore.methods.getSessionId())
+
+            },
+
+            updatePersonal(personalDetails){
+                this.profile.firstname = personalDetails.firstname
+                this.profile.lastname = personalDetails.lastname
+                this.profile.middlename = personalDetails.middlename
+                this.profile.nickname = personalDetails.nickname
+                this.profile.bio = personalDetails.bio
+                this.profile.date_of_birth = personalDetails.date_of_birth
+                this.profile.gender = personalDetails.gender
+                this.profile.fitness = personalDetails.fitness
+                api.editProfile(authenticationStore.methods.getUserId(), this.profile, authenticationStore.methods.getSessionId())
 
             }
         }

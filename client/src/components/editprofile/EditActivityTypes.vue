@@ -61,7 +61,12 @@
             },
             submitActivityTypes() {
                 this.$parent.updateActivityTypes(this.chosenActivityTypes)
-
+                this.$buefy.toast.open({
+                    duration: 2000,
+                    message: "Saved!",
+                    type: 'is-success',
+                    position: 'is-top'
+                })
             }
         },
         mounted() {

@@ -2,7 +2,6 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 import api from "../Api";
 import authenticationStore from "./authenticationStore";
-import profileStore from "../store/profileStore";
 
 Vue.use(Vuex);
 
@@ -30,7 +29,7 @@ export default new Vuex.Store({
                     authenticationStore.methods.setUserId(userId)
                     authenticationStore.methods.setSessionId(token)
                     authenticationStore.methods.setAuthenticated(true)
-                    profileStore.methods.setProfile(response.data)
+                    console.log(response)
                 }))
             } catch (err) {
                 console.log(err)

@@ -56,13 +56,10 @@
                 }
             },
             submitCountries(){
-                //this.profile.passports = this.chosenCountries
-                //Api.editProfile(authenticationStore.methods.getUserId(), this.profile, authenticationStore.methods.getSessionId()
-                //)
                 this.$parent.updateCountries(this.chosenCountries)
                 this.$buefy.toast.open({
                     duration: 2000,
-                    message: "Saved!",
+                    message: "Countries saved",
                     type: 'is-success',
                     position: 'is-top'
                 })

@@ -24,7 +24,7 @@
                         Register
                     </b-button>
                     <b-button  @click="goToAdminDashboard"
-                               v-if="authenticationStore.authenticated && (profileStore.authLevel == 0 || profileStore.authLevel == 1)"
+                               v-if="authenticationStore.authenticated"
                                type="is-light">
                         Admin Dashboard
                     </b-button>
@@ -49,7 +49,6 @@
 <script>
     import authenticationStore  from "../store/authenticationStore";
     import router from "../router";
-    import api from "../Api";
     import store from '../store';
     import Vuex from 'vuex';
     import Vue from "vue";
@@ -64,9 +63,6 @@
         },
         methods: {
             logout(){
-                api.logout({userId: authenticationStore.methods.getUserId()}, authenticationStore.methods.getSessionId())
-                    .catch(error => console.log(error))
-
                 //User is now logged out in authentication store
                 authenticationStore.methods.setSessionId(0)
                 authenticationStore.methods.setUserId(0)
@@ -75,19 +71,15 @@
                 localStorage.removeItem('userId')
                 let payload = {'token': null, 'userId': null}
                 store.dispatch('resetTokenAndUserId', payload, {root:true});
-                router.go(-1)
-                router.replace('Login')
+                router.push({path: '/Login'});
             },
             goToProfile(){
-                router.go(-1)
-                router.push('Profile')
+                router.push({path: '/Profile'});
             },
             goToAdminDashboard(){
                 router.push('AdminDashboard')
             },
-
         }
-
     }
 </script>
 

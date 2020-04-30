@@ -72,9 +72,6 @@
 </template>
 
 <script>
-    import api from "../../Api";
-    import authenticationStore from "../../store/authenticationStore";
-    import profileStore from "../../store/profileStore";
 
     export default {
         name: "EditPersonal",
@@ -82,71 +79,35 @@
         data() {
             const today = new Date()
             return {
-                firstName: profileStore.data.firstName,
-                lastName: profileStore.data.lastName,
-                middleName: profileStore.data.middleName,
-                nickName: profileStore.data.nickname,
-                bio: profileStore.data.bio,
-                dateOfBirth: new Date(profileStore.data.dateOfBirth),
-                gender: profileStore.data.gender,
-                fitness_level: profileStore.data.fitnessLevel,
-                fitness_statement: null,
-                date: profileStore.data.dateOfBirth,
+                firstName: this.profile.firstname,
+                lastName: this.profile.lastname,
+                middleName: this.profile.middlename,
+                nickName: this.profile.nickname,
+                bio: this.profile.bio,
+                dateOfBirth: new Date(this.profile.date_of_birth),
+                gender: this.profile.gender,
+                fitness_level: this.profile.fitness,
+                date: this.profile.date_of_birth,
                 maxDate: new Date(today.getFullYear(), today.getMonth(), today.getDate()),
                 minDate: new Date(today.getFullYear() -100, today.getMonth(), today.getDate())
-            }
-        },
-        mounted() {
-            switch(this.fitness_level) {
-                case 0 :
-                    this.fitness_statement = "Beginner: I am not active at all";
-                    break;
-                case 1 :
-                    this.fitness_statement = "Novice: I do a low level of exercise (walking)";
-                    break;
-                case 2 :
-                    this.fitness_statement = "Intermediate: I work out 1-2 times per week";
-                    break;
-                case 3 :
-                    this.fitness_statement = "Advanced: I work out 3-4 times per week";
-                    break;
-                case 4 :
-                    this.fitness_statement = "Pro: I work out 5+ times per week";
-                    break;
-                default:
-                    this.fitness_statement = "Beginner: I am not active at all";
             }
         },
 
         methods: {
             sendUpdatedData(){
-                const personalDetails = {"firstname": this.firstName,
-                                 "lastname": this.lastName,
-                                "middlename": this.middleName,
-                                "nickname": this.nickName,
-                                "bio": this.bio,
-                                "date_of_birth": this.dateOfBirth,
-                                "gender": this.gender,
-                                "fitness": this.fitness_level
-                }
-                profileStore.methods.updatePersonal(personalDetails)
-                const updatedProfile = {
-                    "lastname": profileStore.data.lastName,
-                    "firstname": profileStore.data.firstName,
-                    "middlename": profileStore.data.middleName,
-                    "nickname": profileStore.data.nickname,
-                    "primary_email": profileStore.data.primaryEmail,
-                    "additional_email": profileStore.data.optionalEmails,
-                    "bio": profileStore.data.bio,
-                    "date_of_birth": profileStore.data.dateOfBirth,
-                    "gender": profileStore.data.gender,
-                    "fitness": profileStore.data.fitnessLevel,
-                    "passports":profileStore.data.passportCountries,
-                    "activities": profileStore.data.activityTypes
-                }
-                api.editProfile(authenticationStore.methods.getUserId(), updatedProfile, authenticationStore.methods.getSessionId())
-                    .catch(error => this.showError(this.displayError(error.response.status)))
-                    .then(response => this.showMessage(this.displayError(response.status)))
+
+                const personalDetails =
+                    {
+                    "firstname": this.firstName,
+                    "lastname": this.lastName,
+                    "middlename": this.middleName,
+                    "nickname": this.nickName,
+                    "bio": this.bio,
+                    "date_of_birth": this.dateOfBirth,
+                    "gender": this.gender,
+                    "fitness": this.fitness_level
+                    }
+                this.$parent.updatePersonal(personalDetails)
             },
             showMessage(message) {
                 this.$buefy.toast.open({

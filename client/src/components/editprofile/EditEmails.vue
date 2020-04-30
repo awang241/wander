@@ -45,6 +45,23 @@
         components: {List},
         props: ["profile"],
         methods: {
+            showWarning(message) {
+                this.$buefy.toast.open({
+                    duration: 5000,
+                    message: message,
+                    type: 'is-danger',
+                    position: 'is-top',
+                    queue: false,
+                });
+            },
+            showSuccess(message){
+                this.$buefy.toast.open({
+                    duration: 2000,
+                    message: message,
+                    type: 'is-success',
+                    position: 'is-top'
+                })
+            },
             addEmail() {
                 if (this.optionalEmails.length > 3) {
                     this.showWarning("Maximum email addresses reached")
@@ -59,13 +76,7 @@
             },
             changePrimaryEmail() {
                 if(this.newPrimaryEmail === "") {
-                    this.$buefy.toast.open({
-                        duration: 5000,
-                        message: "No additional email address selected",
-                        type: 'is-danger',
-                        position: 'is-top',
-                        queue: false,
-                    });
+                    this.showWarning("No additional email address selected")
                 } else {
                     this.optionalEmails.push(this.primaryEmail);
                     this.optionalEmails = this.optionalEmails.filter(email => email != this.newPrimaryEmail)
@@ -76,32 +87,9 @@
                 this.optionalEmails = this.optionalEmails.filter(email => email != emailToDelete)
             },
             submitEmails(){
-                this.$buefy.toast.open({
-                    duration: 5000,
-                    message: "Changes Saved!",
-                    type: 'is-success',
-                    position: 'is-top',
-                    queue: false,
-                });
                 this.$parent.updateEmails(this.primaryEmail, this.optionalEmails)
+                this.showSuccess("Updated emails")
                 }
-            }  ,
-            showWarning(message) {
-                this.$buefy.toast.open({
-                    duration: 5000,
-                    message: message,
-                    type: 'is-danger',
-                    position: 'is-top',
-                    queue: false,
-                });
-            },
-            showSuccess(message){
-                this.$buefy.toast.open({
-                    duration:5500,
-                    message: message,
-                    type: 'success',
-                    position: 'is-top'
-                })
             },
         data() {
             return {
