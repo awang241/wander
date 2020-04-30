@@ -20,7 +20,6 @@
 <script>
     import List from "../List";
     import Api from "../../Api";
-    import store from "../../store";
 
     export default {
         name: "EditActivityTypes",

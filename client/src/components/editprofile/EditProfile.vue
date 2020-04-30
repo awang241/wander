@@ -36,6 +36,9 @@
 
     export default {
         name: "EditProfile",
+        components: {
+            editPersonal
+        },
         data() {
             return {
                 component: "editPersonal",
