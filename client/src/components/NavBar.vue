@@ -72,7 +72,7 @@
                 router.push({path: '/Profile'});
             },
             goToAdminDashboard(){
-                router.push('AdminDashboard')
+                router.push({path: '/AdminDashboard'});
             },
 
         }

@@ -118,7 +118,7 @@ public class Profile_Controller {
      */
     @GetMapping("/profiles/{id}")
     public @ResponseBody ResponseEntity<Profile> getProfile(@PathVariable Long id, @RequestHeader("authorization") String token) {
-        if (jwtUtil.validateToken(token)) {
+        if (checkEditPermission(token, id)) {
             return getProfile(id);
         } else {
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
@@ -155,6 +155,7 @@ public class Profile_Controller {
             return false;
         }
     }
+
 
     /**
      * Deletes a profile from the repository given that it exists in the database. The method was initially used for
@@ -220,7 +221,6 @@ public class Profile_Controller {
      * @return a list of simplified profiles
      */
     protected List<SimplifiedProfileResponse> createSimplifiedProfiles(List<Profile> profiles) {
-
         List<SimplifiedProfileResponse> simplifiedProfiles = new ArrayList<>();
         for(Profile profile: profiles) {
             String tempEmail = eRepository.findPrimaryByProfile(profile);

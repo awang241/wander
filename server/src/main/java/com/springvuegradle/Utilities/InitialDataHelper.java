@@ -21,7 +21,7 @@ public class InitialDataHelper {
      * @param activityTypeRepository the way to access the activity type repository
      */
     public static void updateActivityTypeRepository(ActivityTypeRepository activityTypeRepository) {
-        if (activityTypeRepository.count() ==0) {
+        if (activityTypeRepository.count() == 0) {
             activityTypeRepository.save(new ActivityType("Football"));
             activityTypeRepository.save(new ActivityType("Tennis"));
             activityTypeRepository.save(new ActivityType("Hockey"));

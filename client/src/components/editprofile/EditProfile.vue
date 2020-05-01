@@ -13,14 +13,16 @@
                 <li><a v-on:click="changeToEmail">Emails</a></li>
             </ul>
             <div>
-                <a @click="changeToProfile">Back to Profile</a>
-
+                <a v-if="store.getters.getAuthenticationLevel == 0 || store.getters.getAuthenticationLevel == 1" @click="changeToDashboard">Back To Admin Dashboard</a>
             </div>
+            <div>
+                <a @click="changeToProfile">Back to Profile</a>
+            </div>
+
         </div>
 
         <div>
             <component v-bind:is="component"  v-bind:profile="profile"/>
-
         </div>
     </div>
 </template>
@@ -33,14 +35,17 @@
     import editEmails from "./EditEmails";
     import api from '../../Api';
     import router from "../../router";
+    import store from "../../store";
 
     export default {
         name: "EditProfile",
+
         data() {
             return {
                 component: "editPersonal",
                 profileId: this.$route.params.id,
-                profile: {}
+                profile: {},
+                store: store
             }
         },
          mounted(){
@@ -64,8 +69,10 @@
                 this.component = editEmails
             },
             changeToProfile() {
-                //Goes to the previous component on the stack
-                router.go(-1)
+                router.push({path: '/Profile'});
+            },
+            changeToDashboard() {
+                router.push({path: '/AdminDashboard'});
             },
             getProfile(){
                 api.getProfile(this.$route.params.id, localStorage.getItem('authToken'))
@@ -87,7 +94,6 @@
                 this.profile.optional_email = optionalEmails
                 api.editEmail({"primary_email" : primaryEmail,
                                         "additional_email": optionalEmails},this.$route.params.id, localStorage.getItem('authToken'))
-
             },
 
             updatePersonal(personalDetails){
@@ -100,7 +106,6 @@
                 this.profile.gender = personalDetails.gender
                 this.profile.fitness = personalDetails.fitness
                 api.editProfile(this.$route.params.id, this.profile, localStorage.getItem('authToken'))
-
             }
         }
     }

@@ -529,7 +529,7 @@ class ProfileControllerTest {
      * Test if a list of simplified profiles can be created from normal profiles
      */
     @Test
-    void createSimplifiedProfileList() {
+    void createSimplifiedProfileListTest() {
         //Make and save new profiles to mock repo
         Profile jimmy = createNormalProfileJimmy();
         assertEquals(0, repo.count());
