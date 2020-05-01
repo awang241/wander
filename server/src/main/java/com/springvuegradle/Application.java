@@ -1,15 +1,10 @@
 package com.springvuegradle;
 
-import com.springvuegradle.Model.ActivityType;
-import com.springvuegradle.Model.Email;
-import com.springvuegradle.Model.Profile;
 import com.springvuegradle.Repositories.ActivityTypeRepository;
 import com.springvuegradle.Repositories.EmailRepository;
 import com.springvuegradle.Repositories.PassportCountryRepository;
 import com.springvuegradle.Repositories.ProfileRepository;
-import com.springvuegradle.Utilities.InitialDataHelper;
 import com.springvuegradle.Utilities.ValidationHelper;
-import com.sun.xml.bind.v2.runtime.output.SAXOutput;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.SpringApplication;
@@ -18,7 +13,6 @@ import java.util.*;
 
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.Ordered;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -27,7 +21,6 @@ import org.springframework.web.filter.CorsFilter;
 import static com.springvuegradle.Controller.Profile_Controller.hashPassword;
 
 @SpringBootApplication
-@ComponentScan({"com.springvuegradle.Controller", "com.springvuegradle.Utilities"})
 public class Application {
 
     public static void main(String[] args) {

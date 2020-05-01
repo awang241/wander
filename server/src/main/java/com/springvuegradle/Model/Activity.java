@@ -7,6 +7,8 @@ import org.hibernate.type.CalendarTimeType;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.time.OffsetDateTime;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -34,10 +36,10 @@ public class Activity {
     private Boolean continuous;
 
     @NotNull
-    private CalendarTimeType startTime;
+    private OffsetDateTime startTime;
 
     @NotNull
-    private CalendarTimeType endTime;
+    private OffsetDateTime endTime;
 
     private String location;
 
@@ -50,6 +52,8 @@ public class Activity {
             joinColumns = @JoinColumn(name = "activity_id", referencedColumnName = "id"))
     private Set<ActivityType> activityTypes;
 
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "activity")
+    private Set<ActivityMembership> members;
 
     public Activity(){}
 
@@ -59,8 +63,8 @@ public class Activity {
             @JsonProperty("description") String description,
             @JsonProperty("activity_type") String[] activityTypes,
             @JsonProperty("continuous") Boolean continuous,
-            @JsonProperty("start_time") CalendarTimeType startTime,
-            @JsonProperty("end_time") CalendarTimeType endTime,
+            @JsonProperty("start_time") String startTime,
+            @JsonProperty("end_time") String endTime,
             @JsonProperty("location") String location){
         this.activityName = activityName;
         this.description = description;
@@ -69,8 +73,8 @@ public class Activity {
             addActivityType(new ActivityType(activityType));
         }
         this.continuous = continuous;
-        this.startTime = startTime;
-        this.endTime = endTime;
+        this.startTime = OffsetDateTime.parse(startTime);
+        this.endTime = OffsetDateTime.parse(endTime);
         this.location = location;
     }
 
@@ -87,13 +91,67 @@ public class Activity {
         return Objects.hash(activityName);
     }
 
+    public long getId() {
+        return id;
+    }
 
     public String getActivityName() {
         return activityName;
     }
 
-    public void addActivityType(ActivityType activityType) {
-        activityTypes.add(activityType);
+    public void setActivityName(String activityName) {
+        this.activityName = activityName;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Boolean getContinuous() {
+        return continuous;
+    }
+
+    public void setContinuous(Boolean continuous) {
+        this.continuous = continuous;
+    }
+
+    public OffsetDateTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(OffsetDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public OffsetDateTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(OffsetDateTime endTime) {
+        this.endTime = endTime;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public Set<ActivityType> getActivityTypes() {
+        return Collections.unmodifiableSet(activityTypes);
+    }
+
+    public boolean addActivityType(ActivityType activityType) {
+        return this.activityTypes.add(activityType);
+    }
+
+    public boolean removeActivityType(ActivityType type) {
+        return this.activityTypes.remove(type);
+    }
 }

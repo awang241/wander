@@ -115,6 +115,9 @@ public class Profile {
             joinColumns = @JoinColumn(name = "profile_id", referencedColumnName = "id"))
     private Set<ActivityType> activityTypes;
 
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "profile")
+    private Set<ActivityMembership> activities = new HashSet<>();
+
     /**
      * No argument constructor for Profile, can be used for creating new profiles directly from JSON data.
      */

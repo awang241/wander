@@ -214,52 +214,41 @@ class ActivityServiceTest {
 
 
     private Activity createNormalActivityKaikoura() {
-        CalendarTimeType start = new CalendarTimeType();
-        CalendarTimeType end = new CalendarTimeType();
         return new Activity("Kaikoura Coast Track race", "A big and nice race on a lovely peninsula",
-                new String[]{"tramping", "hiking"}, false, start, end, "Kaikoura, NZ");
+                new String[]{"tramping", "hiking"}, false, "2020-02-20T08:00:00+1300",
+                "2020-02-20T08:00:00+1300", "Kaikoura, NZ");
     }
 
     private Activity createNormalActivitySilly() {
-        CalendarTimeType start = new CalendarTimeType();
-        CalendarTimeType end = new CalendarTimeType();
-        return new Activity("Wibble", "A bald man",
-                new String[]{"hockey"}, true, start, end, "K2");
+        return new Activity("Wibble", "A bald man", new String[]{"hockey"}, true,
+                "2020-02-20T08:00:00+1300","2020-02-20T08:00:00+1300", "K2");
     }
 
     private Activity createBadActivityNoName() {
-        CalendarTimeType start = new CalendarTimeType();
-        CalendarTimeType end = new CalendarTimeType();
-        return new Activity(null, "A big and nice race on a lovely peninsula",
-                new String[]{"tramping", "hiking"}, false, start, end, "Kaikoura, NZ");
+        Activity activity = createNormalActivityKaikoura();
+        activity.setActivityName(null);
+        return activity;
     }
 
     private Activity createBadActivityBlankName() {
-        CalendarTimeType start = new CalendarTimeType();
-        CalendarTimeType end = new CalendarTimeType();
-        return new Activity("", "A big and nice race on a lovely peninsula",
-                new String[]{"tramping", "hiking"}, false, start, end, "Kaikoura, NZ");
+        Activity activity = createNormalActivityKaikoura();
+        activity.setActivityName("");
+        return activity;
     }
 
     private Activity createBadActivityNoActivityTypes() {
-        CalendarTimeType start = new CalendarTimeType();
-        CalendarTimeType end = new CalendarTimeType();
-        return new Activity("", "A big and nice race on a lovely peninsula",
-                null, false, start, end, "Kaikoura, NZ");
+        return new Activity("", "A big and nice race on a lovely peninsula",null, false,
+                "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ");
     }
 
     private Activity createBadActivityEmptyActivityTypes() {
-        CalendarTimeType start = new CalendarTimeType();
-        CalendarTimeType end = new CalendarTimeType();
-        return new Activity("", "A big and nice race on a lovely peninsula",
-                new String[]{}, false, start, end, "Kaikoura, NZ");
+        return new Activity("", "A big and nice race on a lovely peninsula", new String[]{},
+                false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ");
     }
 
     private Activity createBadActivityInvalidActivityTypes() {
-        CalendarTimeType start = new CalendarTimeType();
-        CalendarTimeType end = new CalendarTimeType();
-        return new Activity("", "A big and nice race on a lovely peninsula",
-                new String[]{"nugts"}, false, start, end, "Kaikoura, NZ");
+        return new Activity("", "A big and nice race on a lovely peninsula", new String[]{"nugts"},
+                false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ");
     }
 
     private static void populateActivityTypes() {

@@ -42,8 +42,6 @@ public class ActivityType {
     public ActivityType() {
     }
 
-    ;
-
     @JsonCreator
     public ActivityType(
             @JsonProperty("name") String activityTypeName) {

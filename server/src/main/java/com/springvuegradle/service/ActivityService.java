@@ -7,7 +7,7 @@ import com.springvuegradle.Repositories.ProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-@Service
+@Service(value = "activityService")
 public class ActivityService {
 
     @Autowired
