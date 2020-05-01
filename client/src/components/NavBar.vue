@@ -28,6 +28,11 @@
                                type="is-light">
                         Admin Dashboard
                     </b-button>
+                    <b-button  @click="goToActivities"
+                               v-if="authenticationStore.authenticated"
+                               type="is-light">
+                        Activities
+                    </b-button>
                     <b-button  @click="goToProfile"
                                v-if="authenticationStore.authenticated"
                                type="is-light">
@@ -85,6 +90,9 @@
             goToAdminDashboard(){
                 router.push('AdminDashboard')
             },
+            goToActivities(){
+                router.push('Activities')
+            }
 
         }
 
