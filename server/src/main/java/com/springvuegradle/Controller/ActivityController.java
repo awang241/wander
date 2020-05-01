@@ -5,21 +5,19 @@ import com.springvuegradle.Model.Activity;
 import com.springvuegradle.Repositories.ProfileRepository;
 import com.springvuegradle.Utilities.JwtUtil;
 import com.springvuegradle.dto.ActivityRequest;
+import com.springvuegradle.service.ActivityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * Class containing REST endpoints for activities
  */
+@RestController
 public class ActivityController {
 
     @Autowired
-    private ProfileRepository profileRepo;
-
+    private ActivityService activityService;
     @Autowired
     private JwtUtil jwtUtil;
 
