@@ -1,15 +1,6 @@
 package com.springvuegradle.Controller;
-
-import com.springvuegradle.Controller.enums.ActivityResponseMessage;
 import com.springvuegradle.Model.Activity;
-import com.springvuegradle.Model.ActivityType;
-import com.springvuegradle.Repositories.ActivityRepository;
-import com.springvuegradle.Repositories.ActivityTypeRepository;
-import com.springvuegradle.Repositories.ProfileRepository;
-import org.hibernate.type.CalendarTimeType;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
+import com.springvuegradle.Repositories.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,46 +9,73 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Tests for the ActivityController class, these tests are run separately from the actual repository.
+ */
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
-class ActivityControllerTest {
+public class ActivityControllerTest {
 
     @Autowired
-    ActivityController controller;
+    private ActivityRepository arepo;
+
     @Autowired
-    ProfileRepository profileRepository;
-    @Autowired
-    ActivityRepository activityRepository;
-    @Autowired
-    static ActivityTypeRepository typeRepository;
+    private ActivityController activityController;
 
-    @BeforeAll
-    static void setUpBeforeClass() {
-        populateActivityTypes();
+    /**
+     * This tests to ensure activities structured correctly can be added to the database.
+     */
+    @Test
+    void createActivityTest() {
+        Activity trackRace = createNormalActivity();
+        int expected_in_repo = 0;
+        assertEquals(expected_in_repo, arepo.count());
+
+        ResponseEntity<String> response_entity = activityController.createActivity(trackRace, (long) 0);
+        assertEquals(HttpStatus.CREATED, response_entity.getStatusCode());
+
+        expected_in_repo = 1;
+        assertEquals(expected_in_repo, arepo.count());
     }
 
-    @BeforeEach
-    void setUp() {
+    /**
+     * This tests to ensure activities structured correctly can be added to the database.
+     */
+    @Test
+    void createIncorrectActivityTest() {
+        Activity trackRace = createIncorrectActivity();
+        int expected_in_repo = 0;
+        assertEquals(expected_in_repo, arepo.count());
 
+        ResponseEntity<String> response_entity = activityController.createActivity(trackRace, (long) 0);
+        assertEquals(HttpStatus.FORBIDDEN, response_entity.getStatusCode());
+
+        expected_in_repo = 0;
+        assertEquals(expected_in_repo, arepo.count());
     }
 
-    @AfterEach
-    void tearDown() {
-        profileRepository.deleteAll();
-        activityRepository.deleteAll();
+
+
+    /* Below are a set of ready-made Activity objects which can be used for various tests. */
+
+    /**
+     * @return a valid activity object.
+     */
+    static Activity createNormalActivity() {
+        return new Activity("Kaikoura Coast Track race", "A big and nice race on a lovely peninsula",
+                new String[]{"tramping","hiking"}, false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ");
     }
 
-    private static void populateActivityTypes() {
-        typeRepository.save(new ActivityType("football"));
-        typeRepository.save(new ActivityType("tennis"));
-        typeRepository.save(new ActivityType("hockey"));
-        typeRepository.save(new ActivityType("basketball"));
-        typeRepository.save(new ActivityType("hiking"));
-        typeRepository.save(new ActivityType("tramping"));
-        typeRepository.save(new ActivityType("rock climbing"));
+    static Activity createIncorrectActivity() {
+        return new Activity("Kaikoura Coast Track race", "A big and nice race on a lovely peninsula",
+                new String[]{"tramping","hiking"}, false, "2020-02-20T08:00:00+1300", "2020-01-20T08:00:00+1300", "Kaikoura, NZ");
     }
+
+
+
+
 }

@@ -2,10 +2,12 @@ package com.springvuegradle.Controller;
 
 
 import com.springvuegradle.Model.Activity;
-import com.springvuegradle.Repositories.ProfileRepository;
+import com.springvuegradle.Repositories.ActivityRepository;
+import com.springvuegradle.Utilities.FieldValidationHelper;
 import com.springvuegradle.Utilities.JwtUtil;
 import com.springvuegradle.service.ActivityService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,9 +18,13 @@ import org.springframework.web.bind.annotation.*;
 public class ActivityController {
 
     @Autowired
-    private ActivityService activityService;
-    @Autowired
     private JwtUtil jwtUtil;
+
+    /**
+     * Way to access Activity Repository (Activity table in db).
+     */
+    @Autowired
+    private ActivityRepository aRepo;
 
     private boolean checkEditPermission(String token, Long id) {
         if (jwtUtil.validateToken(token) && (jwtUtil.extractPermission(token) == 0 || jwtUtil.extractPermission(token) == 1 || (jwtUtil.extractId(token).equals(id)))) {
@@ -27,6 +33,27 @@ public class ActivityController {
             return false;
         }
     }
+
+    /**
+     * Endpoint for creating activities.
+     * Creates a new Activity object given a set of JSON data and saves the new data to the database.
+     * @param newActivity contains data relating to the activity to add to the database.
+     * @param id referring to the profile
+     * @return the created activity and/or status code.
+     */
+    @PostMapping("/profiles/{id}/activities")
+    public ResponseEntity<String> createActivity (@RequestBody Activity newActivity, @PathVariable Long id) {
+        String error = FieldValidationHelper.validateActivity(newActivity);
+        if (error.equals("")) {
+            aRepo.save(newActivity);
+            return new ResponseEntity<>("New activity has been created.", HttpStatus.CREATED);
+        } else {
+            return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
+        }
+    }
+
+
+
 
     /**
      * REST endpoint for editing an existing activity. Given a HTTP request containing a correctly formatted JSON file,

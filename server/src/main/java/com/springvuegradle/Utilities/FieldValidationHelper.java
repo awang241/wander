@@ -35,7 +35,7 @@ public class FieldValidationHelper {
             result += "End time selected, but start time is not selected.\n";
         }
         if (activity.getStartTime() != null && activity.getEndTime() != null &&
-                activity.getStartTime().isBefore(activity.getEndTime())) {
+                activity.getStartTime().isAfter(activity.getEndTime())) {
             result += "The start time must come before the end time.\n";
         }
         return result;

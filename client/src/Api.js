@@ -21,6 +21,5 @@ export default {
   getActivityTypesList: () => localAxiosInstance.get('/activityTypes'),
   getUserProfiles: (token) => localAxiosInstance.get('profiles/', {headers: {"authorization":token}}),
   getAuthLevel: (token) => localAxiosInstance.get('authLevel/', {headers: {"authorization":token}}),
-  saveActivity: (userId, data, token) => localAxiosInstance.post('/profiles'+userId+'/activities', data, {headers: {"authorization":token}})
-
+  createActivity: (userId, data) => localAxiosInstance.post('/profiles'+userId+'/activities', data)
 }

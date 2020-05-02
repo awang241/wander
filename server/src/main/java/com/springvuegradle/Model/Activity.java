@@ -7,11 +7,10 @@ import org.hibernate.type.CalendarTimeType;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 @Entity
 public class Activity {
@@ -36,10 +35,10 @@ public class Activity {
     private Boolean continuous;
 
     @NotNull
-    private OffsetDateTime startTime;
+    private LocalDateTime startTime;
 
     @NotNull
-    private OffsetDateTime endTime;
+    private LocalDateTime endTime;
 
     private String location;
 
@@ -73,8 +72,8 @@ public class Activity {
             addActivityType(new ActivityType(activityType));
         }
         this.continuous = continuous;
-        this.startTime = OffsetDateTime.parse(startTime);
-        this.endTime = OffsetDateTime.parse(endTime);
+        this.startTime = LocalDateTime.parse(startTime, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:m:ssZ"));
+        this.endTime = LocalDateTime.parse(endTime, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:m:ssZ"));
         this.location = location;
     }
 
@@ -119,19 +118,19 @@ public class Activity {
         this.continuous = continuous;
     }
 
-    public OffsetDateTime getStartTime() {
+    public LocalDateTime getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(OffsetDateTime startTime) {
+    public void setStartTime(LocalDateTime startTime) {
         this.startTime = startTime;
     }
 
-    public OffsetDateTime getEndTime() {
+    public LocalDateTime getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(OffsetDateTime endTime) {
+    public void setEndTime(LocalDateTime endTime) {
         this.endTime = endTime;
     }
 
