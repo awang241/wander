@@ -58,6 +58,12 @@ public class Profile_Controller {
     private ActivityTypeRepository aRepo;
 
     /**
+     * Way to access Activity Repository (Activity table in db).
+     */
+    @Autowired
+    private ActivityRepository activityRepo;
+
+    /**
      * Endpoint for creating profiles.
      * Creates a new Profile object given a set of JSON data and forms a profile object based on the given data, then
      * hashes the password and adds the new data to the database.
@@ -283,7 +289,7 @@ public class Profile_Controller {
     }
 
     /**
-     * Queries the Database to find all the country names.
+     * Queries the Database to find all the activityTypes.
      * @return a response with all the activityTypes in the database.
      */
     @GetMapping("/activityTypes")
@@ -291,6 +297,17 @@ public class Profile_Controller {
         List<String> allActivityTypes = aRepo.findAllActivityTypeNames();
         ActivityTypesResponse activityTypesResponse = new ActivityTypesResponse(allActivityTypes);
         return new ResponseEntity<ActivityTypesResponse>(activityTypesResponse, HttpStatus.OK);
+    }
+
+    /**
+     * Queries the Database to find all the activity names.
+     * @return a response with all the activities in the database.
+     */
+    @GetMapping("/activities")
+    public ResponseEntity<ActivitiesResponse> getActivitiesList() {
+        List<String> allActivities = activityRepo.findAllActivityNames();
+        ActivitiesResponse activitiesResponse = new ActivitiesResponse(allActivities);
+        return new ResponseEntity<ActivitiesResponse>(activitiesResponse, HttpStatus.OK);
     }
 
     /**
