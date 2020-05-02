@@ -4,7 +4,6 @@ package com.springvuegradle.Controller;
 import com.springvuegradle.Model.Activity;
 import com.springvuegradle.Repositories.ProfileRepository;
 import com.springvuegradle.Utilities.JwtUtil;
-import com.springvuegradle.dto.ActivityRequest;
 import com.springvuegradle.service.ActivityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

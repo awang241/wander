@@ -13,6 +13,7 @@ import java.util.*;
 
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.Ordered;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -21,6 +22,7 @@ import org.springframework.web.filter.CorsFilter;
 import static com.springvuegradle.Controller.Profile_Controller.hashPassword;
 
 @SpringBootApplication
+@ComponentScan({"com.springvuegradle.Controller", "com.springvuegradle.Utilities", "com.springvuegradle.service"})
 public class Application {
 
     public static void main(String[] args) {

@@ -1,9 +1,6 @@
 package com.springvuegradle.Utilities;
 
-import com.springvuegradle.Model.ActivityType;
-import com.springvuegradle.Model.Email;
-import com.springvuegradle.Model.PassportCountry;
-import com.springvuegradle.Model.Profile;
+import com.springvuegradle.Model.*;
 import com.springvuegradle.Repositories.ActivityTypeRepository;
 import com.springvuegradle.Repositories.EmailRepository;
 import com.springvuegradle.Repositories.PassportCountryRepository;
@@ -26,23 +23,23 @@ public class FieldValidationHelper {
      * @param activity the activity object we want validated
      * @return string containing a description of the error in validation (if error occurs)
      */
-//    public static String validateActivity(Activity activity) {
-//        String result = "";
-//        if (!activity.getContinuous() && activity.getStartTime() == null && activity.getEndTime() == null) {
-//            result += "If a duration based activity is chosen, it must have start and end times.\n";
-//        }
-//        if (activity.getStartTime() != null && activity.getEndTime() == null) {
-//            result += "Start time selected, but end time is not selected.\n";
-//        }
-//        if (activity.getStartTime() == null && activity.getEndTime() != null) {
-//            result += "End time selected, but start time is not selected.\n";
-//        }
-//        if (activity.getStartTime() != null && activity.getEndTime() != null &&
-//                activity.getStartTime() > activity.getEndTime()) {
-//            result += "The start time must come before the end time.\n";
-//        }
-//        return result;
-//    }
+    public static String validateActivity(Activity activity) {
+        String result = "";
+        if (!activity.getContinuous() && activity.getStartTime() == null && activity.getEndTime() == null) {
+            result += "If a duration based activity is chosen, it must have start and end times.\n";
+        }
+        if (activity.getStartTime() != null && activity.getEndTime() == null) {
+            result += "Start time selected, but end time is not selected.\n";
+        }
+        if (activity.getStartTime() == null && activity.getEndTime() != null) {
+            result += "End time selected, but start time is not selected.\n";
+        }
+        if (activity.getStartTime() != null && activity.getEndTime() != null &&
+                activity.getStartTime().isBefore(activity.getEndTime())) {
+            result += "The start time must come before the end time.\n";
+        }
+        return result;
+    }
 
     /**
      * Used in the create profile and update profile methods for verification. Returns a string to let the user know what
