@@ -9,6 +9,7 @@
                     </h1>
                 </div>
 
+                <!-- redirect to add activity -->
                 <b-button
                            type="is-info">
                     Add Activity
@@ -18,13 +19,14 @@
 
         <hr class ="hrLine">
 
+        <!-- this is a placeholder, please remove after testing -->
         <div class="container containerColor has-same-height is-gapless">
             <div class="column">
                 <!-- Activities -->
                 <div class="card">
                     <div class="card-content">
                         <h3 class="title is-4">Name</h3>
-
+                        role:
                         <div class="content">
                             <table class="table-profile">
                                 <tr>
@@ -33,23 +35,23 @@
                                 </tr>
                                 <tr>
                                     <td>Description:</td>
-                                    <td>none</td>
+                                    <td>description</td>
                                 </tr>
                                 <tr>
                                     <td>Continous/Duration:</td>
-                                    <td>cont</td>
+                                    <td>continuous</td>
                                 </tr>
                                 <tr>
                                     <td>Start Time:</td>
-                                    <td>none</td>
+                                    <td>time</td>
                                 </tr>
                                 <tr>
                                     <td>End Time:</td>
-                                    <td>none</td>
+                                    <td>time</td>
                                 </tr>
                                 <tr>
                                     <td>Location:</td>
-                                    <td>Bob's House</td>
+                                    <td>time</td>
                                 </tr>
                             </table>
                         </div>
@@ -58,13 +60,64 @@
                 </div>
             </div>
         </div>
+
+        <div v-for="activity in activities" v-bind:key="activity">
+            <div class="container containerColor has-same-height is-gapless">
+                <div class="column">
+                    <!-- Activities -->
+                    <div class="card">
+                        <div class="card-content">
+                            <h3 class="title is-4">Name</h3>
+                            Role:
+                            <div class="content">
+                                <table class="table-profile">
+                                    <tr>
+                                        <th colspan="1"></th>
+                                        <th colspan="2"></th>
+                                    </tr>
+                                    <tr>
+                                        <td>Description:</td>
+                                        <td>{{activity.description}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Continous/Duration:</td>
+                                        <td>{{activity.continuous}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Start Time:</td>
+                                        <td>{{activity.startTime}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>End Time:</td>
+                                        <td>{{activity.endTime}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Location:</td>
+                                        <td>{{activity.location}}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <br>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
 <script>
-
+    import api from '../Api';
     export default {
-        name: "Activities"
+        name: "Activities",
+        data() {
+            return {
+                activities: api.getActivitiesList(),
+            }
+        },
+        methods: {
+
+        }
     }
 
 </script>
