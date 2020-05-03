@@ -11,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * Class containing REST endpoints for activities
  */
@@ -19,6 +21,9 @@ public class ActivityController {
 
     @Autowired
     private JwtUtil jwtUtil;
+
+    @Autowired
+    private ActivityService activityService;
 
     /**
      * Way to access Activity Repository (Activity table in db).
@@ -73,5 +78,35 @@ public class ActivityController {
     protected ResponseEntity<String> updateActivity(Activity request, Long activityId) {
         return null;
     }
+
+    /**
+     * Queries the Database to find all the activities.
+     * @return a response with all the activities in the database.
+     */
+    @GetMapping("/activities")
+    public ResponseEntity<List<Activity>> getActivitiesList() {
+        List<Activity> allActivities = aRepo.findAll();
+        return new ResponseEntity<>(allActivities, HttpStatus.OK);
+    }
+
+
+    /**
+     * Queries the Database to find all the activities of a user with their profile id.
+     * @return a response with all the activities of the user in the database.
+     */
+    @GetMapping("/profiles/{profileId}/activities")
+    public ResponseEntity<List<Activity>> getAllUsersActivities(@RequestHeader("authorization") String token,
+                                                                @PathVariable Long profileId) {
+        if (!jwtUtil.validateToken(token)) {
+            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+        }
+        return getAllUsersActivities(profileId);
+    }
+
+    public ResponseEntity<List<Activity>> getAllUsersActivities(Long profileId) {
+        List<Activity> allUserActivities = activityService.getActivitiesByProfileId(profileId);
+        return new ResponseEntity<>(allUserActivities, HttpStatus.OK);
+    }
+
 
 }
