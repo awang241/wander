@@ -6,6 +6,7 @@ public enum ActivityResponseMessage {
     MISSING_TYPES("An activity must have at least one activity type"),
     INVALID_TYPE("Given activity types do not exist in the database"),
     INVALID_ACTIVITY("No activity with that ID exists in the database"),
+    INVALID_END("The end date cannot be before the start date"),
     INVALID_FIELDS("Invalid fields");
 
     private String message;

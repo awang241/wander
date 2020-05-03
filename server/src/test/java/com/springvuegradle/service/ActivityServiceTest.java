@@ -7,6 +7,7 @@ import com.springvuegradle.Model.Profile;
 import com.springvuegradle.Repositories.ActivityRepository;
 import com.springvuegradle.Repositories.ActivityTypeRepository;
 import com.springvuegradle.Repositories.ProfileRepository;
+import com.springvuegradle.Utilities.FormatHelper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -130,13 +131,25 @@ class ActivityServiceTest {
     }
 
     @Test
-    void updateActivityWithInvalidDateThrowsExceptionTest() {
-        fail("not implemented");
+    void updateActivityWithMisorderedDateThrowsExceptionTest() {
+        activityRepository.save(createNormalActivitySilly());
+        Long activityId = activityRepository.getLastInsertedId();
+        ActivityResponseMessage expectedMessage = ActivityResponseMessage.INVALID_END;
+        assertTrue(activityRepository.existsById(activityId), "Sanity check: test setup correctly");
+
+        try {
+            service.update(createBadActivityMisorderedDates(), activityId);
+            fail(MISSING_EXCEPTION);
+        } catch (Exception e) {
+            assertEquals(e.getMessage(), expectedMessage.toString());
+        }
     }
 
     @Test
-    void updateActivityWithInvalidDateDoesNotSaveDataTest() {
-        fail("not implemented");
+    void updateActivityWithMisorderedDateDoesNotSaveDataTest() {
+        Activity expectedActivity = createNormalActivitySilly(), actualActivity = null;
+        actualActivity = updateAndGetResult(expectedActivity, createBadActivityMisorderedDates());
+        assertEquals(expectedActivity, actualActivity);
     }
 
     @Test
@@ -227,6 +240,12 @@ class ActivityServiceTest {
     private Activity createBadActivityBlankName() {
         Activity activity = createNormalActivityKaikoura();
         activity.setActivityName("");
+        return activity;
+    }
+
+    private Activity createBadActivityMisorderedDates() {
+        Activity activity = createNormalActivityKaikoura();
+        activity.setEndTime(FormatHelper.parseOffsetDateTime("2020-01-20T08:00:00+1300"));
         return activity;
     }
 
