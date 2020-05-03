@@ -299,16 +299,7 @@ public class Profile_Controller {
         return new ResponseEntity<ActivityTypesResponse>(activityTypesResponse, HttpStatus.OK);
     }
 
-    /**
-     * Queries the Database to find all the activity names.
-     * @return a response with all the activities in the database.
-     */
-    @GetMapping("/activities")
-    public ResponseEntity<ActivitiesResponse> getActivitiesList() {
-        List<String> allActivities = activityRepo.findAllActivityNames();
-        ActivitiesResponse activitiesResponse = new ActivitiesResponse(allActivities);
-        return new ResponseEntity<ActivitiesResponse>(activitiesResponse, HttpStatus.OK);
-    }
+
 
     /**
      * Updates a user's password. Completes verification to ensure that the old password is correct and the two new passwords match.

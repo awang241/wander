@@ -115,6 +115,14 @@ public class Profile {
             joinColumns = @JoinColumn(name = "profile_id", referencedColumnName = "id"))
     private Set<ActivityType> activityTypes;
 
+    public Set<ActivityMembership> getActivities() {
+        return activities;
+    }
+
+    public void setActivities(Set<ActivityMembership> activities) {
+        this.activities = activities;
+    }
+
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "profile")
     private Set<ActivityMembership> activities = new HashSet<>();
 
@@ -278,6 +286,8 @@ public class Profile {
         }
         return activityTypeNames;
     }
+
+
 
     @JsonIgnore
     public Set<PassportCountry> getPassportObjects() {
