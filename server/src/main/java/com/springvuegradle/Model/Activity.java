@@ -80,7 +80,27 @@ public class Activity {
         this.location = location;
     }
 
+    public void update(Activity activity) {
+        this.activityName = activity.activityName;
+        this.description = activity.description;
+        this.continuous = activity.continuous;
+        this.startTime = activity.startTime;
+        this.endTime = activity.endTime;
+        this.location = activity.location;
+        Set<ActivityType> removals = new HashSet<>(this.activityTypes);
+        removals.removeAll(activity.activityTypes);
+        for (ActivityType removal: removals) {
+            removal.removeActivity(activity);
+        }
 
+        activity.activityTypes.removeAll(this.activityTypes);
+        for (ActivityType addition: activity.activityTypes) {
+            addition.addActivity(activity);
+        }
+
+        this.activityTypes.removeAll(removals);
+        this.activityTypes.addAll(activity.activityTypes);
+    }
 
     @Override
     public boolean equals(Object o) {

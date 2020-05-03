@@ -1,6 +1,7 @@
 package com.springvuegradle.Controller;
 
 
+import com.springvuegradle.Controller.enums.ActivityResponseMessage;
 import com.springvuegradle.Model.Activity;
 import com.springvuegradle.Repositories.ActivityRepository;
 import com.springvuegradle.Utilities.FieldValidationHelper;
@@ -11,7 +12,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Class containing REST endpoints for activities
@@ -83,11 +86,18 @@ public class ActivityController {
                                                  @RequestHeader("authorization") String token,
                                                  @PathVariable Long profileId,
                                                  @PathVariable Long activityId) {
-        return null;
-    }
-
-    protected ResponseEntity<String> updateActivity(Activity request, Long activityId) {
-        return null;
+        try {
+            activityService.update(request, activityId);
+            return new ResponseEntity<>(ActivityResponseMessage.EDIT_SUCCESS.toString(), HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            HttpStatus status = null;
+            if (ActivityResponseMessage.SEMANTIC_ERRORS.contains(e.getMessage())) {
+                status = HttpStatus.FORBIDDEN;
+            } else if (ActivityResponseMessage.SYNTAX_ERRORS.contains(e.getMessage())) {
+                status = HttpStatus.BAD_REQUEST;
+            }
+            return new ResponseEntity<>(e.getMessage(), status);
+        }
     }
 
     /**

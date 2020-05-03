@@ -65,4 +65,8 @@ public class ActivityType {
     public String getActivityTypeName() {
         return activityTypeName;
     }
+
+    public boolean addActivity(Activity activity) { return activities.add(activity);}
+
+    public boolean removeActivity(Activity activity) { return activities.remove(activity);}
 }

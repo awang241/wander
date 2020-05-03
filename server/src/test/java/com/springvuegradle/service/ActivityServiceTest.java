@@ -131,10 +131,55 @@ class ActivityServiceTest {
     }
 
     @Test
+    void updateActivityWithDurationAndNoStartDateThrowsExceptionTest() {
+        activityRepository.save(createNormalActivitySilly());
+        Long activityId = activityRepository.getLastInsertedId();
+        ActivityResponseMessage expectedMessage = ActivityResponseMessage.MISSING_START_DATE;
+        assertTrue(activityRepository.existsById(activityId), "Sanity check: test setup correctly");
+
+        try {
+            service.update(createBadActivityDurationAndNoStartDate(), activityId);
+            fail(MISSING_EXCEPTION);
+        } catch (Exception e) {
+            assertEquals(e.getMessage(), expectedMessage.toString());
+        }
+    }
+
+    @Test
+    void updateActivityWithDurationAndNoStartDateDoesNotChangeData() {
+        Activity expectedActivity = createNormalActivitySilly(), actualActivity = null;
+        actualActivity = updateAndGetResult(expectedActivity, createBadActivityBlankName());
+        assertEquals(expectedActivity, actualActivity);
+    }
+
+    @Test
+    void updateActivityWithDurationAndNoEndDateThrowsException() {
+        activityRepository.save(createNormalActivitySilly());
+        Long activityId = activityRepository.getLastInsertedId();
+        ActivityResponseMessage expectedMessage = ActivityResponseMessage.MISSING_END_DATE;
+        assertTrue(activityRepository.existsById(activityId), "Sanity check: test setup correctly");
+
+        try {
+            service.update(createBadActivityDurationAndNoEndDate(), activityId);
+            fail(MISSING_EXCEPTION);
+        } catch (Exception e) {
+            assertEquals(e.getMessage(), expectedMessage.toString());
+        }
+    }
+
+    @Test
+    void updateActivityWithDurationAndNoEndDateDoesNotChangeData() {
+        Activity expectedActivity = createNormalActivitySilly(), actualActivity = null;
+        actualActivity = updateAndGetResult(expectedActivity, createBadActivityDurationAndNoEndDate());
+        assertEquals(expectedActivity, actualActivity);
+    }
+
+
+    @Test
     void updateActivityWithMisorderedDateThrowsExceptionTest() {
         activityRepository.save(createNormalActivitySilly());
         Long activityId = activityRepository.getLastInsertedId();
-        ActivityResponseMessage expectedMessage = ActivityResponseMessage.INVALID_END;
+        ActivityResponseMessage expectedMessage = ActivityResponseMessage.INVALID_DATES;
         assertTrue(activityRepository.existsById(activityId), "Sanity check: test setup correctly");
 
         try {
@@ -240,6 +285,18 @@ class ActivityServiceTest {
     private Activity createBadActivityBlankName() {
         Activity activity = createNormalActivityKaikoura();
         activity.setActivityName("");
+        return activity;
+    }
+
+    private Activity createBadActivityDurationAndNoStartDate() {
+        Activity activity = createNormalActivityKaikoura();
+        activity.setStartTime(null);
+        return activity;
+    }
+
+    private Activity createBadActivityDurationAndNoEndDate() {
+        Activity activity = createNormalActivityKaikoura();
+        activity.setEndTime(null);
         return activity;
     }
 
