@@ -3,6 +3,7 @@ package com.springvuegradle.Model;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.springvuegradle.Utilities.FormatHelper;
 import org.hibernate.type.CalendarTimeType;
 
 import javax.persistence.*;
@@ -10,6 +11,7 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.*;
 
 @Entity
@@ -35,12 +37,13 @@ public class Activity {
     private Boolean continuous;
 
     @NotNull
-    private LocalDateTime startTime;
+    private OffsetDateTime startTime;
 
     @NotNull
-    private LocalDateTime endTime;
+    private OffsetDateTime endTime;
 
     private String location;
+
 
     /**
      * Each activity object can have multiple activities.
@@ -72,8 +75,8 @@ public class Activity {
             addActivityType(new ActivityType(activityType));
         }
         this.continuous = continuous;
-        this.startTime = LocalDateTime.parse(startTime, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:m:ssZ"));
-        this.endTime = LocalDateTime.parse(endTime, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:m:ssZ"));
+        this.startTime = FormatHelper.parseOffsetDateTime(startTime);
+        this.endTime = FormatHelper.parseOffsetDateTime(endTime);
         this.location = location;
     }
 
@@ -119,19 +122,19 @@ public class Activity {
         this.continuous = continuous;
     }
 
-    public LocalDateTime getStartTime() {
+    public OffsetDateTime getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(LocalDateTime startTime) {
+    public void setStartTime(OffsetDateTime startTime) {
         this.startTime = startTime;
     }
 
-    public LocalDateTime getEndTime() {
+    public OffsetDateTime getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(LocalDateTime endTime) {
+    public void setEndTime(OffsetDateTime endTime) {
         this.endTime = endTime;
     }
 

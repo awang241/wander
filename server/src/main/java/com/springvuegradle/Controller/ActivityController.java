@@ -17,14 +17,22 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class ActivityController {
 
-    @Autowired
+    private ActivityService activityService;
     private JwtUtil jwtUtil;
+
+    @Autowired
+    private ActivityRepository aRepo;
+
+    @Autowired
+    public ActivityController(ActivityService activityService, JwtUtil jwtUtil) {
+        this.activityService = activityService;
+        this.jwtUtil = jwtUtil;
+    }
 
     /**
      * Way to access Activity Repository (Activity table in db).
      */
-    @Autowired
-    private ActivityRepository aRepo;
+
 
     private boolean checkEditPermission(String token, Long id) {
         if (jwtUtil.validateToken(token) && (jwtUtil.extractPermission(token) == 0 || jwtUtil.extractPermission(token) == 1 || (jwtUtil.extractId(token).equals(id)))) {
@@ -67,10 +75,6 @@ public class ActivityController {
                                                  @RequestHeader("authorization") String token,
                                                  @PathVariable Long profileId,
                                                  @PathVariable Long activityId) {
-        return null;
-    }
-
-    protected ResponseEntity<String> updateActivity(Activity request, Long activityId) {
         return null;
     }
 

@@ -9,6 +9,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.SpringApplication;
 
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -35,7 +36,6 @@ public class Application {
         return args -> {
             ValidationHelper.updatePassportCountryRepository(passportCountryRepository, profileRepository);
             //InitialDataHelper.init(activityTypeRepository, profileRepository, emailRepository);
-
             System.out.println("-----Program should be running now-----");
         };
     }
