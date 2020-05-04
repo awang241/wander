@@ -135,8 +135,7 @@
             this.getPossibleActivityTypes()
         },
         methods: {
-            showWarning(errorStatusCode) {
-                const message = errorStatusCode
+            showWarning(message) {
                 this.$buefy.toast.open({
                     duration: 5500,
                     message: message,
@@ -175,16 +174,16 @@
             validateActivity(){
                 let isValid = true;
                 if (this.chosenActivityTypes.length < 1){
-                    this.showMessage("You must choose at least one activity type")
+                    this.showWarning("You must choose at least one activity type")
                     isValid = false
                 } else if (!this.isContinuous) {
                     const startDate = Date.parse(this.combinedStartDate)
                     const endDate = Date.parse(this.combinedEndDate)
                     if (isNaN(startDate) || isNaN(endDate)) {
-                        this.showMessage("Invalid dates entered!")
+                        this.showWarning("Invalid dates entered!")
                         isValid = false
                     } else if (Date.parse(this.combinedStartDate) > Date.parse(this.combinedEndDate)) {
-                        this.showMessage("The end date must be after the start date")
+                        this.showWarning("The end date must be after the start date")
                         isValid = false
                     }
                 }
@@ -204,7 +203,8 @@
                     this.submitActivity(activity)
                 }
             }, submitActivity(activity){
-                Api.createActivity(store.getters.getUserId(), activity)
+                console.log(activity)
+                Api.createActivity(store.getters.getUserId, activity)
             }
         }
     }
