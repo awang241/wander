@@ -186,6 +186,7 @@ public class Profile {
         for (String activityType: activityTypes) {
             addActivityType(new ActivityType(activityType));
         }
+        this.activities = new HashSet<>();
     }
 
     /**

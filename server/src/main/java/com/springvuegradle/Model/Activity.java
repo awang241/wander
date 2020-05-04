@@ -78,6 +78,7 @@ public class Activity {
         this.startTime = FormatHelper.parseOffsetDateTime(startTime);
         this.endTime = FormatHelper.parseOffsetDateTime(endTime);
         this.location = location;
+        this.members = new HashSet<>();
     }
 
     public void update(Activity activity) {
