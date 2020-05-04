@@ -20,18 +20,16 @@
 <script>
     import List from "../List";
     import axios from "axios";
-    import Api from "../../Api";
-    import profileStore from "../../store/profileStore";
-    import authenticationStore from "../../store/authenticationStore";
 
     export default {
         name: "EditCountries",
         components: {List},
+        props: ["profile"],
         data(){
             return {
                 possibleCountries: "",
                 newCountry: "",
-                chosenCountries: profileStore.data.passportCountries,
+                chosenCountries: this.profile.passports,
             }
         },
         methods: {
@@ -58,42 +56,29 @@
                 }
             },
             submitCountries(){
-                profileStore.methods.setPassportCountries(this.chosenCountries)
-                const updatedProfile = {
-                    "lastname": profileStore.data.lastName,
-                    "firstname": profileStore.data.firstName,
-                    "middlename": profileStore.data.middleName,
-                    "nickname": profileStore.data.nickname,
-                    "primary_email": profileStore.data.primaryEmail,
-                    "bio": profileStore.data.bio,
-                    "date_of_birth": profileStore.data.dateOfBirth,
-                    "gender": profileStore.data.gender,
-                    "fitness": profileStore.data.fitnessLevel,
-                    "passports":profileStore.data.passportCountries,
-                    "additional_email": profileStore.data.optionalEmails,
-                    "activities": profileStore.data.activityTypes
-                }
+                this.$parent.updateCountries(this.chosenCountries)
                 this.$buefy.toast.open({
                     duration: 2000,
-                    message: "Saved!",
+                    message: "Countries saved",
                     type: 'is-success',
                     position: 'is-top'
                 })
-                Api.editProfile(authenticationStore.methods.getUserId(), updatedProfile, authenticationStore.methods.getSessionId())
-
+            },
+            getAllCountries(){
+                axios.get("https://restcountries.eu/rest/v2/all")
+                    .then(response => {
+                        const data = response.data
+                        const possibleCountries = []
+                        for (let country in data){
+                            possibleCountries.push(data[country].name)
+                        }
+                        this.possibleCountries = possibleCountries;
+                    })
+                    .catch(error => console.log(error));
             }
         },
         mounted() {
-            axios.get("https://restcountries.eu/rest/v2/all")
-                .then(response => {
-                    const data = response.data
-                    const possibleCountries = []
-                    for (let country in data){
-                        possibleCountries.push(data[country].name)
-                    }
-                    this.possibleCountries = possibleCountries;
-                })
-                .catch(error => console.log(error));
+            this.getAllCountries()
         },
     }
 </script>

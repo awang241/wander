@@ -2,7 +2,7 @@
     <div class="container containerColor">
         <h1 class="title is-3">Admin Dashboard</h1>
         <br>
-        <h2 class="subtitle is-5">All Users:</h2>
+        <h2 class="title is-5">All Users:</h2>
         <table>
             <tr>
                 <th>Profile ID</th>
@@ -18,18 +18,24 @@
                 <td>{{ profile.lastname }}</td>
                 <td>{{ profile.gender }}</td>
                 <td>{{ profile.email }}</td>
-                <td>"button to view profile"</td>
+                <td><b-button type="is-info" native-type="submit" @click="goToProfile(profile.id)">Edit Profile</b-button></td>
             </tr>
         </table>
+
+
+
 
     </div>
 </template>
 
 <script>
     import api from '../Api';
-    import authenticationStore from "../store/authenticationStore";
+    import router from "../router";
     export default {
         name: "AdminDashboard",
+        components: {
+
+        },
         data() {
             return {
                 allProfiles: null,
@@ -37,15 +43,19 @@
         },
         methods: {
             getProfilesForAdmin(){
-                api.getUserProfiles(authenticationStore.methods.getSessionId())
+                api.getUserProfiles(localStorage.getItem('authToken'))
                     .then((response) => {
                         this.allProfiles = response.data;
                     })
                     .catch(error => console.log(error));
+            },
+            goToProfile(profileID){
+                router.push('EditProfile/' + profileID);
             }
         },
         mounted() {
             this.getProfilesForAdmin();
+
 
             // MOCK DATA - will be replaced by real data when api endpoint has been created
             // this.allProfiles = [[null, "Steven", "Stevenson", "steven@steven.com", "male"], [1, "Bob", "Joe", "bobby@jo.com", "male"]];
@@ -62,7 +72,7 @@
     }
     table, th, td {
         border: 1px solid black;
-        padding: 8px;
+        padding: 10px;
     }
 
 </style>
