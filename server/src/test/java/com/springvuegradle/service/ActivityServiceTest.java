@@ -47,8 +47,6 @@ class ActivityServiceTest {
         activityRepository.deleteAll();
         typeRepository.deleteAll();
     }
-
-
 /*
     @Test
     void updateActivityWithNormalDataSavesActivityTest() {
