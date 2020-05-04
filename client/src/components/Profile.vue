@@ -143,44 +143,23 @@
 
 <script>
     import api from '../Api';
-    import authenticationStore from "../store/authenticationStore";
-    import profileStore from "../store/profileStore";
     import router from "../router";
+    import store from "../store";
 
     export default {
         name: "Profile",
         data() {
             return {
-                profile: null,
+                profile: {},
             }
         },
         methods: {
             editProfile(){
-                router.push('EditProfile');
+                router.push('EditProfile/' + store.getters.getUserId);
             },
-            setProfile(){
-                api.getProfile(authenticationStore.methods.getUserId(), authenticationStore.methods.getSessionId())
-                    .then((response) => {
-                        //Save to auth store
-                        profileStore.methods.setProfile(response.data)
-                        this.profile = response.data
-
-                    })
-                    .catch(error => console.log(error));
-            },
-            setActivityTypes(){
-                api.getActivityTypesList()
-                    .then((response) => {
-                        profileStore.methods.setAllActivityTypes(response.data)
-                    })
-                    .catch(error => console.log(error));
-            },
-            setAuthLevel(){
-                api.getAuthLevel(authenticationStore.methods.getSessionId())
-                    .then((response) => {
-                        profileStore.methods.setAuthLevel(response.data)
-                    })
-                    .catch(error => console.log(error));
+            getProfile(){
+                api.getProfile(store.getters.getUserId,localStorage.getItem('authToken'))
+                    .then(response => this.profile = response.data)
             }
         },
 
@@ -205,10 +184,7 @@
         },
 
         mounted() {
-            // Retrieves user data using their id number. Will change to token at some point
-            this.setProfile()
-            this.setActivityTypes()
-            this.setAuthLevel()
+            this.getProfile()
         },
     }
 </script>
