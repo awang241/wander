@@ -5,7 +5,6 @@ import com.springvuegradle.Model.Activity;
 import com.springvuegradle.Model.ActivityMembership;
 import com.springvuegradle.Model.Profile;
 import com.springvuegradle.Model.ActivityType;
-import com.springvuegradle.Repositories.ActivityMembershipRepository;
 import com.springvuegradle.Repositories.ActivityRepository;
 import com.springvuegradle.Repositories.ActivityTypeRepository;
 import com.springvuegradle.Repositories.ProfileRepository;
@@ -22,26 +21,17 @@ public class ActivityService {
     private ProfileRepository profileRepo;
     private ActivityRepository activityRepo;
     private ActivityTypeRepository typeRepo;
-    private ActivityMembershipRepository membershipRepo;
 
     @Autowired
-    public ActivityService(ProfileRepository profileRepo, ActivityRepository activityRepo, ActivityTypeRepository activityTypeRepo,
-                           ActivityMembershipRepository activityMembershipRepository) {
+    public ActivityService(ProfileRepository profileRepo, ActivityRepository activityRepo, ActivityTypeRepository activityTypeRepo) {
         this.profileRepo = profileRepo;
         this.activityRepo = activityRepo;
         this.typeRepo = activityTypeRepo;
-        this.membershipRepo = activityMembershipRepository;
     }
 
     public void create(Activity activity, Long creatorId) {
-        validateActivity(activity);
-        Profile profile = profileRepo.findById(creatorId).get();
-        Activity result = activityRepo.save(activity);
-        ActivityMembership activityMembership = new ActivityMembership(result, profile, ActivityMembership.Role.CREATOR);
-        membershipRepo.save(activityMembership);
-        profile.addActivity(activityMembership);
-        activity.addMember(activityMembership);
-        profileRepo.save(profile);
+        //TODO implement creation endpoint
+        throw new UnsupportedOperationException("Not yet implemented");
     }
 
     public void read(Long activityId) {

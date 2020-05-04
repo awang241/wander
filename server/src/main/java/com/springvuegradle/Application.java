@@ -1,9 +1,10 @@
 package com.springvuegradle;
 
-import com.springvuegradle.Model.Activity;
-import com.springvuegradle.Repositories.*;
+import com.springvuegradle.Repositories.ActivityTypeRepository;
+import com.springvuegradle.Repositories.EmailRepository;
+import com.springvuegradle.Repositories.PassportCountryRepository;
+import com.springvuegradle.Repositories.ProfileRepository;
 import com.springvuegradle.Utilities.ValidationHelper;
-import com.springvuegradle.service.ActivityService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.SpringApplication;
@@ -19,7 +20,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
-
 import static com.springvuegradle.Controller.Profile_Controller.hashPassword;
 
 @SpringBootApplication
@@ -32,16 +32,9 @@ public class Application {
 
     @Bean
     CommandLineRunner init(EmailRepository emailRepository, ProfileRepository profileRepository,
-                           PassportCountryRepository passportCountryRepository, ActivityTypeRepository activityTypeRepository,
-                           ActivityRepository activityRepository, ActivityMembershipRepository activityMembershipRepository) {
+                           PassportCountryRepository passportCountryRepository, ActivityTypeRepository activityTypeRepository) {
         return args -> {
-//            ValidationHelper.updatePassportCountryRepository(passportCountryRepository, profileRepository);
-            ActivityService activityService = new ActivityService(profileRepository, activityRepository, activityTypeRepository,
-                    activityMembershipRepository);
-            Activity activity = new Activity("Kaikoura Coast Track race", "A big and nice race on a lovely peninsula",
-                    new String[]{"Hiking"}, false, "2020-02-20T08:00:00+1300",
-                    "2020-02-20T08:00:00+1300", "Kaikoura, NZ");
-            activityService.create(activity, 1001L);
+            ValidationHelper.updatePassportCountryRepository(passportCountryRepository, profileRepository);
             //InitialDataHelper.init(activityTypeRepository, profileRepository, emailRepository);
             System.out.println("-----Program should be running now-----");
         };
