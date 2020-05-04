@@ -49,6 +49,7 @@
             }
         },
          mounted(){
+            // this.URLAuthorization(),
             this.getProfile()
         },
         // These methods are used to dynamically swap between components on click
@@ -74,9 +75,15 @@
             changeToDashboard() {
                 router.push({path: '/AdminDashboard'});
             },
+
             getProfile(){
+                if (!(this.$route.params.id == store.getters.getUserId || store.getters.getAuthenticationLevel < 2)) {
+                    router.push({path: '/EditProfile/' + store.getters.getUserId})
+
+                }
                 api.getProfile(this.$route.params.id, localStorage.getItem('authToken'))
-                    .then(response => this.profile = response.data)
+                        .then(response => this.profile = response.data)
+
             },
 
             updateCountries(newCountries){
