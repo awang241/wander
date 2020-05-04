@@ -65,7 +65,7 @@ public class ActivityService {
         return userActivities;
     }
 
-    public void validateActivity(Activity activity) {
+    private void validateActivity(Activity activity) {
         if (activity.getActivityName() == null || activity.getActivityName().isBlank()) {
             throw new IllegalArgumentException(ActivityResponseMessage.MISSING_NAME.toString());
         }

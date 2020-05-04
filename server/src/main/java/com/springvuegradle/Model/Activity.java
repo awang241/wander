@@ -178,4 +178,12 @@ public class Activity {
     public boolean removeActivityType(ActivityType type) {
         return this.activityTypes.remove(type);
     }
+
+    public boolean addMember(ActivityMembership membership) {
+        return this.members.add(membership);
+    }
+
+    public boolean removeMember(ActivityMembership membership) {
+        return this.members.remove(membership);
+    }
 }

@@ -61,10 +61,19 @@ public class ActivityController {
      * @return the created activity and/or status code.
      */
     @PostMapping("/profiles/{id}/activities")
-    public ResponseEntity<String> createActivity (@RequestBody Activity newActivity, @PathVariable Long id) {
+    public ResponseEntity<String> createActivity (@RequestHeader("authorization") String token,
+                                                  @RequestBody Activity newActivity,
+                                                  @PathVariable Long id) {
+        if (token == null || token.isBlank()) {
+            return new ResponseEntity<>("Authorization required", HttpStatus.UNAUTHORIZED);
+        } else if (!checkEditPermission(token, id)) {
+            return new ResponseEntity<>("Permission denied", HttpStatus.FORBIDDEN);
+        }
+
         String error = FieldValidationHelper.validateActivity(newActivity);
+
         if (error.equals("")) {
-            aRepo.save(newActivity);
+            activityService.create(newActivity, id);
             return new ResponseEntity<>("New activity has been created.", HttpStatus.CREATED);
         } else {
             return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
