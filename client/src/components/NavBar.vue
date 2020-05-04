@@ -80,7 +80,7 @@
                 router.push({path: '/AdminDashboard'});
             },
             goToActivities(){
-                router.push('Activities')
+                router.push({path: '/Activities'});
             }
 
         }
