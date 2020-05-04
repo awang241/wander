@@ -35,7 +35,7 @@ public class Application {
                            PassportCountryRepository passportCountryRepository, ActivityTypeRepository activityTypeRepository,
                            ActivityRepository activityRepository, ActivityMembershipRepository activityMembershipRepository) {
         return args -> {
-//            ValidationHelper.updatePassportCountryRepository(passportCountryRepository, profileRepository);
+            ValidationHelper.updatePassportCountryRepository(passportCountryRepository, profileRepository);
             ActivityService activityService = new ActivityService(profileRepository, activityRepository, activityTypeRepository,
                     activityMembershipRepository);
             Activity activity = new Activity("Kaikoura Coast Track race", "A big and nice race on a lovely peninsula",
