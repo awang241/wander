@@ -13,6 +13,7 @@ import com.springvuegradle.dto.EmailAddRequest;
 import com.springvuegradle.dto.EmailUpdateRequest;
 import com.springvuegradle.dto.SimplifiedProfileResponse;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -241,7 +242,7 @@ class ProfileControllerTest {
         assertEquals(expectedProfile.getActivityTypes(), updatedProfile.getActivityTypes(), "Check activityTypes updated successfully");
     }
 
-    //@Test
+    @Test
     void testEditProfileNormal(){
         Profile testProfile = createNormalProfileJimmy();
         Profile updateData = createNormalProfileMaurice();
@@ -250,8 +251,9 @@ class ProfileControllerTest {
         for (PassportCountry passportCountry: expectedProfile.getPassportObjects()){
             realPassports.add(pcrepo.findByCountryName(passportCountry.getCountryName()).get(0));
         }
-        expectedProfile.setPassword(profileController.hashPassword(testProfile.getPassword()));
+        expectedProfile.setPassword(Profile_Controller.hashPassword(testProfile.getPassword()));
         expectedProfile.setPassports(realPassports);
+        updateData.setPassports(realPassports);
 
         Set<ActivityType> realActivityTypes = new HashSet<>();
         for (ActivityType activityType: expectedProfile.getActivityTypeObjects()){
@@ -650,3 +652,4 @@ class ProfileControllerTest {
                 Calendar.JUNE, 10), "male", 0, new String[]{}, new String[]{});
     }
 }
+
