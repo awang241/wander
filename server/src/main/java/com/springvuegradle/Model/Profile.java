@@ -483,4 +483,12 @@ public class Profile {
         this.bio = bio;
     }
 
+    public boolean addActivity(ActivityMembership membership) {
+        return this.activities.add(membership);
+    }
+
+    public boolean removeActivity(ActivityMembership membership) {
+        return this.activities.remove(membership);
+    }
+
 }
