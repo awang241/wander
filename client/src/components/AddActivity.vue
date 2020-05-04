@@ -30,49 +30,18 @@
             <div v-if="!isContinuous">
                 <b-field group-multiline grouped>
                     <b-field label="Start date" expanded>
-                        <b-datepicker
-                                editable
-                                :use-html5-validation="false"
-                                placeholder="Select start date"
-                                :date-formatter="dateFormatter"
-                                :min-date="minDate"
-                                v-model="startDate"
-                                type="date" required
-                                validation-message="Please enter a valid date"
-
-                                pattern="^(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]))\1|(?:(?:29|30)(\/|-|\.)(?:0?[13-9]|1[0-2])\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/|-|\.)0?2\3(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\d|2[0-8])(\/|-|\.)(?:(?:0?[1-9])|(?:1[0-2]))\4(?:(?:1[6-9]|[2-9]\d)?\d{2})$">
-                            >
-                        </b-datepicker>
+                        <input type="date" v-model="startDate">
                     </b-field>
-
                     <b-field label="End date" expanded>
-                        <b-datepicker
-                                editable
-                                :use-html5-validation="false"
-                                placeholder="Select end date"
-                                :date-formatter="dateFormatter"
-                                :min-date="startDate"
-                                v-model="endDate"
-                                type="date" required
-                                validation-message="Please enter a valid date"
-                                pattern="^(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]))\1|(?:(?:29|30)(\/|-|\.)(?:0?[13-9]|1[0-2])\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/|-|\.)0?2\3(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\d|2[0-8])(\/|-|\.)(?:(?:0?[1-9])|(?:1[0-2]))\4(?:(?:1[6-9]|[2-9]\d)?\d{2})$">
-                            >
-                        </b-datepicker>
+                        <input type="date" v-model="endDate">
                     </b-field>
                 </b-field>
                 <b-field group-multiline grouped>
                     <b-field label="Start time" expanded>
-                        <b-timepicker
-                                v-model="startTime"
-                                icon="clock">
-                        </b-timepicker>
+                        <input type="time" v-model="startTime">
                     </b-field>
-
                     <b-field label="End time" expanded>
-                        <b-timepicker
-                                v-model="endTime"
-                                icon="clock">
-                        </b-timepicker>
+                        <input type="time" v-model="endTime">
                     </b-field>
                 </b-field>
                 <br>
@@ -99,7 +68,7 @@
             <br>
 
             <b-field>
-                <b-button v-if="isValidActivity" native-type="submit" :enabled="isValidActivity">Submit</b-button>
+                <b-button native-type="submit">Submit</b-button>
             </b-field>
         </form>
     </div>
@@ -119,31 +88,50 @@
             isContinuous: function () {
                 return this.activityDuration === "Continuous"
             },
-            isValidActivity: function(){
-                return this.chosenActivityTypes.length > 0;
+            combinedStartDate: function () {
+                if(this.startDate === null){
+                    return null
+                }
+                let dateParts = this.startDate.split('-')
+                let timeParts = this.startTime.split(':')
+
+                if (dateParts && timeParts) {
+                    dateParts[1] -= 1;
+                    return new Date(Date.UTC.apply(undefined, dateParts.concat(timeParts))).toISOString();
+                }
+                return null;
+            },
+            combinedEndDate: function () {
+                if(this.endDate === null){
+                    return null
+                }
+                let dateParts = this.endDate.split('-')
+                let timeParts = this.endTime.split(':')
+
+                if (dateParts && timeParts) {
+                    dateParts[1] -= 1;
+                    return new Date(Date.UTC.apply(undefined, dateParts.concat(timeParts))).toISOString();
+                }
+                return null;
             }
         },
         data() {
-            const today = new Date()
             return {
                 name: "",
                 description: "",
-                startDate: new Date(),
+                startDate: null,
                 activityDuration: "Continuous",
-                possibleActivityTypes: ["Running", "Cycling", "Basketball", "Karate"],
+                possibleActivityTypes: [],
                 chosenActivityTypes: [],
                 newActivityType: "",
-                endDate: new Date(),
+                endDate: null,
                 startTime: "",
                 endTime: "",
                 location: "",
-                minDate: new Date(today.getFullYear(), today.getMonth(), today.getDate()),
             }
         },
         mounted() {
             this.getPossibleActivityTypes()
-            // let today = new Date().toISOString().split('T')[0];
-            // this.$refs.dateOfBirth.setAttribute('max', today);
         },
         methods: {
             showWarning(errorStatusCode) {
@@ -155,9 +143,9 @@
                     position: 'is-top'
                 })
             },
-            getPossibleActivityTypes(){
-                Api.getPossibleActivityTypes()
-                    .then(response => this.possibleActivityTypes = response.data)
+            getPossibleActivityTypes() {
+                Api.getActivityTypesList()
+                    .then(response => this.possibleActivityTypes = response.data.allActivityTypes)
                     .catch(error => this.showMessage(error))
             },
             addActivityType() {
@@ -183,6 +171,38 @@
             deleteActivityType(typeToDelete) {
                 this.chosenActivityTypes = this.chosenActivityTypes.filter(type => type != typeToDelete)
             },
+            validateActivity(){
+                let isValid = true;
+                if (this.chosenActivityTypes.length < 1){
+                    this.showMessage("You must choose at least one activity type")
+                    isValid = false
+                } else if (!this.isContinuous) {
+                    const startDate = Date.parse(this.combinedStartDate)
+                    const endDate = Date.parse(this.combinedEndDate)
+                    if (isNaN(startDate) || isNaN(endDate)) {
+                        this.showMessage("Invalid dates entered!")
+                        isValid = false
+                    } else if (Date.parse(this.combinedStartDate) > Date.parse(this.combinedEndDate)) {
+                        this.showMessage("The end date must be after the start date")
+                        isValid = false
+                    }
+                }
+                return isValid
+            }, createActivity() {
+                if(this.validateActivity()){
+                    let activity = {
+                        "activity_name": this.name,
+                        "description": this.description,
+                        "activity_type": this.activityDuration,
+                        "location": this.location,
+                    }
+                    if (!this.isContinuous) {
+                        activity.start_time = this.combinedStartDate
+                        activity.end_time = this.combinedEndDate
+                    }
+                    console.log(activity)
+                }
+            }
         }
     }
 </script>
