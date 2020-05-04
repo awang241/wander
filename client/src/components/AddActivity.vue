@@ -30,18 +30,18 @@
             <div v-if="!isContinuous">
                 <b-field group-multiline grouped>
                     <b-field label="Start date" expanded>
-                        <input type="date" v-model="startDate">
+                        <input class="input" type="date" v-model="startDate">
                     </b-field>
                     <b-field label="End date" expanded>
-                        <input type="date" v-model="endDate">
+                        <input class="input" type="date" v-model="endDate">
                     </b-field>
                 </b-field>
                 <b-field group-multiline grouped>
                     <b-field label="Start time" expanded>
-                        <input type="time" v-model="startTime">
+                        <input class="input" type="time" v-model="startTime">
                     </b-field>
                     <b-field label="End time" expanded>
-                        <input type="time" v-model="endTime">
+                        <input class="input" type="time" v-model="endTime">
                     </b-field>
                 </b-field>
                 <br>
@@ -79,6 +79,7 @@
 <script>
     import List from "./List";
     import Api from "../Api"
+    import store from "../store";
 
     export default {
         name: "AddActivity",
@@ -200,8 +201,10 @@
                         activity.start_time = this.combinedStartDate
                         activity.end_time = this.combinedEndDate
                     }
-                    console.log(activity)
+                    this.submitActivity(activity)
                 }
+            }, submitActivity(activity){
+                Api.createActivity(store.getters.getUserId(), activity)
             }
         }
     }
