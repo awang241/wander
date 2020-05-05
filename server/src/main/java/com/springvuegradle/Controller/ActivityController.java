@@ -147,13 +147,16 @@ public class ActivityController {
     @GetMapping("/profiles/{profileId}/activities")
     public ResponseEntity<List<Activity>> getAllUsersActivities(@RequestHeader("authorization") String token,
                                                                 @PathVariable Long profileId) {
-        if (!jwtUtil.validateToken(token)) {
-            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
-        }
-        return getAllUsersActivities(profileId);
+
+        return getAllUsersActivities(token, profileId, false);
     }
 
-    public ResponseEntity<List<Activity>> getAllUsersActivities(Long profileId) {
+    public ResponseEntity<List<Activity>> getAllUsersActivities(String token, Long profileId, Boolean testing) {
+        if (!testing) {
+            if (!jwtUtil.validateToken(token)) {
+                return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+            }
+        }
         List<Activity> allUserActivities = activityService.getActivitiesByProfileId(profileId);
         return new ResponseEntity<>(allUserActivities, HttpStatus.OK);
     }
