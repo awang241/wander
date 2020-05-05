@@ -64,10 +64,16 @@ public class ActivityController {
     public ResponseEntity<String> createActivity (@RequestHeader("authorization") String token,
                                                   @RequestBody Activity newActivity,
                                                   @PathVariable Long id) {
-        if (token == null || token.isBlank()) {
-            return new ResponseEntity<>("Authorization required", HttpStatus.UNAUTHORIZED);
-        } else if (!checkEditPermission(token, id)) {
-            return new ResponseEntity<>("Permission denied", HttpStatus.FORBIDDEN);
+        return createActivity(token, newActivity, id, false);
+    }
+
+    public ResponseEntity<String> createActivity(String token, Activity newActivity, Long id, Boolean testing) {
+        if (!testing) {
+            if (token == null || token.isBlank()) {
+                return new ResponseEntity<>("Authorization required", HttpStatus.UNAUTHORIZED);
+            } else if (!checkEditPermission(token, id)) {
+                return new ResponseEntity<>("Permission denied", HttpStatus.FORBIDDEN);
+            }
         }
 
         String error = FieldValidationHelper.validateActivity(newActivity);

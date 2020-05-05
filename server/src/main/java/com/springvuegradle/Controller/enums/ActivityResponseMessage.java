@@ -13,13 +13,15 @@ public enum ActivityResponseMessage {
     INVALID_ACTIVITY("No activity with that ID exists in the database"),
     INVALID_DATES("The end date cannot be before the start date"),
     INVALID_FIELDS("Invalid fields"),
-    INVALID_TYPE("Given activity types do not exist in the database");
+    INVALID_TYPE("Given activity types do not exist in the database"),
+    ACTIVITY_EXISTS("Activity with given name already exists in the database");
 
     private String message;
 
     public static final Set<String> SEMANTIC_ERRORS = new HashSet<>(Arrays.asList(INVALID_ACTIVITY.toString(),
                                                                                     INVALID_DATES.toString(),
-                                                                                    INVALID_TYPE.toString()));
+                                                                                    INVALID_TYPE.toString(),
+                                                                                    ACTIVITY_EXISTS.toString()));
     public static final Set<String> SYNTAX_ERRORS  = new HashSet<>(Arrays.asList(MISSING_END_DATE.toString(),
                                                                                 MISSING_NAME.toString(),
                                                                                 MISSING_START_DATE.toString(),

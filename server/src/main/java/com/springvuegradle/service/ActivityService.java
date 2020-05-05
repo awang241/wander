@@ -36,16 +36,17 @@ public class ActivityService {
     public void create(Activity activity, Long creatorId) {
         validateActivity(activity);
         Profile profile = profileRepo.findById(creatorId).get();
-//        List<Activity> dbResult = activityRepo.findByActivityNames(activity.getActivityName());
-//        if (dbResult.size() == 1) {
-//
-//        }
-        Activity result = activityRepo.save(activity);
-        ActivityMembership activityMembership = new ActivityMembership(result, profile, ActivityMembership.Role.CREATOR);
-        membershipRepo.save(activityMembership);
-        profile.addActivity(activityMembership);
-        activity.addMember(activityMembership);
-        profileRepo.save(profile);
+        List<Activity> dbResult = activityRepo.findByActivityNames(activity.getActivityName());
+        if (dbResult.size() == 1) {
+            throw new IllegalArgumentException(ActivityResponseMessage.ACTIVITY_EXISTS.toString());
+        } else {
+            Activity result = activityRepo.save(activity);
+            ActivityMembership activityMembership = new ActivityMembership(result, profile, ActivityMembership.Role.CREATOR);
+            membershipRepo.save(activityMembership);
+            profile.addActivity(activityMembership);
+            activity.addMember(activityMembership);
+            profileRepo.save(profile);
+        }
     }
 
     public void read(Long activityId) {
