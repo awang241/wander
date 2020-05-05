@@ -71,8 +71,13 @@ public class Activity {
         this.activityName = activityName;
         this.description = description;
         this.activityTypes = new HashSet<>();
-        for (String activityType: activityTypes) {
-            addActivityType(new ActivityType(activityType));
+        if (activityTypes == null) {
+            this.activityTypes = null;
+        } else {
+            this.activityTypes = new HashSet<>();
+            for (String activityType: activityTypes) {
+                addActivityType(new ActivityType(activityType));
+            }
         }
         this.continuous = continuous;
         this.startTime = FormatHelper.parseOffsetDateTime(startTime);

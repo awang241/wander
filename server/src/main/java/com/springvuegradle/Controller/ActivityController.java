@@ -2,6 +2,7 @@ package com.springvuegradle.Controller;
 
 
 import com.springvuegradle.Controller.enums.ActivityResponseMessage;
+import com.springvuegradle.Controller.enums.AuthenticationErrorMessage;
 import com.springvuegradle.Model.Activity;
 import com.springvuegradle.Repositories.ActivityRepository;
 import com.springvuegradle.Utilities.FieldValidationHelper;
@@ -101,17 +102,27 @@ public class ActivityController {
                                                  @RequestHeader("authorization") String token,
                                                  @PathVariable Long profileId,
                                                  @PathVariable Long activityId) {
+        if (token == null || token.isBlank()) {
+            return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
+                                        HttpStatus.UNAUTHORIZED);
+        } else if (!checkEditPermission(token, profileId)) {
+            return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(),
+                    HttpStatus.FORBIDDEN);
+        }
+
         try {
             activityService.update(request, activityId);
             return new ResponseEntity<>(ActivityResponseMessage.EDIT_SUCCESS.toString(), HttpStatus.OK);
         } catch (IllegalArgumentException e) {
-            HttpStatus status = null;
+            HttpStatus status = HttpStatus.BAD_REQUEST;
             if (ActivityResponseMessage.SEMANTIC_ERRORS.contains(e.getMessage())) {
                 status = HttpStatus.FORBIDDEN;
             } else if (ActivityResponseMessage.SYNTAX_ERRORS.contains(e.getMessage())) {
                 status = HttpStatus.BAD_REQUEST;
             }
             return new ResponseEntity<>(e.getMessage(), status);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

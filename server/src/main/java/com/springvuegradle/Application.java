@@ -36,15 +36,8 @@ public class Application {
                            ActivityRepository activityRepository, ActivityMembershipRepository activityMembershipRepository) {
         return args -> {
             System.out.println("-----Updating Passport Country Repository-----");
-            ValidationHelper.updatePassportCountryRepository(passportCountryRepository, profileRepository);
+            //ValidationHelper.updatePassportCountryRepository(passportCountryRepository, profileRepository);
             System.out.println("-----Update Complete-----");
-//            ActivityService activityService = new ActivityService(profileRepository, activityRepository, activityTypeRepository,
-//                    activityMembershipRepository);
-//            Activity activity = new Activity("Kaikoura Coast Track race", "A big and nice race on a lovely peninsula",
-//                    new String[]{"Hiking"}, false, "2020-02-20T08:00:00+1300",
-//                    "2020-02-20T08:00:00+1300", "Kaikoura, NZ");
-//            activityService.create(activity, 1001L);
-            //InitialDataHelper.init(activityTypeRepository, profileRepository, emailRepository);
             System.out.println("-----Program should be running now-----");
         };
     }

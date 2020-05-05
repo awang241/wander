@@ -49,7 +49,7 @@ class ActivityServiceTest {
     }
 
 
-/*
+
     @Test
     void updateActivityWithNormalDataSavesActivityTest() {
         activityRepository.save(createNormalActivitySilly());
@@ -68,27 +68,12 @@ class ActivityServiceTest {
     }
 
     @Test
-    void updateActivityWithNoNameThrowsExceptionCorrectly() {
-        activityRepository.save(createNormalActivitySilly());
-        Long activityId = activityRepository.getLastInsertedId();
-        ActivityResponseMessage expectedMessage = ActivityResponseMessage.MISSING_NAME;
-        assertTrue(activityRepository.existsById(activityId), "Sanity check: test setup correctly");
-
-        try {
-            service.update(createBadActivityNoName(), activityId);
-            fail(MISSING_EXCEPTION);
-        } catch (Exception e) {
-            assertEquals(expectedMessage.toString(), e.getMessage());
-        }
-    }
-
-    @Test
-    void updateActivityWithNoNameDoesNotSaveDataTest() {
+    void updateActivityWithNoNameTest() {
         activityRepository.save(createNormalActivitySilly());
         Long activityId = activityRepository.getLastInsertedId();
         Activity expectedActivity = createNormalActivitySilly(), actualActivity = null;
         assertTrue(activityRepository.existsById(activityId), "Sanity check: test setup correctly");
-        service.update(createBadActivityNoName(), activityId);
+        assertThrows(IllegalArgumentException.class, ()->{ service.update(createBadActivityNoName(), activityId );});
         Optional<Activity> result = activityRepository.findById(activityId);
         if (result.isPresent()) {
             actualActivity = result.get();
@@ -100,78 +85,54 @@ class ActivityServiceTest {
 
     @Test
     void updateActivityNotInDatabaseThrowsException() {
-        ActivityResponseMessage expectedMessage = ActivityResponseMessage.INVALID_ACTIVITY;
-        try {
-            service.update(createNormalActivityKaikoura(), 0L);
-            fail(MISSING_EXCEPTION);
-        } catch (Exception e) {
-            assertEquals(expectedMessage.toString(), e.getMessage());
-        }
+        assertThrows(IllegalArgumentException.class, ()->{ service.update(createNormalActivityKaikoura(), 0L);});
     }
 
     @Test
-    void updateActivityWithBlankNameThrowsExceptionCorrectly() {
+    void updateActivityWithBlankNameTest() {
         activityRepository.save(createNormalActivitySilly());
         Long activityId = activityRepository.getLastInsertedId();
-        ActivityResponseMessage expectedMessage = ActivityResponseMessage.MISSING_NAME;
-        assertTrue(activityRepository.existsById(activityId), "Sanity check: test setup correctly");
-
-        try {
-            service.update(createBadActivityBlankName(), activityId);
-            fail(MISSING_EXCEPTION);
-        } catch (Exception e) {
-            assertEquals(expectedMessage.toString(), e.getMessage());
-        }
-    }
-
-    @Test
-    void updateActivityWithBlankNameDoesNotSaveDataTest() {
         Activity expectedActivity = createNormalActivitySilly(), actualActivity = null;
-        actualActivity = updateAndGetResult(expectedActivity, createBadActivityBlankName());
+        assertTrue(activityRepository.existsById(activityId), "Sanity check: test setup correctly");
+        assertThrows(IllegalArgumentException.class, ()->{ service.update(createBadActivityBlankName(), activityId );});
+        Optional<Activity> result = activityRepository.findById(activityId);
+        if (result.isPresent()) {
+            actualActivity = result.get();
+        } else {
+            fail("Error: original activity is missing");
+        }
         assertEquals(expectedActivity, actualActivity);
     }
 
     @Test
-    void updateActivityWithDurationAndNoStartDateThrowsExceptionTest() {
+    void updateActivityWithDurationAndNoStartDateTest() {
         activityRepository.save(createNormalActivitySilly());
         Long activityId = activityRepository.getLastInsertedId();
-        ActivityResponseMessage expectedMessage = ActivityResponseMessage.MISSING_START_DATE;
-        assertTrue(activityRepository.existsById(activityId), "Sanity check: test setup correctly");
-
-        try {
-            service.update(createBadActivityDurationAndNoStartDate(), activityId);
-            fail(MISSING_EXCEPTION);
-        } catch (Exception e) {
-            assertEquals(expectedMessage.toString(), e.getMessage());
-        }
-    }
-
-    @Test
-    void updateActivityWithDurationAndNoStartDateDoesNotChangeData() {
         Activity expectedActivity = createNormalActivitySilly(), actualActivity = null;
-        actualActivity = updateAndGetResult(expectedActivity, createBadActivityBlankName());
+        assertTrue(activityRepository.existsById(activityId), "Sanity check: test setup correctly");
+        assertThrows(IllegalArgumentException.class, ()->{ service.update(createBadActivityDurationAndNoStartDate(), activityId );});
+        Optional<Activity> result = activityRepository.findById(activityId);
+        if (result.isPresent()) {
+            actualActivity = result.get();
+        } else {
+            fail("Error: original activity is missing");
+        }
         assertEquals(expectedActivity, actualActivity);
     }
 
     @Test
-    void updateActivityWithDurationAndNoEndDateThrowsException() {
+    void updateActivityWithDurationAndNoEndDateTest() {
         activityRepository.save(createNormalActivitySilly());
         Long activityId = activityRepository.getLastInsertedId();
-        ActivityResponseMessage expectedMessage = ActivityResponseMessage.MISSING_END_DATE;
-        assertTrue(activityRepository.existsById(activityId), "Sanity check: test setup correctly");
-
-        try {
-            service.update(createBadActivityDurationAndNoEndDate(), activityId);
-            fail(MISSING_EXCEPTION);
-        } catch (Exception e) {
-            assertEquals(expectedMessage.toString(), e.getMessage());
-        }
-    }
-
-    @Test
-    void updateActivityWithDurationAndNoEndDateDoesNotChangeData() {
         Activity expectedActivity = createNormalActivitySilly(), actualActivity = null;
-        actualActivity = updateAndGetResult(expectedActivity, createBadActivityDurationAndNoEndDate());
+        assertTrue(activityRepository.existsById(activityId), "Sanity check: test setup correctly");
+        assertThrows(IllegalArgumentException.class, ()->{ service.update(createBadActivityDurationAndNoEndDate(), activityId );});
+        Optional<Activity> result = activityRepository.findById(activityId);
+        if (result.isPresent()) {
+            actualActivity = result.get();
+        } else {
+            fail("Error: original activity is missing");
+        }
         assertEquals(expectedActivity, actualActivity);
     }
 
@@ -180,21 +141,15 @@ class ActivityServiceTest {
     void updateActivityWithMisorderedDateThrowsExceptionTest() {
         activityRepository.save(createNormalActivitySilly());
         Long activityId = activityRepository.getLastInsertedId();
-        ActivityResponseMessage expectedMessage = ActivityResponseMessage.INVALID_DATES;
-        assertTrue(activityRepository.existsById(activityId), "Sanity check: test setup correctly");
-
-        try {
-            service.update(createBadActivityMisorderedDates(), activityId);
-            fail(MISSING_EXCEPTION);
-        } catch (Exception e) {
-            assertEquals(expectedMessage.toString(), e.getMessage());
-        }
-    }
-
-    @Test
-    void updateActivityWithMisorderedDateDoesNotSaveDataTest() {
         Activity expectedActivity = createNormalActivitySilly(), actualActivity = null;
-        actualActivity = updateAndGetResult(expectedActivity, createBadActivityMisorderedDates());
+        assertTrue(activityRepository.existsById(activityId), "Sanity check: test setup correctly");
+        assertThrows(IllegalArgumentException.class, ()->{ service.update(createBadActivityBlankName(), activityId );});
+        Optional<Activity> result = activityRepository.findById(activityId);
+        if (result.isPresent()) {
+            actualActivity = result.get();
+        } else {
+            fail("Error: original activity is missing");
+        }
         assertEquals(expectedActivity, actualActivity);
     }
 
@@ -202,69 +157,51 @@ class ActivityServiceTest {
     void updateActivityWithInvalidActivityTypesThrowsExceptionTest() {
         activityRepository.save(createNormalActivitySilly());
         Long activityId = activityRepository.getLastInsertedId();
-        ActivityResponseMessage expectedMessage = ActivityResponseMessage.MISSING_NAME;
+        Activity expectedActivity = createNormalActivitySilly(), actualActivity = null;
         assertTrue(activityRepository.existsById(activityId), "Sanity check: test setup correctly");
-
-        try {
-            service.update(createBadActivityInvalidActivityTypes(), activityId);
-            fail(MISSING_EXCEPTION);
-        } catch (Exception e) {
-            assertEquals(expectedMessage.toString(), e.getMessage());
+        assertThrows(IllegalArgumentException.class, ()->{ service.update(createBadActivityInvalidActivityTypes(), activityId );});
+        Optional<Activity> result = activityRepository.findById(activityId);
+        if (result.isPresent()) {
+            actualActivity = result.get();
+        } else {
+            fail("Error: original activity is missing");
         }
-    }
-
-    @Test
-    void updateActivityWithInvalidActivityDoesNotSaveDataTest() {
-        Activity expectedActivity = createNormalActivitySilly();
-        Activity actualActivity = updateAndGetResult(expectedActivity, createBadActivityInvalidActivityTypes());
         assertEquals(expectedActivity, actualActivity);
     }
 
     @Test
-    void updateActivityWithEmptyActivityTypesThrowsExceptionTest() {
+    void updateActivityWithEmptyActivityTypesTest() {
         activityRepository.save(createNormalActivitySilly());
         Long activityId = activityRepository.getLastInsertedId();
-        ActivityResponseMessage expectedMessage = ActivityResponseMessage.MISSING_TYPES;
+        Activity expectedActivity = createNormalActivitySilly(), actualActivity = null;
         assertTrue(activityRepository.existsById(activityId), "Sanity check: test setup correctly");
-
-        try {
-            service.update(createBadActivityEmptyActivityTypes(), activityId);
-            fail(MISSING_EXCEPTION);
-        } catch (Exception e) {
-            assertEquals(expectedMessage.toString(), e.getMessage());
+        assertThrows(IllegalArgumentException.class, ()->{ service.update(createBadActivityEmptyActivityTypes(), activityId );});
+        Optional<Activity> result = activityRepository.findById(activityId);
+        if (result.isPresent()) {
+            actualActivity = result.get();
+        } else {
+            fail("Error: original activity is missing");
         }
-    }
-
-    @Test
-    void updateActivityWithEmptyActivityTypesDoesNotSaveDataTest() {
-        Activity expectedActivity = createNormalActivitySilly();
-        Activity actualActivity = updateAndGetResult(expectedActivity, createBadActivityEmptyActivityTypes());
         assertEquals(expectedActivity, actualActivity);
     }
 
     @Test
-    void updateActivityWithNoActivityTypesThrowsExceptionTest() {
+    void updateActivityWithNoActivityTypesTest() {
         activityRepository.save(createNormalActivitySilly());
         Long activityId = activityRepository.getLastInsertedId();
-        ActivityResponseMessage expectedMessage = ActivityResponseMessage.MISSING_TYPES;
+        Activity expectedActivity = createNormalActivitySilly(), actualActivity = null;
         assertTrue(activityRepository.existsById(activityId), "Sanity check: test setup correctly");
-
-        try {
-            service.update(createBadActivityNoActivityTypes(), activityId);
-            fail(MISSING_EXCEPTION);
-        } catch (Exception e) {
-            assertEquals(expectedMessage.toString(), e.getMessage());
+        assertThrows(IllegalArgumentException.class, ()->{ service.update(createBadActivityNoActivityTypes(), activityId );});
+        Optional<Activity> result = activityRepository.findById(activityId);
+        if (result.isPresent()) {
+            actualActivity = result.get();
+        } else {
+            fail("Error: original activity is missing");
         }
-    }
-
-    @Test
-    void updateActivityWithNoActivityTypesDoesNotSaveDataTest() {
-        Activity expectedActivity = createNormalActivitySilly();
-        Activity actualActivity = updateAndGetResult(expectedActivity, createBadActivityNoActivityTypes());
         assertEquals(expectedActivity, actualActivity);
     }
 
- */
+
 
 
 
