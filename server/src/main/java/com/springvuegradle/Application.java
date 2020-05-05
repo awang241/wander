@@ -36,7 +36,7 @@ public class Application {
                            ActivityRepository activityRepository, ActivityMembershipRepository activityMembershipRepository) {
         return args -> {
             System.out.println("-----Updating Passport Country Repository-----");
-            ValidationHelper.updatePassportCountryRepository(passportCountryRepository, profileRepository);
+            //ValidationHelper.updatePassportCountryRepository(passportCountryRepository, profileRepository);
             System.out.println("-----Update Complete-----");
             System.out.println("-----Program should be running now-----");
         };

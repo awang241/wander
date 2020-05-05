@@ -3,11 +3,8 @@ import com.springvuegradle.Model.Activity;
 import com.springvuegradle.Model.ActivityType;
 import com.springvuegradle.Model.Profile;
 import com.springvuegradle.Repositories.*;
-import com.springvuegradle.dto.ActivityTypesResponse;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+import com.springvuegradle.service.ActivityService;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -35,17 +32,21 @@ public class ActivityControllerTest {
     @Autowired
     private ActivityController activityController;
 
+    private ActivityService mockService;
+
     @Autowired
     private ActivityTypeRepository activityTypeRepo;
 
-    /**
-     * This tests to ensure activities structured correctly can be added to the database.
-     */
+
     @AfterEach
     void resetRepo() {
         prepo.deleteAll();
         arepo.deleteAll();
     }
+
+    /**
+     * This tests to ensure activities structured correctly can be added to the database.
+     */
     @Test
     void createActivityTest() {
         Activity trackRace = createNormalActivity();
@@ -114,6 +115,12 @@ public class ActivityControllerTest {
         int expected_activities_in_repo = 2;
         assertEquals(expected_activities_in_repo, arepo.count());
         arepo.deleteAll();
+    }
+
+    @Disabled
+    @Test
+    void updateActivityNormalRequest() {
+        fail("Not yet implemented");
     }
 
     /* Below are a set of ready-made Activity objects which can be used for various tests. */
