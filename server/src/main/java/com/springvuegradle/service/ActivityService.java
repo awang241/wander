@@ -36,6 +36,10 @@ public class ActivityService {
     public void create(Activity activity, Long creatorId) {
         validateActivity(activity);
         Profile profile = profileRepo.findById(creatorId).get();
+//        List<Activity> dbResult = activityRepo.findByActivityNames(activity.getActivityName());
+//        if (dbResult.size() == 1) {
+//
+//        }
         Activity result = activityRepo.save(activity);
         ActivityMembership activityMembership = new ActivityMembership(result, profile, ActivityMembership.Role.CREATOR);
         membershipRepo.save(activityMembership);
