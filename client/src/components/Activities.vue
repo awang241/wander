@@ -112,11 +112,20 @@
         name: "Activities",
         data() {
             return {
-                activities: api.getActivitiesList(),
+                activities: null,
             }
         },
         methods: {
-
+            getActivities(){
+                api.getActivitiesList()
+                    .then((response) => {
+                        this.activities = response.data;
+                    })
+                .catch(error => console.log(error));
+            }
+        },
+        mounted() {
+            this.getActivitiesList();
         }
     }
 
