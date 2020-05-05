@@ -1,8 +1,10 @@
 package com.springvuegradle.Controller;
 import com.springvuegradle.Model.Activity;
 import com.springvuegradle.Model.ActivityType;
+import com.springvuegradle.Model.Profile;
 import com.springvuegradle.Repositories.*;
 import com.springvuegradle.dto.ActivityTypesResponse;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -28,24 +30,34 @@ public class ActivityControllerTest {
     private ActivityRepository arepo;
 
     @Autowired
+    private ProfileRepository prepo;
+
+    @Autowired
     private ActivityController activityController;
 
     @Autowired
-    static private ActivityTypeRepository activityTypeRepo;
+    private ActivityTypeRepository activityTypeRepo;
 
     /**
      * This tests to ensure activities structured correctly can be added to the database.
      */
-    @Disabled
+    @AfterEach
+    void resetRepo() {
+        prepo.deleteAll();
+        arepo.deleteAll();
+    }
     @Test
     void createActivityTest() {
         Activity trackRace = createNormalActivity();
         ActivityType hiking = createActivityType();
+        Profile maurice = createNormalProfileMaurice();
+        Profile profile = prepo.save(maurice);
 
+        activityTypeRepo.save(hiking);
         int expected_in_repo = 0;
         assertEquals(expected_in_repo, arepo.count());
 
-        ResponseEntity<String> response_entity = activityController.createActivity(null, trackRace, (long) 0, true);
+        ResponseEntity<String> response_entity = activityController.createActivity(null, trackRace, profile.getId(), true);
         assertEquals(HttpStatus.CREATED, response_entity.getStatusCode());
 
         expected_in_repo = 1;
@@ -55,14 +67,19 @@ public class ActivityControllerTest {
     /**
      * This tests to ensure activities structured correctly can be added to the database.
      */
-    @Disabled
+
     @Test
     void createIncorrectActivityTest() {
         Activity trackRace = createIncorrectActivity();
+        ActivityType hiking = createActivityType();
+        Profile maurice = createNormalProfileMaurice();
+        Profile profile = prepo.save(maurice);
+
+        activityTypeRepo.save(hiking);
         int expected_in_repo = 0;
         assertEquals(expected_in_repo, arepo.count());
 
-        ResponseEntity<String> response_entity = activityController.createActivity(null, trackRace, (long) 0);
+        ResponseEntity<String> response_entity = activityController.createActivity(null, trackRace, profile.getId(), true);
         assertEquals(HttpStatus.FORBIDDEN, response_entity.getStatusCode());
 
         expected_in_repo = 0;
@@ -121,5 +138,11 @@ public class ActivityControllerTest {
 
     static ActivityType createActivityType() {
         return new ActivityType("Hiking");
+    }
+
+    static Profile createNormalProfileMaurice() {
+        return new Profile(null, "Maurice", "Benson", "Jack", "Jacky", "jacky@google.com", new String[]{"additionaldoda@email.com"}, "jacky'sSecuredPwd",
+                "Jacky loves to ride his bike on crazy mountains.", new GregorianCalendar(1985, Calendar.DECEMBER,
+                20), "male", 1, new String[]{}, new String[]{});
     }
 }
