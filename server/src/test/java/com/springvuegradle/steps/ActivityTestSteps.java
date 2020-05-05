@@ -24,7 +24,7 @@ import java.util.List;
 
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
-public class ActivityTestSteps extends CucumberRunnerTest {
+public class ActivityTestSteps {
 
     @Autowired
     ProfileRepository profileRepository;
