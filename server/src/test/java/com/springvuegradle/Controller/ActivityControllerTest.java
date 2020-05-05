@@ -123,6 +123,38 @@ public class ActivityControllerTest {
         fail("Not yet implemented");
     }
 
+    /**
+     * Tests the get endpoint for activities list
+     */
+    @Test
+    void testGetActivities() {
+        arepo.save(createNormalActivity());
+        arepo.save(createNormalActivity1());
+        ResponseEntity<List<Activity>> responseEntity = activityController.getActivitiesList();
+        assertEquals(responseEntity.getStatusCode(), HttpStatus.OK);
+        assertEquals(responseEntity.getBody().get(0).getActivityName(), "Kaikoura Coast Track race");
+        assertEquals(responseEntity.getBody().get(1).getActivityName(), "Triathlon");
+        assertEquals(responseEntity.getBody().size(), 2);
+    }
+
+    /**
+     * Tests that the getUsersActivities endpoint retrieves the activities associated with a specific profile
+     */
+    @Test
+    void testGetUsersActivities() {
+        Activity trackRace = createNormalActivity();
+        ActivityType hiking = createActivityType();
+        Profile maurice = createNormalProfileMaurice();
+        Profile profile = prepo.save(maurice);
+        arepo.save(createNormalActivity1());
+        activityTypeRepo.save(hiking);
+
+        activityController.createActivity(null, trackRace, profile.getId(), true);
+        ResponseEntity<List<Activity>> responseEntity = activityController.getAllUsersActivities(null,
+                profile.getId(), true);
+        assertEquals(responseEntity.getStatusCode(), HttpStatus.OK);
+        assertEquals(responseEntity.getBody().get(0).getActivityName(), "Kaikoura Coast Track race");
+    }
     /* Below are a set of ready-made Activity objects which can be used for various tests. */
 
     /**
