@@ -49,7 +49,7 @@ class ActivityServiceTest {
     }
 
 
-/*
+
     @Test
     void updateActivityWithNormalDataSavesActivityTest() {
         activityRepository.save(createNormalActivitySilly());
