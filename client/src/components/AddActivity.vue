@@ -204,7 +204,7 @@
                 }
             }, submitActivity(activity){
                 console.log(activity)
-                Api.createActivity(store.getters.getUserId, activity)
+                Api.createActivity(store.getters.getUserId, activity, localStorage.getItem('authToken'))
             }
         }
     }

@@ -10,7 +10,7 @@
                 </div>
 
                 <!-- redirect to add activity -->
-                <b-button
+                <b-button  @click="goToAddActivity"
                            type="is-info">
                     Add Activity
                 </b-button>
@@ -108,6 +108,7 @@
 
 <script>
     import api from '../Api';
+    import router from "../router";
     export default {
         name: "Activities",
         data() {
@@ -122,7 +123,10 @@
                         this.activities = response.data;
                     })
                 .catch(error => console.log(error));
-            }
+            },
+            goToAddActivity(){
+                router.push({path: '/AddActivity'});
+            },
         },
         mounted() {
             this.getActivitiesList();

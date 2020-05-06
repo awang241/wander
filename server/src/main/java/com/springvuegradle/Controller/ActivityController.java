@@ -48,7 +48,6 @@ public class ActivityController {
      * Way to access Activity Repository (Activity table in db).
      */
 
-
     private boolean checkEditPermission(String token, Long id) {
         if (jwtUtil.validateToken(token) && (jwtUtil.extractPermission(token) == 0 || jwtUtil.extractPermission(token) == 1 || (jwtUtil.extractId(token).equals(id)))) {
             return true;
@@ -65,13 +64,14 @@ public class ActivityController {
      * @return the created activity and/or status code.
      */
     @PostMapping("/profiles/{id}/activities")
-    public ResponseEntity<String> createActivity (@RequestHeader("authorization") String token,
+    public ResponseEntity<String> createActivity (@PathVariable Long id,
                                                   @RequestBody Activity newActivity,
-                                                  @PathVariable Long id) {
-        return createActivity(token, newActivity, id, false);
+                                                  @RequestHeader("authorization") String token
+                                                  ) {
+        return createActivity(id, newActivity, token, false);
     }
 
-    public ResponseEntity<String> createActivity(String token, Activity newActivity, Long id, Boolean testing) {
+    public ResponseEntity<String> createActivity(Long id, Activity newActivity, String token, Boolean testing) {
         if (!testing) {
             if (token == null || token.isBlank()) {
                 return new ResponseEntity<>("Authorization required", HttpStatus.UNAUTHORIZED);
@@ -89,9 +89,6 @@ public class ActivityController {
             return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
         }
     }
-
-
-
 
     /**
      * REST endpoint for editing an existing activity. Given a HTTP request containing a correctly formatted JSON file,

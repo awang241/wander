@@ -21,7 +21,7 @@ export default {
   getActivityTypesList: () => localAxiosInstance.get('/activityTypes'),
   getUserProfiles: (token) => localAxiosInstance.get('profiles/', {headers: {"authorization":token}}),
   getAuthLevel: (token) => localAxiosInstance.get('authLevel/', {headers: {"authorization":token}}),
-  createActivity: (userId, data) => localAxiosInstance.post('/profiles'+userId+'/activities', data),
+  createActivity: (userId, data, token) => localAxiosInstance.post('/profiles/'+userId+'/activities', data, {headers: {"authorization":token}}),
   getActivitiesList: () => localAxiosInstance.get('activities'),
   getUserActivitiesList: (userId, token) => localAxiosInstance.get('/profiles/' + userId + '/activities', {headers: {"authorization":token}}),
   updateActivity: (userId, token, newData, activityId) => localAxiosInstance.put('profiles'+userId+'activities'+activityId, newData, {headers: {"authorization":token}}),
