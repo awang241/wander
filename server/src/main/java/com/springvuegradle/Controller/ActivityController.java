@@ -168,19 +168,28 @@ public class ActivityController {
      * @return http response code and feedback message on the result of the delete operation
      */
     @DeleteMapping("/profiles/{profileId}/activities/{activityId}")
-    public @ResponseBody ResponseEntity<String> deleteProfile(@RequestHeader("authorization") String token, @PathVariable Long profileId, @PathVariable Long activityId) {
-        if (token == null || token.isBlank()) {
-            return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
-                    HttpStatus.UNAUTHORIZED);
-        } else if (!checkEditPermission(token, profileId)) {
-            return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(),
-                    HttpStatus.FORBIDDEN);
-        }
+    public @ResponseBody ResponseEntity<String> deleteActivity(@RequestHeader("authorization") String token,
+                                                               @PathVariable Long profileId,
+                                                               @PathVariable Long activityId) {
+        return deleteActivity(token, profileId, activityId, false);
 
+    }
+    public ResponseEntity<String> deleteActivity(String token, Long profileId, Long activityId, Boolean testing) {
+        if (!testing) {
+            if (token == null || token.isBlank()) {
+                return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
+                        HttpStatus.UNAUTHORIZED);
+            } else if (!checkEditPermission(token, profileId)) {
+                return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(),
+                        HttpStatus.FORBIDDEN);
+            }
+        }
         Optional<Activity> result = aRepo.findById(activityId);
-        if (Boolean.TRUE.equals(result.isPresent())) {
+        if (result.isPresent()) {
             Activity activityToDelete = result.get();
+            //activityService.delete(activityId);
             aRepo.delete(activityToDelete);
+            System.out.println(aRepo.count());
             return new ResponseEntity<>("The activity has been deleted from the database.", HttpStatus.OK);
         } else {
             return new ResponseEntity<>("The activity does not exist in the database.", HttpStatus.NOT_FOUND);
