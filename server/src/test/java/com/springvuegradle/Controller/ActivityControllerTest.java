@@ -45,16 +45,31 @@ public class ActivityControllerTest {
     }
 
     /**
+     * Needs to be run before each test to ensure the repository starts empty.
+     */
+    @BeforeEach
+    void setup() {
+        prepo.deleteAll();
+        arepo.deleteAll();
+        activityTypeRepo.deleteAll();
+        activityTypeRepo.save(new ActivityType("Football"));
+        activityTypeRepo.save(new ActivityType("Tennis"));
+        activityTypeRepo.save(new ActivityType("Hockey"));
+        activityTypeRepo.save(new ActivityType("Basketball"));
+        activityTypeRepo.save(new ActivityType("Hiking"));
+        activityTypeRepo.save(new ActivityType("Rock Climbing"));
+    }
+
+
+    /**
      * This tests to ensure activities structured correctly can be added to the database.
      */
     @Test
     void createActivityTest() {
         Activity trackRace = createNormalActivity();
-        ActivityType hiking = createActivityType();
         Profile maurice = createNormalProfileMaurice();
         Profile profile = prepo.save(maurice);
 
-        activityTypeRepo.save(hiking);
         int expected_in_repo = 0;
         assertEquals(expected_in_repo, arepo.count());
 
@@ -72,11 +87,9 @@ public class ActivityControllerTest {
     @Test
     void createIncorrectActivityTest() {
         Activity trackRace = createIncorrectActivity();
-        ActivityType hiking = createActivityType();
         Profile maurice = createNormalProfileMaurice();
         Profile profile = prepo.save(maurice);
 
-        activityTypeRepo.save(hiking);
         int expected_in_repo = 0;
         assertEquals(expected_in_repo, arepo.count());
 
@@ -94,15 +107,34 @@ public class ActivityControllerTest {
     void checkActivitiesMatchTest() {
         List<String> testActivities = Arrays.asList("Kaikoura Coast Track race", "Triathlon");
         int i = 0;
-        arepo.deleteAll();
         arepo.save(createNormalActivity());
         arepo.save(createNormalActivity1());
         ResponseEntity<List<Activity>> response_entity = activityController.getActivitiesList();
         for (Activity activity: response_entity.getBody()) {
             assertEquals(testActivities.get(i++), activity.getActivityName());
         }
-        arepo.deleteAll();
     }
+
+
+//    /**
+//     * Tests deleting a activity.
+//     */
+//    @Test
+//    void deleteActivityTest() {
+//
+//        Activity trackRace = createNormalActivity();
+//        Profile maurice = createNormalProfileMaurice();
+//        Profile profile = prepo.save(maurice);
+//        int expected_in_repo = 1;
+//
+//        ResponseEntity<String> response_entity = activityController.createActivity(null, trackRace, profile.getId(), true);
+//        assertEquals(expected_in_repo, arepo.count());
+//        assertEquals(HttpStatus.CREATED, response_entity.getStatusCode());
+//
+//        ResponseEntity<String> response_entity2 = activityController.deleteActivity(null, profile.getId(), trackRace.getId(), true);
+//        assertEquals(HttpStatus.OK, response_entity2.getStatusCode());
+//        assertEquals(0, arepo.count());
+//    }
 
     /**
      * Check if the right amount of activities are saved in the database.
@@ -135,7 +167,7 @@ public class ActivityControllerTest {
 
     static Activity createNormalActivity1() {
         return new Activity("Triathlon", "I hate triathlons",
-                new String[]{"running","swimming"}, false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ");
+                new String[]{"Hiking","Football"}, false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ");
     }
 
     static Activity createIncorrectActivity() {
