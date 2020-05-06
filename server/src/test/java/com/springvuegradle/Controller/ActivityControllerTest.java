@@ -73,7 +73,7 @@ public class ActivityControllerTest {
         int expected_in_repo = 0;
         assertEquals(expected_in_repo, arepo.count());
 
-        ResponseEntity<String> response_entity = activityController.createActivity(null, trackRace, profile.getId(), true);
+        ResponseEntity<String> response_entity = activityController.createActivity(profile.getId(), trackRace, null, true);
         assertEquals(HttpStatus.CREATED, response_entity.getStatusCode());
 
         expected_in_repo = 1;
@@ -93,7 +93,7 @@ public class ActivityControllerTest {
         int expected_in_repo = 0;
         assertEquals(expected_in_repo, arepo.count());
 
-        ResponseEntity<String> response_entity = activityController.createActivity(null, trackRace, profile.getId(), true);
+        ResponseEntity<String> response_entity = activityController.createActivity(profile.getId(), trackRace, null, true);
         assertEquals(HttpStatus.FORBIDDEN, response_entity.getStatusCode());
 
         expected_in_repo = 0;
@@ -181,7 +181,7 @@ public class ActivityControllerTest {
         arepo.save(createNormalActivity1());
         activityTypeRepo.save(hiking);
 
-        activityController.createActivity(null, trackRace, profile.getId(), true);
+        activityController.createActivity(profile.getId(), trackRace, null, true);
         ResponseEntity<List<Activity>> responseEntity = activityController.getAllUsersActivities(null,
                 profile.getId(), true);
         assertEquals(responseEntity.getStatusCode(), HttpStatus.OK);
