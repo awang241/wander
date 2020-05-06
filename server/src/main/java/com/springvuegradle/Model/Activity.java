@@ -36,10 +36,8 @@ public class Activity {
     @NotNull
     private Boolean continuous;
 
-    @NotNull
     private OffsetDateTime startTime;
 
-    @NotNull
     private OffsetDateTime endTime;
 
     private String location;

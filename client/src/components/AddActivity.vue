@@ -129,6 +129,7 @@
                 startTime: "",
                 endTime: "",
                 location: "",
+                continuous: true
             }
         },
         mounted() {
@@ -177,6 +178,7 @@
                     this.showWarning("You must choose at least one activity type")
                     isValid = false
                 } else if (!this.isContinuous) {
+                    this.continuous = false
                     const startDate = Date.parse(this.combinedStartDate)
                     const endDate = Date.parse(this.combinedEndDate)
                     if (isNaN(startDate) || isNaN(endDate)) {
@@ -193,13 +195,17 @@
                     let activity = {
                         "activity_name": this.name,
                         "description": this.description,
-                        "activity_type": this.activityDuration,
+                        "activity_type": this.chosenActivityTypes,
+                        "continuous": this.continuous,
                         "location": this.location,
+                        "start_time": null,
+                        "end_time": null
                     }
                     if (!this.isContinuous) {
                         activity.start_time = this.combinedStartDate
                         activity.end_time = this.combinedEndDate
                     }
+
                     this.submitActivity(activity)
                 }
             }, submitActivity(activity){
