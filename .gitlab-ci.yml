@@ -15,6 +15,7 @@ jest:
   stage: test
   script:
     - cd client
+    - npm install
     - npm run unit
 
 dev-build:
