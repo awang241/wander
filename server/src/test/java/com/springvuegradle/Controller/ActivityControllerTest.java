@@ -127,13 +127,17 @@ public class ActivityControllerTest {
 //        Profile profile = prepo.save(maurice);
 //        int expected_in_repo = 1;
 //
-//        ResponseEntity<String> response_entity = activityController.createActivity(null, trackRace, profile.getId(), true);
+//        ResponseEntity<String> response_entity = activityController.createActivity(profile.getId(), trackRace, null, true);
 //        assertEquals(expected_in_repo, arepo.count());
 //        assertEquals(HttpStatus.CREATED, response_entity.getStatusCode());
+//        System.out.println("ActivityId: " + trackRace.getId());
+//        Long activityId = arepo.findAll().get(0).getId();
+//        System.out.println("ActivityId fo real: " + activityId);
 //
-//        ResponseEntity<String> response_entity2 = activityController.deleteActivity(null, profile.getId(), trackRace.getId(), true);
+//        ResponseEntity<String> response_entity2 = activityController.deleteActivity(null, profile.getId(), activityId, true);
 //        assertEquals(HttpStatus.OK, response_entity2.getStatusCode());
-//        assertEquals(0, arepo.count());
+//        expected_in_repo = 0;
+//        assertEquals(expected_in_repo, arepo.count());
 //    }
 
     /**
