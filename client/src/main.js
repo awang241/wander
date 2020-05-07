@@ -28,6 +28,7 @@ Vue.use(VueRouter)
 Vue.config.productionTip = false
 
 Vue.use(Vuex)
+//Check if a token is expired or null, if so it will redirect a user to the homepage
 if (localStorage.getItem('authToken') != null) {
   api.verifyToken(localStorage.getItem('authToken'))
       .then(r => {

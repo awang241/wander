@@ -596,15 +596,17 @@ public class Profile_Controller {
         }
     }
 
+    /**
+     * Checks if a token is expired for the front end
+     * @param token the token to be checked
+     * @return An HTTP response with appropriate status code and a string to tell the front end that a token is expired or not
+     */
     @GetMapping("/token")
     public @ResponseBody ResponseEntity<String> verifyToken(@RequestHeader("authorization") String token) {
-        String message;
         if (jwtUtil.isTokenExpired(token)) {
-            message = "expired";
-            return new ResponseEntity<>(message, HttpStatus.OK);
+            return new ResponseEntity<>("expired", HttpStatus.OK);
         } else {
-            message = "not expired";
-            return new ResponseEntity<>(message, HttpStatus.OK);
+            return new ResponseEntity<>("not expired", HttpStatus.UNAUTHORIZED);
         }
     }
 
