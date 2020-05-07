@@ -43,7 +43,7 @@ dev-build:
     - tags
   artifacts:
     paths:
-      - node_modules/
+      - client/node_modules/
 
 release-build:
   stage: deploy
@@ -63,7 +63,7 @@ release-build:
     # - serve -s ../client-prod/dist -l 9000 # convert to be run with service
   artifacts:
     paths:
-      - node_modules/
+      - client/node_modules/
       - client/dist
       - server/out
   only:
