@@ -67,9 +67,19 @@
 
             <br>
 
-            <b-field>
-                <b-button native-type="submit">Submit</b-button>
-            </b-field>
+            <div class="column">
+                <div class="is-pulled-left">
+                    <b-button type="is-danger" @click="goBack">Cancel</b-button>
+                </div>
+                <div class="is-pulled-right">
+                    <b-field>
+                        <b-button native-type="submit">Submit</b-button>
+                    </b-field>
+
+                </div>
+            </div>
+
+
         </form>
     </div>
 
@@ -80,6 +90,7 @@
     import List from "./List";
     import Api from "../Api"
     import store from "../store";
+    import router from "../router";
 
     export default {
         name: "AddActivity",
@@ -144,6 +155,9 @@
                     position: 'is-top'
                 })
             },
+            goBack(){
+                router.go(-1)
+            },
             getPossibleActivityTypes() {
                 Api.getActivityTypesList()
                     .then(response => this.possibleActivityTypes = response.data.allActivityTypes)
@@ -198,8 +212,6 @@
                         "activity_type": this.chosenActivityTypes,
                         "continuous": this.continuous,
                         "location": this.location,
-                        "start_time": null,
-                        "end_time": null
                     }
                     if (!this.isContinuous) {
                         activity.start_time = this.combinedStartDate
@@ -226,6 +238,11 @@
         .container {
             width: 100%;
         }
+    }
+
+    .column {
+        padding: 0;
+        margin: 0;
     }
 
 </style>

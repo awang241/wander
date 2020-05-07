@@ -44,11 +44,11 @@ public class ActivityMembership {
     @EmbeddedId
     private ActivityMembershipId id;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne//(cascade = CascadeType.ALL)
     @JoinColumn(name = "profile_fk", insertable = false, updatable = false)
     private Profile profile;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne//(cascade = CascadeType.ALL)
     @JoinColumn(name = "activity_fk", insertable = false, updatable = false)
     private Activity activity;
 

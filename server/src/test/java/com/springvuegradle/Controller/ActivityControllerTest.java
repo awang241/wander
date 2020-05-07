@@ -27,6 +27,9 @@ public class ActivityControllerTest {
     private ActivityRepository arepo;
 
     @Autowired
+    private ActivityMembershipRepository amRepo;
+
+    @Autowired
     private ProfileRepository prepo;
 
     @Autowired
@@ -40,8 +43,10 @@ public class ActivityControllerTest {
 
     @AfterEach
     void resetRepo() {
+        amRepo.deleteAll();
         prepo.deleteAll();
         arepo.deleteAll();
+
     }
 
     /**
@@ -49,6 +54,7 @@ public class ActivityControllerTest {
      */
     @BeforeEach
     void setup() {
+        amRepo.deleteAll();
         prepo.deleteAll();
         arepo.deleteAll();
         activityTypeRepo.deleteAll();
@@ -87,17 +93,11 @@ public class ActivityControllerTest {
     @Test
     void createIncorrectActivityTest() {
         Activity trackRace = createIncorrectActivity();
-        Profile maurice = createNormalProfileMaurice();
-        Profile profile = prepo.save(maurice);
-
-        int expected_in_repo = 0;
-        assertEquals(expected_in_repo, arepo.count());
-
+        Profile profile = prepo.save(createNormalProfileMaurice());
+        assertEquals(0, arepo.count());
         ResponseEntity<String> response_entity = activityController.createActivity(profile.getId(), trackRace, null, true);
         assertEquals(HttpStatus.FORBIDDEN, response_entity.getStatusCode());
-
-        expected_in_repo = 0;
-        assertEquals(expected_in_repo, arepo.count());
+        assertEquals(0, arepo.count());
     }
 
     /**
@@ -116,25 +116,32 @@ public class ActivityControllerTest {
     }
 
 
-//    /**
-//     * Tests deleting a activity.
-//     */
-//    @Test
-//    void deleteActivityTest() {
-//
-//        Activity trackRace = createNormalActivity();
-//        Profile maurice = createNormalProfileMaurice();
-//        Profile profile = prepo.save(maurice);
-//        int expected_in_repo = 1;
-//
-//        ResponseEntity<String> response_entity = activityController.createActivity(null, trackRace, profile.getId(), true);
-//        assertEquals(expected_in_repo, arepo.count());
-//        assertEquals(HttpStatus.CREATED, response_entity.getStatusCode());
-//
-//        ResponseEntity<String> response_entity2 = activityController.deleteActivity(null, profile.getId(), trackRace.getId(), true);
-//        assertEquals(HttpStatus.OK, response_entity2.getStatusCode());
-//        assertEquals(0, arepo.count());
-//    }
+    /**
+     * Tests deleting a activity, blue sky scenario where the activity exists.
+     */
+    @Test
+    void deleteActivityTestExists() {
+        Activity trackRace = createNormalActivity();
+        Profile profile = prepo.save(createNormalProfileMaurice());
+        ResponseEntity<String> response_entity = activityController.createActivity(profile.getId(), trackRace, null, true);
+        assertEquals(1, arepo.count());
+        assertEquals(HttpStatus.CREATED, response_entity.getStatusCode());
+        ResponseEntity<String> response_entity2 = activityController.deleteActivity(null, profile.getId(), trackRace.getId(), true);
+        assertEquals(HttpStatus.OK, response_entity2.getStatusCode());
+        assertEquals(0, arepo.count());
+        assertEquals(0, prepo.findAll().get(0).getActivities().size());
+    }
+
+    /**
+     * Tests deleting a activity where the activity does not exist.
+     */
+    @Test
+    void deleteActivityTestDoesNotExist() {
+        Profile profile = prepo.save(createNormalProfileMaurice());
+        assertEquals(0, arepo.count());
+        ResponseEntity<String> response_entity2 = activityController.deleteActivity(null, profile.getId(), (long) 1, true);
+        assertEquals(HttpStatus.NOT_FOUND, response_entity2.getStatusCode());
+    }
 
     /**
      * Check if the right amount of activities are saved in the database.
@@ -187,6 +194,7 @@ public class ActivityControllerTest {
         assertEquals(responseEntity.getStatusCode(), HttpStatus.OK);
         assertEquals(responseEntity.getBody().get(0).getActivityName(), "Kaikoura Coast Track race");
     }
+
     /* Below are a set of ready-made Activity objects which can be used for various tests. */
 
     /**

@@ -9,14 +9,18 @@ public class FormatHelper {
 
     private static final DateTimeFormatter DATE_TIME_FORMATTER = new DateTimeFormatterBuilder()
             .append(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-            .appendPattern("Z")
+            .appendPattern("X")
             .toFormatter();
 
     private FormatHelper() {}
 
     public static OffsetDateTime parseOffsetDateTime(String text) {
-        TemporalAccessor rawTime = DATE_TIME_FORMATTER.parse(text);
-        return OffsetDateTime.from(rawTime);
+        if (text == null) {
+            return null;
+        } else {
+            TemporalAccessor rawTime = DATE_TIME_FORMATTER.parse(text);
+            return OffsetDateTime.from(rawTime);
+        }
     }
 
 }
