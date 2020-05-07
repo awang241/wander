@@ -201,6 +201,20 @@ class ActivityServiceTest {
         assertEquals(expectedActivity, actualActivity);
     }
 
+    @Test
+    void deleteActivitySuccess() {
+        Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        assertEquals(1, activityRepository.count());
+        assertTrue(service.delete(activity.getId()));
+        assertEquals(0, activityRepository.count());
+    }
+
+    @Test
+    void deleteActivityDoesNotExist() {
+        assertFalse(activityRepository.existsById((long) 1));
+        assertFalse(service.delete((long) 1));
+    }
+
 
 
 

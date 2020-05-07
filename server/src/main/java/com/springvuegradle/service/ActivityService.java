@@ -67,14 +67,24 @@ public class ActivityService {
         }
     }
 
-    public void delete(Long activityId) {
-        throw new UnsupportedOperationException("Not yet implemented");
+    /**
+     * Checks if the activity exists in the repository, deletes the activity.
+     *
+     * @param activityId the id of the activity to delete.
+     * @return if activity exists then it deletes it and returns true. False otherwise.
+     */
+    public boolean delete(Long activityId) {
+        if (activityRepo.existsById(activityId)) {
+            activityRepo.deleteById(activityId);
+            return true;
+        }
+        return false;
     }
 
     public List<Activity> getActivitiesByProfileId(Long profileId) {
         Profile profile = profileRepo.findAllById(profileId).get(0);
         List<Activity> userActivities = new ArrayList<>();
-        for (ActivityMembership activityMembership: profile.getActivities()) {
+        for (ActivityMembership activityMembership : profile.getActivities()) {
             userActivities.add(activityMembership.getActivity());
         }
         return userActivities;
@@ -98,7 +108,7 @@ public class ActivityService {
         if (activity.getActivityTypes() == null || activity.getActivityTypes().isEmpty()) {
             throw new IllegalArgumentException(ActivityResponseMessage.MISSING_TYPES.toString());
         } else {
-            for (ActivityType type: activity.getActivityTypes()) {
+            for (ActivityType type : activity.getActivityTypes()) {
                 if (!typeRepo.existsByActivityTypeName(type.getActivityTypeName())) {
                     throw new IllegalArgumentException(ActivityResponseMessage.INVALID_TYPE.toString());
                 }
