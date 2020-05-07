@@ -1,3 +1,7 @@
+stages:
+  - deploy
+  - test
+
 tag_checker:
   stage: build
   script:
@@ -15,17 +19,15 @@ jest:
   stage: test
   script:
     - cd client
-    - npm install
     - npm run unit
-  artifacts:
-    paths:
-    - node_modules/
+    
 
 dev-build:
   stage: deploy
   script:
     - fuser -k 9499/tcp 9500/tcp || true
     - cd client
+    - npm install
     - npm run build
     - cd ../server
     - ./gradlew bootJar
@@ -38,12 +40,16 @@ dev-build:
     # - serve -s ../client-dev/dist -l 9500 # convert to be run with service
   except:
     - tags
+  artifacts:
+    paths:
+      - node_modules/
 
 release-build:
   stage: deploy
   script:
     - fuser -k 8999/tcp 9000/tcp || true
     - cd client
+    - npm install
     - npm run build-prod
     - cd ../server
     - ./gradlew bootJar
@@ -56,6 +62,7 @@ release-build:
     # - serve -s ../client-prod/dist -l 9000 # convert to be run with service
   artifacts:
     paths:
+      - node_modules/
       - client/dist
       - server/out
   only:
