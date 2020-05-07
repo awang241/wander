@@ -1,7 +1,3 @@
-cache:
-  paths:
-    - node_modules/
-
 tag_checker:
   stage: build
   script:
@@ -19,14 +15,17 @@ jest:
   stage: test
   script:
     - cd client
+    - npm install
     - npm run unit
+    artifacts:
+      paths:
+        - node_modules/
 
 dev-build:
   stage: deploy
   script:
     - fuser -k 9499/tcp 9500/tcp || true
     - cd client
-    - npm install
     - npm run build
     - cd ../server
     - ./gradlew bootJar
@@ -45,7 +44,6 @@ release-build:
   script:
     - fuser -k 8999/tcp 9000/tcp || true
     - cd client
-    - npm install
     - npm run build-prod
     - cd ../server
     - ./gradlew bootJar
