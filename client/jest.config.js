@@ -18,4 +18,5 @@ module.exports = {
         "html",
         "text-summary"
     ],
+    setupFilesAfterEnv: ['<rootDir>/tests/unit/setup.js']
 }
