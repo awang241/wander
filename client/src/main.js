@@ -4,6 +4,7 @@ import App from './App'
 import VueRouter from 'vue-router'
 import router from "./router.js";
 import Buefy from 'buefy'
+import api from './Api'
 // import { library } from '@fortawesome/fontawesome-svg-core';
 import store from './store'
 // internal icons
@@ -27,9 +28,20 @@ Vue.use(VueRouter)
 Vue.config.productionTip = false
 
 Vue.use(Vuex)
+//Check if a token is expired or null, if so it will redirect a user to the homepage
 if (localStorage.getItem('authToken') != null) {
-  let payload = {'token': localStorage.getItem('authToken'), 'userId': localStorage.getItem('userId')}
-  store.dispatch('validateByTokenAndUserId', payload).then()
+  api.verifyToken(localStorage.getItem('authToken'))
+      .then(r => {
+        let payload = {'token': localStorage.getItem('authToken'), 'userId': localStorage.getItem('userId')}
+        store.dispatch('validateByTokenAndUserId', payload).then()
+        return r
+      })
+      .catch((error) => {
+          let payload = {'token': null, 'userId': null, 'authenticationStatus': false, 'authenticationLevel': 5};
+        store.dispatch('resetUserData', payload).then();
+        localStorage.clear()
+          return error
+      })
 }
 
 import VueLogger from 'vuejs-logger';

@@ -78,8 +78,14 @@ public class Activity {
             }
         }
         this.continuous = continuous;
-        this.startTime = FormatHelper.parseOffsetDateTime(startTime);
-        this.endTime = FormatHelper.parseOffsetDateTime(endTime);
+        if (this.continuous) {
+            this.startTime = null;
+            this.endTime = null;
+        }
+        else {
+            this.startTime = FormatHelper.parseOffsetDateTime(startTime);
+            this.endTime = FormatHelper.parseOffsetDateTime(endTime);
+        }
         this.location = location;
         this.members = new HashSet<>();
     }

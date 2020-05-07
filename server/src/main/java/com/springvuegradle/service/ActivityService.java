@@ -5,10 +5,7 @@ import com.springvuegradle.Model.Activity;
 import com.springvuegradle.Model.ActivityMembership;
 import com.springvuegradle.Model.Profile;
 import com.springvuegradle.Model.ActivityType;
-import com.springvuegradle.Repositories.ActivityMembershipRepository;
-import com.springvuegradle.Repositories.ActivityRepository;
-import com.springvuegradle.Repositories.ActivityTypeRepository;
-import com.springvuegradle.Repositories.ProfileRepository;
+import com.springvuegradle.Repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +23,7 @@ public class ActivityService {
 
     @Autowired
     public ActivityService(ProfileRepository profileRepo, ActivityRepository activityRepo, ActivityTypeRepository activityTypeRepo,
-                           ActivityMembershipRepository activityMembershipRepository) {
+                           ActivityMembershipRepository activityMembershipRepository, EmailRepository erepo) {
         this.profileRepo = profileRepo;
         this.activityRepo = activityRepo;
         this.typeRepo = activityTypeRepo;
@@ -70,12 +67,20 @@ public class ActivityService {
     /**
      * Checks if the activity exists in the repository, deletes the activity.
      *
-     * @param activityId the id of the activity to delete.
+     * @param activityId the activity to delete.
      * @return if activity exists then it deletes it and returns true. False otherwise.
      */
     public boolean delete(Long activityId) {
         if (activityRepo.existsById(activityId)) {
+            for (ActivityMembership membership: membershipRepo.findAll()) {
+                if (membership.getActivity().getId() == activityId) {
+                    Profile profile = membership.getProfile();
+                    membershipRepo.delete(membership);
+                    profile.removeActivity(membership);
+                }
+            }
             activityRepo.deleteById(activityId);
+
             return true;
         }
         return false;

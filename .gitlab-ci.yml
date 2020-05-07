@@ -1,7 +1,9 @@
 stages:
-  - build    
-  - deploy
+  - build
+  - setup
   - test
+  - deploy
+  
 
 tag_checker:
   stage: build
@@ -9,6 +11,17 @@ tag_checker:
     - python tag_checker.py $CI_COMMIT_TAG
   only:
     - tags
+    
+setup:
+  stage: setup
+  script:
+    - npm install
+  cache:
+    paths:
+      - client/node_modules/
+  artifacts:
+    paths:
+      - client/node_modules/
 
 junit:
   stage: test
@@ -28,7 +41,6 @@ dev-build:
   script:
     - fuser -k 9499/tcp 9500/tcp || true
     - cd client
-    - npm install
     - npm run build
     - cd ../server
     - ./gradlew bootJar
@@ -41,19 +53,13 @@ dev-build:
     # - serve -s ../client-dev/dist -l 9500 # convert to be run with service
   except:
     - tags
-  cache:
-    paths:
-      - client/node_modules/
-  artifacts:
-    paths:
-      - client/node_modules/
+
 
 release-build:
   stage: deploy
   script:
     - fuser -k 8999/tcp 9000/tcp || true
     - cd client
-    - npm install
     - npm run build-prod
     - cd ../server
     - ./gradlew bootJar
@@ -64,12 +70,8 @@ release-build:
     - cp -r ./server/build/libs ../server-prod/
     # - java -jar ../server-prod/libs/server-0.0.1-SNAPSHOT.jar --server.port=8999 # convert to be run with service
     # - serve -s ../client-prod/dist -l 9000 # convert to be run with service
-  cache:
-    paths:
-      - client/node_modules/
   artifacts:
     paths:
-      - client/node_modules/
       - client/dist
       - server/out
   only:
