@@ -1,6 +1,9 @@
-cache:
-  paths:
-    - node_modules/
+stages:
+  - build
+  - setup
+  - test
+  - deploy
+  
 
 tag_checker:
   stage: build
@@ -8,6 +11,17 @@ tag_checker:
     - python tag_checker.py $CI_COMMIT_TAG
   only:
     - tags
+    
+setup:
+  stage: setup
+  script:
+    - npm install
+  cache:
+    paths:
+      - client/node_modules/
+  artifacts:
+    paths:
+      - client/node_modules/
 
 junit:
   stage: test
@@ -20,13 +34,13 @@ jest:
   script:
     - cd client
     - npm run unit
+    
 
 dev-build:
   stage: deploy
   script:
     - fuser -k 9499/tcp 9500/tcp || true
     - cd client
-    - npm install
     - npm run build
     - cd ../server
     - ./gradlew bootJar
@@ -40,12 +54,12 @@ dev-build:
   except:
     - tags
 
+
 release-build:
   stage: deploy
   script:
     - fuser -k 8999/tcp 9000/tcp || true
     - cd client
-    - npm install
     - npm run build-prod
     - cd ../server
     - ./gradlew bootJar
