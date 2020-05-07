@@ -2,6 +2,7 @@ package com.springvuegradle.steps;
 
 import com.springvuegradle.Controller.Profile_Controller;
 import com.springvuegradle.Model.Profile;
+import com.springvuegradle.Repositories.EmailRepository;
 import com.springvuegradle.Repositories.ProfileRepository;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
