@@ -1,5 +1,5 @@
 <template>
-    <div class="container containerColor">
+    <div v-if="store.getters.getAuthenticationStatus" class="container containerColor">
         <!-- Header -->
         <section class="hero level">
             <div class=" hero-body level-item">
@@ -117,11 +117,13 @@
 <script>
     import api from '../Api';
     import router from "../router";
+    import store from "../store"
     export default {
         name: "Activities",
         data() {
             return {
                 activities: null,
+                store: store
             }
         },
         methods: {
@@ -138,9 +140,15 @@
             deleteActivity(id){
                 console.log(id);
                 //send delete request
+            },
+            checkAuthenticationStatus() {
+                if (!store.getters.getAuthenticationStatus) {
+                    router.push({path: '/'})
+                }
             }
         },
         mounted() {
+            this.checkAuthenticationStatus();
             this.getActivities();
         }
     }

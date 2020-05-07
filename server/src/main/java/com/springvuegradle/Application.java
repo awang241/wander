@@ -2,6 +2,7 @@ package com.springvuegradle;
 
 import com.springvuegradle.Model.Activity;
 import com.springvuegradle.Repositories.*;
+import com.springvuegradle.Utilities.InitialDataHelper;
 import com.springvuegradle.Utilities.ValidationHelper;
 import com.springvuegradle.service.ActivityService;
 import org.springframework.boot.CommandLineRunner;
@@ -31,12 +32,15 @@ public class Application {
     }
 
     @Bean
-    CommandLineRunner init(EmailRepository emailRepository, ProfileRepository profileRepository,
-                           PassportCountryRepository passportCountryRepository, ActivityTypeRepository activityTypeRepository,
-                           ActivityRepository activityRepository, ActivityMembershipRepository activityMembershipRepository) {
+    CommandLineRunner init(EmailRepository eRepo, ProfileRepository pRepo,
+                           PassportCountryRepository pcRepo, ActivityTypeRepository atRepo,
+                           ActivityRepository aRepo, ActivityMembershipRepository amRepo) {
         return args -> {
+//            System.out.println("-----Updating Activity Type and Profile Repositories-----");
+//            InitialDataHelper.init(atRepo, pRepo, eRepo);
+//            System.out.println("-----Update Complete-----");
             System.out.println("-----Updating Passport Country Repository-----");
-            ValidationHelper.updatePassportCountryRepository(passportCountryRepository, profileRepository);
+            ValidationHelper.updatePassportCountryRepository(pcRepo, pRepo);
             System.out.println("-----Update Complete-----");
             System.out.println("-----Program should be running now-----");
         };

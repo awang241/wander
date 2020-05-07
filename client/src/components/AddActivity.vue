@@ -144,6 +144,7 @@
             }
         },
         mounted() {
+            this.checkAuthenticationStatus()
             this.getPossibleActivityTypes()
         },
         methods: {
@@ -204,7 +205,8 @@
                     }
                 }
                 return isValid
-            }, createActivity() {
+            },
+            createActivity() {
                 if(this.validateActivity()){
                     let activity = {
                         "activity_name": this.name,
@@ -220,9 +222,15 @@
 
                     this.submitActivity(activity)
                 }
-            }, submitActivity(activity){
+            },
+            submitActivity(activity){
                 console.log(activity)
                 Api.createActivity(store.getters.getUserId, activity, localStorage.getItem('authToken'))
+            },
+            checkAuthenticationStatus() {
+                if (!store.getters.getAuthenticationStatus) {
+                    router.push({path: '/'})
+                }
             }
         }
     }

@@ -18,6 +18,7 @@ public class InitialDataHelper {
 
     /**
      * Load initial activity types into the activity type database
+     *
      * @param activityTypeRepository the way to access the activity type repository
      */
     public static void updateActivityTypeRepository(ActivityTypeRepository activityTypeRepository) {
@@ -31,6 +32,12 @@ public class InitialDataHelper {
         }
     }
 
+    /**
+     * Loads an initial default admin if one does not exist.
+     *
+     * @param repo  the profile repository
+     * @param erepo the email repository
+     */
     public static void updateDefaultAdmin(ProfileRepository repo, EmailRepository erepo) {
         List<Profile> default_admins = repo.findByAuthLevel(0);
         if (default_admins.size() == 0) {
@@ -46,6 +53,13 @@ public class InitialDataHelper {
 
     }
 
+    /**
+     * If the database is empty, it will load in the default admin account as well as the default activity types.
+     *
+     * @param arepo the activity repository
+     * @param repo the profile repository
+     * @param erepo the email repository
+     */
     public static void init(ActivityTypeRepository arepo, ProfileRepository repo, EmailRepository erepo) {
         updateActivityTypeRepository(arepo);
         updateDefaultAdmin(repo, erepo);

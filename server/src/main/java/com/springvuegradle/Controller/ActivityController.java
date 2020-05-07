@@ -79,7 +79,6 @@ public class ActivityController {
                 return new ResponseEntity<>("Permission denied", HttpStatus.FORBIDDEN);
             }
         }
-
         String error = FieldValidationHelper.validateActivity(newActivity);
 
         if (error.equals("")) {
@@ -183,6 +182,7 @@ public class ActivityController {
         }
 
         if (activityService.delete(activityId)) {
+
             System.out.println("The number of activities in the repositories after deletion: " + aRepo.count());
             return new ResponseEntity<>("The activity has been deleted from the database.", HttpStatus.OK);
         }
