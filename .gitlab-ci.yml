@@ -17,9 +17,9 @@ jest:
     - cd client
     - npm install
     - npm run unit
-    artifacts:
-      paths:
-        - node_modules/
+  artifacts:
+    paths:
+    - node_modules/
 
 dev-build:
   stage: deploy
