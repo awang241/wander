@@ -79,7 +79,6 @@ public class ActivityController {
                 return new ResponseEntity<>("Permission denied", HttpStatus.FORBIDDEN);
             }
         }
-
         String error = FieldValidationHelper.validateActivity(newActivity);
 
         if (error.equals("")) {

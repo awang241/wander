@@ -596,6 +596,16 @@ public class Profile_Controller {
         }
     }
 
-
+    @GetMapping("/token")
+    public @ResponseBody ResponseEntity<String> verifyToken(@RequestHeader("authorization") String token) {
+        String message;
+        if (jwtUtil.isTokenExpired(token)) {
+            message = "expired";
+            return new ResponseEntity<>(message, HttpStatus.OK);
+        } else {
+            message = "not expired";
+            return new ResponseEntity<>(message, HttpStatus.OK);
+        }
+    }
 
 }

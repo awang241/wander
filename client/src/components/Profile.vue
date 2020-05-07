@@ -157,9 +157,15 @@
             editProfile(){
                 router.push('EditProfile/' + store.getters.getUserId);
             },
-            getProfile(){
-                api.getProfile(store.getters.getUserId,localStorage.getItem('authToken'))
-                    .then(response => this.profile = response.data)
+            getProfile() {
+                api.getProfile(store.getters.getUserId, localStorage.getItem('authToken'))
+                    .then((response) => {
+                        this.profile = response.data;
+                    })
+                    .catch((error) => {
+                        router.push({path: '/'});
+                        console.log(error)
+                    })
             }
         },
 
