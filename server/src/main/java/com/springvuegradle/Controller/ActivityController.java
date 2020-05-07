@@ -183,6 +183,7 @@ public class ActivityController {
         }
 
         if (activityService.delete(activityId)) {
+
             System.out.println("The number of activities in the repositories after deletion: " + aRepo.count());
             return new ResponseEntity<>("The activity has been deleted from the database.", HttpStatus.OK);
         }
