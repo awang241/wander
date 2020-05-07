@@ -1,5 +1,5 @@
 <template>
-    <div v-if="store.getters.getAuthenticationStatus" class="container">
+    <div class="container">
         <h1 class="title">Create Activity</h1>
         <form @submit.prevent="createActivity">
 
