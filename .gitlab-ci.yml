@@ -60,5 +60,6 @@ release-build:
     paths:
     - client/dist
     - server/out
+    - node_modules/
  only:
     - tags
