@@ -54,6 +54,10 @@
                                     <td>time</td>
                                 </tr>
                             </table>
+                            <b-button  @click="deleteActivity(1)"
+                                       type="is-danger">
+                                Delete/Leave
+                            </b-button>
                         </div>
                         <br>
                     </div>
@@ -67,7 +71,7 @@
                     <!-- Activities -->
                     <div class="card">
                         <div class="card-content">
-                            <h3 class="title is-4">Name</h3>
+                            <h3 class="title is-4">{{activity.activity_name}}</h3>
                             Role:
                             <div class="content">
                                 <table class="table-profile">
@@ -96,6 +100,10 @@
                                         <td>{{activity.location}}</td>
                                     </tr>
                                 </table>
+                                <b-button  @click="deleteActivity(activity.id)"
+                                           type="is-danger">
+                                    Delete/Leave
+                                </b-button>
                             </div>
                             <br>
                         </div>
@@ -127,9 +135,13 @@
             goToAddActivity(){
                 router.push({path: '/AddActivity'});
             },
+            deleteActivity(id){
+                console.log(id);
+                //send delete request
+            }
         },
         mounted() {
-            this.getActivitiesList();
+            this.getActivities();
         }
     }
 

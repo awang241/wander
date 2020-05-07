@@ -1,9 +1,27 @@
+stages:
+  - build
+  - setup
+  - test
+  - deploy
+  
+
 tag_checker:
   stage: build
   script:
     - python tag_checker.py $CI_COMMIT_TAG
   only:
     - tags
+    
+setup:
+  stage: setup
+  script:
+    - npm install
+  cache:
+    paths:
+      - client/node_modules/
+  artifacts:
+    paths:
+      - client/node_modules/
 
 junit:
   stage: test
@@ -15,11 +33,8 @@ jest:
   stage: test
   script:
     - cd client
-    - npm install
     - npm run unit
-    artifacts:
-      paths:
-        - node_modules/
+    
 
 dev-build:
   stage: deploy
@@ -38,6 +53,7 @@ dev-build:
     # - serve -s ../client-dev/dist -l 9500 # convert to be run with service
   except:
     - tags
+
 
 release-build:
   stage: deploy
