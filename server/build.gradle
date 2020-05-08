@@ -40,6 +40,7 @@ dependencies {
 
 	testCompile group: 'com.h2database', name: 'h2', version: '1.4.197'
 
+	//testCompile 'org.mockito:mockito-inline:*'
 	testImplementation 'io.cucumber:cucumber-java:5.6.0'
 	testImplementation 'io.cucumber:cucumber-junit:5.6.0'
 	testImplementation 'org.junit.jupiter:junit-jupiter-api:5.5.2'
@@ -47,6 +48,7 @@ dependencies {
 	testImplementation 'org.junit.vintage:junit-vintage-engine:5.5.2'
 	testImplementation 'org.hamcrest:hamcrest:2.1'
 	testRuntime 'org.junit.jupiter:junit-jupiter-engine:5.5.2'
+	implementation group: 'org.mockito', name: 'mockito-core', version: '3.2.0'
 
 }
 
@@ -65,7 +67,7 @@ task cucumber() {
 			classpath = configurations.cucumberRuntime + sourceSets.main.output + sourceSets.test.output
 			args = [
 					'--plugin', 'pretty', // How to format test report, "pretty" is good for human eyes
-					'--glue', 'library_app.steps', // Where to look for your tests' steps
+					'--glue', 'gradle.cucumber', // Where to look for your tests' steps
 					'src/test/resources/library_app/features/', // Where to look for your features
 					'--strict', // Causes cucumber to fail if any step definitions are still undefined
 					'--tags', selectedTags // Only runs certain tagged scenarios of tags arg is given
