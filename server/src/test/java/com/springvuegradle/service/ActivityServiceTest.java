@@ -231,6 +231,7 @@ class ActivityServiceTest {
         assertEquals(1, activityRepository.count());
         assertTrue(service.delete(activity.getId()));
         assertEquals(0, activityRepository.count());
+        assertEquals(7, typeRepository.count());
     }
 
     @Test
@@ -247,9 +248,17 @@ class ActivityServiceTest {
     }
 
     private Activity createNormalActivityKaikoura() {
-        return new Activity("Kaikoura Coast Track race", "A big and nice race on a lovely peninsula",
+        Activity activity =  new Activity("Kaikoura Coast Track race", "A big and nice race on a lovely peninsula",
                 new String[]{"hiking"}, false, "2020-02-20T08:00:00+1300",
                 "2020-02-20T08:00:00+1300", "Kaikoura, NZ");
+        Set<ActivityType> updatedActivityType = new HashSet<ActivityType>();
+        for(ActivityType activityType : activity.getActivityTypes()){
+            List<ActivityType> resultActivityTypes = typeRepository.findByActivityTypeName(activityType.getActivityTypeName());{
+                updatedActivityType.add(resultActivityTypes.get(0));
+            }
+        }
+        activity.setActivityTypes(updatedActivityType);
+        return activity;
     }
 
     private Activity createNormalActivitySilly() {

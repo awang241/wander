@@ -46,7 +46,7 @@ public class Activity {
     /**
      * Each activity object can have multiple activities.
      */
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     @JoinTable(name = "activity_activity_type",
             inverseJoinColumns = @JoinColumn(name = "activity_type_id", referencedColumnName = "id"),
             joinColumns = @JoinColumn(name = "activity_id", referencedColumnName = "id"))
@@ -195,5 +195,9 @@ public class Activity {
 
     public boolean removeMember(ActivityMembership membership) {
         return this.members.remove(membership);
+    }
+
+    public void setActivityTypes(Set<ActivityType> updatedActivityType) {
+        this.activityTypes = updatedActivityType;
     }
 }

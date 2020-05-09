@@ -78,9 +78,14 @@ public class ActivityControllerTest {
 
         int expected_in_repo = 0;
         assertEquals(expected_in_repo, arepo.count());
+        assertEquals(6, activityTypeRepo.count());
 
         ResponseEntity<String> response_entity = activityController.createActivity(profile.getId(), trackRace, null, true);
         assertEquals(HttpStatus.CREATED, response_entity.getStatusCode());
+
+        assertEquals(6, activityTypeRepo.count());
+
+        assertEquals(1, arepo.findByActivityNames("Kaikoura Coast Track race").get(0).getActivityTypes().size());
 
         expected_in_repo = 1;
         assertEquals(expected_in_repo, arepo.count());

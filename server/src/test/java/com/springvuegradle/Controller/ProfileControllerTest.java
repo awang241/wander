@@ -81,9 +81,11 @@ class ProfileControllerTest {
 
     @Test
     void testCreateProfileWithActivityTypes(){
+        assertEquals(6, arepo.count());
         Profile profile = createProfileWithActivityTypes();
         ResponseEntity<String> response_entity = profileController.createProfile(profile);
         assertEquals(HttpStatus.CREATED, response_entity.getStatusCode());
+        assertEquals(6, arepo.count());
     }
 
     @Test

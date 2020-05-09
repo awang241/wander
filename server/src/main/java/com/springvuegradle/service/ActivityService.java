@@ -9,9 +9,7 @@ import com.springvuegradle.Repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service(value = "activityService")
 public class ActivityService {
@@ -37,17 +35,16 @@ public class ActivityService {
         if (dbResult.size() == 1) {
             throw new IllegalArgumentException(ActivityResponseMessage.ACTIVITY_EXISTS.toString());
         } else {
-            for (ActivityType activityType : activity.getActivityTypes()) {
-                activityType.addActivity(activity);
-                typeRepo.save(activityType);
 
-//                System.out.println("-------------");
-//                System.out.println(activityType.getActivityTypeName());
-//                System.out.println(activityType.getActivities().size());
-//                List<ActivityType> test = typeRepo.findByActivityTypeName(activityType.getActivityTypeName());
-//                System.out.println(test.get(0).getActivities());
-//                System.out.println("-------------");
+            Set<ActivityType> updatedActivityType = new HashSet<ActivityType>();
+            for (ActivityType activityType : activity.getActivityTypes()) {
+                List<ActivityType> resultActivityTypes = typeRepo.findByActivityTypeName(activityType.getActivityTypeName());
+                {
+                    updatedActivityType.add(resultActivityTypes.get(0));
+                }
             }
+            activity.setActivityTypes(updatedActivityType);
+
             Activity result = activityRepo.save(activity);
             ActivityMembership activityMembership = new ActivityMembership(result, profile, ActivityMembership.Role.CREATOR);
             membershipRepo.save(activityMembership);
@@ -57,11 +54,25 @@ public class ActivityService {
         }
     }
 
-    public void read(Long activityId) {
-        //TODO Implement read endpoint
-        throw new UnsupportedOperationException("Not yet implemented");
+    /**
+     * Check if there is an activity with an associated activityId
+     *
+     * @param activityId the id of the activity we want to retrieve
+     * @return activity if it exists, false otherwise
+     */
+    public Activity read(Long activityId) {
+        Optional<Activity> activity = activityRepo.findById(activityId);
+        if (activity.isPresent()) {
+            return activity.get();
+        }
+        return null;
     }
 
+    /**
+     * Updates the activity given the new activity object and the id of the activity you want to update.
+     * @param activity the new activity object
+     * @param activityId the id of the activity to update
+     */
     public void update(Activity activity, Long activityId) {
         validateActivity(activity);
 
@@ -83,11 +94,17 @@ public class ActivityService {
      */
     public boolean delete(Long activityId) {
         if (activityRepo.existsById(activityId)) {
-            for (ActivityMembership membership: membershipRepo.findAll()) {
+            for (ActivityMembership membership : membershipRepo.findAll()) {
                 if (membership.getActivity().getId() == activityId) {
                     Profile profile = membership.getProfile();
                     membershipRepo.delete(membership);
                     profile.removeActivity(membership);
+                }
+            }
+            Optional<Activity> activity = activityRepo.findById(activityId);
+            for (ActivityType activityType : typeRepo.findAll()) {
+                if (activityType.getActivities().contains(activity.get())) {
+                    activityType.removeActivity(activity.get());
                 }
             }
             activityRepo.deleteById(activityId);
