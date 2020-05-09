@@ -603,7 +603,7 @@ public class Profile_Controller {
      */
     @GetMapping("/token")
     public @ResponseBody ResponseEntity<String> verifyToken(@RequestHeader("authorization") String token) {
-        if (jwtUtil.isTokenExpired(token)) {
+        if (jwtUtil.validateToken(token)) {
             return new ResponseEntity<>("expired", HttpStatus.OK);
         } else {
             return new ResponseEntity<>("not expired", HttpStatus.UNAUTHORIZED);

@@ -35,7 +35,7 @@ public class ActivityType {
     @JsonBackReference
     private Set<Profile> profiles = new HashSet<Profile>();
 
-    @ManyToMany(mappedBy = "activityTypes")
+    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "activityTypes")
     @JsonIgnore
     private Set<Activity> activities = new HashSet<Activity>();
 
@@ -65,6 +65,8 @@ public class ActivityType {
     public String getActivityTypeName() {
         return activityTypeName;
     }
+
+    public Set<Activity> getActivities() { return activities; }
 
     public boolean addActivity(Activity activity) { return activities.add(activity);}
 

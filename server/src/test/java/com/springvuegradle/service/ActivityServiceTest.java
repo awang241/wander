@@ -1,9 +1,11 @@
 package com.springvuegradle.service;
 
+import com.springvuegradle.Controller.ActivityController;
 import com.springvuegradle.Controller.enums.ActivityResponseMessage;
 import com.springvuegradle.Model.Activity;
 import com.springvuegradle.Model.ActivityType;
 import com.springvuegradle.Model.Profile;
+import com.springvuegradle.Repositories.ActivityMembershipRepository;
 import com.springvuegradle.Repositories.ActivityRepository;
 import com.springvuegradle.Repositories.ActivityTypeRepository;
 import com.springvuegradle.Repositories.ProfileRepository;
@@ -14,6 +16,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.*;
@@ -32,6 +36,9 @@ class ActivityServiceTest {
     ActivityRepository activityRepository;
     @Autowired
     ActivityTypeRepository typeRepository;
+    @Autowired
+    ActivityMembershipRepository activityMembershipRepository;
+
     private Map<Long, Profile> profileIds = null;
     private static final String MISSING_EXCEPTION = "Exception should have been thrown.";
 
@@ -43,11 +50,28 @@ class ActivityServiceTest {
 
     @AfterEach
     void tearDown() {
+        activityMembershipRepository.deleteAll();
         profileRepository.deleteAll();
         activityRepository.deleteAll();
         typeRepository.deleteAll();
     }
 
+//    @Test
+//    void testCreateNewActivity() {
+//        Profile ben = createNormalProfileBen();
+//        Profile profile = profileRepository.save(ben);
+//
+//        Activity trackRace = createNormalActivity();
+//        service.create(trackRace, profile.getId());
+//        List<Activity> result = activityRepository.findByActivityNames(trackRace.getActivityName());
+//
+//        assertEquals(result.get(0).getActivityName(), "Kaikoura Coast Track race");
+//
+//        List<ActivityType> activityTypeList = typeRepository.findByActivityTypeName("tramping");
+//        ActivityType activityType = activityTypeList.get(0);
+//        System.out.println(activityType.getActivityTypeName());
+//        assertEquals(1, activityType.getActivities().size());
+//    }
 
 
     @Test
@@ -217,11 +241,14 @@ class ActivityServiceTest {
 
 
 
-
+    static Activity createNormalActivity() {
+        return new Activity("Kaikoura Coast Track race", "A big and nice race on a lovely peninsula",
+                new String[]{"tramping", "hiking"}, false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ");
+    }
 
     private Activity createNormalActivityKaikoura() {
         return new Activity("Kaikoura Coast Track race", "A big and nice race on a lovely peninsula",
-                new String[]{"tramping", "hiking"}, false, "2020-02-20T08:00:00+1300",
+                new String[]{"hiking"}, false, "2020-02-20T08:00:00+1300",
                 "2020-02-20T08:00:00+1300", "Kaikoura, NZ");
     }
 
@@ -304,6 +331,13 @@ class ActivityServiceTest {
             fail("Error: original activity is missing");
         }
         return actualActivity;
+    }
+
+
+    static Profile createNormalProfileBen() {
+        return new Profile(null, "Ben", "Sales", "James", "Ben10", "ben10@hotmail.com", new String[]{"additional@email.com"}, "hushhush",
+                "Wooooooow", new GregorianCalendar(1999, Calendar.NOVEMBER,
+                28), "male", 1, new String[]{}, new String[]{});
     }
 
     static Profile createNormalProfileJohnny() {

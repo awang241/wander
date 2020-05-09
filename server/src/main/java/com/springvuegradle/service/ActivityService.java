@@ -37,6 +37,17 @@ public class ActivityService {
         if (dbResult.size() == 1) {
             throw new IllegalArgumentException(ActivityResponseMessage.ACTIVITY_EXISTS.toString());
         } else {
+            for (ActivityType activityType : activity.getActivityTypes()) {
+                activityType.addActivity(activity);
+                typeRepo.save(activityType);
+
+//                System.out.println("-------------");
+//                System.out.println(activityType.getActivityTypeName());
+//                System.out.println(activityType.getActivities().size());
+//                List<ActivityType> test = typeRepo.findByActivityTypeName(activityType.getActivityTypeName());
+//                System.out.println(test.get(0).getActivities());
+//                System.out.println("-------------");
+            }
             Activity result = activityRepo.save(activity);
             ActivityMembership activityMembership = new ActivityMembership(result, profile, ActivityMembership.Role.CREATOR);
             membershipRepo.save(activityMembership);
