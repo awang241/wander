@@ -221,6 +221,7 @@
                     }
 
                     this.submitActivity(activity)
+                    router.push({path: '/Activities'});
                 }
             },
             submitActivity(activity){
