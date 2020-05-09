@@ -85,7 +85,8 @@
                                     </tr>
                                     <tr>
                                         <td>Continous/Duration:</td>
-                                        <td>{{activity.continuous}}</td>
+                                        <td v-if="activity.continuous">continuous</td>
+                                        <td v-else>duration</td>
                                     </tr>
                                     <tr>
                                         <td>Start Time:</td>
