@@ -29,6 +29,7 @@ public class InitialDataHelper {
             activityTypeRepository.save(new ActivityType("Basketball"));
             activityTypeRepository.save(new ActivityType("Hiking"));
             activityTypeRepository.save(new ActivityType("Rock Climbing"));
+            activityTypeRepository.save(new ActivityType("Tramping"));
         }
     }
 

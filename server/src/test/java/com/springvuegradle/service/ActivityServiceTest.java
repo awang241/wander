@@ -5,11 +5,9 @@ import com.springvuegradle.Controller.enums.ActivityResponseMessage;
 import com.springvuegradle.Model.Activity;
 import com.springvuegradle.Model.ActivityType;
 import com.springvuegradle.Model.Profile;
-import com.springvuegradle.Repositories.ActivityMembershipRepository;
-import com.springvuegradle.Repositories.ActivityRepository;
-import com.springvuegradle.Repositories.ActivityTypeRepository;
-import com.springvuegradle.Repositories.ProfileRepository;
+import com.springvuegradle.Repositories.*;
 import com.springvuegradle.Utilities.FormatHelper;
+import com.springvuegradle.Utilities.InitialDataHelper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,6 +36,8 @@ class ActivityServiceTest {
     ActivityTypeRepository typeRepository;
     @Autowired
     ActivityMembershipRepository activityMembershipRepository;
+    @Autowired
+    EmailRepository emailRepository;
 
     private Map<Long, Profile> profileIds = null;
     private static final String MISSING_EXCEPTION = "Exception should have been thrown.";
@@ -45,7 +45,7 @@ class ActivityServiceTest {
     @BeforeEach
     void setUp() {
         profileIds = populateProfiles();
-        populateActivityTypes();
+        InitialDataHelper.init(typeRepository, profileRepository, emailRepository);
     }
 
     @AfterEach
@@ -244,12 +244,12 @@ class ActivityServiceTest {
 
     static Activity createNormalActivity() {
         return new Activity("Kaikoura Coast Track race", "A big and nice race on a lovely peninsula",
-                new String[]{"tramping", "hiking"}, false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ");
+                new String[]{"Tramping", "Hiking"}, false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ");
     }
 
     private Activity createNormalActivityKaikoura() {
         Activity activity =  new Activity("Kaikoura Coast Track race", "A big and nice race on a lovely peninsula",
-                new String[]{"hiking"}, false, "2020-02-20T08:00:00+1300",
+                new String[]{"Hiking"}, false, "2020-02-20T08:00:00+1300",
                 "2020-02-20T08:00:00+1300", "Kaikoura, NZ");
         Set<ActivityType> updatedActivityType = new HashSet<ActivityType>();
         for(ActivityType activityType : activity.getActivityTypes()){
@@ -262,7 +262,7 @@ class ActivityServiceTest {
     }
 
     private Activity createNormalActivitySilly() {
-        return new Activity("Wibble", "A bald man", new String[]{"hockey"}, true,
+        return new Activity("Wibble", "A bald man", new String[]{"Hockey"}, true,
                 "2020-02-20T08:00:00+1300","2020-02-20T08:00:00+1300", "K2");
     }
 
@@ -309,16 +309,6 @@ class ActivityServiceTest {
     private Activity createBadActivityInvalidActivityTypes() {
         return new Activity("", "A big and nice race on a lovely peninsula", new String[]{"nugts"},
                 false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ");
-    }
-
-    private void populateActivityTypes() {
-        typeRepository.save(new ActivityType("football"));
-        typeRepository.save(new ActivityType("tennis"));
-        typeRepository.save(new ActivityType("hockey"));
-        typeRepository.save(new ActivityType("basketball"));
-        typeRepository.save(new ActivityType("hiking"));
-        typeRepository.save(new ActivityType("tramping"));
-        typeRepository.save(new ActivityType("rock climbing"));
     }
 
     /**

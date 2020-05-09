@@ -3,6 +3,7 @@ import com.springvuegradle.Model.Activity;
 import com.springvuegradle.Model.ActivityType;
 import com.springvuegradle.Model.Profile;
 import com.springvuegradle.Repositories.*;
+import com.springvuegradle.Utilities.InitialDataHelper;
 import com.springvuegradle.service.ActivityService;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,6 +34,9 @@ public class ActivityControllerTest {
     private ProfileRepository prepo;
 
     @Autowired
+    private EmailRepository erepo;
+
+    @Autowired
     private ActivityController activityController;
 
     private ActivityService mockService;
@@ -41,13 +45,13 @@ public class ActivityControllerTest {
     private ActivityTypeRepository activityTypeRepo;
 
 
-    @AfterEach
-    void resetRepo() {
-        amRepo.deleteAll();
-        prepo.deleteAll();
-        arepo.deleteAll();
-
-    }
+//    @AfterEach
+//    void resetRepo() {
+//        amRepo.deleteAll();
+//        prepo.deleteAll();
+//        arepo.deleteAll();
+//
+//    }
 
     /**
      * Needs to be run before each test to ensure the repository starts empty.
@@ -55,15 +59,12 @@ public class ActivityControllerTest {
     @BeforeEach
     void setup() {
         amRepo.deleteAll();
+        erepo.deleteAll();
         prepo.deleteAll();
         arepo.deleteAll();
         activityTypeRepo.deleteAll();
-        activityTypeRepo.save(new ActivityType("Football"));
-        activityTypeRepo.save(new ActivityType("Tennis"));
-        activityTypeRepo.save(new ActivityType("Hockey"));
-        activityTypeRepo.save(new ActivityType("Basketball"));
-        activityTypeRepo.save(new ActivityType("Hiking"));
-        activityTypeRepo.save(new ActivityType("Rock Climbing"));
+
+        InitialDataHelper.init(activityTypeRepo, prepo, erepo);
     }
 
 
@@ -78,13 +79,12 @@ public class ActivityControllerTest {
 
         int expected_in_repo = 0;
         assertEquals(expected_in_repo, arepo.count());
-        assertEquals(6, activityTypeRepo.count());
+        assertEquals(7, activityTypeRepo.count());
 
         ResponseEntity<String> response_entity = activityController.createActivity(profile.getId(), trackRace, null, true);
         assertEquals(HttpStatus.CREATED, response_entity.getStatusCode());
 
-        assertEquals(6, activityTypeRepo.count());
-
+        assertEquals(7, activityTypeRepo.count());
         assertEquals(1, arepo.findByActivityNames("Kaikoura Coast Track race").get(0).getActivityTypes().size());
 
         expected_in_repo = 1;
@@ -217,7 +217,7 @@ public class ActivityControllerTest {
 
     static Activity createIncorrectActivity() {
         return new Activity("Kaikoura Coast Track race", "A big and nice race on a lovely peninsula",
-                new String[]{"tramping","hiking"}, false, "2020-02-20T08:00:00+1300", "2020-01-20T08:00:00+1300", "Kaikoura, NZ");
+                new String[]{"Tramping","Hiking"}, false, "2020-02-20T08:00:00+1300", "2020-01-20T08:00:00+1300", "Kaikoura, NZ");
     }
 
     static ActivityType createActivityType() {
