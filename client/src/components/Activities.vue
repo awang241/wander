@@ -129,7 +129,7 @@
         },
         methods: {
             getActivities(){
-                api.getActivitiesList()
+                api.getUserActivitiesList(store.getters.getUserId, localStorage.getItem('authToken'))
                     .then((response) => {
                         this.activities = response.data;
                     })
@@ -140,7 +140,16 @@
             },
             deleteActivity(id){
                 console.log(id);
-                //send delete request
+                api.deleteActivity(store.getters.getUserId, localStorage.getItem('authToken'), id)
+                    .then((response) => {
+                        this.$buefy.toast.open({
+                            duration: 5500,
+                            message: response,
+                            type: 'is-danger',
+                            position: 'is-top'
+                        })
+                    })
+                .catch(error => console.log(error));
             },
             checkAuthenticationStatus() {
                 if (!store.getters.getAuthenticationStatus) {
