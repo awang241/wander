@@ -66,6 +66,7 @@ public class ActivityType {
         return activityTypeName;
     }
 
+    @JsonIgnore
     public Set<Activity> getActivities() { return activities; }
 
     public boolean addActivity(Activity activity) { return activities.add(activity);}

@@ -115,6 +115,7 @@ public class Profile {
             joinColumns = @JoinColumn(name = "profile_id", referencedColumnName = "id"))
     private Set<ActivityType> activityTypes;
 
+    @JsonIgnore
     public Set<ActivityMembership> getActivities() {
         return activities;
     }
