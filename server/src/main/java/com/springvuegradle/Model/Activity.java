@@ -178,8 +178,16 @@ public class Activity {
         this.location = location;
     }
 
+    public List<String> getActivityTypes() {
+        List<String> result = new ArrayList<>();
+        for (ActivityType activityType: activityTypes) {
+            result.add(activityType.getActivityTypeName());
+        }
+        return result;
+    }
+
     @JsonIgnore
-    public Set<ActivityType> getActivityTypes() {
+    public Set<ActivityType> retrieveActivityTypes() {
         return Collections.unmodifiableSet(activityTypes);
     }
 
