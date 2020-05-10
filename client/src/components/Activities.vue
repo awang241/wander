@@ -110,6 +110,8 @@
                 const activityProp = this.convertToProp(activity)
                 router.push({name: 'editActivity', params: {activityProp: activityProp}})
             },
+            //Component to create/edit activities needs a prop with a different format to the HTTP GET request
+            //This method converts the data from the request to a usable prop for the create/edit component
             convertToProp(activity){
                 let activityProp = {"name": activity.activity_name,
                                         "description": activity.description,

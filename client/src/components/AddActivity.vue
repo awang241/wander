@@ -96,10 +96,10 @@
         name: "AddActivity",
         components: {List},
         props: {
+            //Activity the user is editing if one exists
             activityProp: {
                 type: Object,
-                // Object or array defaults must be returned from
-                // a factory function
+                //If user is creating an activity rather than editing a default object is given
                 default: function () {
                     return {
                         name: "",
