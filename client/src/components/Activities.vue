@@ -61,10 +61,10 @@
                                           type="is-danger">
                                     Delete/Leave
                                 </b-button>
-                                <router-link :to="{name: 'editActivity', params: {activityProp: activity}}" class='px-3' tag="b-button" @click="deleteActivity(activity.id)"
+                                <b-button class='px-3' @click="editActivity(activity)"
                                               type="is-primary">
                                         Edit
-                                </router-link>
+                                </b-button>
                             </div>
                             <br>
                         </div>
@@ -102,6 +102,31 @@
             },
             goToAddActivity() {
                 router.push({path: '/AddActivity'});
+            }, editActivity(activity){
+                const activityProp = this.convertToProp(activity)
+                router.push({name: 'editActivity', params: {activityProp: activityProp}})
+            },
+            convertToProp(activity){
+                let activityProp = {"name": activity.activity_name,
+                                        "description": activity.description,
+                                        "location": activity.location,
+                }
+                if(activity.continuous){
+                    activityProp.activityDuration = "Continuous"
+                    activityProp.startDate = null
+                    activityProp.endDate = null
+                    activityProp.startTime = ""
+                    activityProp.endTime = ""
+                } else {
+                    activityProp.activityDuration = "Duration"
+                    //Converting the UTC format to format used by HTML date inputs. Surely a better way to do this
+                    activityProp.startDate = activity.start_time.slice(0,10)
+                    activityProp.startTime = activity.start_time.slice(11, 16)
+                    activityProp.endDate = activity.end_time.slice(0,10)
+                    activityProp.endTime = activity.end_time.slice(11, 16)
+                }
+
+                return activityProp
             },
             deleteActivity(id) {
                 console.log(id);
