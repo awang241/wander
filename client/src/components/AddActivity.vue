@@ -112,7 +112,7 @@
                         endTime: "",
                         location: "",
                         continuous: true,
-                        editing: false
+                        creating: true
                     }
                 }
             }
@@ -151,15 +151,16 @@
         },
         data() {
             return {
-                activity: this.activityProp,
+                activity: {},
                 newActivityType: "",
                 possibleActivityTypes: [],
-                editing: this.activityProp.editing
             }
         },
         mounted() {
             this.checkAuthenticationStatus()
             this.getPossibleActivityTypes()
+            console.log(this.$props.activityProp)
+            this.activity = this.convertToProp(this.$props.activityProp)
         },
         methods: {
             showWarning(message) {
@@ -238,14 +239,14 @@
                 }
             },
             submitActivity(activity) {
-                if(this.editing){
-                    Api.updateActivity(store.getters.getUserId, localStorage.getItem('authToken'), activity, this.activityProp.id)
+                if(this.activity.creating){
+                    Api.createActivity(store.getters.getUserId, activity, localStorage.getItem('authToken'))
                         .then((response) => {
                             console.log(response);
                             router.push({path: '/Activities'})
                         })
                 } else {
-                    Api.createActivity(store.getters.getUserId, activity, localStorage.getItem('authToken'))
+                    Api.updateActivity(store.getters.getUserId, localStorage.getItem('authToken'), activity, this.activityProp.id)
                         .then((response) => {
                             console.log(response);
                             router.push({path: '/Activities'})
@@ -256,7 +257,37 @@
                 if (!store.getters.getAuthenticationStatus) {
                     router.push({path: '/'})
                 }
-            }
+            },
+            //Component to create/edit activities needs a prop with a different format to the HTTP GET request
+            //This method converts the data from the request to a usable prop for the create/edit component
+            convertToProp(activity){
+                //If we are creating activity rather than editing we don't need to modify props
+                if(activity.creating){
+                    return activity
+                }
+                let activityProp = {"name": activity.activity_name,
+                    "description": activity.description,
+                    "location": activity.location,
+                    "chosenActivityTypes": activity.activity_type,
+                    "id": activity.id
+                }
+                if(activity.continuous){
+                    activityProp.activityDuration = "Continuous"
+                    activityProp.startDate = null
+                    activityProp.endDate = null
+                    activityProp.startTime = ""
+                    activityProp.endTime = ""
+                } else {
+                    activityProp.activityDuration = "Duration"
+                    //Converting the UTC format to format used by HTML date inputs. Surely a better way to do this
+                    activityProp.startDate = activity.start_time.slice(0,10)
+                    activityProp.startTime = activity.start_time.slice(11, 16)
+                    activityProp.endDate = activity.end_time.slice(0,10)
+                    activityProp.endTime = activity.end_time.slice(11, 16)
+                }
+
+                return activityProp
+            },
         }
     }
 </script>
