@@ -114,6 +114,9 @@
                 let activityProp = {"name": activity.activity_name,
                                         "description": activity.description,
                                         "location": activity.location,
+                                        "chosenActivityTypes": activity.activity_type,
+                                        "editing": true,
+                                        "id": activity.id
                 }
                 if(activity.continuous){
                     activityProp.activityDuration = "Continuous"

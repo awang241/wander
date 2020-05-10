@@ -1,6 +1,6 @@
 <template>
     <div class="container">
-        <h1 class="title">Create Activity</h1>
+        <h1 class="title">Activity</h1>
         <form @submit.prevent="createActivity">
 
             <b-field label="Activity Name" expanded>
@@ -73,7 +73,7 @@
                 </div>
                 <div class="is-pulled-right">
                     <b-field>
-                        <b-button native-type="submit">Submit</b-button>
+                        <b-button native-type="submit" class="is-primary">Submit</b-button>
                     </b-field>
 
                 </div>
@@ -111,7 +111,8 @@
                         startTime: "",
                         endTime: "",
                         location: "",
-                        continuous: true
+                        continuous: true,
+                        editing: false
                     }
                 }
             }
@@ -152,7 +153,8 @@
             return {
                 activity: this.activityProp,
                 newActivityType: "",
-                possibleActivityTypes: []
+                possibleActivityTypes: [],
+                editing: this.activityProp.editing
             }
         },
         mounted() {
@@ -236,11 +238,19 @@
                 }
             },
             submitActivity(activity) {
-                Api.createActivity(store.getters.getUserId, activity, localStorage.getItem('authToken'))
-                    .then((response) => {
-                        console.log(response);
-                        router.push({path: '/Activities'})
-                    })
+                if(this.editing){
+                    Api.updateActivity(store.getters.getUserId, localStorage.getItem('authToken'), activity, this.activityProp.id)
+                        .then((response) => {
+                            console.log(response);
+                            router.push({path: '/Activities'})
+                        })
+                } else {
+                    Api.createActivity(store.getters.getUserId, activity, localStorage.getItem('authToken'))
+                        .then((response) => {
+                            console.log(response);
+                            router.push({path: '/Activities'})
+                        })
+                }
             },
             checkAuthenticationStatus() {
                 if (!store.getters.getAuthenticationStatus) {

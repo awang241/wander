@@ -96,7 +96,7 @@ public class ActivityController {
      * @param request The contents of HTTP request body, automatically mapped from a JSON file to an activity.
      * @return A HTTP response notifying the sender whether the edit was successful
      */
-    @PutMapping("/profiles/{profileId}/activity/{activityId}")
+    @PutMapping("/profiles/{profileId}/activities/{activityId}")
     public ResponseEntity<String> updateActivity(@RequestBody Activity request,
                                                  @RequestHeader("authorization") String token,
                                                  @PathVariable Long profileId,
