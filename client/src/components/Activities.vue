@@ -10,14 +10,14 @@
                 </div>
 
                 <!-- redirect to add activity -->
-                <b-button  @click="goToAddActivity"
-                           type="is-info">
+                <b-button @click="goToAddActivity"
+                          type="is-info">
                     Add Activity
                 </b-button>
             </div>
         </section>
 
-        <hr class ="hrLine">
+        <hr class="hrLine">
 
         <div v-for="activity in activities" v-bind:key="activity">
             <div class="container containerColor has-same-height is-gapless">
@@ -42,21 +42,23 @@
                                         <td v-if="activity.continuous">continuous</td>
                                         <td v-else>duration</td>
                                     </tr>
-                                    <tr>
+
+                                    <tr v-if="!activity.continuous">
                                         <td>Start Time:</td>
-                                        <td>{{activity.startTime}}</td>
+                                        <td>{{activity.start_time}}</td>
                                     </tr>
-                                    <tr>
+                                    <tr v-if="!activity.continuous">
                                         <td>End Time:</td>
-                                        <td>{{activity.endTime}}</td>
+                                        <td>{{activity.end_time}}</td>
                                     </tr>
+
                                     <tr>
                                         <td>Location:</td>
                                         <td>{{activity.location}}</td>
                                     </tr>
                                 </table>
-                                <b-button  @click="deleteActivity(activity.id)"
-                                           type="is-danger">
+                                <b-button @click="deleteActivity(activity.id)"
+                                          type="is-danger">
                                     Delete/Leave
                                 </b-button>
                             </div>
@@ -73,6 +75,7 @@
     import api from '../Api';
     import router from "../router";
     import store from "../store"
+
     export default {
         name: "Activities",
         data() {
@@ -82,17 +85,21 @@
             }
         },
         methods: {
-            getActivities(){
+            getActivities() {
                 api.getUserActivitiesList(store.getters.getUserId, localStorage.getItem('authToken'))
                     .then((response) => {
                         this.activities = response.data;
+                        this.activities.sort(function(a,b){
+                                return a.continuous - b.continuous;
+                            }
+                        );
                     })
-                .catch(error => console.log(error));
+                    .catch(error => console.log(error));
             },
-            goToAddActivity(){
+            goToAddActivity() {
                 router.push({path: '/AddActivity'});
             },
-            deleteActivity(id){
+            deleteActivity(id) {
                 console.log(id);
                 api.deleteActivity(store.getters.getUserId, localStorage.getItem('authToken'), id)
                     .then((response) => {
@@ -105,7 +112,7 @@
                         })
                         this.activities = this.activities.filter(activity => activity.id != id);
                     })
-                .catch(error => console.log(error));
+                    .catch(error => console.log(error));
             },
             checkAuthenticationStatus() {
                 if (!store.getters.getAuthenticationStatus) {
@@ -135,7 +142,7 @@
     }
 
     .hrLine {
-        border:2px solid #EDEEEE;
+        border: 2px solid #EDEEEE;
     }
 
 </style>
