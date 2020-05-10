@@ -85,7 +85,10 @@ public class ActivityControllerTest {
         assertEquals(HttpStatus.CREATED, response_entity.getStatusCode());
 
         assertEquals(7, activityTypeRepo.count());
-        assertEquals(1, arepo.findByActivityNames("Kaikoura Coast Track race").get(0).getActivityTypes().size());
+        assertEquals(1, arepo.findByActivityNames("Kaikoura Coast Track race").get(0).retrieveActivityTypes().size());
+
+        Activity activity = arepo.findAll().get(0);
+        System.out.println(activity.retrieveActivityTypes());
 
         expected_in_repo = 1;
         assertEquals(expected_in_repo, arepo.count());

@@ -1,7 +1,5 @@
 package com.springvuegradle.service;
 
-import com.springvuegradle.Controller.ActivityController;
-import com.springvuegradle.Controller.enums.ActivityResponseMessage;
 import com.springvuegradle.Model.Activity;
 import com.springvuegradle.Model.ActivityType;
 import com.springvuegradle.Model.Profile;
@@ -14,8 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.*;
@@ -252,7 +248,7 @@ class ActivityServiceTest {
                 new String[]{"Hiking"}, false, "2020-02-20T08:00:00+1300",
                 "2020-02-20T08:00:00+1300", "Kaikoura, NZ");
         Set<ActivityType> updatedActivityType = new HashSet<ActivityType>();
-        for(ActivityType activityType : activity.getActivityTypes()){
+        for(ActivityType activityType : activity.retrieveActivityTypes()){
             List<ActivityType> resultActivityTypes = typeRepository.findByActivityTypeName(activityType.getActivityTypeName());{
                 updatedActivityType.add(resultActivityTypes.get(0));
             }
