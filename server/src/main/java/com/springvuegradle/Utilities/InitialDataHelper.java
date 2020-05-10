@@ -23,13 +23,29 @@ public class InitialDataHelper {
      */
     public static void updateActivityTypeRepository(ActivityTypeRepository activityTypeRepository) {
         if (activityTypeRepository.count() == 0) {
-            activityTypeRepository.save(new ActivityType("Football"));
-            activityTypeRepository.save(new ActivityType("Tennis"));
-            activityTypeRepository.save(new ActivityType("Hockey"));
+            activityTypeRepository.save(new ActivityType("Acrobatics"));
             activityTypeRepository.save(new ActivityType("Basketball"));
+            activityTypeRepository.save(new ActivityType("Cardio"));
+            activityTypeRepository.save(new ActivityType("Football"));
+            activityTypeRepository.save(new ActivityType("Functional"));
+            activityTypeRepository.save(new ActivityType("E-sports"));
+            activityTypeRepository.save(new ActivityType("Golf"));
+            activityTypeRepository.save(new ActivityType("Gymnastics"));
+            activityTypeRepository.save(new ActivityType("HIIT"));
             activityTypeRepository.save(new ActivityType("Hiking"));
+            activityTypeRepository.save(new ActivityType("Hockey"));
+            activityTypeRepository.save(new ActivityType("Jogging"));
+            activityTypeRepository.save(new ActivityType("Martial Arts"));
+            activityTypeRepository.save(new ActivityType("Netball"));
             activityTypeRepository.save(new ActivityType("Rock Climbing"));
+            activityTypeRepository.save(new ActivityType("Rugby"));
+            activityTypeRepository.save(new ActivityType("Running"));
+            activityTypeRepository.save(new ActivityType("Sprinting"));
+            activityTypeRepository.save(new ActivityType("Swimming"));
+            activityTypeRepository.save(new ActivityType("Tennis"));
             activityTypeRepository.save(new ActivityType("Tramping"));
+            activityTypeRepository.save(new ActivityType("Weight Lifting"));
+            activityTypeRepository.save(new ActivityType("Yoga"));
         }
     }
 
