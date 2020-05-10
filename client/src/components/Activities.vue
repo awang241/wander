@@ -45,11 +45,11 @@
 
                                     <tr v-if="!activity.continuous">
                                         <td>Start Time:</td>
-                                        <td>{{activity.start_time}}</td>
+                                        <td>{{dateFormat(activity.start_time)}}</td>
                                     </tr>
                                     <tr v-if="!activity.continuous">
                                         <td>End Time:</td>
-                                        <td>{{activity.end_time}}</td>
+                                        <td>{{dateFormat(activity.end_time)}}</td>
                                     </tr>
 
                                     <tr>
@@ -113,6 +113,14 @@
                         this.activities = this.activities.filter(activity => activity.id != id);
                     })
                     .catch(error => console.log(error));
+            },
+            dateFormat(date) {
+                let year = date.slice(0, 4);
+                let month = date.slice(5, 7);
+                let day = date.slice(8, 10);
+                let hour = date.slice(14, 16);
+                let min = date.slice(17, 19);
+                return hour + ":" + min + " " + day + "/" + month + "/" + year;
             },
             checkAuthenticationStatus() {
                 if (!store.getters.getAuthenticationStatus) {
