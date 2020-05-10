@@ -78,13 +78,13 @@ public class ActivityControllerTest {
         Profile profile = prepo.save(maurice);
 
         int expected_in_repo = 0;
+        long activity_types_expected_in_repo = activityTypeRepo.count();
         assertEquals(expected_in_repo, arepo.count());
-        assertEquals(7, activityTypeRepo.count());
 
         ResponseEntity<String> response_entity = activityController.createActivity(profile.getId(), trackRace, null, true);
         assertEquals(HttpStatus.CREATED, response_entity.getStatusCode());
 
-        assertEquals(7, activityTypeRepo.count());
+        assertEquals(activity_types_expected_in_repo, activityTypeRepo.count());
         assertEquals(1, arepo.findByActivityNames("Kaikoura Coast Track race").get(0).retrieveActivityTypes().size());
 
         Activity activity = arepo.findAll().get(0);
