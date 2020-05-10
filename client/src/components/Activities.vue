@@ -45,11 +45,11 @@
 
                                     <tr v-if="!activity.continuous">
                                         <td>Start Time:</td>
-                                        <td>{{dateFormat(activity.start_time)}}</td>
+                                        <td>UTC {{dateFormat(activity.start_time)}}</td>
                                     </tr>
                                     <tr v-if="!activity.continuous">
                                         <td>End Time:</td>
-                                        <td>{{dateFormat(activity.end_time)}}</td>
+                                        <td>UTC {{dateFormat(activity.end_time)}}</td>
                                     </tr>
 
                                     <tr>
@@ -109,7 +109,6 @@
             }, editActivity(activity){
                 router.push({name: 'editActivity', params: {activityProp: activity}})
             },
-
             deleteActivity(id) {
                 console.log(id);
                 api.deleteActivity(store.getters.getUserId, localStorage.getItem('authToken'), id)

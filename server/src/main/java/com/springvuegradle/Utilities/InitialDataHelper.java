@@ -36,6 +36,40 @@ public class InitialDataHelper {
     }
 
     /**
+     * Adds two example profiles to the database specified in the readme.
+     *
+     * @param repo  the profile repository
+     * @param erepo the email repository
+     */
+    public static void addExampleProfiles(ProfileRepository repo, EmailRepository erepo) {
+        Calendar calendar1 = new GregorianCalendar(2000, 11, 5);
+        Calendar calendar2 = new GregorianCalendar(2000, 11, 20);
+        String[] extraEmails = {"throwayway1@gmail.com", "throwaway2@gmail.com"};
+        List<Profile> steves = repo.findByPrimaryEmail("Steve@test.com");
+        List<Profile> daves = repo.findByPrimaryEmail("Dave@test.com");
+        if (steves.size() == 0) {
+            Profile regularProfile = new Profile(1L, "Steve", "Tester", "The", "Stevetest",
+                    "Steve@test.com", extraEmails, Profile_Controller.hashPassword("987654321"), "Here to run some tests!", calendar1,
+                    "Male", 2, new String[]{}, new String[]{});
+            repo.save(regularProfile);
+            Email regularEmail = regularProfile.retrievePrimaryEmail();
+            regularEmail.setProfile(regularProfile);
+            erepo.save(regularEmail);
+        }
+
+        if (daves.size() == 0) {
+            Profile daveAdminProfile = new Profile(2L, "Dave", "Tester", "The", "Davetest",
+                    "Dave@test.com", extraEmails, Profile_Controller.hashPassword("SecureAdminPassword"), "I'm a model Admin!", calendar2,
+                    "Male", 2, new String[]{}, new String[]{});
+            daveAdminProfile.setAuthLevel(1);
+            repo.save(daveAdminProfile);
+            Email daveEmail = daveAdminProfile.retrievePrimaryEmail();
+            daveEmail.setProfile(daveAdminProfile);
+            erepo.save(daveEmail);
+        }
+    }
+
+    /**
      * Loads an initial default admin if one does not exist.
      *
      * @param repo  the profile repository
@@ -54,7 +88,9 @@ public class InitialDataHelper {
             erepo.save(adminEmail);
         }
 
+
     }
+
 
     /**
      * If the database is empty, it will load in the default admin account as well as the default activity types.
@@ -66,5 +102,6 @@ public class InitialDataHelper {
     public static void init(ActivityTypeRepository arepo, ProfileRepository repo, EmailRepository erepo) {
         updateActivityTypeRepository(arepo);
         updateDefaultAdmin(repo, erepo);
+        addExampleProfiles(repo, erepo);
     }
 }

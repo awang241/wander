@@ -176,7 +176,7 @@ public class Profile {
         this.password = password;
         this.bio = bio;
         this.dateOfBirth = dateOfBirth;
-        this.dateOfBirth.add(Calendar.DATE, 1);
+//        this.dateOfBirth.add(Calendar.DATE, 1);
         this.gender = gender;
         this.fitness = fitnessLevel;
         this.passports = new HashSet<>();

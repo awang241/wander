@@ -116,7 +116,7 @@
 
         methods: {
             sendUpdatedData(){
-
+                this.dateOfBirth.setHours(23)
                 const personalDetails =
                     {
                     "firstname": this.firstName,
@@ -157,7 +157,7 @@
                 this.showError(message)
             },
             dateFormatter(dt){
-                return dt.toLocaleDateString('en-GB', { year: 'numeric', month: 'numeric', day: 'numeric' });
+                return dt.toLocaleDateString('en-NZ', { year: 'numeric', month: 'numeric', day: 'numeric' });
             }
         }
     }

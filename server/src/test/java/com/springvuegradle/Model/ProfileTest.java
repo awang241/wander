@@ -18,9 +18,9 @@ class ProfileTest {
 
     @BeforeEach
     void setUp() {
-        Calendar calendar1 = new GregorianCalendar(2000, 11, 10);
+        Calendar calendar1 = new GregorianCalendar(2000, 11, 5);
         Calendar calendar2 = new GregorianCalendar(2000, 11, 20);
-        Calendar calendar3 = new GregorianCalendar(2000, 11, 10);
+        Calendar calendar3 = new GregorianCalendar(2000, 11, 5);
 
 
         firstProfile = new Profile(1L, "Steve", "Tester", "The", "Stevetest",
@@ -56,7 +56,7 @@ class ProfileTest {
 
     @Test
     void testGetDateOfBirthInCorrectStringFormat(){
-        String expectedString = "2000-12-11";
+        String expectedString = "2000-12-05";
         assertEquals(expectedString, firstProfile.getDateOfBirth());
     }
 
