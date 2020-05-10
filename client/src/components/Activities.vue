@@ -61,6 +61,10 @@
                                           type="is-danger">
                                     Delete/Leave
                                 </b-button>
+                                <router-link :to="{path: '/EditActivity/', params: {activityProp: activity}}" class='px-3' tag="b-button" @click="deleteActivity(activity.id)"
+                                              type="is-primary">
+                                        Edit
+                                </router-link>
                             </div>
                             <br>
                         </div>

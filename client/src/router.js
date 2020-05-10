@@ -19,6 +19,7 @@ const routes = [
     {path: "/EditProfile/:id", name: "editProfile", component: EditProfileComponent},
     {path: "/AddActivity", name: "addActivity", component: AddActivityComponent},
     {path: "/Activities", name: "activities", component:ActivitiesComponent},
+    {path: "/EditActivity/:activityProp", component:ActivitiesComponent, props: true},
     {
         //This route is only accessible if the user is authenticated, else it sends them back to the main page
         path: "/Profile", name: "profile", component: ProfileComponent, beforeEnter: (to, from, next) => {

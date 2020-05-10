@@ -4,22 +4,22 @@
         <form @submit.prevent="createActivity">
 
             <b-field label="Activity Name" expanded>
-                <b-input v-model="name" placeholder="Enter activity name here" required></b-input>
+                <b-input v-model="activity.name" placeholder="Enter activity name here" required></b-input>
             </b-field>
 
             <b-field label="Description" expanded>
-                <b-input v-model="description" maxlength="500" type="textarea"
+                <b-input v-model="activity.description" maxlength="500" type="textarea"
                          placeholder="Enter a description" required></b-input>
             </b-field>
 
             <div class="block">
                 <b-field label="Activity duration" expanded></b-field>
-                <b-radio v-model="activityDuration"
+                <b-radio v-model="activity.activityDuration"
                          name="name"
                          native-value="Continuous">
                     Continuous
                 </b-radio>
-                <b-radio v-model="activityDuration"
+                <b-radio v-model="activity.activityDuration"
                          name="name"
                          native-value="Duration">
                     Duration
@@ -30,25 +30,25 @@
             <div v-if="!isContinuous">
                 <b-field group-multiline grouped>
                     <b-field label="Start date" expanded>
-                        <input class="input" type="date" v-model="startDate">
+                        <input class="input" type="date" v-model="activity.startDate">
                     </b-field>
                     <b-field label="End date" expanded>
-                        <input class="input" type="date" v-model="endDate">
+                        <input class="input" type="date" v-model="activity.endDate">
                     </b-field>
                 </b-field>
                 <b-field group-multiline grouped>
                     <b-field label="Start time" expanded>
-                        <input class="input" type="time" v-model="startTime">
+                        <input class="input" type="time" v-model="activity.startTime">
                     </b-field>
                     <b-field label="End time" expanded>
-                        <input class="input" type="time" v-model="endTime">
+                        <input class="input" type="time" v-model="activity.endTime">
                     </b-field>
                 </b-field>
                 <br>
             </div>
 
             <b-field label="Activity location" expanded>
-                <b-input v-model="location" placeholder="Enter activity location" required></b-input>
+                <b-input v-model="activity.location" placeholder="Enter activity location" required></b-input>
             </b-field>
 
             <h4 class="label">Add at least one activity type</h4>
@@ -63,7 +63,7 @@
                 </b-select>
                 <b-button type="is-primary" @click="addActivityType">Add</b-button>
             </b-field>
-            <List v-bind:chosenItems="chosenActivityTypes" v-on:deleteListItem="deleteActivityType"></List>
+            <List v-bind:chosenItems="activity.chosenActivityTypes" v-on:deleteListItem="deleteActivityType"></List>
 
             <br>
 
@@ -95,17 +95,38 @@
     export default {
         name: "AddActivity",
         components: {List},
+        props: {
+            activityProp: {
+                type: Object,
+                // Object or array defaults must be returned from
+                // a factory function
+                default: function () {
+                    return {
+                        name: "",
+                        description: "",
+                        startDate: null,
+                        activityDuration: "Continuous",
+                        chosenActivityTypes: [],
+                        endDate: null,
+                        startTime: "",
+                        endTime: "",
+                        location: "",
+                        continuous: true
+                    }
+                }
+            }
+        },
         computed: {
             // a computed getter as radio buttons cannot return boolean values
             isContinuous: function () {
-                return this.activityDuration === "Continuous"
+                return this.activity.activityDuration === "Continuous"
             },
             combinedStartDate: function () {
-                if(this.startDate === null){
+                if (this.activity.startDate === null) {
                     return null
                 }
-                let dateParts = this.startDate.split('-')
-                let timeParts = this.startTime.split(':')
+                let dateParts = this.activity.startDate.split('-')
+                let timeParts = this.activity.startTime.split(':')
 
                 if (dateParts && timeParts) {
                     dateParts[1] -= 1;
@@ -114,11 +135,11 @@
                 return null;
             },
             combinedEndDate: function () {
-                if(this.endDate === null){
+                if (this.activity.endDate === null) {
                     return null
                 }
-                let dateParts = this.endDate.split('-')
-                let timeParts = this.endTime.split(':')
+                let dateParts = this.activity.endDate.split('-')
+                let timeParts = this.activity.endTime.split(':')
 
                 if (dateParts && timeParts) {
                     dateParts[1] -= 1;
@@ -129,18 +150,9 @@
         },
         data() {
             return {
-                name: "",
-                description: "",
-                startDate: null,
-                activityDuration: "Continuous",
-                possibleActivityTypes: [],
-                chosenActivityTypes: [],
+                activity: this.activityProp,
                 newActivityType: "",
-                endDate: null,
-                startTime: "",
-                endTime: "",
-                location: "",
-                continuous: true
+                possibleActivityTypes: []
             }
         },
         mounted() {
@@ -156,7 +168,7 @@
                     position: 'is-top'
                 })
             },
-            goBack(){
+            goBack() {
                 router.go(-1)
             },
             getPossibleActivityTypes() {
@@ -167,10 +179,10 @@
             addActivityType() {
                 if (this.newActivityType === "") {
                     this.showWarning("No Activity type selected")
-                } else if (this.chosenActivityTypes.includes(this.newActivityType)) {
+                } else if (this.activity.chosenActivityTypes.includes(this.newActivityType)) {
                     this.showWarning("Activity type already in list")
                 } else {
-                    this.chosenActivityTypes = [...this.chosenActivityTypes, this.newActivityType]
+                    this.activity.chosenActivityTypes = [...this.activity.chosenActivityTypes, this.newActivityType]
                 }
             },
             showMessage(message) {
@@ -185,11 +197,11 @@
                 return dt.toLocaleDateString('en-GB', {year: 'numeric', month: 'numeric', day: 'numeric'});
             },
             deleteActivityType(typeToDelete) {
-                this.chosenActivityTypes = this.chosenActivityTypes.filter(type => type != typeToDelete)
+                this.activity.chosenActivityTypes = this.activity.chosenActivityTypes.filter(type => type != typeToDelete)
             },
-            validateActivity(){
+            validateActivity() {
                 let isValid = true;
-                if (this.chosenActivityTypes.length < 1){
+                if (this.activity.chosenActivityTypes.length < 1) {
                     this.showWarning("You must choose at least one activity type")
                     isValid = false
                 } else if (!this.isContinuous) {
@@ -207,13 +219,13 @@
                 return isValid
             },
             createActivity() {
-                if(this.validateActivity()){
+                if (this.validateActivity()) {
                     let activity = {
-                        "activity_name": this.name,
-                        "description": this.description,
-                        "activity_type": this.chosenActivityTypes,
-                        "continuous": this.continuous,
-                        "location": this.location,
+                        "activity_name": this.activity.name,
+                        "description": this.activity.description,
+                        "activity_type": this.activity.chosenActivityTypes,
+                        "continuous": this.isContinuous,
+                        "location": this.activity.location,
                     }
                     if (!this.isContinuous) {
                         activity.start_time = this.combinedStartDate
@@ -223,12 +235,12 @@
                     this.submitActivity(activity)
                 }
             },
-            submitActivity(activity){
+            submitActivity(activity) {
                 Api.createActivity(store.getters.getUserId, activity, localStorage.getItem('authToken'))
                     .then((response) => {
                         console.log(response);
                         router.push({path: '/Activities'})
-                        })
+                    })
             },
             checkAuthenticationStatus() {
                 if (!store.getters.getAuthenticationStatus) {
