@@ -154,7 +154,7 @@ public class ActivityController {
             }
         }
         List<Activity> result;
-        if (jwtUtil.extractPermission(token) == 0 || jwtUtil.extractPermission(token) == 1) {
+        if (!testing && (jwtUtil.extractPermission(token) == 0 || jwtUtil.extractPermission(token) == 1)) {
             result = aRepo.findAll();
         } else {
             result = activityService.getActivitiesByProfileId(profileId);
