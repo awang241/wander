@@ -221,12 +221,14 @@
                     }
 
                     this.submitActivity(activity)
-                    router.push({path: '/Activities'});
                 }
             },
             submitActivity(activity){
-                console.log(activity)
                 Api.createActivity(store.getters.getUserId, activity, localStorage.getItem('authToken'))
+                    .then((response) => {
+                        console.log(response);
+                        router.push({path: '/Activities'})
+                        })
             },
             checkAuthenticationStatus() {
                 if (!store.getters.getAuthenticationStatus) {

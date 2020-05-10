@@ -142,12 +142,14 @@
                 console.log(id);
                 api.deleteActivity(store.getters.getUserId, localStorage.getItem('authToken'), id)
                     .then((response) => {
+                        console.log(response);
                         this.$buefy.toast.open({
                             duration: 5500,
-                            message: response,
+                            message: "Activity deleted",
                             type: 'is-danger',
                             position: 'is-top'
                         })
+                        this.activities = this.activities.filter(activity => activity.id != id);
                     })
                 .catch(error => console.log(error));
             },
