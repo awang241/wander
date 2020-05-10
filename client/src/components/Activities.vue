@@ -63,9 +63,9 @@
                                 </table>
                                 <b-button @click="deleteActivity(activity.id)"
                                           type="is-danger">
-                                    Delete/Leave
+                                    Delete
                                 </b-button>
-                                <b-button class='px-3' @click="editActivity(activity)"
+                                <b-button class='px-3' id="editButton" @click="editActivity(activity)"
                                               type="is-primary">
                                         Edit
                                 </b-button>
@@ -154,7 +154,7 @@
                 let year = date.slice(0, 4);
                 let month = date.slice(5, 7);
                 let day = date.slice(8, 10);
-                let hour = date.slice(14, 16);
+                let hour = date.slice(11, 13);
                 let min = date.slice(17, 19);
                 return hour + ":" + min + " " + day + "/" + month + "/" + year;
             },
@@ -187,6 +187,10 @@
 
     .hrLine {
         border: 2px solid #EDEEEE;
+    }
+
+    #editButton{
+        margin-left: 1rem;
     }
 
 </style>
