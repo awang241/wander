@@ -164,12 +164,6 @@ public class ActivityControllerTest {
         arepo.deleteAll();
     }
 
-    @Disabled
-    @Test
-    void updateActivityNormalRequest() {
-        fail("Not yet implemented");
-    }
-
     /**
      * Tests the get endpoint for activities list
      */
