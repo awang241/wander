@@ -2,6 +2,7 @@ package com.springvuegradle.Model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.springvuegradle.Utilities.FormatHelper;
 import org.hibernate.type.CalendarTimeType;
@@ -177,6 +178,7 @@ public class Activity {
         this.location = location;
     }
 
+    @JsonIgnore
     public Set<ActivityType> getActivityTypes() {
         return Collections.unmodifiableSet(activityTypes);
     }

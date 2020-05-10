@@ -56,22 +56,22 @@ class ActivityServiceTest {
         typeRepository.deleteAll();
     }
 
-//    @Test
-//    void testCreateNewActivity() {
-//        Profile ben = createNormalProfileBen();
-//        Profile profile = profileRepository.save(ben);
-//
-//        Activity trackRace = createNormalActivity();
-//        service.create(trackRace, profile.getId());
-//        List<Activity> result = activityRepository.findByActivityNames(trackRace.getActivityName());
-//
-//        assertEquals(result.get(0).getActivityName(), "Kaikoura Coast Track race");
-//
-//        List<ActivityType> activityTypeList = typeRepository.findByActivityTypeName("tramping");
-//        ActivityType activityType = activityTypeList.get(0);
-//        System.out.println(activityType.getActivityTypeName());
-//        assertEquals(1, activityType.getActivities().size());
-//    }
+    @Test
+    void testCreateNewActivity() {
+        Profile ben = createNormalProfileBen();
+        Profile profile = profileRepository.save(ben);
+
+        Activity trackRace = createNormalActivity();
+        service.create(trackRace, profile.getId());
+        List<Activity> result = activityRepository.findByActivityNames(trackRace.getActivityName());
+
+        assertEquals(result.get(0).getActivityName(), "Kaikoura Coast Track race");
+
+        List<ActivityType> activityTypeList = typeRepository.findByActivityTypeName("Tramping");
+        ActivityType activityType = activityTypeList.get(0);
+
+        assertEquals(1, activityType.getActivities().size());
+    }
 
 
     @Test
