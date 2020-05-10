@@ -33,6 +33,7 @@
     import api from '../Api';
     import router from "../router";
     import store from '../store';
+    import jwt_decode from "jwt-decode";
 
     export default {
         name: 'Login',
@@ -48,11 +49,20 @@
                     email: this.email,
                     password: this.password,
                 }).then((response => {
+
                     localStorage.setItem('authToken', response.data.token)
                     localStorage.setItem('userId', response.data.userId)
+
                     let payload = {'token': response.data.token, 'userId': response.data.userId}
                     store.dispatch('validateByTokenAndUserId', payload).then()
-                    router.push('Profile')
+                    const decoded = jwt_decode(response.data.token)
+                    const authenticationLevel = decoded.authLevel
+                    if (authenticationLevel == 0) {
+                        router.push({path: '/AdminDashboard'});
+                    }
+                    else{
+                        router.push('Profile')
+                    }
                 }))
                     .catch(error => this.displayError(error.response.status))
             },

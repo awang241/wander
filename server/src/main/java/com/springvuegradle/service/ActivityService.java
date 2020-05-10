@@ -31,27 +31,22 @@ public class ActivityService {
     public void create(Activity activity, Long creatorId) {
         validateActivity(activity);
         Profile profile = profileRepo.findById(creatorId).get();
-        List<Activity> dbResult = activityRepo.findByActivityNames(activity.getActivityName());
-        if (dbResult.size() == 1) {
-            throw new IllegalArgumentException(ActivityResponseMessage.ACTIVITY_EXISTS.toString());
-        } else {
 
-            Set<ActivityType> updatedActivityType = new HashSet<ActivityType>();
-            for (ActivityType activityType : activity.retrieveActivityTypes()) {
-                List<ActivityType> resultActivityTypes = typeRepo.findByActivityTypeName(activityType.getActivityTypeName());
-                {
-                    updatedActivityType.add(resultActivityTypes.get(0));
-                }
+        Set<ActivityType> updatedActivityType = new HashSet<ActivityType>();
+        for (ActivityType activityType : activity.retrieveActivityTypes()) {
+            List<ActivityType> resultActivityTypes = typeRepo.findByActivityTypeName(activityType.getActivityTypeName());
+            {
+                updatedActivityType.add(resultActivityTypes.get(0));
             }
-            activity.setActivityTypes(updatedActivityType);
-
-            Activity result = activityRepo.save(activity);
-            ActivityMembership activityMembership = new ActivityMembership(result, profile, ActivityMembership.Role.CREATOR);
-            membershipRepo.save(activityMembership);
-            profile.addActivity(activityMembership);
-            activity.addMember(activityMembership);
-            profileRepo.save(profile);
         }
+        activity.setActivityTypes(updatedActivityType);
+
+        Activity result = activityRepo.save(activity);
+        ActivityMembership activityMembership = new ActivityMembership(result, profile, ActivityMembership.Role.CREATOR);
+        membershipRepo.save(activityMembership);
+        profile.addActivity(activityMembership);
+        activity.addMember(activityMembership);
+        profileRepo.save(profile);
     }
 
     /**
@@ -80,6 +75,22 @@ public class ActivityService {
         if (result.isEmpty()) {
             throw new IllegalArgumentException(ActivityResponseMessage.INVALID_ACTIVITY.toString());
         } else {
+
+            for (ActivityType activityType : typeRepo.findAll()) {
+                if (activityType.getActivities().contains(activity)) {
+                    activityType.removeActivity(activity);
+                }
+            }
+
+            Set<ActivityType> updatedActivityType = new HashSet<ActivityType>();
+            for (ActivityType activityType : activity.retrieveActivityTypes()) {
+                List<ActivityType> resultActivityTypes = typeRepo.findByActivityTypeName(activityType.getActivityTypeName());
+                {
+                    updatedActivityType.add(resultActivityTypes.get(0));
+                }
+            }
+            activity.setActivityTypes(updatedActivityType);
+
             Activity entry = result.get();
             entry.update(activity);
             activityRepo.save(entry);

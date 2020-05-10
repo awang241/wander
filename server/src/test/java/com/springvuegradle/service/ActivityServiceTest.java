@@ -224,10 +224,11 @@ class ActivityServiceTest {
     @Test
     void deleteActivitySuccess() {
         Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        long activity_types_expected_in_repo = typeRepository.count();
         assertEquals(1, activityRepository.count());
         assertTrue(service.delete(activity.getId()));
         assertEquals(0, activityRepository.count());
-        assertEquals(7, typeRepository.count());
+        assertEquals(activity_types_expected_in_repo, typeRepository.count());
     }
 
     @Test
