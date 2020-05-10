@@ -37,7 +37,7 @@ public class ActivityService {
         } else {
 
             Set<ActivityType> updatedActivityType = new HashSet<ActivityType>();
-            for (ActivityType activityType : activity.getActivityTypes()) {
+            for (ActivityType activityType : activity.retrieveActivityTypes()) {
                 List<ActivityType> resultActivityTypes = typeRepo.findByActivityTypeName(activityType.getActivityTypeName());
                 {
                     updatedActivityType.add(resultActivityTypes.get(0));
@@ -138,10 +138,10 @@ public class ActivityService {
             }
         }
 
-        if (activity.getActivityTypes() == null || activity.getActivityTypes().isEmpty()) {
+        if (activity.retrieveActivityTypes() == null || activity.retrieveActivityTypes().isEmpty()) {
             throw new IllegalArgumentException(ActivityResponseMessage.MISSING_TYPES.toString());
         } else {
-            for (ActivityType type : activity.getActivityTypes()) {
+            for (ActivityType type : activity.retrieveActivityTypes()) {
                 if (!typeRepo.existsByActivityTypeName(type.getActivityTypeName())) {
                     throw new IllegalArgumentException(ActivityResponseMessage.INVALID_TYPE.toString());
                 }

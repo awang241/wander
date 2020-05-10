@@ -26,7 +26,7 @@
                     <div class="card">
                         <div class="card-content">
                             <h3 class="title is-4">{{activity.activity_name}}</h3>
-                            Role:
+                            Role: CREATOR
                             <div class="content">
                                 <table class="table-profile">
                                     <tr>
@@ -55,6 +55,10 @@
                                     <tr>
                                         <td>Location:</td>
                                         <td>{{activity.location}}</td>
+                                    </tr>
+                                    <tr v-for="type in activity.activity_type" :key="type">
+                                        <td>Activity Type:</td>
+                                        <td>{{type}}</td>
                                     </tr>
                                 </table>
                                 <b-button @click="deleteActivity(activity.id)"

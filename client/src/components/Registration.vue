@@ -129,6 +129,7 @@
                 if(this.password.length < 8) {
                     this.showWarning("Password must be 8 characters long")
                 } else {
+                    this.dateOfBirth.setHours(23)
                     api.createProfile({
                         lastname: this.lastName,
                         firstname: this.firstName,
