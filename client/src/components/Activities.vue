@@ -129,7 +129,7 @@
                 let month = date.slice(5, 7);
                 let day = date.slice(8, 10);
                 let hour = date.slice(11, 13);
-                let min = date.slice(17, 19);
+                let min = date.slice(14, 16);
                 return hour + ":" + min + " " + day + "/" + month + "/" + year;
             },
             checkAuthenticationStatus() {
