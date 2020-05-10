@@ -153,8 +153,13 @@ public class ActivityController {
                 return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
             }
         }
-        List<Activity> allUserActivities = activityService.getActivitiesByProfileId(profileId);
-        return new ResponseEntity<>(allUserActivities, HttpStatus.OK);
+        List<Activity> result;
+        if (jwtUtil.extractPermission(token) == 0 || jwtUtil.extractPermission(token) == 1) {
+            result = aRepo.findAll();
+        } else {
+            result = activityService.getActivitiesByProfileId(profileId);
+        }
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     /**
