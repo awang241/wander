@@ -34,7 +34,7 @@
                         Activities
                     </b-button>
                     <b-button  @click="goToProfile"
-                               v-if="store.getters.getAuthenticationStatus"
+                               v-if="store.getters.getAuthenticationStatus && store.getters.getAuthenticationLevel > 0"
                                type="is-light">
                         Profile
                     </b-button>
