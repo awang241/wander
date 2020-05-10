@@ -8,6 +8,7 @@ import com.springvuegradle.Repositories.ActivityTypeRepository;
 import com.springvuegradle.Repositories.EmailRepository;
 import com.springvuegradle.Repositories.ProfileRepository;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -22,31 +23,15 @@ public class InitialDataHelper {
      * @param activityTypeRepository the way to access the activity type repository
      */
     public static void updateActivityTypeRepository(ActivityTypeRepository activityTypeRepository) {
-        if (activityTypeRepository.count() == 0) {
-            activityTypeRepository.save(new ActivityType("Acrobatics"));
-            activityTypeRepository.save(new ActivityType("Basketball"));
-            activityTypeRepository.save(new ActivityType("Cardio"));
-            activityTypeRepository.save(new ActivityType("Cycling"));
-            activityTypeRepository.save(new ActivityType("Football"));
-            activityTypeRepository.save(new ActivityType("Functional"));
-            activityTypeRepository.save(new ActivityType("E-sports"));
-            activityTypeRepository.save(new ActivityType("Golf"));
-            activityTypeRepository.save(new ActivityType("Gymnastics"));
-            activityTypeRepository.save(new ActivityType("HIIT"));
-            activityTypeRepository.save(new ActivityType("Hiking"));
-            activityTypeRepository.save(new ActivityType("Hockey"));
-            activityTypeRepository.save(new ActivityType("Jogging"));
-            activityTypeRepository.save(new ActivityType("Martial Arts"));
-            activityTypeRepository.save(new ActivityType("Netball"));
-            activityTypeRepository.save(new ActivityType("Rock Climbing"));
-            activityTypeRepository.save(new ActivityType("Rugby"));
-            activityTypeRepository.save(new ActivityType("Running"));
-            activityTypeRepository.save(new ActivityType("Sprinting"));
-            activityTypeRepository.save(new ActivityType("Swimming"));
-            activityTypeRepository.save(new ActivityType("Tennis"));
-            activityTypeRepository.save(new ActivityType("Tramping"));
-            activityTypeRepository.save(new ActivityType("Weight Lifting"));
-            activityTypeRepository.save(new ActivityType("Yoga"));
+        List<String> activityNames = List.of("Acrobatics", "Basketball", "Cardio", "Cycling", "Football", "Functional",
+                "E-sports", "Golf", "Gymnastics", "HIIT", "Hiking", "Hockey", "Jogging", "Martial Arts", "Netball",
+                "Rock Climbing", "Rugby", "Running", "Sprinting", "Swimming", "Tennis", "Tramping", "Weight Lifting",
+                "Yoga");
+
+        for (String activity: activityNames) {
+            if (!activityTypeRepository.existsByActivityTypeName(activity)) {
+                activityTypeRepository.save(new ActivityType(activity));
+            }
         }
     }
 
