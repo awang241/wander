@@ -1,11 +1,16 @@
 <template>
     <b-navbar>
-        <template slot="brand">
+        <template slot="start">
             <b-navbar-item tag="router-link"
                            to="/Mainpage"
                            href="#">
                 Home
             </b-navbar-item>
+
+        </template>
+
+        <template slot="brand">
+            <img class="crop-banner" src="../../images/WANDER-day-navbar.png"/>
         </template>
 
         <template slot="end">
@@ -79,10 +84,12 @@
             },
             goToActivities(){
                 router.push({path: '/Activities'});
+            },
+            getBannerImage(){
+                let image = 'https://image.shutterstock.com/image-vector/gray-avatar-icon-design-photo-260nw-1274338147.jpg';
+                return image;
             }
-
         }
-
     }
 </script>
 
@@ -101,5 +108,23 @@
 
     buttons{
         padding: 10px;
+    }
+
+    .crop-banner {
+        width: 150px;
+        height: 50px;
+        overflow: hidden;
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
+
+    }
+    .crop-banner img {
+        width: 150px;
+        height: 50px;
+        /*margin: -75px 0 0 -100px;*/
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
     }
 </style>
