@@ -45,11 +45,11 @@
 
                                     <tr v-if="!activity.continuous">
                                         <td>Start Time:</td>
-                                        <td>{{dateFormat(activity.start_time)}}</td>
+                                        <td>UTC {{dateFormat(activity.start_time)}}</td>
                                     </tr>
                                     <tr v-if="!activity.continuous">
                                         <td>End Time:</td>
-                                        <td>{{dateFormat(activity.end_time)}}</td>
+                                        <td>UTC {{dateFormat(activity.end_time)}}</td>
                                     </tr>
 
                                     <tr>
@@ -118,8 +118,9 @@
                 let year = date.slice(0, 4);
                 let month = date.slice(5, 7);
                 let day = date.slice(8, 10);
-                let hour = date.slice(14, 16);
-                let min = date.slice(17, 19);
+                let hour = date.slice(11, 13);
+                let min = date.slice(14, 16);
+                console.log(date);
                 return hour + ":" + min + " " + day + "/" + month + "/" + year;
             },
             checkAuthenticationStatus() {
