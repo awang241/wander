@@ -2,8 +2,12 @@ package com.springvuegradle.Model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
+import javax.annotation.processing.Generated;
 import javax.persistence.*;
 import java.util.Objects;
+
+import static javax.persistence.GenerationType.IDENTITY;
+import static javax.persistence.GenerationType.SEQUENCE;
 
 /**
  * Email class.

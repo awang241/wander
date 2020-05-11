@@ -10,6 +10,9 @@ import javax.validation.constraints.Size;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import static javax.persistence.GenerationType.IDENTITY;
+import static javax.persistence.GenerationType.SEQUENCE;
+
 /**
  * Profile class.
  * Profile objects are used to structure the user data and enable the user data to be saved in an organised way.
@@ -20,7 +23,8 @@ public class Profile {
     /**
      * Holds the user id. Generated and assigned when the object is saved in the database.
      */
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue
     private Long id;
 
     /**
