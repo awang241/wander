@@ -10,7 +10,7 @@
                 </div>
 
                 <!-- redirect to add activity -->
-                <b-button @click="goToAddActivity"
+                <b-button v-if="store.getters.getAuthenticationLevel > 0" @click="goToAddActivity"
                           type="is-info">
                     Add Activity
                 </b-button>
