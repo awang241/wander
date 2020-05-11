@@ -41,12 +41,15 @@
                                         editable
                                         :use-html5-validation="false"
                                         placeholder="Select Date of Birth"
+                                        :date-formatter="dateFormatter"
                                         :min-date="minDate"
                                         :max-date="maxDate" ref="dateOfBirth"
                                         v-model="dateOfBirth"
                                         type="date" required
                                         validation-message="Please enter a valid date"
-                                        pattern="^(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]))\1|(?:(?:29|30)(\/|-|\.)(?:0?[13-9]|1[0-2])\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/|-|\.)0?2\3(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\d|2[0-8])(\/|-|\.)(?:(?:0?[1-9])|(?:1[0-2]))\4(?:(?:1[6-9]|[2-9]\d)?\d{2})$">>
+
+                                        pattern="^(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]))\1|(?:(?:29|30)(\/|-|\.)(?:0?[13-9]|1[0-2])\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/|-|\.)0?2\3(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\d|2[0-8])(\/|-|\.)(?:(?:0?[1-9])|(?:1[0-2]))\4(?:(?:1[6-9]|[2-9]\d)?\d{2})$">
+                                    >
                                 </b-datepicker>
                             </b-field>
 
@@ -81,6 +84,7 @@
 
 
 
+
 <script>
     import api from '../Api';
     import router from '../router.js'
@@ -105,6 +109,8 @@
                 date: new Date(),
                 maxDate: new Date(today.getFullYear(), today.getMonth(), today.getDate()),
                 minDate: new Date(today.getFullYear() -100, today.getMonth(), today.getDate())
+
+
             }
         },
         mounted() {
@@ -123,6 +129,7 @@
                 if(this.password.length < 8) {
                     this.showWarning("Password must be 8 characters long")
                 } else {
+                    this.dateOfBirth.setHours(23)
                     api.createProfile({
                         lastname: this.lastName,
                         firstname: this.firstName,
@@ -135,7 +142,9 @@
                         date_of_birth: this.dateOfBirth,
                         gender: this.gender,
                         fitness: this.fitness,
-                        passports: []
+                        passports: [],
+                        activities: [],
+                        authLevel: 5
                     })
                         .then((response => {
                             this.showMessage(this.displayError(response.status))
@@ -165,6 +174,10 @@
             displayError(){
                 let message = "Account created successfully"
                 return message;
+            },
+
+            dateFormatter(dt){
+                return dt.toLocaleDateString('en-GB', { year: 'numeric', month: 'numeric', day: 'numeric' });
             }
         }
     }

@@ -1,14 +1,15 @@
 package com.springvuegradle;
 
-import com.springvuegradle.Repositories.EmailRepository;
-import com.springvuegradle.Repositories.PassportCountryRepository;
-import com.springvuegradle.Repositories.ProfileRepository;
+import com.springvuegradle.Model.Activity;
+import com.springvuegradle.Repositories.*;
+import com.springvuegradle.Utilities.InitialDataHelper;
 import com.springvuegradle.Utilities.ValidationHelper;
-import com.sun.xml.bind.v2.runtime.output.SAXOutput;
+import com.springvuegradle.service.ActivityService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.SpringApplication;
 
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -19,7 +20,11 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
-@SpringBootApplication @ComponentScan({"com.springvuegradle.Controller"})
+
+import static com.springvuegradle.Controller.Profile_Controller.hashPassword;
+
+@SpringBootApplication
+@ComponentScan({"com.springvuegradle.Controller", "com.springvuegradle.Utilities", "com.springvuegradle.service"})
 public class Application {
 
     public static void main(String[] args) {
@@ -27,11 +32,16 @@ public class Application {
     }
 
     @Bean
-    CommandLineRunner init(EmailRepository emailRepository, ProfileRepository profileRepository, PassportCountryRepository passportCountryRepository) {
+    CommandLineRunner init(EmailRepository eRepo, ProfileRepository pRepo,
+                           PassportCountryRepository pcRepo, ActivityTypeRepository atRepo,
+                           ActivityRepository aRepo, ActivityMembershipRepository amRepo) {
         return args -> {
-            System.out.println(emailRepository.findByPrimaryEmail("jacky123@google.com"));
-            ValidationHelper.updatePassportCountryRepository(passportCountryRepository, profileRepository);
-            profileRepository.findAll().forEach(System.out::println); // prints all the profile objects in the repository.
+            System.out.println("-----Updating Activity Type and Profile Repositories-----");
+            InitialDataHelper.init(atRepo, pRepo, eRepo);
+            System.out.println("-----Update Complete-----");
+            System.out.println("-----Updating Passport Country Repository-----");
+            ValidationHelper.updatePassportCountryRepository(pcRepo, pRepo);
+            System.out.println("-----Update Complete-----");
             System.out.println("-----Program should be running now-----");
         };
     }

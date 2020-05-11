@@ -5,11 +5,11 @@
             <div class=" hero-body level-item">
                 <div class="container containerColor">Hello! I am
                     <h1 class="title is-1">
-                        {{ firstName }} {{ middleName }} {{ lastName }}
+                        {{ profile.firstname }} {{ profile.middlename }} {{ profile.lastname }}
                     </h1>
                     <br>
                     <h2 class="subtitle is-5">
-                        {{ nickName }}
+                        {{ profile.nickname }}
                     </h2>
 
                 </div>
@@ -49,7 +49,7 @@
         </nav>
         <div class="section-heading">
             <div class="center container containerColor">
-                <p>{{ bio }}</p>
+                <p>{{ profile.bio }}</p>
             </div>
         </div>
         <section class="section" id="about">
@@ -71,18 +71,18 @@
                                     </tr>
                                     <tr>
                                         <td>Gender:</td>
-                                        <td>{{ gender }}</td>
+                                        <td>{{ profile.gender }}</td>
                                     </tr>
                                     <tr>
                                         <td>Birthday:</td>
-                                        <td>{{ dateOfBirth }}</td>
+                                        <td>{{ profile.date_of_birth }}</td>
                                     </tr>
                                     <tr>
                                         <td>Primary Email:</td>
-                                        <td>{{ primaryEmail }}</td>
+                                        <td>{{ profile.primary_email }}</td>
                                     </tr>
 
-                                     <tr v-for="email in additionalEmails" :key="email">
+                                     <tr v-for="email in profile.additional_email" :key="email">
                                         <td>Additional Email:</td>
                                         <td>{{email}}</td>
                                     </tr>
@@ -103,7 +103,7 @@
                                     <div class="media-content">
                                         <div class="content">
                                             <p>
-                                                <strong>{{ fitness_statement }}</strong>
+                                                <strong>{{ fitnessStatement }}</strong>
                                             </p>
                                         </div>
                                     </div>
@@ -114,73 +114,27 @@
                 </div>
             </div>
         </section>
-        <!-- Activities -->
-        <section class="section" id="services">
-            <div class="section-heading">
-                <h3 class="center activitiesTitle title is-3">Activities</h3>
-                <h4 class="subtitle is-5"></h4>
-            </div>
-            <div class="container containerColor">
-                <div class="columns">
-                    <div class="column">
-                        <div class="box">
-                            <div class="content">
-                                <h4 class="title is-5">Rock Climbing</h4>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="column">
-                        <div class="box">
-                            <div class="content">
-                                <h4 class="title is-5">Tennis</h4>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="column">
-                        <div class="box">
-                            <div class="content">
-                                <h4 class="title is-5">Football</h4>
-                            </div>
-                        </div>
-                    </div>
 
-                    <div class="column">
-                        <div class="box">
-                            <div class="content">
-                                <h4 class="title is-5">Basketball</h4>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-
-                <div class="columns">
-                    <div class="column">
-                        <div class="box">
-                            <div class="content">
-                                <h4 class="title is-5">Basketball</h4>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="column">
-                        <div class="box">
-                            <div class="content">
-                                <h4 class="title is-5">Hiking</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
 
         <section class="section">
             <div class="section-heading">
-                <h3 class="center activitiesTitle title is-2">Countries</h3>
+                <h3 class="center activityTypesTitle title is-2">Countries</h3>
                 <h4 class="subtitle is-5"></h4>
             </div>
             <div class="container containerColor">
                 <div class="box">
-                    <h3 v-for="country in chosenCountries" :key="country" class="title is-4">{{country}}</h3>
+                    <h3 v-for="country in profile.passports" :key="country" class="title is-4">{{country}}</h3>
+                </div>
+            </div>
+        </section>
+        <section class="section">
+            <div class="section-heading">
+                <h3 class="center activityTypesTitle title is-2">Activity Types</h3>
+                <h4 class="subtitle is-5"></h4>
+            </div>
+            <div class="container containerColor">
+                <div class="box">
+                    <h3 v-for="activityType in profile.activities" :key="activityType" class="title is-4">{{activityType}}</h3>
                 </div>
             </div>
         </section>
@@ -189,75 +143,54 @@
 
 <script>
     import api from '../Api';
-    import authenticationStore from "../store/authenticationStore";
-    import profileStore from "../store/profileStore";
     import router from "../router";
+    import store from "../store";
 
     export default {
         name: "Profile",
         data() {
             return {
-                currentUser: null,
-                firstName: null,
-                lastName: null,
-                middleName: null,
-                nickName: null,
-                dateOfBirth: null,
-                gender: null,
-                bio: null,
-                primaryEmail: null,
-                additionalEmails: [],
-                fitness_level: null,
-                fitness_statement: null,
-                possibleCountries: [],
-                chosenCountries: []
+                profile: {},
             }
         },
         methods: {
-
             editProfile(){
-                router.push('EditProfile');
+                router.push('EditProfile/' + store.getters.getUserId);
             },
+            getProfile() {
+                api.getProfile(store.getters.getUserId, localStorage.getItem('authToken'))
+                    .then((response) => {
+                        this.profile = response.data;
+                    })
+                    .catch((error) => {
+                        router.push({path: '/'});
+                        console.log(error)
+                    })
+            }
         },
-        mounted() {
-            // Retrieves user data using their id number. Will change to token at some point
-            api.getProfile(authenticationStore.methods.getUserId(), authenticationStore.methods.getSessionId())
-                .then((response) => {
-                    //Save to auth store
-                    profileStore.methods.setProfile(response.data)
 
-                    this.firstName = response.data.firstname;
-                    this.lastName = response.data.lastname;
-                    this.middleName = response.data.middlename;
-                    this.nickName = response.data.nickname;
-                    this.dateOfBirth = response.data.date_of_birth;
-                    this.gender = response.data.gender;
-                    this.bio = response.data.bio;
-                    this.primaryEmail = response.data.primary_email;
-                    this.additionalEmails = response.data.additional_email;
-                    this.fitness_level = response.data.fitness;
-                    this.chosenCountries = response.data.passports;
-                    switch(response.data.fitness) {
-                        case 0 :
-                            this.fitness_statement = "Beginner: I am not active at all";
-                            break;
-                        case 1 :
-                            this.fitness_statement = "Novice: I do a low level of exercise (walking)";
-                            break;
-                        case 2 :
-                            this.fitness_statement = "Intermediate: I work out 1-2 times per week";
-                            break;
-                        case 3 :
-                            this.fitness_statement = "Advanced: I work out 3-4 times per week";
-                            break;
-                        case 4 :
-                            this.fitness_statement = "Pro: I work out 5+ times per week";
-                            break;
-                        default:
-                            this.fitness_statement = "Beginner: I am not active at all";
-                    }
-                })
-                .catch(error => console.log(error));
+        computed: {
+            // a computed getter
+            fitnessStatement: function () {
+                switch (this.profile.fitness_statement) {
+                    case 0 :
+                        return "Beginner: I am not active at all";
+                    case 1 :
+                        return "Novice: I do a low level of exercise (walking)";
+                    case 2 :
+                        return"Intermediate: I work out 1-2 times per week";
+                    case 3 :
+                        return "Advanced: I work out 3-4 times per week";
+                    case 4 :
+                        return "Pro: I work out 5+ times per week";
+                    default:
+                       return "Beginner: I am not active at all";
+                }
+            }
+        },
+
+        mounted() {
+            this.getProfile()
         },
     }
 </script>

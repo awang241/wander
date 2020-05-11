@@ -29,6 +29,7 @@
                         editable
                         :use-html5-validation="false"
                         placeholder="Select Date of Birth"
+                        :date-formatter="dateFormatter"
                         :min-date="minDate"
                         :max-date="maxDate"
                         ref="dateOfBirth"
@@ -71,25 +72,22 @@
 </template>
 
 <script>
-    import api from "../../Api";
-    import authenticationStore from "../../store/authenticationStore";
-    import profileStore from "../../store/profileStore";
 
     export default {
         name: "EditPersonal",
+        props: ["profile"],
         data() {
             const today = new Date()
             return {
-                firstName: profileStore.data.firstName,
-                lastName: profileStore.data.lastName,
-                middleName: profileStore.data.middleName,
-                nickName: profileStore.data.nickname,
-                bio: profileStore.data.bio,
-                dateOfBirth: new Date(profileStore.data.dateOfBirth),
-                gender: profileStore.data.gender,
-                fitness_level: profileStore.data.fitnessLevel,
-                fitness_statement: null,
-                date: profileStore.data.dateOfBirth,
+                firstName: this.profile.firstname,
+                lastName: this.profile.lastname,
+                middleName: this.profile.middlename,
+                nickName: this.profile.nickname,
+                bio: this.profile.bio,
+                dateOfBirth: new Date(this.profile.date_of_birth),
+                gender: this.profile.gender,
+                fitness_level: this.profile.fitness,
+                date: this.profile.date_of_birth,
                 maxDate: new Date(today.getFullYear(), today.getMonth(), today.getDate()),
                 minDate: new Date(today.getFullYear() -100, today.getMonth(), today.getDate())
             }
@@ -118,32 +116,20 @@
 
         methods: {
             sendUpdatedData(){
-                const personalDetails = {"firstname": this.firstName,
-                                 "lastname": this.lastName,
-                                "middlename": this.middleName,
-                                "nickname": this.nickName,
-                                "bio": this.bio,
-                                "date_of_birth": this.dateOfBirth,
-                                "gender": this.gender,
-                                "fitness": this.fitness_level
-                }
-                profileStore.methods.updatePersonal(personalDetails)
-                const updatedProfile = {
-                    "lastname": profileStore.data.lastName,
-                    "firstname": profileStore.data.firstName,
-                    "middlename": profileStore.data.middleName,
-                    "nickname": profileStore.data.nickname,
-                    "primary_email": profileStore.data.primaryEmail,
-                    "additional_email": profileStore.data.optionalEmails,
-                    "bio": profileStore.data.bio,
-                    "date_of_birth": profileStore.data.dateOfBirth,
-                    "gender": profileStore.data.gender,
-                    "fitness": profileStore.data.fitnessLevel,
-                    "passports":profileStore.data.passportCountries
-                }
-                api.editProfile(authenticationStore.methods.getUserId(), updatedProfile, authenticationStore.methods.getSessionId())
-                    .catch(error => this.showError(this.displayError(error.response.status)))
-                    .then(response => this.showMessage(this.displayError(response.status)))
+                this.dateOfBirth.setHours(23)
+                const personalDetails =
+                    {
+                    "firstname": this.firstName,
+                    "lastname": this.lastName,
+                    "middlename": this.middleName,
+                    "nickname": this.nickName,
+                    "bio": this.bio,
+                    "date_of_birth": this.dateOfBirth,
+                    "gender": this.gender,
+                    "fitness": this.fitness_level
+                    }
+                this.$parent.updatePersonal(personalDetails)
+                this.showMessage("Personal details saved!")
             },
             showMessage(message) {
                 this.$buefy.toast.open({
@@ -168,7 +154,10 @@
                 } else if (statusCode == 400 || statusCode == 403 || statusCode == 401) {
                     message = "Please fill in all required fields"
                 }
-                return message;
+                this.showError(message)
+            },
+            dateFormatter(dt){
+                return dt.toLocaleDateString('en-NZ', { year: 'numeric', month: 'numeric', day: 'numeric' });
             }
         }
     }

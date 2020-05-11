@@ -8,7 +8,7 @@
         <br>
 
         <form>
-            <div>
+            <div v-if="optionalEmails.length>0">
             <b-field label="Change your primary email">
                 <b-select v-model="newPrimaryEmail" class="selectNewPEList" expanded>
                     <option class="singleEmail" v-for="email in optionalEmails" :key="email">{{email}}</option>
@@ -20,7 +20,7 @@
             </div>
             <br>
 
-            <b-field label="Enter in an email address and click the + sign to add it to your profile! (5 email limit)" expanded></b-field>
+            <b-field label="Enter in an email address and click the 'Add' button to add it to your profile! (5 email limit)" expanded></b-field>
             <b-field group-multiline grouped>
                 <b-input type="email" class="addForm" v-model="newEmail" placeholder="Enter an email" maxlength="30" expanded ></b-input>
                 <b-button class="addButton" type="is-info" @click="addEmail()">Add</b-button>
@@ -30,7 +30,7 @@
         <list v-bind:chosenItems="optionalEmails" v-on:deleteListItem="deleteEmail"></list>
 
         <b-field>
-            <b-button type="is-info" @click="submitEmails">Save</b-button>
+            <b-button type="is-info" @click="submitEmails()">Save</b-button>
         </b-field>
 
     </div>
@@ -39,52 +39,44 @@
 <script>
 
     import List from "../List";
-    import authenticationStore from "../../store/authenticationStore";
-    import profileStore from "../../store/profileStore";
-    import Api from "../../Api";
 
     export default {
         name: "EditEmails",
         components: {List},
+        props: ["profile"],
         methods: {
+            showWarning(message) {
+                this.$buefy.toast.open({
+                    duration: 5000,
+                    message: message,
+                    type: 'is-danger',
+                    position: 'is-top',
+                    queue: false,
+                });
+            },
+            showSuccess(message){
+                this.$buefy.toast.open({
+                    duration: 2000,
+                    message: message,
+                    type: 'is-success',
+                    position: 'is-top'
+                })
+            },
             addEmail() {
                 if (this.optionalEmails.length > 3) {
-                    this.$buefy.toast.open({
-                        duration: 5000,
-                        message: "Maximum email addresses reached",
-                        type: 'is-danger',
-                        position: 'is-top',
-                        queue: false,
-                    });
+                    this.showWarning("Maximum email addresses reached")
                 } else if (this.optionalEmails.includes(this.newEmail) || this.newEmail === this.primaryEmail) {
-                    this.$buefy.toast.open({
-                        duration: 5000,
-                        message: "Email address is already in use!",
-                        type: 'is-danger',
-                        position: 'is-top',
-                        queue: false,
-                    });
+                    this.showWarning("Email address already in use")
                 } else if (this.newEmail === "" || this.newEmail.trim().length === 0 || !this.newEmail.includes('@', 0)) {
-                    this.$buefy.toast.open({
-                        duration: 5000,
-                        message: "Please enter in a valid email address",
-                        type: 'is-danger',
-                        position: 'is-top',
-                        queue: false,
-                    });
+                    this.showWarning("Please enter a valid email address")
                 } else {
                     this.optionalEmails.push(this.newEmail)
+                    this.newEmail = ""
                 }
             },
             changePrimaryEmail() {
                 if(this.newPrimaryEmail === "") {
-                    this.$buefy.toast.open({
-                        duration: 5000,
-                        message: "No additional email address selected",
-                        type: 'is-danger',
-                        position: 'is-top',
-                        queue: false,
-                    });
+                    this.showWarning("No additional email address selected")
                 } else {
                     this.optionalEmails.push(this.primaryEmail);
                     this.optionalEmails = this.optionalEmails.filter(email => email != this.newPrimaryEmail)
@@ -95,38 +87,16 @@
                 this.optionalEmails = this.optionalEmails.filter(email => email != emailToDelete)
             },
             submitEmails(){
-                profileStore.methods.setOptionalEmails(this.optionalEmails)
-                profileStore.methods.setPrimaryEmail(this.primaryEmail)
-                Api.editEmail({
-                    "primary_email": profileStore.data.primaryEmail,
-                    "additional_email": profileStore.data.optionalEmails
-                }, authenticationStore.methods.getUserId(), authenticationStore.methods.getSessionId())
-                this.showSuccess("Emails submitted")
+                this.$parent.updateEmails(this.primaryEmail, this.optionalEmails)
+                this.showSuccess("Updated emails")
                 }
-            }  ,
-            showWarning(message) {
-                this.$buefy.snackbar.open({
-                    duration: 5000,
-                    message: message,
-                    type: 'is-danger',
-                    position: 'is-bottom-left',
-                    queue: false,
-                })
-            },
-            showSuccess(message){
-                this.$buefy.toast.open({
-                    duration:5500,
-                    message: message,
-                    type: 'success',
-                    position: 'is-bottom'
-                })
             },
         data() {
             return {
-            primaryEmail: profileStore.data.primaryEmail,
+            primaryEmail: this.profile.primary_email,
+            optionalEmails: this.profile.additional_email,
             newEmail: "",
             newPrimaryEmail: "",
-            optionalEmails: profileStore.data.optionalEmails,
             }
         }
     }

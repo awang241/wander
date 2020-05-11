@@ -1,28 +1,36 @@
 import Vue from 'vue'
+import Vuex from'vuex'
 import App from './App'
 import VueRouter from 'vue-router'
 import router from "./router.js";
 import Buefy from 'buefy'
-import { library } from '@fortawesome/fontawesome-svg-core';
-// internal icons
-import { faCheck, faCheckCircle, faInfoCircle, faExclamationTriangle, faExclamationCircle,
-  faArrowUp, faAngleRight, faAngleLeft, faAngleDown,
-  faEye, faEyeSlash, faCaretDown, faCaretUp, faUpload } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import api from './Api'
+import store from './store'
 
-library.add(faCheck, faCheckCircle, faInfoCircle, faExclamationTriangle, faExclamationCircle,
-    faArrowUp, faAngleRight, faAngleLeft, faAngleDown,
-    faEye, faEyeSlash, faCaretDown, faCaretUp, faUpload);
-Vue.component('vue-fontawesome', FontAwesomeIcon);
-
-
-Vue.use(Buefy, {
-  defaultIconComponent: 'vue-fontawesome',
-  defaultIconPack: 'fas',
-});
+Vue.use(Buefy);
 
 Vue.use(VueRouter)
 Vue.config.productionTip = false
+
+Vue.use(Vuex)
+//Check if a token is expired or null, if so it will redirect a user to the homepage
+if (localStorage.getItem('authToken') != null) {
+    console.log("TEST")
+  api.verifyToken(localStorage.getItem('authToken'))
+      .then(r => {
+        let payload = {'token': localStorage.getItem('authToken'), 'userId': localStorage.getItem('userId')}
+        store.dispatch('validateByTokenAndUserId', payload).then()
+          console.log(r)
+        return r
+      })
+      .catch((error) => {
+          let payload = {'token': null, 'userId': null, 'authenticationStatus': false, 'authenticationLevel': 5};
+        store.dispatch('resetUserData', payload).then();
+        localStorage.clear()
+          console.log(error)
+          return error
+      })
+}
 
 import VueLogger from 'vuejs-logger';
 
