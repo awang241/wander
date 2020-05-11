@@ -1,12 +1,16 @@
 package com.springvuegradle.Model;
 
 import com.fasterxml.jackson.annotation.*;
+import org.hibernate.annotations.Generated;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+
+import static javax.persistence.GenerationType.IDENTITY;
+import static javax.persistence.GenerationType.SEQUENCE;
 
 @Entity
 public class PassportCountry {
@@ -15,7 +19,7 @@ public class PassportCountry {
      * Holds the automatically generated passport country id obtained when the object is saved.
      */
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy=IDENTITY, generator="country_id_seq")
     private long id;
 
     /**

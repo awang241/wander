@@ -15,13 +15,16 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.util.*;
 
+import static javax.persistence.GenerationType.IDENTITY;
+import static javax.persistence.GenerationType.SEQUENCE;
+
 @Entity
 public class Activity {
     /**
      * Holds the automatically generated activity id assigned when the object is saved to the database.
      */
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy=IDENTITY, generator="activity_id_seq")
     private long id;
 
     /**

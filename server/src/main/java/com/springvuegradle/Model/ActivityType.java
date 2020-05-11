@@ -11,6 +11,9 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+import static javax.persistence.GenerationType.IDENTITY;
+import static javax.persistence.GenerationType.SEQUENCE;
+
 @Entity
 public class ActivityType {
 
@@ -18,7 +21,7 @@ public class ActivityType {
      * Holds the automatically generated activityType id assigned when the object is saved to the database.
      */
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy=IDENTITY, generator="activity_type_id_seq")
     private long id;
 
     /**
