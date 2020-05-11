@@ -34,7 +34,7 @@
                         Admin Dashboard
                     </b-button>
                     <b-button  @click="goToActivities"
-                               v-if="store.getters.getAuthenticationStatus"
+                               v-if="store.getters.getAuthenticationStatus && store.getters.getAuthenticationLevel > 0"
                                type="is-light">
                         Activities
                     </b-button>
@@ -107,7 +107,7 @@
     }
 
     .crop-banner {
-        width: 150px;
+        width: 200px;
         height: 50px;
         overflow: hidden;
         margin-left: auto;
@@ -116,7 +116,7 @@
 
     }
     .crop-banner img {
-        width: 150px;
+        width: 200px;
         height: 50px;
         /*margin: -75px 0 0 -100px;*/
         margin-left: auto;

@@ -5,7 +5,8 @@
         <h1 class="title is-5">Change Password</h1>
 
         <form @submit.prevent="updatePassword">
-            <b-field label="Current Password" expanded >
+            <b-field v-if="store.getters.getAuthenticationLevel > 1"
+                    label="Current Password" expanded >
                 <b-input v-model="currentPassword" type="password" placeholder="Current Password" required></b-input>
             </b-field>
             <b-field label="New Password" expanded >
@@ -24,7 +25,7 @@
 
 <script>
     import api from "../../Api";
-    //import store from "../../store";
+    import store from "../../store";
 
     export default {
         name: "EditPassword",
@@ -33,6 +34,7 @@
                 currentPassword: "",
                 password: "",
                 confPassword: "",
+                store: store
             }
         },
 

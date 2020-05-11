@@ -11,6 +11,9 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+import static javax.persistence.GenerationType.IDENTITY;
+import static javax.persistence.GenerationType.SEQUENCE;
+
 @Entity
 public class ActivityType {
 
