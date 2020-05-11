@@ -2,8 +2,12 @@ package com.springvuegradle.Model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
+import javax.annotation.processing.Generated;
 import javax.persistence.*;
 import java.util.Objects;
+
+import static javax.persistence.GenerationType.IDENTITY;
+import static javax.persistence.GenerationType.SEQUENCE;
 
 /**
  * Email class.
@@ -44,7 +48,7 @@ public class Email {
      * Holds the automatically generated email id assigned when the object is saved to the database.
      */
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy=IDENTITY, generator="email_id_seq")
     private long id;
 
     /**
