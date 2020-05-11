@@ -8,12 +8,9 @@ import com.springvuegradle.Repositories.ActivityTypeRepository;
 import com.springvuegradle.Repositories.EmailRepository;
 import com.springvuegradle.Repositories.ProfileRepository;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
-
-import static com.springvuegradle.Controller.Profile_Controller.hashPassword;
 
 public class InitialDataHelper {
 
