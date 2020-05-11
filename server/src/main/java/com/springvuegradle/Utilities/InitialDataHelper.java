@@ -11,6 +11,7 @@ import com.springvuegradle.Repositories.ProfileRepository;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Random;
 
 public class InitialDataHelper {
 
@@ -71,21 +72,31 @@ public class InitialDataHelper {
      *
      * @param repo  the profile repository
      * @param erepo the email repository
+     * @return
      */
-    public static void updateDefaultAdmin(ProfileRepository repo, EmailRepository erepo) {
+    public static String updateDefaultAdmin(ProfileRepository repo, EmailRepository erepo) {
         List<Profile> default_admins = repo.findByAuthLevel(0);
+
         if (default_admins.size() == 0) {
+            int minAscii = 48;
+            int maxAscii = 122;
+            int passwordLength = 20;
+            Random random = new Random();
+            String password = random.ints(minAscii, maxAscii).filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
+                    .limit(passwordLength)
+                    .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+                    .toString();
             Profile admin = new Profile(null, "Admin", "Profile", "", "",
-                    "default@admin.com", new String[]{}, Profile_Controller.hashPassword("admin"), "", new GregorianCalendar(1992,
+                    "default@admin.com", new String[]{}, Profile_Controller.hashPassword(password), "", new GregorianCalendar(1992,
                     Calendar.JUNE, 10), "male", 0, new String[]{}, new String[]{});
             admin.setAuthLevel(0);
             repo.save(admin);
             Email adminEmail = admin.retrievePrimaryEmail();
             adminEmail.setProfile(admin);
             erepo.save(adminEmail);
+            return password;
         }
-
-
+        return null;
     }
 
 
@@ -96,9 +107,10 @@ public class InitialDataHelper {
      * @param repo the profile repository
      * @param erepo the email repository
      */
-    public static void init(ActivityTypeRepository arepo, ProfileRepository repo, EmailRepository erepo) {
+    public static String init(ActivityTypeRepository arepo, ProfileRepository repo, EmailRepository erepo) {
         updateActivityTypeRepository(arepo);
-        updateDefaultAdmin(repo, erepo);
+        String password = updateDefaultAdmin(repo, erepo);
         addExampleProfiles(repo, erepo);
+        return password;
     }
 }

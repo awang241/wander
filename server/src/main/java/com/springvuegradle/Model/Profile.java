@@ -10,8 +10,6 @@ import javax.validation.constraints.Size;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static javax.persistence.GenerationType.IDENTITY;
-import static javax.persistence.GenerationType.SEQUENCE;
 
 /**
  * Profile class.
