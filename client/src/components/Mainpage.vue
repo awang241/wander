@@ -78,19 +78,30 @@
                     </div>
 
                 </div>
-        <section class="section">
+        <section  v-if="!store.getters.getAuthenticationStatus" class="section">
             <div class="columns">
                 <div class="column is-8 is-offset-2">
                     <div class="content is-medium">
                         <h1 class="title">Getting Started</h1>
                         <p>Its easy! Register today with a free account and stay updated with the latest events in your area
                         and around the globe!</p>
-                        <b-button
-                                  tag="router-link"
-                                  to="/Registration"
-                                  type="is-primary">
-                            Register
-                        </b-button>
+                            <b-button
+                                      tag="router-link"
+                                      to="/Registration"
+                                      type="is-primary">
+                                Register
+                            </b-button>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <hr>
+        <section  v-if="store.getters.getAuthenticationStatus" class="section">
+            <div class="columns">
+                <div class="column is-8 is-offset-2">
+                    <div class="content is-medium">
+                        <h1 class="title">News</h1>
+                        <p> We have more activity types you can choose from!</p>
                     </div>
                 </div>
             </div>
@@ -145,8 +156,14 @@
 
 
 <script>
+    import store from "../store"
     export default {
-        name: "Mainpage"
+        name: "Mainpage",
+        data() {
+            return{
+                store: store
+            }
+        }
     }
 </script>
 
