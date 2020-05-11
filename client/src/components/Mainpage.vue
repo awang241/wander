@@ -176,7 +176,10 @@
     }
     html {
         background-size:cover;
-        background: url(https://www.goodfreephotos.com/albums/new-zealand/other-new-zealand/snow-capped-peaks-and-mountains-landscape-in-new-zealand.jpg) no-repeat center center fixed;
+        /*background: url(https://www.goodfreephotos.com/albums/new-zealand/other-new-zealand/snow-capped-peaks-and-mountains-landscape-in-new-zealand.jpg) no-repeat center center fixed;*/
+        /*background: url(https://miro.medium.com/max/3200/1*N3u1tt7fE8nFNWh6RtiRsQ.jpeg) no-repeat center center fixed;*/
+        background: url("../../images/3.jpg") no-repeat center center fixed;
+
         -webkit-background-size: cover;
         -moz-background-size: cover;
         -o-background-size: cover;
