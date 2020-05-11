@@ -24,7 +24,7 @@ public class Profile {
      * Holds the user id. Generated and assigned when the object is saved in the database.
      */
     @Id
-    @GeneratedValue(strategy=IDENTITY, generator="profile_id_seq")
+    @GeneratedValue
     private Long id;
 
     /**

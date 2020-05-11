@@ -24,7 +24,7 @@ public class Activity {
      * Holds the automatically generated activity id assigned when the object is saved to the database.
      */
     @Id
-    @GeneratedValue(strategy=IDENTITY, generator="activity_id_seq")
+    @GeneratedValue
     private long id;
 
     /**
