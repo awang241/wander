@@ -2,7 +2,7 @@
     <b-navbar>
         <template slot="start">
             <b-navbar-item tag="router-link"
-                           to="/Mainpage"
+                           to="/"
                            href="#">
                 Home
             </b-navbar-item>
@@ -84,10 +84,6 @@
             },
             goToActivities(){
                 router.push({path: '/Activities'});
-            },
-            getBannerImage(){
-                let image = 'https://image.shutterstock.com/image-vector/gray-avatar-icon-design-photo-260nw-1274338147.jpg';
-                return image;
             }
         }
     }

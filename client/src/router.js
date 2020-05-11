@@ -12,7 +12,7 @@ import store from "./store";
 
 
 const routes = [
-    {path: "/Mainpage", name: "mainpage", component: MainpageComponent},
+    {path: "/", name: "mainpage", component: MainpageComponent},
     {path: "/Login", name: "login", component: LoginComponent},
     {path: "/Registration", name: "registration", component: RegistrationComponent},
     {path: "/NavBar", name: "navbar", component: NavBarComponent},
