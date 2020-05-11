@@ -1,14 +1,5 @@
 package com.springvuegradle.dto;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.springvuegradle.Model.ActivityType;
-import com.springvuegradle.Model.Email;
-import com.springvuegradle.Model.PassportCountry;
-
-import java.util.Calendar;
-import java.util.HashSet;
-
 public class SimplifiedProfileResponse {
 
     /**

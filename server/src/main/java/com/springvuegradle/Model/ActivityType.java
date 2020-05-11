@@ -33,11 +33,11 @@ public class ActivityType {
      */
     @ManyToMany(mappedBy = "activityTypes")
     @JsonBackReference
-    private Set<Profile> profiles = new HashSet<Profile>();
+    private Set<Profile> profiles = new HashSet<>();
 
     @ManyToMany(mappedBy = "activityTypes", cascade=CascadeType.ALL)
     @JsonIgnore
-    private Set<Activity> activities = new HashSet<Activity>();
+    private Set<Activity> activities = new HashSet<>();
 
     public ActivityType() {
     }

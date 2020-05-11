@@ -2,6 +2,7 @@ package com.springvuegradle.steps;
 
 import com.springvuegradle.Controller.LoginController;
 import com.springvuegradle.Model.Profile;
+import com.springvuegradle.Repositories.EmailRepository;
 import com.springvuegradle.Utilities.JwtUtil;
 import com.springvuegradle.dto.LoginRequest;
 import com.springvuegradle.dto.LoginResponse;
@@ -20,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class LoginControllerTestSteps {
 
     private LoginController loginController;
-
+    private EmailRepository emailRepository;
     private Exception registerException;
     private Collection<Profile> returnedUsers;
     private ResponseEntity<LoginResponse> loggedInUser;
@@ -31,7 +32,7 @@ public class LoginControllerTestSteps {
 
     @Before
     public void resetLocalFields() throws SQLException {
-        loginController = new LoginController();
+        loginController = new LoginController(jwtUtil, emailRepository);
 
         registerException = null;
         loggedInUser = null;

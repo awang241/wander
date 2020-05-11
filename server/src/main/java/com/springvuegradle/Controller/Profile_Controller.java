@@ -75,24 +75,22 @@ public class Profile_Controller {
         String error = FieldValidationHelper.verifyProfile(newProfile, false, pcRepo, aRepo, eRepo);
         if (error.equals("")) {
             String hashedPassword = hashPassword(newProfile.getPassword());
-            if (hashedPassword != "Hash Failed") {
+            if (!hashedPassword.equals("Hash Failed")) {
                 newProfile.setPassword(hashedPassword);
             } else {
                 return new ResponseEntity<>("Error hashing password.", HttpStatus.INTERNAL_SERVER_ERROR);
             }
-            Set<PassportCountry> updated = new HashSet<PassportCountry>();
+            Set<PassportCountry> updated = new HashSet<>();
             for(PassportCountry passportCountry : newProfile.getPassportObjects()){
-                List<PassportCountry> result = pcRepo.findByCountryName(passportCountry.getCountryName());{
-                    updated.add(result.get(0));
-                }
+                List<PassportCountry> result = pcRepo.findByCountryName(passportCountry.getCountryName());
+                updated.add(result.get(0));
             }
             newProfile.setPassports(updated);
 
-            Set<ActivityType> updatedActivityType = new HashSet<ActivityType>();
+            Set<ActivityType> updatedActivityType = new HashSet<>();
             for(ActivityType activityType : newProfile.getActivityTypeObjects()){
-                List<ActivityType> resultActivityTypes = aRepo.findByActivityTypeName(activityType.getActivityTypeName());{
-                    updatedActivityType.add(resultActivityTypes.get(0));
-                }
+                List<ActivityType> resultActivityTypes = aRepo.findByActivityTypeName(activityType.getActivityTypeName());
+                updatedActivityType.add(resultActivityTypes.get(0));
             }
             newProfile.setActivityTypes(updatedActivityType);
 
@@ -209,7 +207,7 @@ public class Profile_Controller {
     protected ResponseEntity<List<SimplifiedProfileResponse>> getUserProfiles(int authLevel) {
         List<Profile> profilesForAdmin = repo.findAllBelowAuthlevel(authLevel);
         List<SimplifiedProfileResponse> simplifiedProfiles = createSimplifiedProfiles(profilesForAdmin);
-        return new ResponseEntity<List<SimplifiedProfileResponse>>(simplifiedProfiles, HttpStatus.OK);
+        return new ResponseEntity<>(simplifiedProfiles, HttpStatus.OK);
     }
 
     /**
@@ -296,7 +294,7 @@ public class Profile_Controller {
     public ResponseEntity<ActivityTypesResponse> getActivityTypesList() {
         List<String> allActivityTypes = aRepo.findAllActivityTypeNames();
         ActivityTypesResponse activityTypesResponse = new ActivityTypesResponse(allActivityTypes);
-        return new ResponseEntity<ActivityTypesResponse>(activityTypesResponse, HttpStatus.OK);
+        return new ResponseEntity<>(activityTypesResponse, HttpStatus.OK);
     }
 
 
@@ -355,9 +353,8 @@ public class Profile_Controller {
             return DatatypeConverter.printHexBinary(hashedPassword.digest(plainPassword.getBytes(StandardCharsets.UTF_8)));
         } catch (NoSuchAlgorithmException error) {
             System.out.println(error);
+            return "Hash Failed";
         }
-        String failPassword = "Hash Failed";
-        return failPassword;
     }
 
 
@@ -391,9 +388,9 @@ public class Profile_Controller {
     protected ResponseEntity<Profile> getProfile(Long id) {
         Optional<Profile> profileWithId = repo.findById(id);
         if (profileWithId.isPresent()) {
-            return new ResponseEntity(profileWithId.get(), HttpStatus.OK);
+            return new ResponseEntity<>(profileWithId.get(), HttpStatus.OK);
         } else {
-            return new ResponseEntity(null, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
     }
 
@@ -538,7 +535,7 @@ public class Profile_Controller {
             List<Email> emailsReturnedFromSearch = eRepo.findAllByAddress(optionalEmail);
             if (emailsReturnedFromSearch.isEmpty()) {
                 newEmailSet.add(new Email(optionalEmail, false, db_profile));
-            } else if (emailsReturnedFromSearch.get(0).getProfile().getId() == id) {
+            } else if (emailsReturnedFromSearch.get(0).getProfile().getId().equals(id)) {
                 Email email = emailsReturnedFromSearch.get(0);
                 email.setPrimary(false);
                 newEmailSet.add(email);
@@ -551,7 +548,7 @@ public class Profile_Controller {
         for (Email emailFromOldSet: oldEmails) {
             boolean found = false;
             for (Email emailFromNewSet: newEmailSet) {
-                if (emailFromOldSet.getAddress() == emailFromNewSet.getAddress()) {
+                if (emailFromOldSet.getAddress().equals(emailFromNewSet.getAddress())) {
                     found = true;
                 }
             }

@@ -7,9 +7,6 @@
                         <b-field label="First Name" expanded >
                             <b-input v-model="firstName" placeholder="First Name" required></b-input>
                         </b-field>
-<!--                        <b-field label="Middle Name" expanded>-->
-<!--                            <b-input v-model="middleName" placeholder="Middle Name"></b-input>-->
-<!--                         </b-field>-->
                         <b-field label="Last Name" expanded>
                             <b-input v-model="lastName" placeholder="Last Name" required></b-input>
                         </b-field>
@@ -120,7 +117,7 @@
 
         computed: {
             isDisabled() {
-                return !(this.password == this.confpassword);
+                return (this.password !== this.confpassword);
             }
         },
 

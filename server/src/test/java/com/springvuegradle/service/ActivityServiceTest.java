@@ -61,7 +61,7 @@ class ActivityServiceTest {
         service.create(trackRace, profile.getId());
         List<Activity> result = activityRepository.findByActivityNames(trackRace.getActivityName());
 
-        assertEquals(result.get(0).getActivityName(), "Kaikoura Coast Track race");
+        assertEquals("Kaikoura Coast Track race", result.get(0).getActivityName());
 
         List<ActivityType> activityTypeList = typeRepository.findByActivityTypeName("Tramping");
         ActivityType activityType = activityTypeList.get(0);

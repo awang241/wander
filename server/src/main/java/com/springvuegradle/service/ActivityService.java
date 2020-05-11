@@ -9,6 +9,7 @@ import com.springvuegradle.Repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.*;
 
 @Service(value = "activityService")
@@ -30,14 +31,16 @@ public class ActivityService {
 
     public void create(Activity activity, Long creatorId) {
         validateActivity(activity);
-        Profile profile = profileRepo.findById(creatorId).get();
+        Optional<Profile> profileResult = profileRepo.findById(creatorId);
+        if (profileResult.isEmpty()) {
+            throw new EntityNotFoundException(ActivityResponseMessage.INVALID_PROFILE.toString());
+        }
+        Profile profile = profileResult.get();
 
-        Set<ActivityType> updatedActivityType = new HashSet<ActivityType>();
+        Set<ActivityType> updatedActivityType = new HashSet<>();
         for (ActivityType activityType : activity.retrieveActivityTypes()) {
             List<ActivityType> resultActivityTypes = typeRepo.findByActivityTypeName(activityType.getActivityTypeName());
-            {
-                updatedActivityType.add(resultActivityTypes.get(0));
-            }
+            updatedActivityType.add(resultActivityTypes.get(0));
         }
         activity.setActivityTypes(updatedActivityType);
 
@@ -82,12 +85,10 @@ public class ActivityService {
                 }
             }
 
-            Set<ActivityType> updatedActivityType = new HashSet<ActivityType>();
+            Set<ActivityType> updatedActivityType = new HashSet<>();
             for (ActivityType activityType : activity.retrieveActivityTypes()) {
                 List<ActivityType> resultActivityTypes = typeRepo.findByActivityTypeName(activityType.getActivityTypeName());
-                {
-                    updatedActivityType.add(resultActivityTypes.get(0));
-                }
+                updatedActivityType.add(resultActivityTypes.get(0));
             }
             activity.setActivityTypes(updatedActivityType);
 

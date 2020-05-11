@@ -3,10 +3,8 @@ package com.springvuegradle.Controller;
 import com.springvuegradle.Utilities.JwtUtil;
 import com.springvuegradle.dto.LoginRequest;
 import com.springvuegradle.dto.LoginResponse;
-import com.springvuegradle.dto.LogoutRequest;
 import com.springvuegradle.Model.Profile;
 import com.springvuegradle.Repositories.EmailRepository;
-import com.springvuegradle.Repositories.ProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,14 +21,14 @@ import java.util.*;
 @RestController
 public class LoginController {
 
-    @Autowired
     private JwtUtil jwtUtil;
-
-    @Autowired
     private EmailRepository eRepo;
 
-
-    public LoginController() {};
+    @Autowired
+    public LoginController(JwtUtil jwtUtil, EmailRepository eRepo) {
+        this.jwtUtil = jwtUtil;
+        this.eRepo = eRepo;
+    }
 
     /**
      * Attempts to log in a user given a login request. If the credentials are correct, the user is logged
@@ -47,7 +45,7 @@ public class LoginController {
         List<Profile> result = eRepo.findByPrimaryEmail(request.getEmail());
         if (result.size() > 1) {
             return new ResponseEntity(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        } else if (result.size() == 0) {
+        } else if (result.isEmpty()) {
             return new ResponseEntity(null, HttpStatus.UNAUTHORIZED);
         }
         Profile profile = result.get(0);

@@ -17,6 +17,8 @@ import static com.springvuegradle.Controller.Profile_Controller.hashPassword;
 
 public class InitialDataHelper {
 
+    private InitialDataHelper(){};
+
     /**
      * Load initial activity types into the activity type database
      *
