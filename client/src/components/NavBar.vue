@@ -34,7 +34,7 @@
                         Admin Dashboard
                     </b-button>
                     <b-button  @click="goToActivities"
-                               v-if="store.getters.getAuthenticationStatus"
+                               v-if="store.getters.getAuthenticationStatus && store.getters.getAuthenticationLevel > 0"
                                type="is-light">
                         Activities
                     </b-button>

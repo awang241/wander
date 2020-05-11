@@ -8,7 +8,7 @@ NPM and Gradle will also likely be required.
 
 1. Download a copy of the repository or clone with HTTPS by running `git clone https://eng-git.canterbury.ac.nz/seng302-2020/team-100.git`
 
-####Front End
+#### Front End
 2. Run `npm install` in the 'client' directory of the project
 3. Run `npm run serve` in the same directory
 4. The frontend of the program should now be running and accessible at http://localhost:9500/
@@ -32,12 +32,14 @@ Note: If the database fails to connect at step 4, database credentials may have 
 
  - To log in with a regular profile, use the Email `Steve@test.com` with the password `987654321`.  
  - To log in with an admin profile, use the Email `Dave@test.com` with the password `SecureAdminPassword`.
+ 
+For full instructions on how to use the application, please rever to our [User Manual](https://eng-git.canterbury.ac.nz/seng302-2020/team-100/wikis/User-Manual) 
 
 ### Licensing
 
 Add the licensing for each of our dependancies (business cases) here
 
-#####Buefy
+##### Buefy
 Buefy is licensed under the MIT License
 Copyright (c) 2017-2019 Rafael Beraldo
 
@@ -59,12 +61,12 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.`
 
-#####Vue-router
+##### Vue-router
 Vue-router is licensed under the MIT License  
 Copyright (c) 2013-present Evan You  
 `[SEE ABOVE]`
 
-#####Vue-router
+##### VueX
 Vuex is licensed under the MIT License  
 Copyright (c) 2015-present Evan You  
 `[SEE ABOVE]`

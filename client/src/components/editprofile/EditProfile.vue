@@ -13,11 +13,12 @@
                 <li><a v-on:click="changeToEmail">Emails</a></li>
             </ul>
             <div>
-                <a v-if="store.getters.getAuthenticationLevel == 0 || store.getters.getAuthenticationLevel == 1"
+                <a v-if="store.getters.getAuthenticationLevel === 0 || store.getters.getAuthenticationLevel === 1"
                    @click="changeToDashboard">Back To Admin Dashboard</a>
             </div>
             <div>
-                <a @click="changeToProfile">Back to Profile</a>
+                <a v-if="store.getters.getAuthenticationLevel > 0"
+                   @click="changeToProfile">Back to Profile</a>
             </div>
 
         </div>

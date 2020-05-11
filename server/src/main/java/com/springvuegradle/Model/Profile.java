@@ -10,8 +10,6 @@ import javax.validation.constraints.Size;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static javax.persistence.GenerationType.IDENTITY;
-import static javax.persistence.GenerationType.SEQUENCE;
 
 /**
  * Profile class.
@@ -24,7 +22,7 @@ public class Profile {
      * Holds the user id. Generated and assigned when the object is saved in the database.
      */
     @Id
-    @GeneratedValue(strategy=IDENTITY, generator="profile_id_seq")
+    @GeneratedValue
     private Long id;
 
     /**

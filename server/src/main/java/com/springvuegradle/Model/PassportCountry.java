@@ -19,7 +19,7 @@ public class PassportCountry {
      * Holds the automatically generated passport country id obtained when the object is saved.
      */
     @Id
-    @GeneratedValue(strategy=IDENTITY, generator="country_id_seq")
+    @GeneratedValue
     private long id;
 
     /**

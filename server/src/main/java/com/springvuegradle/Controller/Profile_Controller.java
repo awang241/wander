@@ -331,7 +331,8 @@ public class Profile_Controller {
 
         String dbHashedPassword = dbProfile.getPassword();
 
-        if (!hashPassword(newPasswordRequest.getCurrentPassword()).equals(dbHashedPassword)) {
+        if (!hashPassword(newPasswordRequest.getCurrentPassword()).equals(dbHashedPassword) &&
+                (testing || jwtUtil.extractPermission(token) != 0)) {
             return new ResponseEntity<>("Entered incorrect password.", HttpStatus.BAD_REQUEST);
         }
 
