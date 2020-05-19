@@ -15,6 +15,8 @@ import java.util.Random;
 
 public class InitialDataHelper {
 
+    private InitialDataHelper(){};
+
     /**
      * Load initial activity types into the activity type database
      *

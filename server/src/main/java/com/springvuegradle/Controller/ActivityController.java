@@ -4,8 +4,6 @@ package com.springvuegradle.Controller;
 import com.springvuegradle.Controller.enums.ActivityResponseMessage;
 import com.springvuegradle.Controller.enums.AuthenticationErrorMessage;
 import com.springvuegradle.Model.Activity;
-import com.springvuegradle.Model.Email;
-import com.springvuegradle.Model.Profile;
 import com.springvuegradle.Repositories.ActivityRepository;
 import com.springvuegradle.Utilities.FieldValidationHelper;
 import com.springvuegradle.Utilities.JwtUtil;
@@ -15,10 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 /**
  * Class containing REST endpoints for activities
@@ -49,11 +44,7 @@ public class ActivityController {
      */
 
     private boolean checkEditPermission(String token, Long id) {
-        if (jwtUtil.validateToken(token) && (jwtUtil.extractPermission(token) == 0 || jwtUtil.extractPermission(token) == 1 || (jwtUtil.extractId(token).equals(id)))) {
-            return true;
-        } else {
-            return false;
-        }
+        return (jwtUtil.validateToken(token) && (jwtUtil.extractPermission(token) == 0 || jwtUtil.extractPermission(token) == 1 || (jwtUtil.extractId(token).equals(id))));
     }
 
     /**
@@ -148,10 +139,8 @@ public class ActivityController {
     }
 
     public ResponseEntity<List<Activity>> getAllUsersActivities(String token, Long profileId, Boolean testing) {
-        if (!testing) {
-            if (!jwtUtil.validateToken(token)) {
-                return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
-            }
+        if (!testing && !jwtUtil.validateToken(token)) {
+            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
         List<Activity> result;
         if (!testing && (jwtUtil.extractPermission(token) == 0 || jwtUtil.extractPermission(token) == 1)) {

@@ -4,15 +4,15 @@ import com.springvuegradle.Model.*;
 import com.springvuegradle.Repositories.ActivityTypeRepository;
 import com.springvuegradle.Repositories.EmailRepository;
 import com.springvuegradle.Repositories.PassportCountryRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 
-@Service
 public class FieldValidationHelper {
+
+    private FieldValidationHelper() {
+        throw new IllegalStateException("Utility class should not be instantiated");
+    }
 
     /**
      * Validates the activity object by making the checks:
@@ -54,53 +54,54 @@ public class FieldValidationHelper {
      */
     public static String verifyProfile(Profile newProfile, boolean edit_mode, PassportCountryRepository pcRepo,
                                        ActivityTypeRepository aRepo, EmailRepository eRepo) {
+        StringBuilder errorBuilder = new StringBuilder();
         String error = "";
-        if (newProfile.retrievePrimaryEmail().getAddress() == "" ||
+        if (newProfile.retrievePrimaryEmail().getAddress().isBlank() ||
                 newProfile.retrievePrimaryEmail().getAddress() == null) {
-            error += "The email field is blank.\n";
+            errorBuilder.append("The email field is blank.\n");
         }
-        if (newProfile.getFirstname() == "" ||
+        if (newProfile.getFirstname().isBlank() ||
                 newProfile.getFirstname() == null) {
-            error += "The First Name field is blank.\n";
+            errorBuilder.append("The First Name field is blank.\n");
         }
-        if (newProfile.getLastname() == "" ||
+        if (newProfile.getLastname().isBlank() ||
                 newProfile.getLastname() == null) {
-            error += "The Last Name field is blank.\n";
+            errorBuilder.append("The Last Name field is blank.\n");
         }
         if (newProfile.getPassword().length() < 8) {
-            error += "The Password is not long enough.\n";
+            errorBuilder.append("The Password is not long enough.\n");
         }
         if (newProfile.getFitness() > 4 || newProfile.getFitness() < 0) {
-            error += "The fitness level isn't valid.\n";
+            errorBuilder.append("The fitness level isn't valid.\n");
         }
-        if (newProfile.getDateOfBirth() == "" ||
+        if (newProfile.getDateOfBirth().isBlank() ||
                 newProfile.getDateOfBirth() == null) {
-            error += "The Date of Birth field is blank.\n";
+            errorBuilder.append("The Date of Birth field is blank.\n");
         }
         if (!newProfile.getPassportObjects().isEmpty()) {
             for (PassportCountry passportCountry : newProfile.getPassportObjects()) {
                 if (!pcRepo.existsByCountryName(passportCountry.getCountryName())) {
-                    error += String.format("Country %s does not exist in the database.\n", passportCountry.getCountryName());
+                    errorBuilder.append(String.format("Country %s does not exist in the database.%n", passportCountry.getCountryName()));
                 }
             }
         }
         if (!newProfile.getActivityTypeObjects().isEmpty()) {
             for (ActivityType activityType : newProfile.getActivityTypeObjects()) {
                 if (!aRepo.existsByActivityTypeName(activityType.getActivityTypeName())) {
-                    error += String.format("ActivityType %s does not exist in the database.\n", activityType.getActivityTypeName());
+                    errorBuilder.append(String.format("ActivityType %s does not exist in the database.%n", activityType.getActivityTypeName()));
                 }
             }
         }
 
         if (!edit_mode) {
-            error += verifyEmailsInProfile(newProfile, eRepo);
+            errorBuilder.append(verifyEmailsInProfile(newProfile, eRepo));
         }
         if (!((newProfile.getGender().equals("male")) ||
                 (newProfile.getGender().equals("female")) ||
                 (newProfile.getGender().equals("non-Binary")))) {
-            error += "The Gender field must contain either 'male', 'female' or 'non-Binary'.\n";
+            errorBuilder.append("The Gender field must contain either 'male', 'female' or 'non-Binary'.\n");
         }
-        return error;
+        return errorBuilder.toString();
     }
 
     /**
@@ -111,7 +112,7 @@ public class FieldValidationHelper {
      */
     private static String verifyEmailsInProfile(Profile newProfile, EmailRepository eRepo) {
         String error = "";
-        if (newProfile.retrieveEmails().size() >= 1) {
+        if (!newProfile.retrieveEmails().isEmpty()) {
             boolean valid = true;
             ArrayList<String> emailStrings = new ArrayList<>();
             for (Email email : newProfile.retrieveEmails()) {

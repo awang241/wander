@@ -1,15 +1,12 @@
 package com.springvuegradle;
 
-import com.springvuegradle.Model.Activity;
 import com.springvuegradle.Repositories.*;
 import com.springvuegradle.Utilities.InitialDataHelper;
 import com.springvuegradle.Utilities.ValidationHelper;
-import com.springvuegradle.service.ActivityService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.SpringApplication;
 
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import org.springframework.boot.web.servlet.FilterRegistrationBean;

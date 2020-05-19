@@ -14,6 +14,10 @@ import java.util.*;
 
 public class ValidationHelper {
 
+    private ValidationHelper(){
+        throw new IllegalStateException("Utility class should not be instantiated");
+    }
+
     /**
      * Connects to RESTcountries API and retrieves countries as a JSON file before converting them into a set of
      * PassportCountry objects.
@@ -28,7 +32,7 @@ public class ValidationHelper {
         URL restCountries = new URL("https://restcountries.eu/rest/v2/all?fields=name;numericCode");
         HttpURLConnection connection = (HttpURLConnection) restCountries.openConnection();
         connection.setRequestMethod("GET");
-        Set<PassportCountry> countries = new HashSet<PassportCountry>();
+        Set<PassportCountry> countries = new HashSet<>();
         ObjectMapper mapper = new ObjectMapper();
 
         try (java.io.InputStream in = new java.net.URL("https://restcountries.eu/rest/v2/all?fields=name;numericCode").openStream()) {
@@ -91,7 +95,7 @@ public class ValidationHelper {
                 }
             }
             List<PassportCountry> result = pcRepository.findByNumericCode(country.getNumericCode());
-            if (pcRepository.findByNumericCode(country.getNumericCode()).size() == 0) {
+            if (pcRepository.findByNumericCode(country.getNumericCode()).isEmpty()) {
                 pcRepository.save(country);
             } else {
                 PassportCountry entry = result.get(0);

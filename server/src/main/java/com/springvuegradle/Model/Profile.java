@@ -202,7 +202,7 @@ public class Profile {
     public boolean addEmail(Email email) {
         boolean alreadyInEmails = false;
         for (Email tEmail: emails) {
-            if (tEmail.getAddress() == email.getAddress()) {
+            if (tEmail.getAddress().equals(email.getAddress())) {
                 alreadyInEmails = true;
             }
         }
@@ -224,7 +224,7 @@ public class Profile {
      */
     public boolean removeEmail(Email email) {
         for (Email currentEmail: emails) {
-            if (currentEmail.getAddress() == email.getAddress() && !currentEmail.isPrimary()) {
+            if (currentEmail.getAddress().equals(email.getAddress()) && !currentEmail.isPrimary()) {
                 emails.remove(currentEmail);
                 return true;
             }
@@ -448,7 +448,7 @@ public class Profile {
             }
         }
         return null;
-    };
+    }
 
     public String getPrimary_email() {
         for (Email email: emails) {
@@ -457,7 +457,7 @@ public class Profile {
             }
         }
         return null;
-    };
+    }
 
     public Set<String> getAdditional_email() {
         Set<String> emailStrings = new HashSet<>();

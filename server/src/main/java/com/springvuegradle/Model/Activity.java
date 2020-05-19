@@ -1,18 +1,13 @@
 package com.springvuegradle.Model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.springvuegradle.Utilities.FormatHelper;
-import org.hibernate.type.CalendarTimeType;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
 import java.util.*;
 
 import static javax.persistence.GenerationType.IDENTITY;
@@ -82,7 +77,7 @@ public class Activity {
             }
         }
         this.continuous = continuous;
-        if (this.continuous) {
+        if (Boolean.TRUE.equals(this.continuous)) {
             this.startTime = null;
             this.endTime = null;
         }
