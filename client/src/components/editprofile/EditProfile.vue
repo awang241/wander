@@ -13,16 +13,18 @@
                 <li><a v-on:click="changeToEmail">Emails</a></li>
             </ul>
             <div>
-                <a v-if="store.getters.getAuthenticationLevel == 0 || store.getters.getAuthenticationLevel == 1" @click="changeToDashboard">Back To Admin Dashboard</a>
+                <a v-if="store.getters.getAuthenticationLevel === 0 || store.getters.getAuthenticationLevel === 1"
+                   @click="changeToDashboard">Back To Admin Dashboard</a>
             </div>
             <div>
-                <a @click="changeToProfile">Back to Profile</a>
+                <a v-if="store.getters.getAuthenticationLevel > 0"
+                   @click="changeToProfile">Back to Profile</a>
             </div>
 
         </div>
 
         <div>
-            <component v-bind:is="component"  v-bind:profile="profile"/>
+            <component v-bind:is="component" v-bind:profile="profile"/>
         </div>
     </div>
 </template>
@@ -48,7 +50,7 @@
                 store: store
             }
         },
-         mounted(){
+        mounted() {
             // this.URLAuthorization(),
             this.getProfile()
         },
@@ -76,34 +78,36 @@
                 router.push({path: '/AdminDashboard'});
             },
 
-            getProfile(){
+            getProfile() {
                 if (!(this.$route.params.id == store.getters.getUserId || store.getters.getAuthenticationLevel < 2)) {
                     router.push({path: '/EditProfile/' + store.getters.getUserId})
 
                 }
                 api.getProfile(this.$route.params.id, localStorage.getItem('authToken'))
-                        .then(response => this.profile = response.data)
+                    .then(response => this.profile = response.data)
+                    .catch((error) => {
+                        console.log(error)
+                        router.go(-1)
+                    })
 
             },
-
-            updateCountries(newCountries){
+            updateCountries(newCountries) {
                 this.profile.passports = newCountries
                 api.editProfile(this.$route.params.id, this.profile, localStorage.getItem('authToken'))
             },
-
-            updateActivityTypes(newActivities){
+            updateActivityTypes(newActivities) {
                 this.profile.activities = newActivities
                 api.editProfile(this.$route.params.id, this.profile, localStorage.getItem('authToken'))
             },
-
-            updateEmails(primaryEmail, optionalEmails){
+            updateEmails(primaryEmail, optionalEmails) {
                 this.profile.primary_email = primaryEmail
                 this.profile.optional_email = optionalEmails
-                api.editEmail({"primary_email" : primaryEmail,
-                                        "additional_email": optionalEmails},this.$route.params.id, localStorage.getItem('authToken'))
+                api.editEmail({
+                    "primary_email": primaryEmail,
+                    "additional_email": optionalEmails
+                }, this.$route.params.id, localStorage.getItem('authToken'))
             },
-
-            updatePersonal(personalDetails){
+            updatePersonal(personalDetails) {
                 this.profile.firstname = personalDetails.firstname
                 this.profile.lastname = personalDetails.lastname
                 this.profile.middlename = personalDetails.middlename

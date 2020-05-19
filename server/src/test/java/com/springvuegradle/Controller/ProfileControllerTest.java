@@ -4,16 +4,12 @@ import com.springvuegradle.Model.ActivityType;
 import com.springvuegradle.Model.PassportCountry;
 import com.springvuegradle.Model.Profile;
 
-import com.springvuegradle.Repositories.ActivityTypeRepository;
-import com.springvuegradle.Repositories.EmailRepository;
-import com.springvuegradle.Repositories.PassportCountryRepository;
-import com.springvuegradle.Repositories.ProfileRepository;
+import com.springvuegradle.Repositories.*;
 import com.springvuegradle.dto.ChangePasswordRequest;
 import com.springvuegradle.dto.EmailAddRequest;
 import com.springvuegradle.dto.EmailUpdateRequest;
 import com.springvuegradle.dto.SimplifiedProfileResponse;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,16 +32,23 @@ import static org.junit.jupiter.api.Assertions.*;
 class ProfileControllerTest {
 
     @Autowired
+    private ActivityMembershipRepository amrepo;
+
+    @Autowired
     private ProfileRepository repo;
 
     @Autowired
     private EmailRepository erepo;
 
     @Autowired
-    private ActivityTypeRepository arepo;
+    private ActivityTypeRepository atrepo;
 
     @Autowired
     private PassportCountryRepository pcrepo;
+
+    @Autowired
+    private ActivityTypeRepository arepo;
+
     @Autowired
     private Profile_Controller profileController;
 
@@ -81,9 +84,11 @@ class ProfileControllerTest {
 
     @Test
     void testCreateProfileWithActivityTypes(){
+        assertEquals(6, atrepo.count());
         Profile profile = createProfileWithActivityTypes();
         ResponseEntity<String> response_entity = profileController.createProfile(profile);
         assertEquals(HttpStatus.CREATED, response_entity.getStatusCode());
+        assertEquals(6, atrepo.count());
     }
 
     @Test
@@ -257,7 +262,7 @@ class ProfileControllerTest {
 
         Set<ActivityType> realActivityTypes = new HashSet<>();
         for (ActivityType activityType: expectedProfile.getActivityTypeObjects()){
-            realActivityTypes.add(arepo.findByActivityTypeName(activityType.getActivityTypeName()).get(0));
+            realActivityTypes.add(atrepo.findByActivityTypeName(activityType.getActivityTypeName()).get(0));
         }
         expectedProfile.setActivityTypes(realActivityTypes);
 
@@ -558,15 +563,17 @@ class ProfileControllerTest {
      */
     @BeforeEach
     void setup() {
-        repo.deleteAll();
+        amrepo.deleteAll();
         erepo.deleteAll();
+        repo.deleteAll();
+        atrepo.deleteAll();
         arepo.deleteAll();
-        arepo.save(new ActivityType("Football"));
-        arepo.save(new ActivityType("Tennis"));
-        arepo.save(new ActivityType("Hockey"));
-        arepo.save(new ActivityType("Basketball"));
-        arepo.save(new ActivityType("Hiking"));
-        arepo.save(new ActivityType("Rock Climbing"));
+        atrepo.save(new ActivityType("Football"));
+        atrepo.save(new ActivityType("Tennis"));
+        atrepo.save(new ActivityType("Hockey"));
+        atrepo.save(new ActivityType("Basketball"));
+        atrepo.save(new ActivityType("Hiking"));
+        atrepo.save(new ActivityType("Rock Climbing"));
     }
 
     /* Below are a set of ready-made Profile objects which can be used for various tests. */

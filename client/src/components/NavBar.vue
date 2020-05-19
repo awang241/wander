@@ -1,11 +1,16 @@
 <template>
     <b-navbar>
-        <template slot="brand">
+        <template slot="start">
             <b-navbar-item tag="router-link"
-                           to="/Mainpage"
+                           to="/"
                            href="#">
                 Home
             </b-navbar-item>
+
+        </template>
+
+        <template slot="brand">
+            <img class="crop-banner" src="../../images/WANDER-day-navbar.png"/>
         </template>
 
         <template slot="end">
@@ -28,8 +33,13 @@
                                type="is-light">
                         Admin Dashboard
                     </b-button>
-                    <b-button  @click="goToProfile"
+                    <b-button  @click="goToActivities"
                                v-if="store.getters.getAuthenticationStatus"
+                               type="is-light">
+                        Activities
+                    </b-button>
+                    <b-button  @click="goToProfile"
+                               v-if="store.getters.getAuthenticationStatus && store.getters.getAuthenticationLevel > 0"
                                type="is-light">
                         Profile
                     </b-button>
@@ -61,9 +71,7 @@
         },
         methods: {
             logout(){
-                console.log(this.store.getters.getAuthenticationLevel)
-                localStorage.removeItem('authToken')
-                localStorage.removeItem('userId')
+                localStorage.clear()
                 let payload = {'token': null, 'userId': null, 'authenticationStatus': false, 'authenticationLevel': 5}
                 store.dispatch('resetUserData', payload, {root:true});
                 router.push({path: '/Login'});
@@ -74,9 +82,10 @@
             goToAdminDashboard(){
                 router.push({path: '/AdminDashboard'});
             },
-
+            goToActivities(){
+                router.push({path: '/Activities'});
+            }
         }
-
     }
 </script>
 
@@ -95,5 +104,23 @@
 
     buttons{
         padding: 10px;
+    }
+
+    .crop-banner {
+        width: 200px;
+        height: 50px;
+        overflow: hidden;
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
+
+    }
+    .crop-banner img {
+        width: 200px;
+        height: 50px;
+        /*margin: -75px 0 0 -100px;*/
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
     }
 </style>

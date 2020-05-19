@@ -1,6 +1,7 @@
 package com.springvuegradle.Controller.enums;
 
 public enum AuthenticationErrorMessage {
+    AUTHENTICATION_REQUIRED("Authentication required."),
     INVALID_CREDENTIALS("Invalid session key.");
 
     private String message;

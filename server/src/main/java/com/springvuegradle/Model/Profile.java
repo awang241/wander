@@ -10,6 +10,7 @@ import javax.validation.constraints.Size;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+
 /**
  * Profile class.
  * Profile objects are used to structure the user data and enable the user data to be saved in an organised way.
@@ -20,7 +21,8 @@ public class Profile {
     /**
      * Holds the user id. Generated and assigned when the object is saved in the database.
      */
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue
     private Long id;
 
     /**
@@ -115,6 +117,18 @@ public class Profile {
             joinColumns = @JoinColumn(name = "profile_id", referencedColumnName = "id"))
     private Set<ActivityType> activityTypes;
 
+    @JsonIgnore
+    public Set<ActivityMembership> getActivities() {
+        return activities;
+    }
+
+    public void setActivities(Set<ActivityMembership> activities) {
+        this.activities = activities;
+    }
+
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "profile")
+    private Set<ActivityMembership> activities = new HashSet<>();
+
     /**
      * No argument constructor for Profile, can be used for creating new profiles directly from JSON data.
      */
@@ -164,7 +178,7 @@ public class Profile {
         this.password = password;
         this.bio = bio;
         this.dateOfBirth = dateOfBirth;
-        this.dateOfBirth.add(Calendar.DATE, 1);
+//        this.dateOfBirth.add(Calendar.DATE, 1);
         this.gender = gender;
         this.fitness = fitnessLevel;
         this.passports = new HashSet<>();
@@ -175,6 +189,7 @@ public class Profile {
         for (String activityType: activityTypes) {
             addActivityType(new ActivityType(activityType));
         }
+        this.activities = new HashSet<>();
     }
 
     /**
@@ -275,6 +290,8 @@ public class Profile {
         }
         return activityTypeNames;
     }
+
+
 
     @JsonIgnore
     public Set<PassportCountry> getPassportObjects() {
@@ -468,6 +485,14 @@ public class Profile {
 
     public void setBio(String bio) {
         this.bio = bio;
+    }
+
+    public boolean addActivity(ActivityMembership membership) {
+        return this.activities.add(membership);
+    }
+
+    public boolean removeActivity(ActivityMembership membership) {
+        return this.activities.remove(membership);
     }
 
 }
