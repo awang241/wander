@@ -34,9 +34,11 @@
     import router from "../router";
     import store from '../store';
     import jwt_decode from "jwt-decode";
+    import toastMixin from "../mixins/toastMixin";
 
     export default {
         name: 'Login',
+        mixins: [toastMixin],
         data() {
             return {
                 email: "",
@@ -64,18 +66,9 @@
                         router.push('Profile')
                     }
                 }))
-                    .catch(error => this.displayError(error.response.status))
+                    .catch(error => this.warningToast(error.response.status))
             },
 
-            displayError(errorStatusCode){
-                const message = this.getErrorMessageFromStatusCode(errorStatusCode)
-                this.$buefy.toast.open({
-                    duration:5500,
-                    message: message,
-                    type: 'is-danger',
-                    position: 'is-top'
-                })
-            },
             getErrorMessageFromStatusCode(statusCode){
                 let message = "Incorrect email or password"
                 if(statusCode === 401){

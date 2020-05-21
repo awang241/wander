@@ -26,9 +26,11 @@
 <script>
     import api from "../../Api";
     import store from "../../store";
+    import toastMixin from "../../mixins/toastMixin";
 
     export default {
         name: "EditPassword",
+        mixins: [toastMixin],
         data() {
             return {
                 currentPassword: "",
@@ -46,7 +48,7 @@
         methods: {
             updatePassword() {
                 if(this.password.length < 8) {
-                    this.showMessage("Password must be 8 characters long")
+                    this.warningToast("Password must be 8 characters long")
                 } else {
                     const passwordDetails = {
                         "currentPassword": this.currentPassword,
@@ -54,28 +56,11 @@
                         "confPassword": this.confPassword
                     }
                     api.editPassword(passwordDetails, this.$route.params.id, localStorage.getItem('authToken'))
-                        .catch(error => this.showError(this.displayError(error.response.status)))
-                        .then(response => this.showMessage(this.displayError(response.status)))
-                    // this.showMessage(this.displayError(status))
+                        .catch(error => this.warningToast(this.getErrorMessageFromStatusCode(error.response.status)))
+                        .then(response => this.successToast(this.getErrorMessageFromStatusCode(response.status)))
                 }
             },
-            showMessage(message) {
-                this.$buefy.toast.open({
-                    duration: 5500,
-                    message: message,
-                    type: 'is-success',
-                    position: 'is-top'
-                })
-            },
-            showError(message) {
-                this.$buefy.toast.open({
-                    duration: 5500,
-                    message: message,
-                    type: 'is-danger',
-                    position: 'is-top'
-                })
-            },
-            displayError(statusCode){
+            getErrorMessageFromStatusCode(statusCode){
                 let message = ""
                 if(statusCode == 200) {
                     message = "Password changed successfully"

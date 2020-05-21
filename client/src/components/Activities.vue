@@ -83,9 +83,11 @@
     import api from '../Api';
     import router from "../router";
     import store from "../store"
+    import toastMixin from "../mixins/toastMixin";
 
     export default {
         name: "Activities",
+        mixins: [toastMixin],
         data() {
             return {
                 activities: null,
@@ -114,12 +116,7 @@
                 api.deleteActivity(store.getters.getUserId, localStorage.getItem('authToken'), id)
                     .then((response) => {
                         console.log(response);
-                        this.$buefy.toast.open({
-                            duration: 5500,
-                            message: "Activity deleted",
-                            type: 'is-danger',
-                            position: 'is-top'
-                        })
+                        this.warningToast("Activity deleted")
                         this.activities = this.activities.filter(activity => activity.id != id);
                     })
                     .catch(error => console.log(error));
