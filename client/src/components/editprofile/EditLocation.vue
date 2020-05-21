@@ -28,9 +28,12 @@
 
 <script>
 
+    import toastMixin from "../../mixins/toastMixin";
+
     export default {
         name: "EditLocation",
         props: ["profile"],
+        mixins: [toastMixin],
         data() {
             return {
                 country: this.profile.country,
@@ -39,30 +42,13 @@
             }
         },
         methods: {
-            showWarning(message) {
-                this.$buefy.toast.open({
-                    duration: 5000,
-                    message: message,
-                    type: 'is-danger',
-                    position: 'is-top',
-                    queue: false,
-                });
-            },
-            showSuccess(message){
-                this.$buefy.toast.open({
-                    duration: 2000,
-                    message: message,
-                    type: 'is-success',
-                    position: 'is-top'
-                })
-            },
             clearLocation(){
                 this.$parent.clearLocation()
-                this.showSuccess("Location removed")
+                this.successToast("Location removed")
             },
             submitLocation(){
                 this.$parent.updateLocation(this.country, this.city, this.state)
-                this.showSuccess("Updated location")
+                this.successToast("Updated location")
             }
         }
 
