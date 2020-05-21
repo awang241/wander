@@ -276,25 +276,6 @@ class ProfileControllerTest {
     }
 
     /**
-     * Tests to make sure changing the activityTypes works
-     */
-    @Test
-    void changeActivityTypesTest() {
-        Profile originalProfile = createNormalActivityTypesProfile();
-        profileController.createProfile(originalProfile);
-        long profileId = repo.findByPrimaryEmail(originalProfile.getPrimary_email()).get(0).getId();
-        Profile expectedProfile = repo.findById(profileId).get();
-
-        Profile updatedProfile = createUpdatedActivityTypesProfile();
-        assertEquals(expectedProfile.getActivityTypes().size(), 3, "Check profile saved successfully");
-        profileController.updateProfile(updatedProfile, profileId);
-
-        expectedProfile = repo.findById(profileId).get();
-        assertEquals(expectedProfile.getActivityTypes().size(), 1, "Check activityTypes updated successfully");
-        assertEquals(expectedProfile.getActivityTypes(), updatedProfile.getActivityTypes(), "Check activityTypes updated successfully");
-    }
-
-    /**
      * Tests that activity types are saved correctly when creating a new profile with activity types
      * Profile should be able to save more than 1 activity type.
      */
@@ -308,8 +289,50 @@ class ProfileControllerTest {
         assertEquals(expectedProfile.getActivityTypes().size(), 3, "Check profile saved successfully");
     }
 
+    /**
+     * Tests when a profiles activity types are changed, the profile and its activity types are successfully updated.
+     */
     @Test
-    void testEditProfileNormal(){
+    void updateProfilesActivityTypes() {
+        Profile originalProfile = createNormalActivityTypesProfile();
+        profileController.createProfile(originalProfile);
+        long profileId = repo.findByPrimaryEmail(originalProfile.getPrimary_email()).get(0).getId();
+        Profile updatedProfile = createUpdatedActivityTypesProfile();
+
+        profileController.updateProfile(updatedProfile, profileId);
+
+        Profile expectedProfile = repo.findById(profileId).get();
+        assertEquals(expectedProfile.getActivityTypes(), updatedProfile.getActivityTypes(), "Check activityTypes updated successfully");
+    }
+
+    /**
+     * Tests to check that when a valid and existing profile updates their passport countries, it returns the correct resposne
+     */
+    @Test
+    void EditProfilesPassportCountryResponseTest(){
+        Profile testProfile = createNormalProfileJimmy();
+        Profile updateData = createNormalProfileMaurice();
+        Profile expectedProfile = createNormalProfileMaurice();
+
+        Set<PassportCountry> realPassports = new HashSet<>();
+        for (PassportCountry passportCountry: expectedProfile.getPassportObjects()){
+            realPassports.add(pcrepo.findByCountryName(passportCountry.getCountryName()).get(0));
+        }
+
+        expectedProfile.setPassports(realPassports);
+        updateData.setPassports(realPassports);
+        profileController.createProfile(testProfile);
+        long id = repo.findByPrimaryEmail(testProfile.getPrimary_email()).get(0).getId();
+
+        ResponseEntity<String> actualResponse = profileController.updateProfile(updateData, id);
+        assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
+    }
+
+    /**
+     * Tests to check that when a valid profile is updated it returns the correct response
+     */
+    @Test
+    void EditNormalProfileResponseTest(){
         Profile testProfile = createNormalProfileJimmy();
         Profile updateData = createNormalProfileMaurice();
         Profile expectedProfile = createNormalProfileMaurice();
@@ -329,13 +352,37 @@ class ProfileControllerTest {
 
         profileController.createProfile(testProfile);
         long id = repo.findByPrimaryEmail(testProfile.getPrimary_email()).get(0).getId();
-        assertEquals(testProfile, repo.findById(id).get(), "Sanity check: profile and ID saved successfully");
 
         ResponseEntity<String> actualResponse = profileController.updateProfile(updateData, id);
 
+        assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
+    }
+
+    @Test
+    void EditNormalProfileTest(){
+        Profile testProfile = createNormalProfileJimmy();
+        Profile updateData = createNormalProfileMaurice();
+        Profile expectedProfile = createNormalProfileMaurice();
+        Set<PassportCountry> realPassports = new HashSet<>();
+        for (PassportCountry passportCountry: expectedProfile.getPassportObjects()){
+            realPassports.add(pcrepo.findByCountryName(passportCountry.getCountryName()).get(0));
+        }
+        expectedProfile.setPassword(Profile_Controller.hashPassword(testProfile.getPassword()));
+        expectedProfile.setPassports(realPassports);
+        updateData.setPassports(realPassports);
+
+        Set<ActivityType> realActivityTypes = new HashSet<>();
+        for (ActivityType activityType: expectedProfile.getActivityTypeObjects()){
+            realActivityTypes.add(atrepo.findByActivityTypeName(activityType.getActivityTypeName()).get(0));
+        }
+        expectedProfile.setActivityTypes(realActivityTypes);
+
+        profileController.createProfile(testProfile);
+        long id = repo.findByPrimaryEmail(testProfile.getPrimary_email()).get(0).getId();
+
+
         Profile updatedProfile = repo.findById(id).get();
         assertEquals(expectedProfile, updatedProfile, "Check profile updated successfully");
-        assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
     }
 
     @Test
