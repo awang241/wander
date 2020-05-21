@@ -329,19 +329,14 @@ class ProfileControllerTest {
     }
 
     /**
-     * Tests to check that when a valid profile is updated it returns the correct response
+     * Tests to check that when a valid and existing profile updates their activity types, it returns the correct response
      */
     @Test
-    void EditNormalProfileResponseTest(){
+    void EditProfilesActivityTypeResponseTest() {
         Profile testProfile = createNormalProfileJimmy();
         Profile updateData = createNormalProfileMaurice();
         Profile expectedProfile = createNormalProfileMaurice();
         Set<PassportCountry> realPassports = new HashSet<>();
-        for (PassportCountry passportCountry: expectedProfile.getPassportObjects()){
-            realPassports.add(pcrepo.findByCountryName(passportCountry.getCountryName()).get(0));
-        }
-        expectedProfile.setPassword(Profile_Controller.hashPassword(testProfile.getPassword()));
-        expectedProfile.setPassports(realPassports);
         updateData.setPassports(realPassports);
 
         Set<ActivityType> realActivityTypes = new HashSet<>();
