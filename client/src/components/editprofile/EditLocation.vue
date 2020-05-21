@@ -37,9 +37,9 @@
         data() {
             return {
                 location : {
-                    country: this.profile.country,
-                    city: this.profile.city,
-                    state: this.profile.state,
+                    country: this.profile.location.country,
+                    city: this.profile.location.city,
+                    state: this.profile.location.state,
                 }
             }
         },
