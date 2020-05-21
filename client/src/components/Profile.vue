@@ -14,8 +14,8 @@
 
                 </div>
 
-                <b-button  @click="editProfile"
-                           type="is-info">
+                <b-button @click="editProfile"
+                          type="is-info">
                     Edit Profile
                 </b-button>
             </div>
@@ -54,7 +54,7 @@
         </div>
         <section class="section" id="about">
 
-            <hr class ="hrLine">
+            <hr class="hrLine">
 
             <div class="container containerColor has-same-height is-gapless">
                 <div class="column">
@@ -73,6 +73,10 @@
                                         <td>Gender:</td>
                                         <td>{{ profile.gender }}</td>
                                     </tr>
+                                    <tr v-if="profile.location">
+                                        <td>Location:</td>
+                                        <td>{{fullLocation}}</td>
+                                    </tr>
                                     <tr>
                                         <td>Birthday:</td>
                                         <td>{{ profile.date_of_birth }}</td>
@@ -82,7 +86,7 @@
                                         <td>{{ profile.primary_email }}</td>
                                     </tr>
 
-                                     <tr v-for="email in profile.additional_email" :key="email">
+                                    <tr v-for="email in profile.additional_email" :key="email">
                                         <td>Additional Email:</td>
                                         <td>{{email}}</td>
                                     </tr>
@@ -134,7 +138,8 @@
             </div>
             <div class="container containerColor">
                 <div class="box">
-                    <h3 v-for="activityType in profile.activities" :key="activityType" class="title is-4">{{activityType}}</h3>
+                    <h3 v-for="activityType in profile.activities" :key="activityType" class="title is-4">
+                        {{activityType}}</h3>
                 </div>
             </div>
         </section>
@@ -154,7 +159,7 @@
             }
         },
         methods: {
-            editProfile(){
+            editProfile() {
                 router.push('EditProfile/' + store.getters.getUserId);
             },
             getProfile() {
@@ -178,14 +183,22 @@
                     case 1 :
                         return "Novice: I do a low level of exercise (walking)";
                     case 2 :
-                        return"Intermediate: I work out 1-2 times per week";
+                        return "Intermediate: I work out 1-2 times per week";
                     case 3 :
                         return "Advanced: I work out 3-4 times per week";
                     case 4 :
                         return "Pro: I work out 5+ times per week";
                     default:
-                       return "Beginner: I am not active at all";
+                        return "Beginner: I am not active at all";
                 }
+            },
+            fullLocation: function () {
+                let locationString = this.profile.location.city + ", "
+                if (this.profile.location.state) {
+                    locationString += this.profile.location.state + ", "
+                }
+                locationString += this.profile.location.country
+                return locationString
             }
         },
 
@@ -209,7 +222,7 @@
     }
 
     .hrLine {
-        border:2px solid #EDEEEE;
+        border: 2px solid #EDEEEE;
     }
 
 </style>

@@ -66,7 +66,7 @@
                         router.push('Profile')
                     }
                 }))
-                    .catch(error => this.warningToast(error.response.status))
+                    .catch(error => this.warningToast(this.getErrorMessageFromStatusCode(error.response.status)))
             },
 
             getErrorMessageFromStatusCode(statusCode){
