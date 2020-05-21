@@ -4,13 +4,13 @@
 
         <form>
             <b-field label="Country" expanded >
-                <b-input v-model="country" placeholder="Country" required></b-input>
+                <b-input v-model="location.country" placeholder="Country" required></b-input>
             </b-field>
             <b-field label="City" expanded>
-                <b-input v-model="city" placeholder="City" required></b-input>
+                <b-input v-model="location.city" placeholder="City" required></b-input>
             </b-field>
             <b-field label="State" expanded>
-                <b-input v-model="state" placeholder="State"></b-input>
+                <b-input v-model="location.state" placeholder="State"></b-input>
             </b-field>
         </form>
 
@@ -36,9 +36,11 @@
         mixins: [toastMixin],
         data() {
             return {
-                country: this.profile.country,
-                city: this.profile.city,
-                state: this.profile.state,
+                location : {
+                    country: this.profile.country,
+                    city: this.profile.city,
+                    state: this.profile.state,
+                }
             }
         },
         methods: {
@@ -47,7 +49,7 @@
                 this.successToast("Location removed")
             },
             submitLocation(){
-                this.$parent.updateLocation(this.country, this.city, this.state)
+                this.$parent.updateLocation(this.location)
                 this.successToast("Updated location")
             }
         }

@@ -112,11 +112,9 @@
                     "additional_email": optionalEmails
                 }, this.$route.params.id, localStorage.getItem('authToken'))
             },
-            updateLocation(country, city, state) {
-                this.profile.country = country
-                this.profile.city = city
-                this.profile.state = state
-                api.editProfile(this.$route.params.id, this.profile, localStorage.getItem('authToken'))
+            updateLocation(location) {
+                this.profile.location = location
+                api.editProfileLocation(this.$route.params.id, location, localStorage.getItem('authToken'))
             },
             clearLocation() {
                 api.deleteLocation(this.$route.params.id, localStorage.getItem('authToken'));

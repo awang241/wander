@@ -1,6 +1,8 @@
 package com.springvuegradle.Model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.*;
 
@@ -12,7 +14,11 @@ import javax.persistence.*;
 public class ProfileLocation {
     public ProfileLocation(){};
 
-    public ProfileLocation(String country, String city, String state){
+    @JsonCreator
+    public ProfileLocation(
+            @JsonProperty("country") String country,
+            @JsonProperty("city") String city,
+            @JsonProperty("state") String state){
        this.country = country;
        this.city = city;
        this.state = state;
