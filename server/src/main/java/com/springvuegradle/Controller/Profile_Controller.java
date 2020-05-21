@@ -6,6 +6,7 @@ import com.springvuegradle.Repositories.*;
 import com.springvuegradle.Utilities.FieldValidationHelper;
 import com.springvuegradle.Utilities.JwtUtil;
 import com.springvuegradle.dto.*;
+import com.springvuegradle.service.ProfileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -57,11 +58,20 @@ public class Profile_Controller {
     @Autowired
     private ActivityTypeRepository aRepo;
 
+    @Autowired
+    private ProfileService profileService;
+
     /**
      * Way to access Activity Repository (Activity table in db).
      */
     @Autowired
     private ActivityRepository activityRepo;
+
+    @PutMapping("/profiles/{id}/location")
+    public ResponseEntity<String> updateProfileLocation(@RequestBody ProfileLocation newLocation,  @RequestHeader("authorization") String token, @PathVariable Long id){
+        return profileService.updateProfileLocation(newLocation, token, id);
+    }
+
 
     /**
      * Endpoint for creating profiles.

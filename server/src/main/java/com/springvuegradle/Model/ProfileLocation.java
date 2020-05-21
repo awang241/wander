@@ -9,10 +9,10 @@ import javax.persistence.*;
  * Needed in order for a profile object to be associated with a location.
  */
 @Entity
-public class Location {
-    public Location(){};
+public class ProfileLocation {
+    public ProfileLocation(){};
 
-    public Location(String country, String city, String state){
+    public ProfileLocation(String country, String city, String state){
        this.country = country;
        this.city = city;
        this.state = state;
