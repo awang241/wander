@@ -26,5 +26,6 @@ export default {
   getUserActivitiesList: (userId, token) => localAxiosInstance.get('/profiles/' + userId + '/activities', {headers: {"authorization":token}}),
   updateActivity: (userId, token, newData, activityId) => localAxiosInstance.put('/profiles/'+userId+'/activities/'+ activityId, newData, {headers: {"authorization":token}}),
   deleteActivity: (userId, token, activityId) => localAxiosInstance.delete('/profiles/'+userId+'/activities/'+activityId, {headers: {"authorization":token}}),
-  verifyToken: (token) => localAxiosInstance.get('/token', {headers: {"authorization": token}})
+  verifyToken: (token) => localAxiosInstance.get('/token', {headers: {"authorization": token}}),
+  deleteLocation: (userId, token) => localAxiosInstance.delete('/profiles'+userId+'/location', {headers: {"authorization":token}})
 }

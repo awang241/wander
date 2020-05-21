@@ -11,6 +11,8 @@
                 <li><a v-on:click="changeToCountries">Passport Countries</a></li>
                 <li><a v-on:click="changeToActivityTypes">Activity Types</a></li>
                 <li><a v-on:click="changeToEmail">Emails</a></li>
+                <li><a v-on:click="changeToLocation">Location</a></li>
+
             </ul>
             <div>
                 <a v-if="store.getters.getAuthenticationLevel === 0 || store.getters.getAuthenticationLevel === 1"
@@ -35,6 +37,7 @@
     import editCountries from "./EditCountries";
     import editActivityTypes from "./EditActivityTypes";
     import editEmails from "./EditEmails";
+    import editLocation from "./EditLocation";
     import api from '../../Api';
     import router from "../../router";
     import store from "../../store";
@@ -71,6 +74,9 @@
             changeToEmail() {
                 this.component = editEmails
             },
+            changeToLocation() {
+                this.component = editLocation
+            },
             changeToProfile() {
                 router.push({path: '/Profile'});
             },
@@ -89,7 +95,6 @@
                         console.log(error)
                         router.go(-1)
                     })
-
             },
             updateCountries(newCountries) {
                 this.profile.passports = newCountries
@@ -106,6 +111,15 @@
                     "primary_email": primaryEmail,
                     "additional_email": optionalEmails
                 }, this.$route.params.id, localStorage.getItem('authToken'))
+            },
+            updateLocation(country, city, state) {
+                this.profile.country = country
+                this.profile.city = city
+                this.profile.state = state
+                api.editProfile(this.$route.params.id, this.profile, localStorage.getItem('authToken'))
+            },
+            clearLocation() {
+                api.deleteLocation(this.$route.params.id, localStorage.getItem('authToken'));
             },
             updatePersonal(personalDetails) {
                 this.profile.firstname = personalDetails.firstname
