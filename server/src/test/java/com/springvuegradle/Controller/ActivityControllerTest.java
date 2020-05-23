@@ -67,45 +67,71 @@ public class ActivityControllerTest {
         InitialDataHelper.init(activityTypeRepo, prepo, erepo);
     }
 
+    /**
+     * This tests to ensure activities structured correctly returns the correct response
+     */
+    @Test
+    void createActivityResponseTest() {
+        Activity trackRace = createNormalActivity();
+        Profile maurice = createNormalProfileMaurice();
+        Profile profile = prepo.save(maurice);
+
+        ResponseEntity<String> response_entity = activityController.createActivity(profile.getId(), trackRace, null, true);
+        assertEquals(HttpStatus.CREATED, response_entity.getStatusCode());
+    }
 
     /**
-     * This tests to ensure activities structured correctly can be added to the database.
+     * This tests to ensure activities structured correctly can be added to the database
      */
     @Test
     void createActivityTest() {
         Activity trackRace = createNormalActivity();
         Profile maurice = createNormalProfileMaurice();
         Profile profile = prepo.save(maurice);
+        activityController.createActivity(profile.getId(), trackRace, null, true);
 
-        int expected_in_repo = 0;
-        long activity_types_expected_in_repo = activityTypeRepo.count();
-        assertEquals(expected_in_repo, arepo.count());
-
-        ResponseEntity<String> response_entity = activityController.createActivity(profile.getId(), trackRace, null, true);
-        assertEquals(HttpStatus.CREATED, response_entity.getStatusCode());
-
-        assertEquals(activity_types_expected_in_repo, activityTypeRepo.count());
         assertEquals(1, arepo.findByActivityNames("Kaikoura Coast Track race").get(0).retrieveActivityTypes().size());
+    }
 
+    /**
+     * This tests to ensure activities structured correctly can be added and checks the database sizes one activity
+     */
+    @Test
+    void createActivitySizeCheckTest() {
+        Activity trackRace = createNormalActivity();
+        Profile maurice = createNormalProfileMaurice();
+        Profile profile = prepo.save(maurice);
+        activityController.createActivity(profile.getId(), trackRace, null, true);
         Activity activity = arepo.findAll().get(0);
         System.out.println(activity.retrieveActivityTypes());
 
-        expected_in_repo = 1;
+        int expected_in_repo = 1;
         assertEquals(expected_in_repo, arepo.count());
     }
 
     /**
-     * This tests to ensure activities structured correctly can be added to the database.
+     * This tests to check incorrectly structured activities cannot be added to the database
      */
-
     @Test
     void createIncorrectActivityTest() {
         Activity trackRace = createIncorrectActivity();
         Profile profile = prepo.save(createNormalProfileMaurice());
+        activityController.createActivity(profile.getId(), trackRace, null, true);
+
         assertEquals(0, arepo.count());
+    }
+
+    /**
+     * This tests to check incorrectly structured activities cannot be added to the database and returns a
+     * forbidden response
+     */
+    @Test
+    void createIncorrectActivityResponseTest() {
+        Activity trackRace = createIncorrectActivity();
+        Profile profile = prepo.save(createNormalProfileMaurice());
         ResponseEntity<String> response_entity = activityController.createActivity(profile.getId(), trackRace, null, true);
+
         assertEquals(HttpStatus.FORBIDDEN, response_entity.getStatusCode());
-        assertEquals(0, arepo.count());
     }
 
     /**
@@ -123,6 +149,18 @@ public class ActivityControllerTest {
         }
     }
 
+    /**
+     * Tests the repsonse of deleting a activity, blue sky scenario where the activity exists.
+     */
+    @Test
+    void deleteActivityTestResponseExists() {
+        Activity trackRace = createNormalActivity();
+        Profile profile = prepo.save(createNormalProfileMaurice());
+        activityController.createActivity(profile.getId(), trackRace, null, true);
+        ResponseEntity<String> response_entity2 = activityController.deleteActivity(null, profile.getId(), trackRace.getId(), true);
+
+        assertEquals(HttpStatus.OK, response_entity2.getStatusCode());
+    }
 
     /**
      * Tests deleting a activity, blue sky scenario where the activity exists.
@@ -131,22 +169,18 @@ public class ActivityControllerTest {
     void deleteActivityTestExists() {
         Activity trackRace = createNormalActivity();
         Profile profile = prepo.save(createNormalProfileMaurice());
-        ResponseEntity<String> response_entity = activityController.createActivity(profile.getId(), trackRace, null, true);
-        assertEquals(1, arepo.count());
-        assertEquals(HttpStatus.CREATED, response_entity.getStatusCode());
-        ResponseEntity<String> response_entity2 = activityController.deleteActivity(null, profile.getId(), trackRace.getId(), true);
-        assertEquals(HttpStatus.OK, response_entity2.getStatusCode());
-        assertEquals(0, arepo.count());
+        activityController.createActivity(profile.getId(), trackRace, null, true);
+        activityController.deleteActivity(null, profile.getId(), trackRace.getId(), true);
+
         assertEquals(0, prepo.findAll().get(0).getActivities().size());
     }
 
     /**
-     * Tests deleting a activity where the activity does not exist.
+     * Tests response of deleting a activity where the activity does not exist.
      */
     @Test
-    void deleteActivityTestDoesNotExist() {
+    void deleteActivityDoesNotExistResponseTest() {
         Profile profile = prepo.save(createNormalProfileMaurice());
-        assertEquals(0, arepo.count());
         ResponseEntity<String> response_entity2 = activityController.deleteActivity(null, profile.getId(), (long) 1, true);
         assertEquals(HttpStatus.NOT_FOUND, response_entity2.getStatusCode());
     }
@@ -165,24 +199,32 @@ public class ActivityControllerTest {
     }
 
     /**
-     * Tests the get endpoint for activities list
+     * Tests the response to get endpoint for activities list
      */
     @Test
-    void testGetActivities() {
+    void getActivitiesResponseTest() {
         arepo.save(createNormalActivity());
         arepo.save(createNormalActivity1());
         ResponseEntity<List<Activity>> responseEntity = activityController.getActivitiesList();
         assertEquals(responseEntity.getStatusCode(), HttpStatus.OK);
-        assertEquals(responseEntity.getBody().get(0).getActivityName(), "Kaikoura Coast Track race");
-        assertEquals(responseEntity.getBody().get(1).getActivityName(), "Triathlon");
+    }
+
+    /**
+     * Tests the get endpoint for activities list
+     */
+    @Test
+    void getActivitiesTest() {
+        arepo.save(createNormalActivity());
+        arepo.save(createNormalActivity1());
+        ResponseEntity<List<Activity>> responseEntity = activityController.getActivitiesList();
         assertEquals(responseEntity.getBody().size(), 2);
     }
 
     /**
-     * Tests that the getUsersActivities endpoint retrieves the activities associated with a specific profile
+     * Tests response of the getUsersActivities endpoint
      */
     @Test
-    void testGetUsersActivities() {
+    void getUsersActivitiesResponseTest() {
         Activity trackRace = createNormalActivity();
         ActivityType hiking = createActivityType();
         Profile maurice = createNormalProfileMaurice();
@@ -194,6 +236,23 @@ public class ActivityControllerTest {
         ResponseEntity<List<Activity>> responseEntity = activityController.getAllUsersActivities(null,
                 profile.getId(), true);
         assertEquals(responseEntity.getStatusCode(), HttpStatus.OK);
+    }
+
+    /**
+     * Tests that the getUsersActivities endpoint retrieves the activities associated with a specific profile
+     */
+    @Test
+    void getUsersActivitiesTest() {
+        Activity trackRace = createNormalActivity();
+        ActivityType hiking = createActivityType();
+        Profile maurice = createNormalProfileMaurice();
+        Profile profile = prepo.save(maurice);
+        arepo.save(createNormalActivity1());
+        activityTypeRepo.save(hiking);
+
+        activityController.createActivity(profile.getId(), trackRace, null, true);
+        ResponseEntity<List<Activity>> responseEntity = activityController.getAllUsersActivities(null,
+                profile.getId(), true);
         assertEquals(responseEntity.getBody().get(0).getActivityName(), "Kaikoura Coast Track race");
     }
 
