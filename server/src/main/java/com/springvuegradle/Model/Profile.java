@@ -117,6 +117,10 @@ public class Profile {
             joinColumns = @JoinColumn(name = "profile_id", referencedColumnName = "id"))
     private Set<ActivityType> activityTypes;
 
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "location_id")
+    private ProfileLocation profileLocation;
+
     @JsonIgnore
     public Set<ActivityMembership> getActivities() {
         return activities;
@@ -423,6 +427,10 @@ public class Profile {
 
     public void setLastname(String lastname) {
         this.lastname = lastname;
+    }
+
+    public void setLocation(ProfileLocation location){
+        this.profileLocation = location;
     }
 
     public String getMiddlename() {

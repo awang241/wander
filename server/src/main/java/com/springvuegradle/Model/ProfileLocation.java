@@ -28,15 +28,14 @@ public class ProfileLocation {
      * Holds the automatically generated location id assigned when the object is saved to the database.
      */
     @Id
-    @GeneratedValue
-    private long id;
+    @Column(name = "id")
+    private Long id;
 
     /**
      * Each location object is associated with one and only one profile object.
      */
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "profile_id")
-    @JsonBackReference
+    @OneToOne(fetch = FetchType.LAZY)
+    @MapsId
     private Profile profile;
 
     /**
