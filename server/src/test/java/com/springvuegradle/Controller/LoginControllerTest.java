@@ -48,6 +48,9 @@ class LoginControllerTest {
         profileController.createProfile(maurice);
     }
 
+    /**
+     * This login failure with invalid password
+     */
     @Test
     void loginFailureTest() {
         Profile jimmy = ProfileControllerTest.createNormalProfileJimmy();
@@ -56,14 +59,24 @@ class LoginControllerTest {
         assertEquals(HttpStatus.UNAUTHORIZED, response_entity.getStatusCode());
     }
 
+    /**
+     * Test to check user can successfully login when providing the correct email and correct password.
+     */
     @Test
     void loginTest() {
+        LoginRequest jackyRequest = new LoginRequest("jacky@google.com", "jacky'sSecuredPwd");
+        ResponseEntity<LoginResponse> response = loginController.loginUser(jackyRequest);
+        assertTrue(jwtUtil.validateToken(response.getBody().getToken()));
+    }
 
-        // Test to check user can successfully login when providing the correct email and correct password.
+    /**
+     * Test to check login response when providing the correct email and correct password.
+     */
+    @Test
+    void loginResponseTest() {
         LoginRequest jackyRequest = new LoginRequest("jacky@google.com", "jacky'sSecuredPwd");
         ResponseEntity<LoginResponse> response = loginController.loginUser(jackyRequest);
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertTrue(jwtUtil.validateToken(response.getBody().getToken()));
     }
 
     /**
