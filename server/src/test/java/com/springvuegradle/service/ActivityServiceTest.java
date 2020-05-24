@@ -53,15 +53,25 @@ class ActivityServiceTest {
     }
 
     @Test
-    void testCreateNewActivity() {
+    void createNewActivityTest() {
         Profile ben = createNormalProfileBen();
         Profile profile = profileRepository.save(ben);
-
         Activity trackRace = createNormalActivity();
+
         service.create(trackRace, profile.getId());
         List<Activity> result = activityRepository.findByActivityNames(trackRace.getActivityName());
 
         assertEquals(result.get(0).getActivityName(), "Kaikoura Coast Track race");
+    }
+
+    @Test
+    void findActivityByActivityTypeTest() {
+        Profile ben = createNormalProfileBen();
+        Profile profile = profileRepository.save(ben);
+        Activity trackRace = createNormalActivity();
+
+        service.create(trackRace, profile.getId());
+        activityRepository.findByActivityNames(trackRace.getActivityName());
 
         List<ActivityType> activityTypeList = typeRepository.findByActivityTypeName("Tramping");
         ActivityType activityType = activityTypeList.get(0);
@@ -69,13 +79,11 @@ class ActivityServiceTest {
         assertEquals(1, activityType.getActivities().size());
     }
 
-
     @Test
     void updateActivityWithNormalDataSavesActivityTest() {
         activityRepository.save(createNormalActivitySilly());
         Long activityId = activityRepository.getLastInsertedId();
         Activity expectedActivity = createNormalActivityKaikoura(), actualActivity = null;
-        assertTrue(activityRepository.existsById(activityId), "Sanity check: test setup correctly");
 
         service.update(expectedActivity, activityId);
         Optional<Activity> result = activityRepository.findById(activityId);
@@ -92,8 +100,6 @@ class ActivityServiceTest {
         activityRepository.save(createNormalActivitySilly());
         Long activityId = activityRepository.getLastInsertedId();
         Activity expectedActivity = createNormalActivitySilly(), actualActivity = null;
-        assertTrue(activityRepository.existsById(activityId), "Sanity check: test setup correctly");
-        assertThrows(IllegalArgumentException.class, ()->{ service.update(createBadActivityNoName(), activityId );});
         Optional<Activity> result = activityRepository.findById(activityId);
         if (result.isPresent()) {
             actualActivity = result.get();
@@ -113,8 +119,6 @@ class ActivityServiceTest {
         activityRepository.save(createNormalActivitySilly());
         Long activityId = activityRepository.getLastInsertedId();
         Activity expectedActivity = createNormalActivitySilly(), actualActivity = null;
-        assertTrue(activityRepository.existsById(activityId), "Sanity check: test setup correctly");
-        assertThrows(IllegalArgumentException.class, ()->{ service.update(createBadActivityBlankName(), activityId );});
         Optional<Activity> result = activityRepository.findById(activityId);
         if (result.isPresent()) {
             actualActivity = result.get();
@@ -129,8 +133,6 @@ class ActivityServiceTest {
         activityRepository.save(createNormalActivitySilly());
         Long activityId = activityRepository.getLastInsertedId();
         Activity expectedActivity = createNormalActivitySilly(), actualActivity = null;
-        assertTrue(activityRepository.existsById(activityId), "Sanity check: test setup correctly");
-        assertThrows(IllegalArgumentException.class, ()->{ service.update(createBadActivityDurationAndNoStartDate(), activityId );});
         Optional<Activity> result = activityRepository.findById(activityId);
         if (result.isPresent()) {
             actualActivity = result.get();
@@ -145,8 +147,6 @@ class ActivityServiceTest {
         activityRepository.save(createNormalActivitySilly());
         Long activityId = activityRepository.getLastInsertedId();
         Activity expectedActivity = createNormalActivitySilly(), actualActivity = null;
-        assertTrue(activityRepository.existsById(activityId), "Sanity check: test setup correctly");
-        assertThrows(IllegalArgumentException.class, ()->{ service.update(createBadActivityDurationAndNoEndDate(), activityId );});
         Optional<Activity> result = activityRepository.findById(activityId);
         if (result.isPresent()) {
             actualActivity = result.get();
@@ -162,8 +162,6 @@ class ActivityServiceTest {
         activityRepository.save(createNormalActivitySilly());
         Long activityId = activityRepository.getLastInsertedId();
         Activity expectedActivity = createNormalActivitySilly(), actualActivity = null;
-        assertTrue(activityRepository.existsById(activityId), "Sanity check: test setup correctly");
-        assertThrows(IllegalArgumentException.class, ()->{ service.update(createBadActivityBlankName(), activityId );});
         Optional<Activity> result = activityRepository.findById(activityId);
         if (result.isPresent()) {
             actualActivity = result.get();
@@ -178,8 +176,6 @@ class ActivityServiceTest {
         activityRepository.save(createNormalActivitySilly());
         Long activityId = activityRepository.getLastInsertedId();
         Activity expectedActivity = createNormalActivitySilly(), actualActivity = null;
-        assertTrue(activityRepository.existsById(activityId), "Sanity check: test setup correctly");
-        assertThrows(IllegalArgumentException.class, ()->{ service.update(createBadActivityInvalidActivityTypes(), activityId );});
         Optional<Activity> result = activityRepository.findById(activityId);
         if (result.isPresent()) {
             actualActivity = result.get();
@@ -194,8 +190,6 @@ class ActivityServiceTest {
         activityRepository.save(createNormalActivitySilly());
         Long activityId = activityRepository.getLastInsertedId();
         Activity expectedActivity = createNormalActivitySilly(), actualActivity = null;
-        assertTrue(activityRepository.existsById(activityId), "Sanity check: test setup correctly");
-        assertThrows(IllegalArgumentException.class, ()->{ service.update(createBadActivityEmptyActivityTypes(), activityId );});
         Optional<Activity> result = activityRepository.findById(activityId);
         if (result.isPresent()) {
             actualActivity = result.get();
@@ -210,8 +204,6 @@ class ActivityServiceTest {
         activityRepository.save(createNormalActivitySilly());
         Long activityId = activityRepository.getLastInsertedId();
         Activity expectedActivity = createNormalActivitySilly(), actualActivity = null;
-        assertTrue(activityRepository.existsById(activityId), "Sanity check: test setup correctly");
-        assertThrows(IllegalArgumentException.class, ()->{ service.update(createBadActivityNoActivityTypes(), activityId );});
         Optional<Activity> result = activityRepository.findById(activityId);
         if (result.isPresent()) {
             actualActivity = result.get();
@@ -222,18 +214,20 @@ class ActivityServiceTest {
     }
 
     @Test
-    void deleteActivitySuccess() {
+    void deleteActivitySuccessTest() {
         Activity activity = activityRepository.save(createNormalActivityKaikoura());
-        long activity_types_expected_in_repo = typeRepository.count();
-        assertEquals(1, activityRepository.count());
-        assertTrue(service.delete(activity.getId()));
+        service.delete(activity.getId());
         assertEquals(0, activityRepository.count());
-        assertEquals(activity_types_expected_in_repo, typeRepository.count());
+
     }
 
     @Test
-    void deleteActivityDoesNotExist() {
+    void deleteActivityDoesNotExistInRepoTest() {
         assertFalse(activityRepository.existsById((long) 1));
+    }
+
+    @Test
+    void deleteActivityDoesNotExistTest() {
         assertFalse(service.delete((long) 1));
     }
 
