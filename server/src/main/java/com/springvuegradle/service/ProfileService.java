@@ -46,4 +46,12 @@ public class ProfileService {
         profileRepository.save(profile);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    public ResponseEntity<String> deleteProfileLocation(ProfileLocation location, String token, Long id) {
+        if(!securityUtil.checkEditPermission(token, id)){
+            return new ResponseEntity<>("Permission denied", HttpStatus.FORBIDDEN);
+        }
+        profileLocationRepository.delete(location);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }
