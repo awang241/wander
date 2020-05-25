@@ -34,9 +34,7 @@ public class ProfileLocation {
     /**
      * Each location object is associated with one and only one profile object.
      */
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="profile_id")
-    @JsonBackReference
+    @OneToOne(mappedBy = "profileLocation")
     private Profile profile;
 
     /**
@@ -90,4 +88,10 @@ public class ProfileLocation {
     }
 
     public void setState(long id) { this.state = state; }
+
+    public void update(ProfileLocation newLocation) {
+        this.city = newLocation.city;
+        this.state = newLocation.state;
+        this.country = newLocation.country;
+    }
 }
