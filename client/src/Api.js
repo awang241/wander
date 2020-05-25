@@ -17,7 +17,7 @@ export default {
 
   // All delete API requests
   deleteActivity: (userId, token, activityId) => localAxiosInstance.delete('/profiles/'+userId+'/activities/'+activityId, {headers: {"authorization":token}}),
-  deleteLocation: (userId, token) => localAxiosInstance.delete('/profiles'+userId+'/location', {headers: {"authorization":token}}),
+  deleteLocation: (userId, token) => localAxiosInstance.delete('/profiles/'+userId+'/location', {headers: {"authorization":token}}),
 
   // All edit API requests
   editEmail: (emails, userId, token) => localAxiosInstance.put('profiles/'+userId+'/emails', emails, {headers: {"authorization":token}}),
@@ -25,7 +25,8 @@ export default {
   editProfile: (userId, newData, token) => localAxiosInstance.put('/profiles/' + userId, newData, {headers: {"authorization":token}}),
   editProfileLocation: (userId, location, token) => localAxiosInstance.put('/profiles/' + userId + '/location', location, {headers: {"authorization":token}}),
 
-  // All get API requests
+
+      // All get API requests
   getActivitiesList: () => localAxiosInstance.get('activities'),
   getActivityTypesList: () => localAxiosInstance.get('/activityTypes'),
   getAuthLevel: (token) => localAxiosInstance.get('authLevel/', {headers: {"authorization":token}}),

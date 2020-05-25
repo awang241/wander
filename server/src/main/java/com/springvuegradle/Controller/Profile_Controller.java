@@ -5,6 +5,7 @@ import com.springvuegradle.Model.*;
 import com.springvuegradle.Repositories.*;
 import com.springvuegradle.Utilities.FieldValidationHelper;
 import com.springvuegradle.Utilities.JwtUtil;
+import com.springvuegradle.Utilities.SecurityUtil;
 import com.springvuegradle.dto.*;
 import com.springvuegradle.service.ProfileService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +41,9 @@ public class Profile_Controller {
     @Autowired
     private JwtUtil jwtUtil;
 
+    @Autowired
+    private SecurityUtil securityUtil;
+
     /**
      * Way to access PassportCountry Repository (Passport Country table in db).
      */
@@ -69,7 +73,10 @@ public class Profile_Controller {
 
     @PutMapping("/profiles/{id}/location")
     public ResponseEntity<String> updateProfileLocation(@RequestBody ProfileLocation newLocation,  @RequestHeader("authorization") String token, @PathVariable Long id){
-        return profileService.updateProfileLocation(newLocation, token, id);
+        if(!securityUtil.checkEditPermission(token, id)){
+            return new ResponseEntity<>("Permission denied", HttpStatus.FORBIDDEN);
+        }
+        return profileService.updateProfileLocation(newLocation, id);
     }
 
     @DeleteMapping("/profiles/{id}/location")

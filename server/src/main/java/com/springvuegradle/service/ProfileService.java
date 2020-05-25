@@ -29,14 +29,10 @@ public class ProfileService {
     /**
      * Updates the location associated with a users profile
      * @param newLocation the new location for the users profile
-     * @param token the token sent with the http request
      * @param id the id of the profile whose location is being edited
      * @return a response status detailing if the operation was successful
      */
-    public ResponseEntity<String> updateProfileLocation(ProfileLocation newLocation, String token, Long id) {
-        if(!securityUtil.checkEditPermission(token, id)){
-            return new ResponseEntity<>("Permission denied", HttpStatus.FORBIDDEN);
-        }
+    public ResponseEntity<String> updateProfileLocation(ProfileLocation newLocation, Long id) {
         Optional<Profile> optionalProfile = profileRepository.findById(id);
         if(optionalProfile.isEmpty()){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
