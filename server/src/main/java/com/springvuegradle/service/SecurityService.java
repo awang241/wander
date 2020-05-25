@@ -1,5 +1,6 @@
-package com.springvuegradle.Utilities;
+package com.springvuegradle.service;
 
+import com.springvuegradle.Utilities.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -9,7 +10,7 @@ import org.springframework.stereotype.Service;
  * concerns to keep the workings of the JWT class separate from business logic.
  */
 @Service
-public class SecurityUtil {
+public class SecurityService {
 
     @Autowired
     private JwtUtil jwtUtil;

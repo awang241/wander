@@ -5,7 +5,7 @@ import com.springvuegradle.Model.*;
 import com.springvuegradle.Repositories.*;
 import com.springvuegradle.Utilities.FieldValidationHelper;
 import com.springvuegradle.Utilities.JwtUtil;
-import com.springvuegradle.Utilities.SecurityUtil;
+import com.springvuegradle.service.SecurityService;
 import com.springvuegradle.dto.*;
 import com.springvuegradle.service.ProfileService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +42,7 @@ public class Profile_Controller {
     private JwtUtil jwtUtil;
 
     @Autowired
-    private SecurityUtil securityUtil;
+    private SecurityService securityService;
 
     /**
      * Way to access PassportCountry Repository (Passport Country table in db).
@@ -73,7 +73,7 @@ public class Profile_Controller {
 
     @PutMapping("/profiles/{id}/location")
     public ResponseEntity<String> updateProfileLocation(@RequestBody ProfileLocation newLocation,  @RequestHeader("authorization") String token, @PathVariable Long id){
-        if(!securityUtil.checkEditPermission(token, id)){
+        if(!securityService.checkEditPermission(token, id)){
             return new ResponseEntity<>("Permission denied", HttpStatus.FORBIDDEN);
         }
         return profileService.updateProfileLocation(newLocation, id);
@@ -135,7 +135,7 @@ public class Profile_Controller {
      */
     @GetMapping("/profiles/{id}")
     public @ResponseBody ResponseEntity<Profile> getProfile(@PathVariable Long id, @RequestHeader("authorization") String token) {
-        if (checkEditPermission(token, id)) {
+        if (securityService.checkEditPermission(token, id)) {
             return getProfile(id);
         } else {
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
@@ -152,27 +152,12 @@ public class Profile_Controller {
      */
     @PutMapping("/profiles/{id}")
     public @ResponseBody ResponseEntity<String> updateProfile(@RequestBody Profile editedProfile, @RequestHeader("authorization") String token, @PathVariable Long id) {
-        if (checkEditPermission(token, id)) {
+        if (securityService.checkEditPermission(token, id)) {
             return updateProfile(editedProfile, id);
         } else {
             return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(), HttpStatus.UNAUTHORIZED);
         }
     }
-
-    /**
-     * Checks if user asking for permission to edit a profile has the right permission
-     * @param token the jwt token stored on the client (user asking for permissions token)
-     * @param id the id of the user being edited (can be null to check just the token permission)
-     * @return true if user has permission to edit the profile, false otherwise
-     */
-    private boolean checkEditPermission(String token, Long id) {
-        if (jwtUtil.validateToken(token) && (jwtUtil.extractPermission(token) == 0 || jwtUtil.extractPermission(token) == 1 || (jwtUtil.extractId(token).equals(id)))) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
 
     /**
      * Deletes a profile from the repository given that it exists in the database. The method was initially used for

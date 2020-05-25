@@ -4,8 +4,6 @@ import com.springvuegradle.Model.Profile;
 import com.springvuegradle.Model.ProfileLocation;
 import com.springvuegradle.Repositories.ProfileLocationRepository;
 import com.springvuegradle.Repositories.ProfileRepository;
-import com.springvuegradle.Utilities.SecurityUtil;
-import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +16,7 @@ import java.util.Optional;
 public class ProfileService {
 
     @Autowired
-    private SecurityUtil securityUtil;
+    private SecurityService securityService;
 
     @Autowired
     private ProfileLocationRepository profileLocationRepository;
@@ -55,7 +53,7 @@ public class ProfileService {
      * @return a response status detailing if the operation was successful
      */
     public ResponseEntity<String> deleteProfileLocation(String token, Long id) {
-        if(!securityUtil.checkEditPermission(token, id)){
+        if(!securityService.checkEditPermission(token, id)){
             return new ResponseEntity<>("Permission denied", HttpStatus.FORBIDDEN);
         }
         Optional<Profile> optionalProfile = profileRepository.findById(id);
