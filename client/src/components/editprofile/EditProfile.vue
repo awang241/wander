@@ -12,7 +12,6 @@
                 <li><a v-on:click="changeToActivityTypes">Activity Types</a></li>
                 <li><a v-on:click="changeToEmail">Emails</a></li>
                 <li><a v-on:click="changeToLocation">Location</a></li>
-
             </ul>
             <div>
                 <a v-if="store.getters.getAuthenticationLevel === 0 || store.getters.getAuthenticationLevel === 1"
@@ -71,11 +70,11 @@
             changeToActivityTypes() {
                 this.component = editActivityTypes
             },
-            changeToEmail() {
-                this.component = editEmails
-            },
             changeToLocation() {
                 this.component = editLocation
+            },
+            changeToEmail() {
+                this.component = editEmails
             },
             changeToProfile() {
                 router.push({path: '/Profile'});
@@ -115,6 +114,10 @@
             updateLocation(location) {
                 this.profile.location = location
                 api.editProfileLocation(this.$route.params.id, location, localStorage.getItem('authToken'))
+                .then(() => {
+                    this.successToast("Location updated!")
+                })
+                .catch(error => this.warningToast(error.response.data))
             },
             clearLocation() {
                 api.deleteLocation(this.$route.params.id, localStorage.getItem('authToken'));

@@ -67,6 +67,9 @@ public class Profile_Controller {
     @Autowired
     private ActivityRepository activityRepo;
 
+    @Autowired
+    private ProfileLocationRepository profileLocationRepository;
+
     @PutMapping("/profiles/{id}/location")
     public ResponseEntity<String> updateProfileLocation(@RequestBody ProfileLocation newLocation,  @RequestHeader("authorization") String token, @PathVariable Long id){
         return profileService.updateProfileLocation(newLocation, token, id);
@@ -463,9 +466,18 @@ public class Profile_Controller {
             return new ResponseEntity<>(response.getBody(), response.getStatusCode());
         }
 
+        // checks if location is present, updates location if they are
+        Optional<ProfileLocation> location = profileLocationRepository.findLocationByProfile(db_profile);
+        if(location.isPresent()) {
+            location.get().update(editedProfile.getProfileLocation());
+        } else {
+            db_profile.setLocation(editedProfile.getProfileLocation());
+        }
+
         repo.save(db_profile);
         return new ResponseEntity<>(db_profile.toString(), HttpStatus.OK);
     }
+
 
     /**
      * Updates the activityType types for a user
