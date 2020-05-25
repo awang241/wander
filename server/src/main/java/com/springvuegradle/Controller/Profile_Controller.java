@@ -72,6 +72,11 @@ public class Profile_Controller {
         return profileService.updateProfileLocation(newLocation, token, id);
     }
 
+    @DeleteMapping("/profiles/{id}/location")
+    public @ResponseBody ResponseEntity<String> deleteLocation(@RequestBody ProfileLocation location, @RequestHeader("authorisation") String token, @PathVariable Long id) {
+        return profileService.deleteProfileLocation(location, token, id);
+    }
+
 
     /**
      * Endpoint for creating profiles.
