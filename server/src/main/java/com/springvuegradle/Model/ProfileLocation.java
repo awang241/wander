@@ -12,16 +12,18 @@ import javax.persistence.*;
  */
 @Entity
 public class ProfileLocation {
-    public ProfileLocation(){};
+    public ProfileLocation() { }
+
+    ;
 
     @JsonCreator
     public ProfileLocation(
             @JsonProperty("country") String country,
             @JsonProperty("city") String city,
-            @JsonProperty("state") String state){
-       this.country = country;
-       this.city = city;
-       this.state = state;
+            @JsonProperty("state") String state) {
+        this.country = country;
+        this.city = city;
+        this.state = state;
     }
 
     /**
@@ -75,23 +77,41 @@ public class ProfileLocation {
         return country;
     }
 
-    public void setCountry(long id) { this.country = country; }
+    public void setCountry(long id) {
+        this.country = country;
+    }
 
     public String getCity() {
         return city;
     }
 
-    public void setCity(long id) { this.city = city; }
+    public void setCity(long id) {
+        this.city = city;
+    }
 
     public String getState() {
         return state;
     }
 
-    public void setState(long id) { this.state = state; }
+    public void setState(long id) {
+        this.state = state;
+    }
 
     public void update(ProfileLocation newLocation) {
         this.city = newLocation.city;
         this.state = newLocation.state;
         this.country = newLocation.country;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof ProfileLocation) {
+            ProfileLocation other = (ProfileLocation) o;
+            return this.city.equals(other.city) &&
+                    this.state.equals(other.state) &&
+                    this.country.equals(other.country);
+
+        }
+        return false;
     }
 }
