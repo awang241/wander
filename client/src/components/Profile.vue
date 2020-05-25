@@ -151,11 +151,14 @@
         data() {
             return {
                 profile: {},
+                store: store,
+                id: this.$route.params.id
             }
         },
         methods: {
             editProfile(){
-                router.push('EditProfile/' + store.getters.getUserId);
+                console.log(this.id)
+                router.push('EditProfile/' + this.id);
             },
             getProfile() {
                 api.getProfile(store.getters.getUserId, localStorage.getItem('authToken'))
