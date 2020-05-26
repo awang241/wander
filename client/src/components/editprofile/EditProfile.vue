@@ -72,7 +72,7 @@
                 this.component = editEmails
             },
             changeToProfile() {
-                router.push({path: '/Profile'});
+                router.push({path: '/Profile/' + store.getters.getUserId});
             },
             changeToDashboard() {
                 router.push({path: '/AdminDashboard'});

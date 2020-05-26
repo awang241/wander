@@ -14,7 +14,8 @@
 
                 </div>
 
-                <b-button  @click="editProfile"
+                <b-button  v-if="store.getters.getUserId ==this.id"
+                           @click="editProfile"
                            type="is-info">
                     Edit Profile
                 </b-button>
@@ -157,11 +158,10 @@
         },
         methods: {
             editProfile(){
-                console.log(this.id)
-                router.push('EditProfile/' + this.id);
+                router.push({path: '/EditProfile/' + store.getters.getUserId});
             },
             getProfile() {
-                api.getProfile(store.getters.getUserId, localStorage.getItem('authToken'))
+                api.getProfile(this.id)
                     .then((response) => {
                         this.profile = response.data;
                     })

@@ -16,13 +16,29 @@ const routes = [
     {path: "/Login", name: "login", component: LoginComponent},
     {path: "/Registration", name: "registration", component: RegistrationComponent},
     {path: "/NavBar", name: "navbar", component: NavBarComponent},
-    {path: "/EditProfile/:id", name: "editProfile", component: EditProfileComponent},
+
     {path: "/AddActivity", name: "addActivity", component: AddActivityComponent},
     {path: "/Activities", name: "activities", component:ActivitiesComponent},
     {path: "/EditActivity/:", name:"editActivity", component:AddActivityComponent, props: true},
+    {path: "/Profile/:id", name: "profile", component:ProfileComponent},
+    // {path: "/EditProfile/:id", name: "editProfile", component: EditProfileComponent},
+    // {
+    //     //This route is only accessible if the user is authenticated, else it sends them back to the main page
+    //     path: "/Profile/:id", name: "profile", component: ProfileComponent, beforeEnter: (to, from, next) => {
+    //         console.log("Route prints below")
+    //         console.log(store.getters.getAuthenticationStatus)
+    //         if (store.getters.getAuthenticationStatus) {
+    //             next()
+    //         } else {
+    //             next({
+    //                 name: "mainpage"
+    //             })
+    //         }
+    //     }
+    // },
     {
         //This route is only accessible if the user is authenticated, else it sends them back to the main page
-        path: "/Profile/:id", name: "profile", component: ProfileComponent, beforeEnter: (to, from, next) => {
+        path: "/EditProfile/:id", name: "editProfile", component: EditProfileComponent, beforeEnter: (to, from, next) => {
             if (store.getters.getAuthenticationStatus) {
                 next()
             } else {
