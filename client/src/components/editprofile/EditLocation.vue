@@ -37,9 +37,9 @@
         data() {
             return {
                 location : {
-                    country: this.profile.location.country,
-                    city: this.profile.location.city,
-                    state: this.profile.location.state,
+                    country: "",
+                    city: "",
+                    state: "",
                 }
             }
         },
@@ -51,7 +51,15 @@
             submitLocation(){
                 this.$parent.updateLocation(this.location)
                 this.successToast("Updated location")
+            },
+            setLocation(){
+                if(this.profile.location != null){
+                    this.location = this.profile.location
+                }
             }
+        },
+        mounted() {
+            this.setLocation()
         }
 
     }

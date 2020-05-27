@@ -496,6 +496,7 @@ public class Profile {
     }
 
     @JsonProperty("location")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public ProfileLocation getProfileLocation(){return this.location;}
 
     public boolean addActivity(ActivityMembership membership) {
