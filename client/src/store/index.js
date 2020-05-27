@@ -48,9 +48,6 @@ export default new Vuex.Store({
             commit('SET_USER_ID', userId)
             commit('SET_AUTHENTICATION_STATUS', authenticationStatus)
             commit('SET_AUTHENTICATION_LEVEL', authenticationLevel)
-            console.log('INDEX')
-            console.log(authenticationStatus)
-            console.log('INDEX')
             return;
             },
         resetUserData({commit}, payload) {

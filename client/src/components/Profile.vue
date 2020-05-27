@@ -14,11 +14,12 @@
 
                 </div>
 
-                <b-button  v-if="store.getters.getUserId ==this.id"
-                           @click="editProfile"
-                           type="is-info">
+                <b-button v-if="viewingOwnProfile"
+                          @click="editProfile"
+                          type="is-info">
                     Edit Profile
                 </b-button>
+
             </div>
         </section>
         <!-- Social Media Count -->
@@ -156,15 +157,18 @@
                 id: this.$route.params.id
             }
         },
+        watch: {
+            '$route.params.id': function (id) {
+                this.id = id
+                this.getProfile()
+            }
+        },
         methods: {
             editProfile(){
                 router.push({path: '/EditProfile/' + store.getters.getUserId});
             },
             getProfile() {
-                console.log('profile')
-                console.log(store.getters.getAuthenticationStatus)
-                console.log('profile')
-                api.getProfile(this.id)
+                api.getProfile(this.id, localStorage.getItem("authToken"))
                     .then((response) => {
                         this.profile = response.data;
                     })
@@ -172,17 +176,13 @@
                         router.push({path: '/'});
                         console.log(error)
                     })
-            },
-            checkAuthenticationStatus: function() {
-                console.log('test')
-                if (!store.getters.getAuthenticationStatus) {
-                    router.push({path:'/Login'})
-                }
             }
         },
-
         computed: {
             // a computed getter
+            viewingOwnProfile() {
+                return this.profile.id == store.getters.getUserId
+            },
             fitnessStatement: function () {
                 switch (this.profile.fitness_statement) {
                     case 0 :
@@ -190,20 +190,19 @@
                     case 1 :
                         return "Novice: I do a low level of exercise (walking)";
                     case 2 :
-                        return"Intermediate: I work out 1-2 times per week";
+                        return "Intermediate: I work out 1-2 times per week";
                     case 3 :
                         return "Advanced: I work out 3-4 times per week";
                     case 4 :
                         return "Pro: I work out 5+ times per week";
                     default:
-                       return "Beginner: I am not active at all";
+                        return "Beginner: I am not active at all";
                 }
             }
         },
-
         mounted() {
             this.getProfile()
-            this.checkAuthenticationStatus()
+
         },
     }
 </script>

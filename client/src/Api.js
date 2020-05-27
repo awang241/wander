@@ -15,7 +15,7 @@ export default {
   login: (user) => localAxiosInstance.post('login', user),
   editProfile: (userId, newData, token) => localAxiosInstance.put('/profiles/' + userId, newData, {headers: {"authorization":token}}),
   logout: (userId, token) => localAxiosInstance.post('logout/', userId, {headers: {"authorization":token}}),
-  getProfile: (userId) => localAxiosInstance.get('profiles/'+userId),
+  getProfile: (userId, token) => localAxiosInstance.get('profiles/'+userId, {headers: {"authorization":token}}),
   editEmail: (emails, userId, token) => localAxiosInstance.put('profiles/'+userId+'/emails', emails, {headers: {"authorization":token}}),
   editPassword: (passwordDetails, userId, token) => localAxiosInstance.put('profiles/'+ userId+'/password', passwordDetails, {headers: {"authorization":token}}),
   getActivityTypesList: () => localAxiosInstance.get('/activityTypes'),

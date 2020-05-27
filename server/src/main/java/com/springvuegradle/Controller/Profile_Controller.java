@@ -113,18 +113,24 @@ public class Profile_Controller {
      * by the Profile model class, along with a status code.
      */
     @GetMapping("/profiles/{id}")
-    public @ResponseBody ResponseEntity<Profile> getProfile(@PathVariable Long id) {
-        return retrieveProfile(id);
+    public @ResponseBody ResponseEntity<Profile> getProfile(@PathVariable Long id, @RequestHeader("authorization") String token) {
+        if (jwtUtil.validateToken(token)) {
+            return getProfile(id);
+        } else {
+            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+
+        }
     }
 
-    /**
-     * Endpoint for editing profiles.
-     * Updates a profile in the database given a request to do so.
-     * @param editedProfile a profile object created from the request
-     * @param id the ID of the profile being edited, pulled from the URL as a path variable.
-     * @param token the jwt token stored on the client
-     * @return An HTTP response with an appropriate status code and the updated profile if there method was successful.
-     */
+
+        /**
+         * Endpoint for editing profiles.
+         * Updates a profile in the database given a request to do so.
+         * @param editedProfile a profile object created from the request
+         * @param id the ID of the profile being edited, pulled from the URL as a path variable.
+         * @param token the jwt token stored on the client
+         * @return An HTTP response with an appropriate status code and the updated profile if there method was successful.
+         */
     @PutMapping("/profiles/{id}")
     public @ResponseBody ResponseEntity<String> updateProfile(@RequestBody Profile editedProfile, @RequestHeader("authorization") String token, @PathVariable Long id) {
         if (checkEditPermission(token, id)) {
@@ -384,7 +390,7 @@ public class Profile_Controller {
      * @param id gets the profile object and if it exists and authorization is approved, it will return the object
      * @return the Profile object corresponding to the given ID.
      */
-    protected ResponseEntity<Profile> retrieveProfile(Long id) {
+    protected ResponseEntity<Profile> getProfile(Long id) {
         Optional<Profile> profileWithId = repo.findById(id);
         if (profileWithId.isPresent()) {
             return new ResponseEntity(profileWithId.get(), HttpStatus.OK);
