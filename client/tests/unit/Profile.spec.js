@@ -27,4 +27,5 @@ describe('Profile.vue', () => {
     test('viewing on profile is false when the user is not viewing their profile', () => {
         wrapper.vm.profile = {"id": 1}
         expect(wrapper.vm.viewingOwnProfile).toBe(false)
-});
+    });
+})
