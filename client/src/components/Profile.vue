@@ -14,7 +14,8 @@
 
                 </div>
 
-                <b-button @click="editProfile"
+                <b-button v-if="viewingOwnProfile"
+                        @click="editProfile"
                           type="is-info">
                     Edit Profile
                 </b-button>
@@ -176,6 +177,9 @@
 
         computed: {
             // a computed getter
+            viewingOwnProfile(){
+                return this.profile.id === store.getters.getUserId
+            },
             fitnessStatement: function () {
                 switch (this.profile.fitness_statement) {
                     case 0 :
