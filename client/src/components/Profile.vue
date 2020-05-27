@@ -1,5 +1,5 @@
 <template>
-    <div v-if="store.getters.getAuthenticationStatus" class="container containerColor">
+    <div class="container containerColor">
         <!-- Header -->
         <section class="hero level">
             <div class=" hero-body level-item">
@@ -172,6 +172,12 @@
                         router.push({path: '/'});
                         console.log(error)
                     })
+            },
+            checkAuthenticationStatus: function() {
+                console.log('test')
+                if (!store.getters.getAuthenticationStatus) {
+                    router.push({path:'/Login'})
+                }
             }
         },
 
@@ -197,6 +203,7 @@
 
         mounted() {
             this.getProfile()
+            this.checkAuthenticationStatus()
         },
     }
 </script>

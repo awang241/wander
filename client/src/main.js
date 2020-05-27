@@ -30,8 +30,6 @@ if (localStorage.getItem('authToken') != null) {
           console.log(error)
           return error
       })
-    console.log("WTF IS OGING ON")
-    console.log(store.getters.getAuthenticationStatus)
 }
 
 import VueLogger from 'vuejs-logger';
