@@ -138,7 +138,7 @@ public class Profile_Controller {
      */
     @GetMapping("/profiles/{id}")
     public @ResponseBody ResponseEntity<Profile> getProfile(@PathVariable Long id, @RequestHeader("authorization") String token) {
-        if (securityService.checkEditPermission(token, id)) {
+        if (jwtUtil.validateToken(token)) {
             return getProfile(id);
         } else {
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
