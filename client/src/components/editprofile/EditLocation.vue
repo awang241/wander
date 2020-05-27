@@ -47,6 +47,7 @@
             clearLocation(){
                 this.$parent.clearLocation()
                 this.successToast("Location removed")
+                this.location = {country: "", city: "", state: ""}
             },
             submitLocation(){
                 this.$parent.updateLocation(this.location)
