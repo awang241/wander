@@ -50,8 +50,14 @@
                 this.location = {country: "", city: "", state: ""}
             },
             submitLocation(){
-                this.$parent.updateLocation(this.location)
-                this.successToast("Updated location")
+                if(this.location.country === ""){
+                    this.warningToast("Please enter a country")
+                } else if(this.location.city === ""){
+                    this.warningToast("Please enter a city")
+                } else {
+                    this.$parent.updateLocation(this.location)
+                    this.successToast("Updated location")
+                }
             },
             setLocation(){
                 if(this.profile.location != null){
