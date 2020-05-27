@@ -106,21 +106,6 @@ public class Profile_Controller {
         }
     }
 
-//    /**
-//     * Endpoint for getting profiles.
-//     * @param id referencing the profile
-//     * @param token to check if the user is logged in
-//     * @return response entities holding a profile object returned, sent to the front-end as json data in the format defined
-//     * by the Profile model class, along with a status code.
-//     */
-//    @GetMapping("/profiles/{id}")
-//    public @ResponseBody ResponseEntity<Profile> getProfile(@PathVariable Long id, @RequestHeader("authorization") String token) {
-//        if (checkEditPermission(token, id)) {
-//            return getProfile(id);
-//        } else {
-//            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
-//        }
-//    }
     /**
      * Endpoint for getting profiles.
      * @param id referencing the profile
@@ -130,9 +115,7 @@ public class Profile_Controller {
     @GetMapping("/profiles/{id}")
     public @ResponseBody ResponseEntity<Profile> getProfile(@PathVariable Long id) {
         return retrieveProfile(id);
-
     }
-
 
     /**
      * Endpoint for editing profiles.

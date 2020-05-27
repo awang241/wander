@@ -1,5 +1,5 @@
 <template>
-    <div class="container containerColor">
+    <div v-if="store.getters.getAuthenticationStatus" class="container containerColor">
         <!-- Header -->
         <section class="hero level">
             <div class=" hero-body level-item">
@@ -161,6 +161,9 @@
                 router.push({path: '/EditProfile/' + store.getters.getUserId});
             },
             getProfile() {
+                console.log('profile')
+                console.log(store.getters.getAuthenticationStatus)
+                console.log('profile')
                 api.getProfile(this.id)
                     .then((response) => {
                         this.profile = response.data;
