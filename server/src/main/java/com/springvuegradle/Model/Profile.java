@@ -119,7 +119,7 @@ public class Profile {
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "location_id", referencedColumnName = "id")
-    private ProfileLocation profileLocation;
+    private ProfileLocation location;
 
     @JsonIgnore
     public Set<ActivityMembership> getActivities() {
@@ -430,7 +430,7 @@ public class Profile {
     }
 
     public void setLocation(ProfileLocation location){
-        this.profileLocation = location;
+        this.location = location;
     }
 
     public String getMiddlename() {
@@ -495,7 +495,8 @@ public class Profile {
         this.bio = bio;
     }
 
-    public ProfileLocation getProfileLocation(){return this.profileLocation;}
+    @JsonProperty("location")
+    public ProfileLocation getProfileLocation(){return this.location;}
 
     public boolean addActivity(ActivityMembership membership) {
         return this.activities.add(membership);

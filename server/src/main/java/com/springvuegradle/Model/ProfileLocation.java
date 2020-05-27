@@ -2,6 +2,7 @@ package com.springvuegradle.Model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.*;
@@ -30,13 +31,15 @@ public class ProfileLocation {
      * Holds the automatically generated location id assigned when the object is saved to the database.
      */
     @Id
+    @JsonIgnore
     @GeneratedValue()
     private Long id;
 
     /**
      * Each location object is associated with one and only one profile object.
      */
-    @OneToOne(mappedBy = "profileLocation")
+    @JsonIgnore
+    @OneToOne(mappedBy = "location")
     private Profile profile;
 
     /**
