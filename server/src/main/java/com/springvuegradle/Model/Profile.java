@@ -403,8 +403,6 @@ public class Profile {
 
     public void setAuthLevel(int authLevel){this.authLevel = authLevel;}
 
-
-
     public void setId(Long id) {
         this.id = id;
     }
@@ -431,6 +429,10 @@ public class Profile {
 
     public void setMiddlename(String middlename) {
         this.middlename = middlename;
+    }
+
+    public String getFullName(){
+        return firstname + " " + middlename + " " + lastname;
     }
 
     public String getNickname() {

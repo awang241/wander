@@ -8,7 +8,7 @@ public class ProfileTestUtils {
     /**
      * @return a valid profile object.
      */
-    public static Profile createNormalProfileJimmy() {
+    public static Profile createProfileJimmy() {
         return new Profile(null, "Jimmy", "Quick", "Jones", "Jim-Jam", "jimjam@hotmail.com", new String[]{"additional@email.com"}, "hushhush",
                 "The quick brown fox jumped over the lazy dog.", new GregorianCalendar(1999, Calendar.NOVEMBER,
                 28), "male", 1, new String[]{"New Zealand", "India"}, new String[]{});
@@ -18,13 +18,19 @@ public class ProfileTestUtils {
      * Creates a new profile with the same names as profile created by createNormalProfileJimmy().
      * @return a new profile.
      */
-    public static Profile createNormalProfileJimmyAlternate(){
+    public static Profile createProfileJimmyAlternate(){
         return new Profile(null, "Jimmy", "Quick", "Jones", "Jim-Jam", "notJimmyOne@mail.com", new String[]{}, "shush",
                 "Not that guy", new GregorianCalendar(1990, Calendar.JUNE, 17), "non-Binary", 0,
                 new String[]{}, new String[]{});
     }
 
-    public static List<Profile> createProfilesWithSameSurname(){
+    public static Profile createProfileNicknameMatchesJimmySurname(){
+        return new Profile(null, "Tim", "Tam", null, "Quick", "biscuit@mail.com", new String[]{}, "sandwich",
+                "chcoclate biscuit", new GregorianCalendar(1992, Calendar.FEBRUARY, 2), "non-Binary", 2,
+                new String[]{}, new String[]{});
+    }
+
+    public static List<Profile> createProfilesWithSameSurnameAsJimmy(){
         List<Profile> profiles = new ArrayList<>();
         profiles.add(new Profile(null, "Tommy", "Quick", null, null,
                 "quick@mail.com", new String[]{}, "password","Surname's fast",
