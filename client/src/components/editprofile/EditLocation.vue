@@ -1,6 +1,6 @@
 <template>
     <div class="container">
-        <h1 class="title is-5">Edit Your Location</h1>
+        <h1 class="title is-5">Edit Your Location </h1>
 
         <form>
 
@@ -19,7 +19,7 @@
             <br>
             <br>
 <!--            onkeypress="return /[a-z]/i.test(event.key)"-->
-            <input onkeypress="return /[a-z]/i.test(event.key)" class="input" type="text" placeholder="Enter a state" id="autocompleteStates"/>
+            <input onkeypress="return /[a-z ]/i.test(event.key)" class="input" type="text" placeholder="Enter a state" id="autocompleteStates"/>
 
         </form>
 
@@ -79,7 +79,14 @@
 
                 autocompleteCity.addListener('place_changed', function() {
                     var city = autocompleteCity.getPlace();
-                    document.getElementById("autocompleteCities").value = city.address_components[0].long_name
+                    // let state = "";
+                    // for (let addressComponentIndex in city.address_components) {
+                    //     if (city.address_components[addressComponentIndex].types.includes("administrative_area_level_1")) {
+                    //         state = city.address_components[addressComponentIndex].long_name
+                    //     }
+                    // }
+                    document.getElementById("autocompleteCities").value = city.address_components[0].long_name;
+                    //document.getElementById("autocompleteStates").value = state
                 })
 
             },
@@ -143,6 +150,7 @@
                 this.successToast("Location removed")
                 document.getElementById("autocompleteCities").value = null;
                 document.getElementById("autocompleteStates").value = null;
+                document.getElementById("country").value = 'New Zealand';
                 this.location = {country: "", city: "", state: ""}
             },
             submitLocation(){
@@ -162,9 +170,11 @@
             },
             setLocation(){
                 if(this.profile.location != null){
-                    this.location = this.profile.location
+                    this.location = this.profile.location;
+                    document.getElementById("country").value = this.location.country;
                     document.getElementById("autocompleteCities").value = this.location.city;
                     document.getElementById("autocompleteStates").value = this.location.state;
+
                 }
             }
         },
