@@ -80,13 +80,11 @@ public class JwtUtil {
      * @return Whether the token is valid
      */
     public Boolean validateToken(String token) {
-        try{
+        try {
             Jwts.parserBuilder().setSigningKey(SECRET_KEY).build().parseClaimsJws(token);
             return true;
         } catch (JwtException e){
             return false;
         }
-//        final Long tokenId = extractId(token);
-//        return (profileId.equals(tokenId) && !isTokenExpired(token));
     }
 }

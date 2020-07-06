@@ -29,6 +29,11 @@ public class LoginController {
     @Autowired
     private EmailRepository eRepo;
 
+    @Autowired
+    public LoginController(JwtUtil jwtUtil, EmailRepository eRepo) {
+        this.eRepo = eRepo;
+        this.jwtUtil = jwtUtil;
+    }
 
     public LoginController() {};
 
