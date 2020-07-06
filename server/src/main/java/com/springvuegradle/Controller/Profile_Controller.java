@@ -63,6 +63,20 @@ public class Profile_Controller {
     @Autowired
     private ActivityRepository activityRepo;
 
+    public Profile_Controller(ProfileRepository profileRepository,
+                              PassportCountryRepository pcRepository,
+                              EmailRepository emailRepository,
+                              ActivityTypeRepository activityTypeRepository,
+                              ActivityRepository activityRepository,
+                              JwtUtil jwtUtil) {
+        repo = profileRepository;
+        pcRepo = pcRepository;
+        eRepo = emailRepository;
+        activityRepo = activityRepository;
+        aRepo = activityTypeRepository;
+        this.jwtUtil = jwtUtil;
+    }
+
     /**
      * Endpoint for creating profiles.
      * Creates a new Profile object given a set of JSON data and forms a profile object based on the given data, then
