@@ -37,4 +37,6 @@ public interface ProfileRepository extends JpaRepository<Profile, Long> {
                                 @Param("lastname") String lastname, Pageable pageable);
 
     List<Profile> findAllByLastname(@Param("lastname") String lastName, Pageable pageable);
+
+    List<Profile> findAllByNickname(@Param("nickname") String nickname, Pageable pageable);
 }

@@ -39,6 +39,19 @@ public class ProfileService {
 
     /**
      * Given a page index and size, calculates the appropriate page in the list of all profiles that have the
+     * provided nickname. The profiles that are in that page are then returned.
+     *
+     * @param nickname The nickname to be matched to.
+     * @param pageSize The maximum number of profiles that a page can have.
+     * @param pageNumber The index of the page to be returned. Page indices start at 0.
+     * @return The list of profiles that belong to the page.
+     */
+    public List<Profile> getUsersByNickname(String nickname, Integer pageSize, Integer pageNumber) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    /**
+     * Given a page index and size, calculates the appropriate page in the list of all profiles that have the
      * provided email. The profiles that are in that page are then returned.
      *
      * @param email The email to be matched to.
