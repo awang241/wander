@@ -2,21 +2,30 @@ import { shallowMount } from '@vue/test-utils'
 import Profile from "../../src/components/Profile";
 
 let wrapper;
+const $route = {
+    params: {
+        id: 1
+    }
+}
 
 beforeEach(() => {
     wrapper = shallowMount(Profile, {
         propsData: {},
-        mocks: {},
+        mocks: {
+            $route
+        },
         stubs: {},
         methods: {},
+        routes: {}
     });
+
 });
 
 afterEach(() => {
     wrapper.destroy();
 });
 
-describe('AddActivity.vue', () => {
+describe('Profile.vue', () => {
     test('Computed fitness statement property works given a fitness level', () => {
         wrapper.vm.profile = {"fitness_statement": 3}
         expect(wrapper.vm.fitnessStatement).toContain("Advanced");
