@@ -34,6 +34,7 @@ jest:
   stage: test
   script:
     - cd client
+    - npm install jest-sonar-reporter
     - npm run unit
     - npm run sonarqube
     
