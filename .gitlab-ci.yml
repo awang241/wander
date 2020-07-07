@@ -34,7 +34,6 @@ jest:
   stage: test
   script:
     - cd client
-    - npm install
     - npm run unit
     - npm run sonarqube
     
