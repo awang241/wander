@@ -2,11 +2,15 @@ plugins {
 	id 'org.springframework.boot' version '2.2.4.RELEASE'
 	id 'io.spring.dependency-management' version '1.0.9.RELEASE'
 	id 'java'
+	// Apply Jacoco test coverage reports
+	id 'jacoco'
+	// run Sonarqube from gradle task
+	id "org.sonarqube" version "2.8"
 }
 
 //group = 'com.spring-vue-gradle'
-group = 'Team12'
-version = '0.0.1-SNAPSHOT'
+group = 'Team100'
+version = '4.0.1-SNAPSHOT'
 sourceCompatibility = '11'
 
 configurations {
@@ -51,6 +55,7 @@ dependencies {
 
 test {
 	useJUnitPlatform()
+	finalizedBy jacocoTestReport
 }
 
 // Task used for just running cucumber tests, and can specify tags with -Ptags="@sometags"
@@ -70,5 +75,31 @@ task cucumber() {
 					'--tags', selectedTags // Only runs certain tagged scenarios of tags arg is given
 			]
 		}
+	}
+}
+
+// Jacoco test coverage configuration
+jacoco {
+	toolVersion = "0.8.2"
+}
+// select what reports to generate and where to put them
+jacocoTestReport {
+	reports {
+		xml.enabled true
+		xml.destination file("${buildDir}/jacoco/test-reporter.xml")
+		csv.enabled false
+		html.destination file("${buildDir}/jacoco/html")
+	}
+}
+
+// Sonarqube specific configuration
+sonarqube {
+	properties {
+		property "sonar.projectKey", "team-100-server"
+		property "sonar.projectName", "team 100 - server"
+		property "sonar.sourceEncoding", "UTF-8"
+		// replace "X" hereunder to match your VM url
+		property "sonar.host.url", "https://csse-s302g1.canterbury.ac.nz/sonarqube/"
+		property "sonar.login", "f3af1b1a7c9cad62afe1f020d0885937a8849780"
 	}
 }

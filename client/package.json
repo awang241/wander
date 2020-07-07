@@ -5,7 +5,8 @@
   "scripts": {
     "serve": "vue-cli-service serve --port 9500",
     "build": "vue-cli-service build --mode staging",
-    "unit": "jest",
+    "unit": "jest --coverage",
+    "sonarqube": "node sonarqube-analysis.js",
     "build-prod": "vue-cli-service build --mode prod",
     "kill-all": "fuser -k 9500/tcp 9499/tcp",
     "lint": "vue-cli-service lint"
@@ -19,7 +20,7 @@
     "jwt-decode": "^2.2.0",
     "node-sass": "^4.14.1",
     "sass-loader": "^8.0.2",
-    "serve": "^11.3.0",
+    "serve": "^11.3.2",
     "vue": "^2.6.11",
     "vue-router": "latest",
     "vuejs-logger": "^1.5.4",
@@ -37,7 +38,9 @@
     "eslint-plugin-vue": "^6.2.2",
     "jest": "^25.1.0",
     "vue-jest": "^3.0.5",
-    "vue-template-compiler": "^2.6.11"
+    "vue-template-compiler": "^2.6.11",
+    "jest-sonar-reporter": "^2.0.0",
+    "sonarqube-scanner": "^2.6.0"
   },
   "eslintConfig": {
     "root": true,
@@ -56,5 +59,17 @@
   "browserslist": [
     "> 1%",
     "last 2 versions"
-  ]
+  ],
+  "jest": {
+    "testEnvironment": "node",
+    "coveragePathIgnorePatterns": [
+      "/node_modules/"
+    ],
+    "testResultsProcessor": "jest-sonar-reporter"
+  },
+  "jestSonar": {
+    "reportPath": "coverage",
+    "reportFile": "test-reporter.xml",
+    "indent": 4
+  }
 }

@@ -16,7 +16,10 @@ module.exports = {
     ],
     coverageReporters: [
         "html",
-        "text-summary"
+        "text-summary",
+        "lcov",
+        "json"
     ],
-    setupFilesAfterEnv: ['<rootDir>/tests/unit/setup.js']
+    setupFilesAfterEnv: ['<rootDir>/tests/unit/setup.js'],
+    testResultsProcessor: "jest-sonar-reporter"
 }
