@@ -28,12 +28,14 @@ junit:
   script:
     - cd server
     - ./gradlew test
+    - ./gradlew sonarqube
 
 jest:
   stage: test
   script:
     - cd client
     - npm run unit
+    - npm run sonarqube
     
 
 dev-build:
