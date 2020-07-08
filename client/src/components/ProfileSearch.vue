@@ -13,18 +13,18 @@
             <b-field label="Email" expanded>
                 <b-input type="email"
                          v-model="email"
-                         placeholder="Email"
-                         required>
+                         placeholder="Email">
                 </b-input>
             </b-field>
 
             <b-field label="Activity types">
                 <b-taginput
                         v-model="chosenActivityTypes"
-                        :data="possibleActivityTypes"
+                        :data="filteredActivityTypes"
                         autocomplete
-                        :open-on-focus="true"
-                        placeholder="Add a tag">
+                        @typing="getFilteredActivityTypes"
+                        :open-on-focus="false"
+                        placeholder="Add an activity type">
                 </b-taginput>
 
             </b-field>
@@ -72,11 +72,12 @@
                 chosenActivityTypes: [],
                 email: "",
                 name: "",
-                possibleActivityTypes: ['Hiking', 'Running', 'Swimming']
+                possibleActivityTypes: ['Hiking', 'Running', 'Swimming'],
+                filteredActivityTypes: this.possibleActivityTypes
             }
         },
         mounted() {
-          //this.getPossibleActivityTypes()
+            //this.getPossibleActivityTypes()
         },
         methods: {
             getPossibleActivityTypes() {
@@ -84,15 +85,26 @@
                     .then(response => this.possibleActivityTypes = response.data.allActivityTypes)
                     .catch(error => this.showMessage(error))
             },
-            resetSearchFields(){
+            resetSearchFields() {
                 this.email = ""
                 this.name = ""
                 this.chosenActivityTypes = []
             },
-            searchUser(){
+            searchUser() {
                 //TODO Implement this function to make api call to search for user based on values in search form
+            },
+            //Autocomplete to display activity types that finish the word the user is typing
+            getFilteredActivityTypes(text) {
+                this.filteredActivityTypes = this.possibleActivityTypes.filter((option) => {
+                    return option
+                        .toString()
+                        .toLowerCase()
+                        .indexOf(text.toLowerCase()) >= 0
+                })
             }
         }
+
+
     }
 </script>
 
