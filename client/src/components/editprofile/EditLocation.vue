@@ -18,7 +18,6 @@
             <input class="input" type="text" placeholder="Enter a city" id="autocompleteCities"/>
             <br>
             <br>
-<!--            onkeypress="return /[a-z]/i.test(event.key)"-->
             <input onkeypress="return /[a-z ]/i.test(event.key)" class="input" type="text" placeholder="Enter a state" id="autocompleteStates"/>
 
         </form>

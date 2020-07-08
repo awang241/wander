@@ -42,7 +42,7 @@
 
         computed: {
             isDisabled() {
-                return !(this.password == this.confPassword);
+                return (this.password != this.confPassword);
             }
         },
         methods: {

@@ -28,10 +28,10 @@
                             <h3 class="title is-4">{{activity.activity_name}}</h3>
                             Role: CREATOR
                             <div class="content">
-                                <table class="table-profile">
+                                <table class="table-profile" summary="List of the users activities">
                                     <tr>
-                                        <th colspan="1"></th>
-                                        <th colspan="2"></th>
+                                        <th colspan="1" scope="col"></th>
+                                        <th colspan="2" scope="col"></th>
                                     </tr>
                                     <tr>
                                         <td>Description:</td>

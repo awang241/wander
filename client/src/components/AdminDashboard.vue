@@ -3,14 +3,14 @@
         <h1 class="title is-3">Admin Dashboard</h1>
         <br>
         <h2 class="title is-5">All Users:</h2>
-        <table>
+        <table summary="List of all profiles">
             <tr>
-                <th>Profile ID</th>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>Gender</th>
-                <th>Primary Email</th>
-                <th>View Profile</th>
+                <th scope="col">Profile ID</th>
+                <th scope="col">First Name</th>
+                <th scope="col">Last Name</th>
+                <th scope="col">Gender</th>
+                <th scope="col">Primary Email</th>
+                <th scope="col">View Profile</th>
             </tr>
             <tr v-for="profile in allProfiles" v-bind:key="profile">
                 <td>{{ profile.id }}</td>

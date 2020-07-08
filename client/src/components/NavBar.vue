@@ -10,7 +10,7 @@
         </template>
 
         <template slot="brand">
-            <img class="crop-banner" src="../../images/WANDER-day-navbar.png"/>
+            <img class="crop-banner" src="../../images/WANDER-day-navbar.png" alt="Wander Logo in Navigation Bar"/>
         </template>
 
         <template slot="end">
