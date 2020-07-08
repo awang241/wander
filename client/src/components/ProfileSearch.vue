@@ -5,7 +5,7 @@
 
             <b-field label="Name" expanded>
                 <b-input type="text"
-                         v-model="email"
+                         v-model="name"
                          placeholder="Name">
                 </b-input>
             </b-field>
@@ -19,33 +19,26 @@
             </b-field>
 
             <b-field label="Activity types">
-
-
                 <b-taginput
-                        v-model="tags"
+                        v-model="chosenActivityTypes"
                         :data="filteredTags"
                         autocomplete
-                        field="user.first_name"
-                        placeholder="Add a type"
-                        @typing="getFilteredTags">
-                    <template slot-scope="props">
-                        <strong>{{props.option.id}}</strong>: {{props.option.user.first_name}}
-                    </template>
-                    <template slot="empty">
-                        There are no items
-                    </template>
+                        @typing="getFilteredTags"
+                        :open-on-focus="true"
+                        placeholder="Add a tag">
                 </b-taginput>
+
             </b-field>
 
             <div>
-                <b-radio v-model="activity"
-                         name="name"
-                         native-value="Continuous">
+                <b-radio v-model="activitySearchType"
+                         name="all types"
+                         native-value="all">
                     Matching all types
                 </b-radio>
-                <b-radio v-model="activity"
-                         name="name"
-                         native-value="Duration">
+                <b-radio v-model="activitySearchType"
+                         name="any types"
+                         native-value="any">
                     Matching any type
                 </b-radio>
             </div>
@@ -69,8 +62,39 @@
 </template>
 
 <script>
+    import Api from "../Api";
+
     export default {
-        name: "ProfileSearch"
+        name: "ProfileSearch",
+        data() {
+            return {
+                searchData: {},
+                activitySearchType: "all",
+                possibleActivityTypes: ['moffat', 'fabian', 'richard'],
+                chosenActivityTypes: [],
+                email: "",
+                name: "",
+                filteredTags: ['walter', 'kourosh']
+            }
+        },
+        mounted() {
+          //this.getPossibleActivityTypes()
+        },
+        methods: {
+            getPossibleActivityTypes() {
+                Api.getActivityTypesList()
+                    .then(response => this.possibleActivityTypes = response.data.allActivityTypes)
+                    .catch(error => this.showMessage(error))
+            },
+            getFilteredTags(text) {
+                this.filteredTags = this.possibleActivityTypes.filter((option) => {
+                    return option.activityType
+                        .toString()
+                        .toLowerCase()
+                        .indexOf(text.toLowerCase()) >= 0
+                })
+            }
+        }
     }
 </script>
 
