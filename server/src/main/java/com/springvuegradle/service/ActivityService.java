@@ -115,7 +115,7 @@ public class ActivityService {
             }
             Optional<Activity> activity = activityRepo.findById(activityId);
             for (ActivityType activityType : typeRepo.findAll()) {
-                if (activityType.getActivities().contains(activity.get())) {
+                if (activity.isPresent() && activityType.getActivities().contains(activity.get())) {
                     activityType.removeActivity(activity.get());
                 }
             }

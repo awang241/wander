@@ -182,7 +182,6 @@ public class Profile {
         this.password = password;
         this.bio = bio;
         this.dateOfBirth = dateOfBirth;
-//        this.dateOfBirth.add(Calendar.DATE, 1);
         this.gender = gender;
         this.fitness = fitnessLevel;
         this.passports = new HashSet<>();
@@ -243,7 +242,7 @@ public class Profile {
     public boolean changePrimary(Email newPrimary) {
         boolean primaryChanged = false;
         for (Email currentEmail: emails) {
-            if (currentEmail.getAddress() == newPrimary.getAddress()) {
+            if (currentEmail.getAddress().equals(newPrimary.getAddress())) {
                 currentEmail.setPrimary(true);
                 primaryChanged = true;
             } else {
