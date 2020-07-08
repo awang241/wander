@@ -28,7 +28,8 @@
                             <h3 class="title is-4">{{activity.activity_name}}</h3>
                             Role: CREATOR
                             <div class="content">
-                                <table class="table-profile" summary="List of the users activities">
+                                <table class="table-profile">
+                                    <caption hidden>Displayed Activity Table</caption>
                                     <tr>
                                         <th colspan="1" scope="col"></th>
                                         <th colspan="2" scope="col"></th>

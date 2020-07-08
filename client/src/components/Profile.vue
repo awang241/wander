@@ -65,7 +65,8 @@
                             <h3 class="title is-4">Profile</h3>
 
                             <div class="content">
-                                <table class="table-profile" summary="Table of some key profile information">
+                                <table class="table-profile">
+                                    <caption hidden>Table of some basic profile data</caption>
                                     <tr>
                                         <th colspan="1" scope="col"></th>
                                         <th colspan="2" scope="col"></th>

@@ -3,7 +3,8 @@
         <h1 class="title is-3">Admin Dashboard</h1>
         <br>
         <h2 class="title is-5">All Users:</h2>
-        <table summary="List of all profiles">
+        <table>
+            <caption hidden>Table of All Users</caption>
             <tr>
                 <th scope="col">Profile ID</th>
                 <th scope="col">First Name</th>
