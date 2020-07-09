@@ -57,14 +57,25 @@
             </div>
 
         </form>
+
+        <div id="results" class="column" v-if="searchData.length > 0">
+            <div class="container"
+                 v-for="profile in searchData"
+                 :key="profile.id">
+                <ProfileSummary :profile="profile"/>
+            </div>
+        </div>
     </div>
 </template>
 
 <script>
     import Api from "../Api";
+    import router from "../router"
+    import ProfileSummary from "./ProfileSummary";
 
     export default {
         name: "ProfileSearch",
+        components: {ProfileSummary},
         data() {
             return {
                 searchData: {},
@@ -101,6 +112,9 @@
                         .toLowerCase()
                         .indexOf(text.toLowerCase()) >= 0
                 })
+            },
+            openProfile() {
+                router.push('/Profile')
             }
         }
 
