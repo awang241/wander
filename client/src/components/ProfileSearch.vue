@@ -65,6 +65,8 @@
                 <ProfileSummary :profile="profile"/>
             </div>
         </div>
+
+        <observer v-on:intersect="loadMoreProfiles"></observer>
     </div>
 </template>
 
@@ -72,10 +74,11 @@
     import Api from "../Api";
     import router from "../router"
     import ProfileSummary from "./ProfileSummary";
+    import Observer from "./Observer";
 
     export default {
         name: "ProfileSearch",
-        components: {ProfileSummary},
+        components: {Observer, ProfileSummary},
         data() {
             return {
                 searchData: {},
@@ -83,12 +86,15 @@
                 chosenActivityTypes: [],
                 email: "",
                 name: "",
-                possibleActivityTypes: ['Hiking', 'Running', 'Swimming'],
-                filteredActivityTypes: this.possibleActivityTypes
+                possibleActivityTypes: [],
+                filteredActivityTypes: this.possibleActivityTypes,
+                observer: null,
+                profiles: [],
+                page: 1
             }
         },
         mounted() {
-            //this.getPossibleActivityTypes()
+            this.getPossibleActivityTypes()
         },
         methods: {
             getPossibleActivityTypes() {
@@ -115,10 +121,17 @@
             },
             openProfile() {
                 router.push('/Profile')
+            },
+            loadMoreProfiles(){
+                //TODO uncomment this method and use correct api call to work with backend implementation
+                // api.getProfiles(store.getters.getUserId, localStorage.getItem('authToken'))
+                //     .then((response) => {
+                //         this.page += 1
+                //         const profiles = response.data;
+                //         this.profiles = [...this.profiles, ...profiles]
+                //     })
             }
         }
-
-
     }
 </script>
 
