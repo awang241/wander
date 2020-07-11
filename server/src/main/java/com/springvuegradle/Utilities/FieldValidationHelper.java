@@ -6,6 +6,7 @@ import com.springvuegradle.Repositories.EmailRepository;
 import com.springvuegradle.Repositories.PassportCountryRepository;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 
 public class FieldValidationHelper {
@@ -130,5 +131,27 @@ public class FieldValidationHelper {
             }
         }
         return error;
+    }
+
+    /**
+     * Checks if the string is null or empty.
+     * @param string The string being checked.
+     * @return True if the string is null or an empty string, false otherwise.
+     */
+    public static Boolean isNullOrEmpty(String string) {
+        if (string == null) {
+            return true;
+        } else return string.isEmpty();
+    }
+
+    /**
+     * Checks if the collection is null or empty.
+     * @param collection The collection being checked.
+     * @return True if the collection is null or empty, false otherwise.
+     */
+    public static Boolean isNullOrEmpty(Collection<?> collection) {
+        if (collection == null) {
+            return true;
+        } else return collection.isEmpty();
     }
 }
