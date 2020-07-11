@@ -6,7 +6,10 @@ import com.springvuegradle.Repositories.*;
 import com.springvuegradle.Utilities.FieldValidationHelper;
 import com.springvuegradle.Utilities.JwtUtil;
 import com.springvuegradle.dto.*;
+import com.springvuegradle.service.ProfileService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -38,6 +41,9 @@ public class Profile_Controller {
 
     @Autowired
     private JwtUtil jwtUtil;
+
+    @Autowired
+    private ProfileService profileService;
 
     /**
      * Way to access PassportCountry Repository (Passport Country table in db).
@@ -191,23 +197,66 @@ public class Profile_Controller {
      * @return response entity which contains a list of simplified profiles and an ok status code or an unauthorized status code
      */
     @GetMapping("/profiles")
-    public @ResponseBody ResponseEntity<List<SimplifiedProfileResponse>> getUserProfiles(@RequestHeader("authorization") String token) {
-        if(jwtUtil.validateToken(token)) {
-            return getUserProfiles(jwtUtil.extractPermission(token));
+    public @ResponseBody ResponseEntity<List<SimplifiedProfileResponse>> getUserProfiles(
+            @RequestParam(name = "nickname", required = false) String nickname,
+            @RequestParam(name = "fullname", required = false) String fullName,
+            @RequestParam(name = "email", required = false) String email,
+            @RequestParam(name = "count") int count,
+            @RequestParam(name = "startIndex") int startIndex,
+            @RequestHeader("authorization") String token) {
+        if (Boolean.FALSE.equals(jwtUtil.validateToken(token))) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        } else if (count <= 0) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } else {
-            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+            int pageIndex = startIndex / count;
+            PageRequest request = PageRequest.of(pageIndex, count);
+
+            String firstName = null;
+            String middleName = null;
+            String lastName = null;
+            if (fullName != null) {
+                List<String> names = Arrays.asList(fullName.split(" "));
+                if (names.size() == 1) {
+                    lastName = names.get(0);
+                } else if (names.size() > 1){
+                    firstName = names.get(0);
+                    lastName = names.get(names.size() - 1);
+                    middleName = String.join(" ", names.subList(1, names.size() - 1));
+                }
+            }
+
+            Page<Profile> profiles = profileService.getUsers(firstName, middleName, lastName, nickname, email, request);
+            List<SimplifiedProfileResponse> simplifiedProfiles = createSimplifiedProfiles(profiles.getContent());
+            return new ResponseEntity<>(simplifiedProfiles, HttpStatus.OK);
         }
     }
 
     /**
-     * Retrieves all profile data relevant for admin to view
-     * @param authLevel the authentication level of the user
-     * @return list of simplified profile responses
+     * Retrieves all profiles matching the given search parameters.
+     * @param authLevel
+     * @param nickname
+     * @param fullname
+     * @param email
+     * @param count
+     * @param startIndex
+     * @return
      */
-    protected ResponseEntity<List<SimplifiedProfileResponse>> getUserProfiles(int authLevel) {
-        List<Profile> profilesForAdmin = repo.findAllBelowAuthlevel(authLevel);
-        List<SimplifiedProfileResponse> simplifiedProfiles = createSimplifiedProfiles(profilesForAdmin);
-        return new ResponseEntity<>(simplifiedProfiles, HttpStatus.OK);
+    protected ResponseEntity<List<SimplifiedProfileResponse>> getUserProfiles(int authLevel, String nickname, String fullname,
+                                                                              String email, int count, int startIndex) {
+
+        PageRequest request;
+        String searchName;
+        if (count < 0) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } else {
+            int pageIndex = startIndex / count;
+            request = PageRequest.of(pageIndex, count);
+        }
+
+        //Page<Profile> profiles = profileService.getUsers(nickname, fullname, email, request);
+        //List<SimplifiedProfileResponse> simplifiedProfiles = createSimplifiedProfiles(profiles.getContent());
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     /**
