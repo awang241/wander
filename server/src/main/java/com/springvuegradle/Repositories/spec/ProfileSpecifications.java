@@ -28,28 +28,33 @@ public class ProfileSpecifications {
     }
 
     public static Specification<Profile> firstNameContains(String substring) {
-        String pattern = "%" + substring + "%";
-        return (root, query, criteriaBuilder) -> criteriaBuilder.like(root.get(Profile_.firstname), pattern);
+        String pattern = "%" + substring.toLowerCase() + "%";
+        return (root, query, criteriaBuilder) -> criteriaBuilder.like(
+                criteriaBuilder.lower(root.get(Profile_.firstname)), pattern);
     }
 
     public static Specification<Profile> middleNameContains(String substring) {
-        String pattern = "%" + substring + "%";
-        return (root, query, criteriaBuilder) -> criteriaBuilder.like(root.get(Profile_.middlename), pattern);
+        String pattern = "%" + substring.toLowerCase() + "%";
+        return (root, query, criteriaBuilder) -> criteriaBuilder.like(
+                criteriaBuilder.lower(root.get(Profile_.middlename)), pattern);
     }
 
     public static Specification<Profile> nicknameContains(String substring) {
-        String pattern = "%" + substring + "%";
-        return (root, query, criteriaBuilder) -> criteriaBuilder.like(root.get(Profile_.nickname), pattern);
+        String pattern = "%" + substring.toLowerCase() + "%";
+        return (root, query, criteriaBuilder) -> criteriaBuilder.like(
+                criteriaBuilder.lower(root.get(Profile_.nickname)), pattern);
     }
 
     public static Specification<Profile> lastNameContains(String substring) {
-        String pattern = "%" + substring + "%";
-        return (root, query, criteriaBuilder) -> criteriaBuilder.like(root.get(Profile_.lastname), pattern);
+        String pattern = "%" + substring.toLowerCase() + "%";
+        return (root, query, criteriaBuilder) -> criteriaBuilder.like(
+                criteriaBuilder.lower(root.get(Profile_.lastname)), pattern);
     }
 
     public static Specification<Profile> stringFieldContains(SingularAttribute<Profile, String> field, String substring) {
-        String pattern = "%" + substring + "%";
-        return (root, query, criteriaBuilder) -> criteriaBuilder.like(root.get(field), pattern);
+        String pattern = "%" + substring.toLowerCase() + "%";
+        return (root, query, criteriaBuilder) -> criteriaBuilder.like(
+                criteriaBuilder.lower(root.get(field)), pattern);
     }
 
     public static Specification<Profile> hasEmail(Email email) {

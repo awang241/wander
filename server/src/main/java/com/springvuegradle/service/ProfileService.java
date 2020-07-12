@@ -3,7 +3,6 @@ package com.springvuegradle.service;
 import com.springvuegradle.Model.ActivityType;
 import com.springvuegradle.Model.Email;
 import com.springvuegradle.Model.Profile;
-import com.springvuegradle.Model.Profile_;
 import com.springvuegradle.Repositories.ProfileRepository;
 import com.springvuegradle.Repositories.spec.ProfileSpecifications;
 import com.springvuegradle.Utilities.FieldValidationHelper;

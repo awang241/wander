@@ -1,11 +1,13 @@
 package com.springvuegradle.service;
 
+import com.springvuegradle.Model.Email;
 import com.springvuegradle.Model.Profile;
 import com.springvuegradle.Model.ProfileTestUtils;
 import com.springvuegradle.Repositories.ActivityTypeRepository;
 import com.springvuegradle.Repositories.EmailRepository;
 import com.springvuegradle.Repositories.PassportCountryRepository;
 import com.springvuegradle.Repositories.ProfileRepository;
+import org.hibernate.TransientObjectException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -13,15 +15,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import javax.transaction.Transactional;
-
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -36,19 +34,30 @@ class ProfileServiceTest {
     @Autowired
     private ProfileRepository profileRepository;
     @Autowired
-    private PassportCountryRepository passportCountryRepository;
-    @Autowired
-    private static ActivityTypeRepository activityTypeRepository;
-    @Autowired
     private EmailRepository emailRepository;
     @Autowired
     private ProfileService testService;
 
-    private static Profile jimmyOne, jimmyTwo, steven, maurice, nicknamedQuick;
-    private static List<Profile> sameSurnameProfiles;
+    private Profile jimmyOne, jimmyTwo, steven, maurice, nicknamedQuick;
+    private List<Profile> profilesWithSameSurnameAsJimmy;
 
-    @BeforeAll
-    public static void setUpBeforeClass() {
+//    @BeforeAll
+//    public static void setUpBeforeClass() {
+//        jimmyOne = ProfileTestUtils.createProfileJimmy();
+//        jimmyOne.setPassports(new HashSet<>());
+//        jimmyTwo = ProfileTestUtils.createProfileJimmyAlternate();
+//        nicknamedQuick = ProfileTestUtils.createProfileNicknameMatchesJimmySurname();
+//        steven = ProfileTestUtils.createProfileWithMinimalFields();
+//        maurice = ProfileTestUtils.createNormalProfileMaurice();
+//        maurice.setPassports(new HashSet<>());
+//        profilesWithSameSurnameAsJimmy = ProfileTestUtils.createProfilesWithSameSurnameAsJimmy();
+//
+//    }
+
+    @BeforeEach
+    public void setUp(){
+        emailRepository.deleteAll();
+        profileRepository.deleteAll();
         jimmyOne = ProfileTestUtils.createProfileJimmy();
         jimmyOne.setPassports(new HashSet<>());
         jimmyTwo = ProfileTestUtils.createProfileJimmyAlternate();
@@ -56,145 +65,189 @@ class ProfileServiceTest {
         steven = ProfileTestUtils.createProfileWithMinimalFields();
         maurice = ProfileTestUtils.createNormalProfileMaurice();
         maurice.setPassports(new HashSet<>());
-        sameSurnameProfiles = ProfileTestUtils.createProfilesWithSameSurnameAsJimmy();
-
+        profilesWithSameSurnameAsJimmy = ProfileTestUtils.createProfilesWithSameSurnameAsJimmy();
     }
 
-    @BeforeEach
-    public void setUp(){
-        emailRepository.deleteAll();
-        profileRepository.deleteAll();
-    }
-
-    @Disabled
     @Test
-    void getUsersTestGetAll() {
-        profileRepository.save(jimmyOne);
-        profileRepository.save(jimmyTwo);
-        profileRepository.save(nicknamedQuick);
-        profileRepository.save(maurice);
-        profileRepository.save(steven);
-        profileRepository.saveAll(sameSurnameProfiles);
+    void getUsersWithNoCriteriaReturnsAllUsersTest() {
+        jimmyOne = profileRepository.save(jimmyOne);
+        nicknamedQuick = profileRepository.save(nicknamedQuick);
+        maurice = profileRepository.save(maurice);
+        steven = profileRepository.save(steven);
 
         Set<Profile> expectedProfiles = new HashSet<>();
         expectedProfiles.add(jimmyOne);
-        expectedProfiles.add(jimmyTwo);
         expectedProfiles.add(nicknamedQuick);
         expectedProfiles.add(maurice);
         expectedProfiles.add(steven);
-        expectedProfiles.addAll(sameSurnameProfiles);
+
+        PageRequest request = PageRequest.of(0, (int) profileRepository.count());
+        Page<Profile> result = testService.getUsers(null, null, null, null,
+                null, request);
+        assertTrue(result.getContent().containsAll(expectedProfiles), "Check no duplicates in result page");
+        assertEquals(expectedProfiles.size(), result.getSize());
+    }
+
+    @Test
+    void getUsersByFirstNameNormalTest() {
+        jimmyOne = profileRepository.save(jimmyOne);
+        jimmyTwo = profileRepository.save(jimmyTwo);
+        nicknamedQuick = profileRepository.save(nicknamedQuick);
+        maurice = profileRepository.save(maurice);
+        profilesWithSameSurnameAsJimmy = profileRepository.saveAll(profilesWithSameSurnameAsJimmy);
+
+        Set<Profile> expectedProfiles = new HashSet<>();
+        expectedProfiles.add(jimmyOne);
+        expectedProfiles.add(jimmyTwo);
+
+        PageRequest request = PageRequest.of(0, (int) profileRepository.count());
+        Page<Profile> actualProfiles = testService.getUsers(jimmyOne.getFirstname(), null, null,
+                null, null, request);
+
+        assertTrue(expectedProfiles.containsAll(actualProfiles.getContent()), "Check page contains the correct profiles.");
+        assertEquals(2, actualProfiles.getTotalElements(), "Check page is of the right size.");
+    }
+
+    @Test
+    void getUsersByMiddleNameNormalTest() {
+        jimmyOne = profileRepository.save(jimmyOne);
+        jimmyTwo = profileRepository.save(jimmyTwo);
+        nicknamedQuick = profileRepository.save(nicknamedQuick);
+        maurice = profileRepository.save(maurice);
+        steven = profileRepository.save(steven);
+        profilesWithSameSurnameAsJimmy = profileRepository.saveAll(profilesWithSameSurnameAsJimmy);
+
+        Set<Profile> expectedProfiles = new HashSet<>();
+        expectedProfiles.add(maurice);
+
+        PageRequest request = PageRequest.of(0, (int) profileRepository.count());
+        Page<Profile> actualProfiles = testService.getUsers(null, maurice.getMiddlename(), null,
+                null, null, request);
+
+        assertTrue(expectedProfiles.containsAll(actualProfiles.getContent()), "Check page contains the correct profiles.");
+        assertEquals(expectedProfiles.size(), actualProfiles.getTotalElements(), "Check page is of the right size.");
+    }
+
+    @Test
+    void getUsersByLastNameNormalTest() {
+        jimmyOne = profileRepository.save(jimmyOne);
+        maurice = profileRepository.save(maurice);
+        steven = profileRepository.save(steven);
+        profilesWithSameSurnameAsJimmy = profileRepository.saveAll(profilesWithSameSurnameAsJimmy);
+
+        Set<Profile> expectedProfiles = new HashSet<>();
+        expectedProfiles.add(jimmyOne);
+        expectedProfiles.addAll(profilesWithSameSurnameAsJimmy);
+
+        PageRequest request = PageRequest.of(0, Math.toIntExact(profileRepository.count()));
+
+        Page<Profile> actualProfiles = testService.getUsers(null, null, jimmyOne.getLastname(),
+                null, null, request);
+        assertTrue(expectedProfiles.containsAll(actualProfiles.getContent()), "Check page contains the correct profiles.");
+        assertEquals(expectedProfiles.size(), actualProfiles.getTotalElements(), "Check page is of the right size.");
+    }
+
+    @Test
+    void getUsersByFullNameNormalTest() {
+        jimmyOne = profileRepository.save(jimmyOne);
+        jimmyTwo = profileRepository.save(jimmyTwo);
+        steven = profileRepository.save(steven);
+        profilesWithSameSurnameAsJimmy = profileRepository.saveAll(profilesWithSameSurnameAsJimmy);
+
+        Set<Profile> expectedProfiles = new HashSet<>();
+        expectedProfiles.add(jimmyOne);
+        expectedProfiles.add(jimmyTwo);
+
+        PageRequest request = PageRequest.of(0, Math.toIntExact(profileRepository.count()));
+
+        Page<Profile> actualProfiles = testService.getUsers(jimmyOne.getFirstname(), jimmyOne.getMiddlename(), jimmyOne.getLastname(),
+                null, null, request);
+        assertTrue(expectedProfiles.containsAll(actualProfiles.getContent()), "Check page contains the correct profiles.");
+        assertEquals(expectedProfiles.size(), actualProfiles.getTotalElements(), "Check page is of the right size.");
+    }
+
+    @Test
+    void getUsersByNicknameNormalTest() {profileRepository.save(jimmyOne);
+        profileRepository.save(jimmyTwo);
+        nicknamedQuick = profileRepository.save(nicknamedQuick);
+        profileRepository.save(steven);
+        profileRepository.saveAll(profilesWithSameSurnameAsJimmy);
+
+        Set<Profile> expectedProfiles = new HashSet<>();
+        expectedProfiles.add(nicknamedQuick);
+
+        PageRequest request = PageRequest.of(0, Math.toIntExact(profileRepository.count()));
+
+        Page<Profile> actualProfiles = testService.getUsers(null, null, null,
+                nicknamedQuick.getNickname(), null, request);
+        assertTrue(expectedProfiles.containsAll(actualProfiles.getContent()), "Check page contains the correct profiles.");
+        assertEquals(expectedProfiles.size(), actualProfiles.getTotalElements(), "Check page is of the right size.");
     }
 
     @Disabled
     @Test
-    void getUsersByNameTest() {
+    void getUsersByEmailNormalTest() {
+        String email = steven.getPrimary_email();
         profileRepository.save(jimmyOne);
         profileRepository.save(jimmyTwo);
         profileRepository.save(nicknamedQuick);
-        profileRepository.save(maurice);
-        profileRepository.save(steven);
-        profileRepository.saveAll(sameSurnameProfiles);
+        steven = profileRepository.save(steven);
+        profileRepository.saveAll(profilesWithSameSurnameAsJimmy);
 
         Set<Profile> expectedProfiles = new HashSet<>();
-        expectedProfiles.add(jimmyOne);
-        expectedProfiles.add(jimmyTwo);
-        expectedProfiles.add(nicknamedQuick);
-        expectedProfiles.addAll(sameSurnameProfiles);
-        int pageSize = 3;
-        int pageNum = 1;
+        expectedProfiles.add(steven);
 
-        PageRequest request = PageRequest.of(pageNum, pageSize);/*
-        Page<Profile> actualProfiles = testService.getUsers(jimmyOne.getLastname(), null, null,
-                false, request);
+        PageRequest request = PageRequest.of(0, Math.toIntExact(profileRepository.count()));
 
+        Page<Profile> actualProfiles = testService.getUsers(null, null, null,
+                null, email, request);
         assertTrue(expectedProfiles.containsAll(actualProfiles.getContent()), "Check page contains the correct profiles.");
-        assertEquals(pageSize, actualProfiles.getTotalElements(), "Check page is of the right size.");
-        */
+        assertEquals(expectedProfiles.size(), actualProfiles.getTotalElements(), "Check page is of the right size.");
     }
 
     @Disabled
     @Test
-    void getUsersByNameIsBlankTest() {
-        profileRepository.save(jimmyOne);
-        profileRepository.save(jimmyTwo);
-        profileRepository.save(nicknamedQuick);
-        profileRepository.save(maurice);
-        profileRepository.save(steven);
-        profileRepository.saveAll(sameSurnameProfiles);
+    void getUsersWithNoProfilesMatchingParamsReturnsNoProfilesTest() {
+        jimmyOne = profileRepository.save(jimmyOne);
+        maurice = profileRepository.save(maurice);
+        steven = profileRepository.save(steven);
+
+        PageRequest request = PageRequest.of(0, Math.toIntExact(profileRepository.count()));
+        Collection<Profile> profiles = profileRepository.findAll();
+//        for (Profile profile: profiles) {
+//            for (Email email: profile.retrieveEmails()) {
+//                email.setProfile(profile);
+//                emailRepository.save(email);
+//            }
+//        }
+        Collection<Email> emails = emailRepository.findAll();
+        Page<Profile> actualProfiles;
+/*        try {
+            actualProfiles = testService.getUsers("Jim", "Bim", "Dim", "Gim",
+                    "Fim", request);
+        } catch (TransientObjectException e) {
+            System.out.print(e);
+        }*/
+        actualProfiles = testService.getUsers("Jim", "Bim", "Dim", "Gim",
+            "Fim", request);
+        assertTrue(actualProfiles.isEmpty());
+    }
+
+    @Test
+    void getUsersMatchingIsNotCaseSensitiveTest() {
+        jimmyTwo = profileRepository.save(jimmyTwo);
+        nicknamedQuick = profileRepository.save(nicknamedQuick);
+        steven = profileRepository.save(steven);
 
         Set<Profile> expectedProfiles = new HashSet<>();
-        expectedProfiles.add(jimmyOne);
-        expectedProfiles.add(jimmyTwo);
-        expectedProfiles.add(nicknamedQuick);
-        expectedProfiles.addAll(sameSurnameProfiles);
-        int pageSize = 3;
-        int pageNum = 1;
+        expectedProfiles.add(steven);
 
-        List<Profile> p = profileRepository.findAll(Specification.where(null));
-        profileRepository.findAll();
+        PageRequest request = PageRequest.of(0, Math.toIntExact(profileRepository.count()));
 
-        /*
-        PageRequest request = PageRequest.of(pageNum, pageSize);
-        Page<Profile> actualProfiles = testService.getUsers(jimmyOne.getLastname(), null, null,
-                false, request);
-
+        Page<Profile> actualProfiles = testService.getUsers("ste", null, null,
+                null, null, request);
         assertTrue(expectedProfiles.containsAll(actualProfiles.getContent()), "Check page contains the correct profiles.");
-        assertEquals(pageSize, actualProfiles.getTotalElements(), "Check page is of the right size.");
-        */
+        assertEquals(expectedProfiles.size(), actualProfiles.getTotalElements(), "Check page is of the right size.");
     }
 
-    @Disabled
-    @Test
-    void getUsersByNamePagingTest() {
-        profileRepository.save(jimmyOne);
-        profileRepository.save(maurice);
-        profileRepository.save(steven);
-        profileRepository.saveAll(sameSurnameProfiles);
-
-        Set<Profile> expectedProfiles = new HashSet<>();
-        expectedProfiles.add(jimmyOne);
-        expectedProfiles.addAll(sameSurnameProfiles);
-
-        int expectedSize = 3;
-        /*
-        List<Profile> actualProfiles = testService.getUsersByName(jimmyOne.getLastname(), expectedSize, 1);
-        assertTrue(expectedProfiles.containsAll(actualProfiles), "Check page contains the correct profiles.");
-        assertEquals(expectedSize, actualProfiles.size(), "Check page is of the right size.");
-        */
-    }
-
-    @Disabled
-    @Test
-    void getUsersByFullNameTest() {
-        profileRepository.save(jimmyOne);
-        profileRepository.save(jimmyTwo);
-        profileRepository.save(maurice);
-        profileRepository.save(steven);
-
-        Set<Profile> expectedProfiles = new HashSet<>();
-        expectedProfiles.add(jimmyOne);
-        expectedProfiles.add(jimmyTwo);
-
-        Set<Profile> actualProfiles = new HashSet<Profile>(testService.getUsersByName(jimmyOne.getFullName(),
-                Math.toIntExact(profileRepository.count()), 0).getContent());
-        assertEquals(expectedProfiles, actualProfiles, "Check correct profiles have been returned.");
-    }
-
-    @Disabled
-    @Test
-    void getUsersByNameWhenNotInRepoReturnsEmptyListTest() {
-        profileRepository.save(jimmyOne);
-        profileRepository.save(maurice);
-        profileRepository.save(steven);
-
-        Set<Profile> actualProfiles = new HashSet<>(testService.getUsersByName("not a real name",
-                Math.toIntExact(profileRepository.count()), 0).getContent());
-        assertEquals(0, actualProfiles.size(), "Check empty list is returned.");
-    }
-
-    @Disabled
-    @Test
-    void getUsersByEmail() {
-        fail("Not yet implemented");
-    }
 }
