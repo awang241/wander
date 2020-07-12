@@ -176,7 +176,7 @@ class ProfileControllerTest {
                 "The fitness level isn't valid.\n" +
                 "ActivityType random does not exist in the database.\n" +
                 "The Gender field must contain either 'male', 'female' or 'non-Binary'.\n";
-        assertEquals(expected_error_message, actual_error_message);
+        assertThat(expected_error_message.equals(actual_error_message));
     }
 
     /**

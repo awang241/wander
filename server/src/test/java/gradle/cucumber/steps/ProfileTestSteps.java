@@ -56,6 +56,7 @@ public class ProfileTestSteps{
     public void setUp() {
         loginController = new LoginController(jwtUtil, eRepo);
         profileController = new Profile_Controller(repo, pcRepo, eRepo, aRepo, activityRepo, jwtUtil);
+        //profileController = new Profile_Controller();
         createProfileResponse = null;
         loginResponse = null;
         dbPassword = null;
