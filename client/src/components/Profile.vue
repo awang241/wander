@@ -15,10 +15,11 @@
                 </div>
 
                 <b-button v-if="viewingOwnProfile"
-                        @click="editProfile"
+                          @click="editProfile"
                           type="is-info">
                     Edit Profile
                 </b-button>
+
             </div>
         </section>
         <!-- Social Media Count -->
@@ -158,14 +159,22 @@
         data() {
             return {
                 profile: {},
+                store: store,
+                id: this.$route.params.id
+            }
+        },
+        watch: {
+            '$route.params.id': function (id) {
+                this.id = id
+                this.getProfile()
             }
         },
         methods: {
-            editProfile() {
-                router.push('EditProfile/' + store.getters.getUserId);
+            editProfile(){
+                router.push({path: '/EditProfile/' + store.getters.getUserId});
             },
             getProfile() {
-                api.getProfile(store.getters.getUserId, localStorage.getItem('authToken'))
+                api.getProfile(this.id, localStorage.getItem("authToken"))
                     .then((response) => {
                         this.profile = response.data;
                     })
@@ -175,11 +184,9 @@
                     })
             }
         },
-
         computed: {
-            // a computed getter
-            viewingOwnProfile(){
-                return this.profile.id === store.getters.getUserId
+            viewingOwnProfile() {
+                return this.profile.id == store.getters.getUserId
             },
             fitnessStatement: function () {
                 switch (this.profile.fitness_statement) {
@@ -206,9 +213,9 @@
                 return locationString
             }
         },
-
         mounted() {
             this.getProfile()
+
         },
     }
 </script>

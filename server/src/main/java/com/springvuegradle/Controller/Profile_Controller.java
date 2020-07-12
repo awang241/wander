@@ -132,7 +132,6 @@ public class Profile_Controller {
     /**
      * Endpoint for getting profiles.
      * @param id referencing the profile
-     * @param token to check if the user is logged in
      * @return response entities holding a profile object returned, sent to the front-end as json data in the format defined
      * by the Profile model class, along with a status code.
      */
@@ -142,17 +141,19 @@ public class Profile_Controller {
             return getProfile(id);
         } else {
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+
         }
     }
 
-    /**
-     * Endpoint for editing profiles.
-     * Updates a profile in the database given a request to do so.
-     * @param editedProfile a profile object created from the request
-     * @param id the ID of the profile being edited, pulled from the URL as a path variable.
-     * @param token the jwt token stored on the client
-     * @return An HTTP response with an appropriate status code and the updated profile if there method was successful.
-     */
+
+        /**
+         * Endpoint for editing profiles.
+         * Updates a profile in the database given a request to do so.
+         * @param editedProfile a profile object created from the request
+         * @param id the ID of the profile being edited, pulled from the URL as a path variable.
+         * @param token the jwt token stored on the client
+         * @return An HTTP response with an appropriate status code and the updated profile if there method was successful.
+         */
     @PutMapping("/profiles/{id}")
     public @ResponseBody ResponseEntity<String> updateProfile(@RequestBody Profile editedProfile, @RequestHeader("authorization") String token, @PathVariable Long id) {
         if (securityService.checkEditPermission(token, id)) {

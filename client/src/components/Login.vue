@@ -63,7 +63,7 @@
                         router.push({path: '/AdminDashboard'});
                     }
                     else{
-                        router.push('Profile')
+                        router.push({path: '/Profile/' + store.getters.getUserId})
                     }
                 }))
                     .catch(error => this.warningToast(this.getErrorMessageFromStatusCode(error.response.status)))
