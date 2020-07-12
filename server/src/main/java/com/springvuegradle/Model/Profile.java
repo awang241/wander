@@ -117,6 +117,10 @@ public class Profile {
             joinColumns = @JoinColumn(name = "profile_id", referencedColumnName = "id"))
     private Set<ActivityType> activityTypes;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "location_id", referencedColumnName = "id")
+    private ProfileLocation location;
+
     @JsonIgnore
     public Set<ActivityMembership> getActivities() {
         return activities;
@@ -178,7 +182,6 @@ public class Profile {
         this.password = password;
         this.bio = bio;
         this.dateOfBirth = dateOfBirth;
-//        this.dateOfBirth.add(Calendar.DATE, 1);
         this.gender = gender;
         this.fitness = fitnessLevel;
         this.passports = new HashSet<>();
@@ -202,7 +205,7 @@ public class Profile {
     public boolean addEmail(Email email) {
         boolean alreadyInEmails = false;
         for (Email tEmail: emails) {
-            if (tEmail.getAddress() == email.getAddress()) {
+            if (tEmail.getAddress().equals(email.getAddress())) {
                 alreadyInEmails = true;
             }
         }
@@ -224,7 +227,7 @@ public class Profile {
      */
     public boolean removeEmail(Email email) {
         for (Email currentEmail: emails) {
-            if (currentEmail.getAddress() == email.getAddress() && !currentEmail.isPrimary()) {
+            if (currentEmail.getAddress().equals(email.getAddress()) && !currentEmail.isPrimary()) {
                 emails.remove(currentEmail);
                 return true;
             }
@@ -239,7 +242,7 @@ public class Profile {
     public boolean changePrimary(Email newPrimary) {
         boolean primaryChanged = false;
         for (Email currentEmail: emails) {
-            if (currentEmail.getAddress() == newPrimary.getAddress()) {
+            if (currentEmail.getAddress().equals(newPrimary.getAddress())) {
                 currentEmail.setPrimary(true);
                 primaryChanged = true;
             } else {
@@ -425,6 +428,10 @@ public class Profile {
         this.lastname = lastname;
     }
 
+    public void setLocation(ProfileLocation location){
+        this.location = location;
+    }
+
     public String getMiddlename() {
         return middlename;
     }
@@ -448,7 +455,7 @@ public class Profile {
             }
         }
         return null;
-    };
+    }
 
     public String getPrimary_email() {
         for (Email email: emails) {
@@ -457,7 +464,7 @@ public class Profile {
             }
         }
         return null;
-    };
+    }
 
     public Set<String> getAdditional_email() {
         Set<String> emailStrings = new HashSet<>();
@@ -487,6 +494,10 @@ public class Profile {
         this.bio = bio;
     }
 
+    @JsonProperty("location")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public ProfileLocation getProfileLocation(){return this.location;}
+
     public boolean addActivity(ActivityMembership membership) {
         return this.activities.add(membership);
     }
@@ -494,5 +505,4 @@ public class Profile {
     public boolean removeActivity(ActivityMembership membership) {
         return this.activities.remove(membership);
     }
-
 }

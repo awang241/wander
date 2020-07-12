@@ -14,10 +14,12 @@
 
                 </div>
 
-                <b-button  @click="editProfile"
-                           type="is-info">
+                <b-button v-if="viewingOwnProfile"
+                          @click="editProfile"
+                          type="is-info">
                     Edit Profile
                 </b-button>
+
             </div>
         </section>
         <!-- Social Media Count -->
@@ -54,7 +56,7 @@
         </div>
         <section class="section" id="about">
 
-            <hr class ="hrLine">
+            <hr class="hrLine">
 
             <div class="container containerColor has-same-height is-gapless">
                 <div class="column">
@@ -65,13 +67,18 @@
 
                             <div class="content">
                                 <table class="table-profile">
+                                    <caption hidden>Table of some basic profile data</caption>
                                     <tr>
-                                        <th colspan="1"></th>
-                                        <th colspan="2"></th>
+                                        <th colspan="1" scope="col"></th>
+                                        <th colspan="2" scope="col"></th>
                                     </tr>
                                     <tr>
                                         <td>Gender:</td>
                                         <td>{{ profile.gender }}</td>
+                                    </tr>
+                                    <tr v-if="profile.location">
+                                        <td>Location:</td>
+                                        <td>{{fullLocation}}</td>
                                     </tr>
                                     <tr>
                                         <td>Birthday:</td>
@@ -82,7 +89,7 @@
                                         <td>{{ profile.primary_email }}</td>
                                     </tr>
 
-                                     <tr v-for="email in profile.additional_email" :key="email">
+                                    <tr v-for="email in profile.additional_email" :key="email">
                                         <td>Additional Email:</td>
                                         <td>{{email}}</td>
                                     </tr>
@@ -134,7 +141,8 @@
             </div>
             <div class="container containerColor">
                 <div class="box">
-                    <h3 v-for="activityType in profile.activities" :key="activityType" class="title is-4">{{activityType}}</h3>
+                    <h3 v-for="activityType in profile.activities" :key="activityType" class="title is-4">
+                        {{activityType}}</h3>
                 </div>
             </div>
         </section>
@@ -151,14 +159,22 @@
         data() {
             return {
                 profile: {},
+                store: store,
+                id: this.$route.params.id
+            }
+        },
+        watch: {
+            '$route.params.id': function (id) {
+                this.id = id
+                this.getProfile()
             }
         },
         methods: {
             editProfile(){
-                router.push('EditProfile/' + store.getters.getUserId);
+                router.push({path: '/EditProfile/' + store.getters.getUserId});
             },
             getProfile() {
-                api.getProfile(store.getters.getUserId, localStorage.getItem('authToken'))
+                api.getProfile(this.id, localStorage.getItem("authToken"))
                     .then((response) => {
                         this.profile = response.data;
                     })
@@ -168,9 +184,10 @@
                     })
             }
         },
-
         computed: {
-            // a computed getter
+            viewingOwnProfile() {
+                return this.profile.id == store.getters.getUserId
+            },
             fitnessStatement: function () {
                 switch (this.profile.fitness_statement) {
                     case 0 :
@@ -178,19 +195,27 @@
                     case 1 :
                         return "Novice: I do a low level of exercise (walking)";
                     case 2 :
-                        return"Intermediate: I work out 1-2 times per week";
+                        return "Intermediate: I work out 1-2 times per week";
                     case 3 :
                         return "Advanced: I work out 3-4 times per week";
                     case 4 :
                         return "Pro: I work out 5+ times per week";
                     default:
-                       return "Beginner: I am not active at all";
+                        return "Beginner: I am not active at all";
                 }
+            },
+            fullLocation: function () {
+                let locationString = this.profile.location.city + ", "
+                if (this.profile.location.state) {
+                    locationString += this.profile.location.state + ", "
+                }
+                locationString += this.profile.location.country
+                return locationString
             }
         },
-
         mounted() {
             this.getProfile()
+
         },
     }
 </script>
@@ -209,7 +234,7 @@
     }
 
     .hrLine {
-        border:2px solid #EDEEEE;
+        border: 2px solid #EDEEEE;
     }
 
 </style>

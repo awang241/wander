@@ -1,10 +1,7 @@
 package com.springvuegradle.Repositories;
 
 import com.springvuegradle.Model.Activity;
-import com.springvuegradle.Model.ActivityType;
-import com.springvuegradle.Model.Email;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;

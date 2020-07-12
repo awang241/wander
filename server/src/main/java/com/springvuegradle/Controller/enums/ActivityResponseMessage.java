@@ -11,6 +11,7 @@ public enum ActivityResponseMessage {
     MISSING_START_DATE("Non-continuous activities must have a start date"),
     MISSING_TYPES("An activity must have at least one activity type"),
     INVALID_ACTIVITY("No activity with that ID exists in the database"),
+    INVALID_PROFILE("No profile with that ID exists in the database"),
     INVALID_DATES("The end date cannot be before the start date"),
     INVALID_FIELDS("Invalid fields"),
     INVALID_TYPE("Given activity types do not exist in the database"),

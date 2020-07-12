@@ -15,6 +15,10 @@ import java.util.Random;
 
 public class InitialDataHelper {
 
+    private static Random random = new Random();
+
+    private InitialDataHelper(){};
+
     /**
      * Load initial activity types into the activity type database
      *
@@ -81,7 +85,6 @@ public class InitialDataHelper {
             int minAscii = 48;
             int maxAscii = 122;
             int passwordLength = 20;
-            Random random = new Random();
             String password = random.ints(minAscii, maxAscii).filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
                     .limit(passwordLength)
                     .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)

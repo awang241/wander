@@ -4,6 +4,7 @@ import com.springvuegradle.Model.ActivityType;
 import com.springvuegradle.Model.PassportCountry;
 import com.springvuegradle.Model.Profile;
 
+import com.springvuegradle.Model.ProfileLocation;
 import com.springvuegradle.Repositories.*;
 import com.springvuegradle.dto.ChangePasswordRequest;
 import com.springvuegradle.dto.EmailAddRequest;
@@ -20,6 +21,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.*;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -754,6 +756,75 @@ class ProfileControllerTest {
         ResponseEntity<List<SimplifiedProfileResponse>> response_2 = profileController.getUserProfiles(0);
         assertEquals(2, response_2.getBody().size());
     }
+
+    @Test
+    void addLocationTest(){
+        Profile testProfile = createNormalProfileJimmy();
+
+        ProfileLocation location = new ProfileLocation("New Zealand", "Christchurch", "Canterbury");
+        testProfile.setLocation(location);
+        ProfileLocation updatedLocation = new ProfileLocation("New Zealand", "Christchurch", "Canterbury");
+
+        profileController.createProfile(testProfile);
+        assertEquals(testProfile.getProfileLocation(), updatedLocation);
+    }
+
+    @Test
+    void editLocationResponseTest(){
+        Profile testProfile = createNormalProfileJimmy();
+        Profile updateData = createNormalProfileJimmy();
+        Profile expectedProfile = createNormalProfileJimmy();
+
+        Set<PassportCountry> realPassports = new HashSet<>();
+        for (PassportCountry passportCountry: expectedProfile.getPassportObjects()){
+            realPassports.add(pcrepo.findByCountryName(passportCountry.getCountryName()).get(0));
+        }
+        expectedProfile.setPassword(Profile_Controller.hashPassword(testProfile.getPassword()));
+        expectedProfile.setPassports(realPassports);
+        updateData.setPassports(realPassports);
+
+        ProfileLocation location = new ProfileLocation("New Zealand", "Christchurch", "Canterbury");
+        testProfile.setLocation(location);
+        ProfileLocation updatedLocation = new ProfileLocation("New Zealand", "Christchurch", "Canterbury");
+        expectedProfile.setLocation(updatedLocation);
+        updateData.setLocation(updatedLocation);
+
+        profileController.createProfile(testProfile);
+        ResponseEntity<String> actualResponse = profileController.updateProfile(updateData, testProfile.getId());
+
+        Profile updatedProfile = repo.findById(testProfile.getId()).get();
+        assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
+    }
+
+
+    @Test
+    void editLocationDataTest(){
+        Profile testProfile = createNormalProfileJimmy();
+        Profile updateData = createNormalProfileJimmy();
+        Profile expectedProfile = createNormalProfileJimmy();
+
+        Set<PassportCountry> realPassports = new HashSet<>();
+        for (PassportCountry passportCountry: expectedProfile.getPassportObjects()){
+            realPassports.add(pcrepo.findByCountryName(passportCountry.getCountryName()).get(0));
+        }
+        expectedProfile.setPassword(Profile_Controller.hashPassword(testProfile.getPassword()));
+        expectedProfile.setPassports(realPassports);
+        updateData.setPassports(realPassports);
+
+        ProfileLocation location = new ProfileLocation("New Zealand", "Christchurch", "Canterbury");
+        testProfile.setLocation(location);
+        ProfileLocation updatedLocation = new ProfileLocation("New Zealand", "Christchurch", "Canterbury");
+        expectedProfile.setLocation(updatedLocation);
+        updateData.setLocation(updatedLocation);
+
+        profileController.createProfile(testProfile);
+        ResponseEntity<String> actualResponse = profileController.updateProfile(updateData, testProfile.getId());
+
+        Profile updatedProfile = repo.findById(testProfile.getId()).get();
+        assertEquals(expectedProfile.getProfileLocation(), updatedProfile.getProfileLocation(), "Check profile updated");
+    }
+
+
 
     /**
      * Needs to be run before each test to ensure the repository starts empty.

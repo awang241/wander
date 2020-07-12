@@ -42,14 +42,14 @@ public class PassportCountry {
      */
     @ManyToMany(mappedBy = "passports")
     @JsonBackReference
-    private Set<Profile> profiles = new HashSet<Profile>();
+    private Set<Profile> profiles = new HashSet<>();
 
-    public PassportCountry(){};
+    public PassportCountry(){}
 
     public PassportCountry(String name){
         this.countryName = name;
         this.numericCode = "Dummy Code";
-    };
+    }
 
     @JsonCreator
     public PassportCountry(
