@@ -21,22 +21,6 @@ const routes = [
     {path: "/Activities", name: "activities", component:ActivitiesComponent},
     {path: "/EditActivity/:", name:"editActivity", component:AddActivityComponent, props: true},
     {path: "/Profile/:id", name: "profile", component:ProfileComponent},
-    // {path: "/EditProfile/:id", name: "editProfile", component: EditProfileComponent},
-    // {
-    //     //This route is only accessible if the user is authenticated, else it sends them back to the main page
-    //     path: "/Profile/:id", name: "profile", component: ProfileComponent, beforeEnter: (to, from, next) => {
-    //         console.log("Route prints below")
-    //         console.log(store.getters.getAuthenticationStatus)
-    //         if (store.getters.getAuthenticationStatus) {
-    //             next()
-    //         } else {
-    //             next({
-    //                 name: "mainpage"
-    //             })
-    //         }
-    //     }
-
-    // },
     {
         //This route is only accessible if the user is authenticated, else it sends them back to the main page
         path: "/EditProfile/:id", name: "editProfile", component: EditProfileComponent, beforeEnter: (to, from, next) => {

@@ -20,7 +20,6 @@ if (localStorage.getItem('authToken') != null) {
       .then(r => {
         let payload = {'token': localStorage.getItem('authToken'), 'userId': localStorage.getItem('userId')}
         store.dispatch('validateByTokenAndUserId', payload).then()
-          console.log(r)
         return r
       })
       .catch((error) => {
