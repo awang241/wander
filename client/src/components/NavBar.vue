@@ -28,6 +28,11 @@
                               type="is-light">
                         Register
                     </b-button>
+                    <b-button  @click="goToProfileSearch"
+                               v-if="store.getters.getAuthenticationStatus && store.getters.getAuthenticationLevel > 0"
+                               type="is-light">
+                        Search for a Profile
+                    </b-button>
                     <b-button  @click="goToAdminDashboard"
                                v-if="store.getters.getAuthenticationLevel <= 1"
                                type="is-light">
@@ -84,6 +89,9 @@
             },
             goToActivities(){
                 router.push({path: '/Activities'});
+            },
+            goToProfileSearch() {
+                router.push({path: '/ProfileSearch'})
             }
         }
     }

@@ -11,10 +11,12 @@
 
 <script>
   import NavBar from './components/NavBar';
+  import ProfileSearch from "./components/ProfileSearch";
 
   const app = {
       name: 'app',
       components: {
+          ProfileSearch,
           NavBar
       },
       data: () => {
