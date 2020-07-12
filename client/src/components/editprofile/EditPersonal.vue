@@ -73,9 +73,12 @@
 
 <script>
 
+    import toastMixin from "../../mixins/toastMixin";
+
     export default {
         name: "EditPersonal",
         props: ["profile"],
+        mixins: [toastMixin],
         data() {
             const today = new Date()
             return {
@@ -129,32 +132,17 @@
                     "fitness": this.fitness_level
                     }
                 this.$parent.updatePersonal(personalDetails)
-                this.showMessage("Personal details saved!")
+                this.successToast("Personal details saved!")
             },
-            showMessage(message) {
-                this.$buefy.toast.open({
-                    duration: 2000,
-                    message: message,
-                    type: 'is-success',
-                    position: 'is-top'
-                })
-            },
-            showError(message) {
-                this.$buefy.toast.open({
-                    duration: 2000,
-                    message: message,
-                    type: 'is-danger',
-                    position: 'is-top'
-                })
-            },
-            displayError(statusCode) {
+
+            getErrorMessageFromStatusCode(statusCode) {
                 let message = ""
                 if (statusCode == 200) {
                     message = "Details updated successfully"
                 } else if (statusCode == 400 || statusCode == 403 || statusCode == 401) {
                     message = "Please fill in all required fields"
                 }
-                this.showError(message)
+                this.warningToast(message)
             },
             dateFormatter(dt){
                 return dt.toLocaleDateString('en-NZ', { year: 'numeric', month: 'numeric', day: 'numeric' });

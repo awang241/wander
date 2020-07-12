@@ -9,6 +9,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -151,6 +152,7 @@ public class ActivityControllerTest {
         assertEquals(HttpStatus.NOT_FOUND, response_entity2.getStatusCode());
     }
 
+
     /**
      * Check if the right amount of activities are saved in the database.
      */
@@ -172,10 +174,10 @@ public class ActivityControllerTest {
         arepo.save(createNormalActivity());
         arepo.save(createNormalActivity1());
         ResponseEntity<List<Activity>> responseEntity = activityController.getActivitiesList();
-        assertEquals(responseEntity.getStatusCode(), HttpStatus.OK);
-        assertEquals(responseEntity.getBody().get(0).getActivityName(), "Kaikoura Coast Track race");
-        assertEquals(responseEntity.getBody().get(1).getActivityName(), "Triathlon");
-        assertEquals(responseEntity.getBody().size(), 2);
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        assertEquals("Kaikoura Coast Track race", responseEntity.getBody().get(0).getActivityName());
+        assertEquals("Triathlon", responseEntity.getBody().get(1).getActivityName());
+        assertEquals(2, responseEntity.getBody().size());
     }
 
     /**
@@ -193,8 +195,8 @@ public class ActivityControllerTest {
         activityController.createActivity(profile.getId(), trackRace, null, true);
         ResponseEntity<List<Activity>> responseEntity = activityController.getAllUsersActivities(null,
                 profile.getId(), true);
-        assertEquals(responseEntity.getStatusCode(), HttpStatus.OK);
-        assertEquals(responseEntity.getBody().get(0).getActivityName(), "Kaikoura Coast Track race");
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        assertEquals( "Kaikoura Coast Track race", responseEntity.getBody().get(0).getActivityName());
     }
 
     /* Below are a set of ready-made Activity objects which can be used for various tests. */

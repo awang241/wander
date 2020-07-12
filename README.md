@@ -30,14 +30,15 @@ Note: If the database fails to connect at step 4, database credentials may have 
 
 ### Example Login Data
 
+ - To log in with the default admin profile, use the email `default@admin.com` with the password printed in the terminal the first time the default admin is generated.
  - To log in with a regular profile, use the Email `Steve@test.com` with the password `987654321`.  
  - To log in with an admin profile, use the Email `Dave@test.com` with the password `SecureAdminPassword`.
  
-For full instructions on how to use the application, please rever to our [User Manual](https://eng-git.canterbury.ac.nz/seng302-2020/team-100/wikis/User-Manual) 
+For full instructions on how to use the application, please refer to our [User Manual](https://eng-git.canterbury.ac.nz/seng302-2020/team-100/wikis/User-Manual) 
 
 ### Licensing
 
-Add the licensing for each of our dependancies (business cases) here
+Add the licensing for each of our dependencies (business cases) here
 
 ##### Buefy
 Buefy is licensed under the MIT License

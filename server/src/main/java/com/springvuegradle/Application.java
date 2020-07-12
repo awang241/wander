@@ -1,15 +1,12 @@
 package com.springvuegradle;
 
-import com.springvuegradle.Model.Activity;
 import com.springvuegradle.Repositories.*;
 import com.springvuegradle.Utilities.InitialDataHelper;
 import com.springvuegradle.Utilities.ValidationHelper;
-import com.springvuegradle.service.ActivityService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.SpringApplication;
 
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -56,7 +53,7 @@ public class Application {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
         // *** URL below needs to match the Vue client URL and port ***
-        config.setAllowedOrigins(new ArrayList(Arrays.asList("http://localhost:9000", "http://localhost:9499", "http://localhost:9500", "https://csse-s302g0.canterbury.ac.nz/test", "https://csse-s302g0.canterbury.ac.nz/prod")));
+        config.setAllowedOrigins(new ArrayList(Arrays.asList("http://localhost:9000", "http://localhost:9499", "http://localhost:9500", "https://csse-s302g1.canterbury.ac.nz/test", "https://csse-s302g1.canterbury.ac.nz/prod", "https://csse-s302g1.canterbury.ac.nz")));
         config.setAllowedMethods(Collections.singletonList("*"));
         config.setAllowedHeaders(Collections.singletonList("*"));
         source.registerCorsConfiguration("/**", config);

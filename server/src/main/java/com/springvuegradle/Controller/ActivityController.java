@@ -4,21 +4,17 @@ package com.springvuegradle.Controller;
 import com.springvuegradle.Controller.enums.ActivityResponseMessage;
 import com.springvuegradle.Controller.enums.AuthenticationErrorMessage;
 import com.springvuegradle.Model.Activity;
-import com.springvuegradle.Model.Email;
-import com.springvuegradle.Model.Profile;
 import com.springvuegradle.Repositories.ActivityRepository;
 import com.springvuegradle.Utilities.FieldValidationHelper;
 import com.springvuegradle.Utilities.JwtUtil;
 import com.springvuegradle.service.ActivityService;
+import com.springvuegradle.service.SecurityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 /**
  * Class containing REST endpoints for activities
@@ -28,6 +24,9 @@ public class ActivityController {
 
     @Autowired
     private JwtUtil jwtUtil;
+
+    @Autowired
+    private SecurityService securityService;
 
     @Autowired
     private ActivityService activityService;
@@ -44,17 +43,6 @@ public class ActivityController {
         this.jwtUtil = jwtUtil;
     }
 
-    /**
-     * Way to access Activity Repository (Activity table in db).
-     */
-
-    private boolean checkEditPermission(String token, Long id) {
-        if (jwtUtil.validateToken(token) && (jwtUtil.extractPermission(token) == 0 || jwtUtil.extractPermission(token) == 1 || (jwtUtil.extractId(token).equals(id)))) {
-            return true;
-        } else {
-            return false;
-        }
-    }
 
     /**
      * Endpoint for creating activities.
@@ -75,7 +63,7 @@ public class ActivityController {
         if (!testing) {
             if (token == null || token.isBlank()) {
                 return new ResponseEntity<>("Authorization required", HttpStatus.UNAUTHORIZED);
-            } else if (!checkEditPermission(token, id)) {
+            } else if (!securityService.checkEditPermission(token, id)) {
                 return new ResponseEntity<>("Permission denied", HttpStatus.FORBIDDEN);
             }
         }
@@ -104,7 +92,7 @@ public class ActivityController {
         if (token == null || token.isBlank()) {
             return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
                                         HttpStatus.UNAUTHORIZED);
-        } else if (!checkEditPermission(token, profileId)) {
+        } else if (!securityService.checkEditPermission(token, profileId)) {
             return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(),
                     HttpStatus.FORBIDDEN);
         }
@@ -148,10 +136,8 @@ public class ActivityController {
     }
 
     public ResponseEntity<List<Activity>> getAllUsersActivities(String token, Long profileId, Boolean testing) {
-        if (!testing) {
-            if (!jwtUtil.validateToken(token)) {
-                return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
-            }
+        if (!testing && !jwtUtil.validateToken(token)) {
+            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
         List<Activity> result;
         if (!testing && (jwtUtil.extractPermission(token) == 0 || jwtUtil.extractPermission(token) == 1)) {
@@ -180,7 +166,7 @@ public class ActivityController {
             if (token == null || token.isBlank()) {
                 return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
                         HttpStatus.UNAUTHORIZED);
-            } else if (!checkEditPermission(token, profileId)) {
+            } else if (!securityService.checkEditPermission(token, profileId)) {
                 return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(),
                         HttpStatus.FORBIDDEN);
             }

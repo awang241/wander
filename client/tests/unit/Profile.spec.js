@@ -33,4 +33,8 @@ describe('Profile.vue', () => {
     test('Default fitness statement as beginner when fitness level not given', () => {
         expect(wrapper.vm.fitnessStatement).toContain("Beginner")
     });
-});
+    test('viewing on profile is false when the user is not viewing their profile', () => {
+        wrapper.vm.profile = {"id": 1}
+        expect(wrapper.vm.viewingOwnProfile).toBe(false)
+    });
+})

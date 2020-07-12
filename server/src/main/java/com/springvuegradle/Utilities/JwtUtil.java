@@ -21,7 +21,7 @@ import java.util.function.Function;
 @Service
 public class JwtUtil {
 
-    public final String PERMISSION_KEY = "authLevel";
+    public static final String PERMISSION_KEY = "authLevel";
 
     SecretKey SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
@@ -86,7 +86,5 @@ public class JwtUtil {
         } catch (JwtException e){
             return false;
         }
-//        final Long tokenId = extractId(token);
-//        return (profileId.equals(tokenId) && !isTokenExpired(token));
     }
 }

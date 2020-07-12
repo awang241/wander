@@ -10,7 +10,7 @@
                 </div>
 
                 <!-- redirect to add activity -->
-                <b-button @click="goToAddActivity"
+                <b-button v-if="store.getters.getAuthenticationLevel > 0" @click="goToAddActivity"
                           type="is-info">
                     Add Activity
                 </b-button>
@@ -29,9 +29,10 @@
                             Role: CREATOR
                             <div class="content">
                                 <table class="table-profile">
+                                    <caption hidden>Displayed Activity Table</caption>
                                     <tr>
-                                        <th colspan="1"></th>
-                                        <th colspan="2"></th>
+                                        <th colspan="1" scope="col"></th>
+                                        <th colspan="2" scope="col"></th>
                                     </tr>
                                     <tr>
                                         <td>Description:</td>
@@ -83,9 +84,11 @@
     import api from '../Api';
     import router from "../router";
     import store from "../store"
+    import toastMixin from "../mixins/toastMixin";
 
     export default {
         name: "Activities",
+        mixins: [toastMixin],
         data() {
             return {
                 activities: null,
@@ -114,12 +117,7 @@
                 api.deleteActivity(store.getters.getUserId, localStorage.getItem('authToken'), id)
                     .then((response) => {
                         console.log(response);
-                        this.$buefy.toast.open({
-                            duration: 5500,
-                            message: "Activity deleted",
-                            type: 'is-danger',
-                            position: 'is-top'
-                        })
+                        this.warningToast("Activity deleted")
                         this.activities = this.activities.filter(activity => activity.id != id);
                     })
                     .catch(error => console.log(error));

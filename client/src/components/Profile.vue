@@ -56,7 +56,7 @@
         </div>
         <section class="section" id="about">
 
-            <hr class ="hrLine">
+            <hr class="hrLine">
 
             <div class="container containerColor has-same-height is-gapless">
                 <div class="column">
@@ -67,13 +67,18 @@
 
                             <div class="content">
                                 <table class="table-profile">
+                                    <caption hidden>Table of some basic profile data</caption>
                                     <tr>
-                                        <th colspan="1"></th>
-                                        <th colspan="2"></th>
+                                        <th colspan="1" scope="col"></th>
+                                        <th colspan="2" scope="col"></th>
                                     </tr>
                                     <tr>
                                         <td>Gender:</td>
                                         <td>{{ profile.gender }}</td>
+                                    </tr>
+                                    <tr v-if="profile.location">
+                                        <td>Location:</td>
+                                        <td>{{fullLocation}}</td>
                                     </tr>
                                     <tr>
                                         <td>Birthday:</td>
@@ -84,7 +89,7 @@
                                         <td>{{ profile.primary_email }}</td>
                                     </tr>
 
-                                     <tr v-for="email in profile.additional_email" :key="email">
+                                    <tr v-for="email in profile.additional_email" :key="email">
                                         <td>Additional Email:</td>
                                         <td>{{email}}</td>
                                     </tr>
@@ -136,7 +141,8 @@
             </div>
             <div class="container containerColor">
                 <div class="box">
-                    <h3 v-for="activityType in profile.activities" :key="activityType" class="title is-4">{{activityType}}</h3>
+                    <h3 v-for="activityType in profile.activities" :key="activityType" class="title is-4">
+                        {{activityType}}</h3>
                 </div>
             </div>
         </section>
@@ -179,7 +185,6 @@
             }
         },
         computed: {
-            // a computed getter
             viewingOwnProfile() {
                 return this.profile.id == store.getters.getUserId
             },
@@ -198,6 +203,14 @@
                     default:
                         return "Beginner: I am not active at all";
                 }
+            },
+            fullLocation: function () {
+                let locationString = this.profile.location.city + ", "
+                if (this.profile.location.state) {
+                    locationString += this.profile.location.state + ", "
+                }
+                locationString += this.profile.location.country
+                return locationString
             }
         },
         mounted() {
@@ -221,7 +234,7 @@
     }
 
     .hrLine {
-        border:2px solid #EDEEEE;
+        border: 2px solid #EDEEEE;
     }
 
 </style>

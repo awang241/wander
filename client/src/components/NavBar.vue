@@ -10,7 +10,7 @@
         </template>
 
         <template slot="brand">
-            <img class="crop-banner" src="../../images/WANDER-day-navbar.png"/>
+            <img class="crop-banner" src="../../images/WANDER-day-navbar.png" alt="Wander Logo in Navigation Bar"/>
         </template>
 
         <template slot="end">
@@ -34,7 +34,7 @@
                         Admin Dashboard
                     </b-button>
                     <b-button  @click="goToActivities"
-                               v-if="store.getters.getAuthenticationStatus && store.getters.getAuthenticationLevel > 0"
+                               v-if="store.getters.getAuthenticationStatus"
                                type="is-light">
                         Activities
                     </b-button>

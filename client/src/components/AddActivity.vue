@@ -91,10 +91,12 @@
     import Api from "../Api"
     import store from "../store";
     import router from "../router";
+    import toastMixin from "../mixins/toastMixin";
 
     export default {
         name: "AddActivity",
         components: {List},
+        mixins: [toastMixin],
         props: {
             //Activity the user is editing if one exists
             activityProp: {
@@ -163,38 +165,23 @@
             this.activity = this.convertToProp(this.$props.activityProp)
         },
         methods: {
-            showWarning(message) {
-                this.$buefy.toast.open({
-                    duration: 5500,
-                    message: message,
-                    type: 'is-danger',
-                    position: 'is-top'
-                })
-            },
+
             goBack() {
                 router.go(-1)
             },
             getPossibleActivityTypes() {
                 Api.getActivityTypesList()
                     .then(response => this.possibleActivityTypes = response.data.allActivityTypes)
-                    .catch(error => this.showMessage(error))
+                    .catch(error => this.successToast(error))
             },
             addActivityType() {
                 if (this.newActivityType === "") {
-                    this.showWarning("No Activity type selected")
+                    this.warningToast("No Activity type selected")
                 } else if (this.activity.chosenActivityTypes.includes(this.newActivityType)) {
-                    this.showWarning("Activity type already in list")
+                    this.warningToast("Activity type already in list")
                 } else {
                     this.activity.chosenActivityTypes = [...this.activity.chosenActivityTypes, this.newActivityType]
                 }
-            },
-            showMessage(message) {
-                this.$buefy.toast.open({
-                    duration: 5500,
-                    message: message,
-                    type: 'is-success',
-                    position: 'is-top'
-                })
             },
             dateFormatter(dt) {
                 return dt.toLocaleDateString('en-GB', {year: 'numeric', month: 'numeric', day: 'numeric'});
@@ -205,17 +192,17 @@
             validateActivity() {
                 let isValid = true;
                 if (this.activity.chosenActivityTypes.length < 1) {
-                    this.showWarning("You must choose at least one activity type")
+                    this.warningToast("You must choose at least one activity type")
                     isValid = false
                 } else if (!this.isContinuous) {
                     this.continuous = false
                     const startDate = Date.parse(this.combinedStartDate)
                     const endDate = Date.parse(this.combinedEndDate)
                     if (isNaN(startDate) || isNaN(endDate)) {
-                        this.showWarning("Invalid dates entered!")
+                        this.warningToast("Invalid dates entered!")
                         isValid = false
                     } else if (Date.parse(this.combinedStartDate) > Date.parse(this.combinedEndDate)) {
-                        this.showWarning("The end date must be after the start date")
+                        this.warningToast("The end date must be after the start date")
                         isValid = false
                     }
                 }
