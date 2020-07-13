@@ -40,8 +40,10 @@ public class ProfileServiceTest {
         profileLocationRepository.deleteAll();
     }
 
+    /**
+     * Test to ensure HTTP Ok response returned when successfully editing profile
+     **/
     @Test
-    //Ensures HTTP Ok response returned when successfully editing profile
     void testAddLocationResponse() {
         ProfileLocation location = new ProfileLocation("New Zealand", "Christchurch", "Canterbury");
         Profile profile = createProfile();
@@ -50,8 +52,10 @@ public class ProfileServiceTest {
         assertEquals(response, new ResponseEntity<>(HttpStatus.OK));
     }
 
+    /**
+     * Test to ensure data for profiles location matches the provided json data
+     **/
     @Test
-    //Ensures data for profiles location matches the provided json data
     void testAddLocationData() {
         ProfileLocation location = new ProfileLocation("New Zealand", "Christchurch", "Canterbury");
         Profile profile = createProfile();
@@ -60,8 +64,10 @@ public class ProfileServiceTest {
         assertTrue(profile.getProfileLocation().equals(location));
     }
 
+    /**
+     * Test to ensure when changing the profiles location, the new location is now associated with the profile
+     **/
     @Test
-    //Ensures when changing the profiles location, the new location is now associated with the profile
     void testChangeLocationData() {
         ProfileLocation location = new ProfileLocation("New Zealand", "Christchurch", "Canterbury");
         Profile profile = createProfile();
@@ -72,23 +78,29 @@ public class ProfileServiceTest {
         assertTrue(profile.getProfileLocation().equals(newLocation));
     }
 
+    /**
+     * Test to ensure when an invalid profile ID is given a 404 status will be returned
+     **/
     @Test
-    //Ensures when an invalid profile ID is given a 404 status will be returned
     void testNonExistentProfileIdStatus(){
         ProfileLocation location = new ProfileLocation("New Zealand", "Christchurch", "Canterbury");
         ResponseEntity<String> response = profileService.updateProfileLocation(location,-1L);
         assertEquals(response, new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
+    /**
+     * Test to ensure when an invalid profile ID is given the location is not added to the profile_location table
+     **/
     @Test
-    //Ensures when an invalid profile ID is given the location is not added to the profile_location table
     void testNonExistentProfileData(){
         ProfileLocation location = new ProfileLocation("New Zealand", "Christchurch", "Canterbury");
         ResponseEntity<String> response = profileService.updateProfileLocation(location, -1L);
         assertEquals(profileLocationRepository.count(), 0L);
     }
 
-
+    /**
+     * Example test profile to use in tests
+     **/
     public Profile createProfile(){
         return new Profile(null, "Maurice", "Benson", "Jack", "Jacky", "jacky@google.com", new String[]{"additionaldoda@email.com"}, "jacky'sSecuredPwd",
                 "Jacky loves to ride his bike on crazy mountains.", new GregorianCalendar(1985, Calendar.DECEMBER,

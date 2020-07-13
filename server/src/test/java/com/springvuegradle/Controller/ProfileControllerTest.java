@@ -54,58 +54,79 @@ class ProfileControllerTest {
     @Autowired
     private Profile_Controller profileController;
 
-
     /**
-     * This tests to ensure profiles structured correctly can be added to the database.
+     * Tests the profile is being created correctly
      */
     @Test
     void createProfileTest() {
         Profile jimmy = createNormalProfileJimmy();
-        int expected_in_repo = 0;
-        assertEquals(expected_in_repo, repo.count());
 
         ResponseEntity<String> response_entity = profileController.createProfile(jimmy);
         assertEquals(HttpStatus.CREATED, response_entity.getStatusCode());
+    }
 
-        expected_in_repo = 1;
-        assertEquals(expected_in_repo, repo.count());
-
+    /**
+     * Tests the profile is being added to the database correctly
+     */
+    @Test
+    void saveToDatabaseTest() {
         Profile maurice = createNormalProfileMaurice();
         ResponseEntity<String> response_entity_new = profileController.createProfile(maurice);
-        assertEquals(HttpStatus.CREATED, response_entity_new.getStatusCode());
 
-        expected_in_repo = 2;
+        Profile jimmy = createNormalProfileJimmy();
+        ResponseEntity<String> response_entity = profileController.createProfile(jimmy);
+
+        int expected_in_repo = 2;
         assertEquals(expected_in_repo, repo.count());
+    }
 
+    /**
+     * Tests if the database rejects invalid profiles correctly
+     */
+    @Test
+    void invalidProfileTest() {
         Profile dummyJimmy = createInvalidCountryProfileJimmy();
         ResponseEntity<String> response_entity_dummy = profileController.createProfile(dummyJimmy);
         assertEquals(HttpStatus.FORBIDDEN, response_entity_dummy.getStatusCode());
+    }
 
-        expected_in_repo = 2;
+    /**
+     * Tests an invalid profile is not getting added to the database
+     */
+    @Test
+    void invalidProfileToDatabaseTest() {
+        Profile dummyJimmy = createInvalidCountryProfileJimmy();
+        ResponseEntity<String> response_entity_dummy = profileController.createProfile(dummyJimmy);
+        int expected_in_repo = 0;
         assertEquals(expected_in_repo, repo.count());
     }
 
+    /**
+     * Tests if a profile with activity types can be made
+     */
     @Test
-    void testCreateProfileWithActivityTypes(){
-        assertEquals(6, atrepo.count());
+    void createProfileWithActivityTypesTest(){
         Profile profile = createProfileWithActivityTypes();
         ResponseEntity<String> response_entity = profileController.createProfile(profile);
         assertEquals(HttpStatus.CREATED, response_entity.getStatusCode());
-        assertEquals(6, atrepo.count());
     }
 
+    /**
+     * Tests if a profile with invalid activity types is rejected
+     */
     @Test
-    void testCreateProfileWithInvalidActivityTypes(){
+    void createProfileWithInvalidActivityTypesTest(){
         Profile profile = createProfileWithInvalidActivityTypes();
         ResponseEntity<String> response_entity = profileController.createProfile(profile);
         assertEquals(HttpStatus.FORBIDDEN, response_entity.getStatusCode());
     }
 
+    /**
+     * Tests if a profile with minimal fields can be made
+     */
     @Test
-    void testCreateProfileWithMinimalFields() {
+    void createProfileWithMinimalFieldsTest() {
         Profile testProfile = createProfileWithMinimalFields();
-        assertEquals(0, repo.count(), "Sanity check: profile repository is empty");
-        assertEquals(0, erepo.count(), "Sanity check: email repository is empty");
         ResponseEntity<String> responseEntity = profileController.createProfile(testProfile);
 
         System.out.println(responseEntity.getBody());
@@ -115,18 +136,38 @@ class ProfileControllerTest {
     }
 
     /**
-     * This method tests that the profile without the mandatory fields filled in is not saved to the database.
+     * This method tests that the profile without the mandatory fields filled in cannot be created.
      */
     @Test
     void createProfileWithoutMandatoryFieldsTest() {
         Profile dummy_maurice = createInvalidFieldsProfileMaurice();
 
+        ResponseEntity<String> response_entity = profileController.createProfile(dummy_maurice);
+        assertEquals(HttpStatus.FORBIDDEN, response_entity.getStatusCode());
+    }
+
+    /**
+     * Tests if a profile without mandatory fields cannot be saved to the database
+     */
+    @Test
+    void profileWithoutMandatoryFieldsToDatabaseTest() {
+        Profile dummy_maurice = createInvalidFieldsProfileMaurice();
+
         int expected_in_repo = 0;
+
+        ResponseEntity<String> response_entity = profileController.createProfile(dummy_maurice);
         assertEquals(expected_in_repo, repo.count());
+    }
+
+    /**
+     * Tests if a profile without mandatory fields generate correct error messages
+     */
+    @Test
+    void errorMessageTest() {
+        Profile dummy_maurice = createInvalidFieldsProfileMaurice();
 
         ResponseEntity<String> response_entity = profileController.createProfile(dummy_maurice);
         System.out.println(response_entity.getBody());
-        assertEquals(HttpStatus.FORBIDDEN, response_entity.getStatusCode());
         String actual_error_message = response_entity.getBody();
         String expected_error_message = "The email field is blank.\n" +
                 "The First Name field is blank.\n" +
@@ -135,9 +176,7 @@ class ProfileControllerTest {
                 "The fitness level isn't valid.\n" +
                 "ActivityType random does not exist in the database.\n" +
                 "The Gender field must contain either 'male', 'female' or 'non-Binary'.\n";
-
         assertThat(expected_error_message.equals(actual_error_message));
-        assertEquals(expected_in_repo, repo.count());
     }
 
     /**
@@ -147,21 +186,56 @@ class ProfileControllerTest {
     @Test
     void createProfileExistingEmailTest() {
         Profile jimmy = createNormalProfileJimmy();
-        int expected_in_repo = 0;
-        assertEquals(expected_in_repo, repo.count());
 
-        ResponseEntity<String> response_entity_jimmy = profileController.createProfile(jimmy);
-        assertEquals(HttpStatus.CREATED, response_entity_jimmy.getStatusCode());
-
-        expected_in_repo = 1;
-        assertEquals(expected_in_repo, repo.count());
+        profileController.createProfile(jimmy);
 
         Profile dup_jimmy = createNormalProfileJimmy();
 
         ResponseEntity<String> response_entity_dup_jimmy = profileController.createProfile(dup_jimmy);
         assertEquals(HttpStatus.FORBIDDEN, response_entity_dup_jimmy.getStatusCode());
+    }
 
+    /**
+     * Tests response when deleting a profile.
+     */
+    @Test
+    void deleteProfileResponseTest() {
+        Profile jimmy = createNormalProfileJimmy();
+        profileController.createProfile(jimmy);
+        Profile db_profile = repo.findByPrimaryEmail(jimmy.getPrimary_email()).get(0);
+
+        ResponseEntity<String> delete_profile_response = profileController.deleteProfile(db_profile.getId());
+        assertEquals(HttpStatus.OK, delete_profile_response.getStatusCode());
+    }
+
+    /**
+     * Tests response when deleting a profile.
+     */
+    @Test
+    void deleteProfileTest() {
+        int expected_in_repo;
+        Profile jimmy = createNormalProfileJimmy();
+        profileController.createProfile(jimmy);
+        Profile db_profile = repo.findByPrimaryEmail(jimmy.getPrimary_email()).get(0);
+
+        profileController.deleteProfile(db_profile.getId());
+
+        expected_in_repo = 0;
         assertEquals(expected_in_repo, repo.count());
+    }
+
+    /**
+     * Tests if an error message generated by already existing email address is correct when creating a new account
+     */
+    @Test
+    void existingEmailErrorMessageTest() {
+        Profile jimmy = createNormalProfileJimmy();
+
+        profileController.createProfile(jimmy);
+
+        Profile dup_jimmy = createNormalProfileJimmy();
+
+        ResponseEntity<String> response_entity_dup_jimmy = profileController.createProfile(dup_jimmy);
 
         String actual_error_message = response_entity_dup_jimmy.getBody();
         String expected_error_message = "An email address you have entered is already in use by another Profile.\n";
@@ -169,26 +243,26 @@ class ProfileControllerTest {
     }
 
     /**
-     * This method tests that a profile filled correctly where the email address does not exist already in the database
-     * is saved to the database.
+     * Tests the get method for a valid Profile returns the right resposne
      */
     @Test
-    void testGetProfileNormal() {
+    void getProfileNormalResponseTest() {
         Profile jimmy = createNormalProfileJimmy();
-
-        int expected_in_repo = 0;
-        assertEquals(expected_in_repo, repo.count());
-
-        ResponseEntity<String> response_entity = profileController.createProfile(jimmy);
-        assertEquals(HttpStatus.CREATED, response_entity.getStatusCode());
-
-        expected_in_repo = 1;
-        assertEquals(expected_in_repo, repo.count());
-
+        profileController.createProfile(jimmy);
         long expected_id = repo.findAll().get(0).getId();
-
         ResponseEntity<Profile> response_entity_new = profileController.getProfile(expected_id);
         assertEquals(HttpStatus.OK, response_entity_new.getStatusCode());
+    }
+
+    /**
+     * Tests the get method for returns the right valid profile from the database
+     */
+    @Test
+    void getProfileFromDatabaseTest() {
+        Profile jimmy = createNormalProfileJimmy();
+        profileController.createProfile(jimmy);
+        long expected_id = repo.findAll().get(0).getId();
+        ResponseEntity<Profile> response_entity_new = profileController.getProfile(expected_id);
         Profile db_jimmy = response_entity_new.getBody();
         assertEquals(jimmy, db_jimmy);
     }
@@ -198,61 +272,125 @@ class ProfileControllerTest {
      */
     @Test
     void getProfileDoesNotExistTest() {
-        int expected_in_repo = 0;
-        assertEquals(expected_in_repo, repo.count());
         ResponseEntity<Profile> response_entity = profileController.getProfile(1L);
         assertEquals(HttpStatus.NOT_FOUND, response_entity.getStatusCode());
     }
 
+
     /**
-     * Tests adding emails to a profile.
+     * Tests that adding an email successfully returns the correct response
      */
     @Test
-    void addEmailToProfileTest() {
+    void addEmailToProfileResponseTest() {
         Profile jimmy = createNormalProfileJimmy();
-
-        int expected_in_repo = 0;
-        assertEquals(expected_in_repo, repo.count());
-
-        ResponseEntity<String> response_entity = profileController.createProfile(jimmy);
-        assertEquals(HttpStatus.CREATED, response_entity.getStatusCode());
-
-        expected_in_repo = 1;
-        assertEquals(expected_in_repo, repo.count());
+        profileController.createProfile(jimmy);
 
         Profile db_profile = repo.findByPrimaryEmail(jimmy.getPrimary_email()).get(0);
 
         ResponseEntity<String> add_emails_response = profileController.addEmails(new EmailAddRequest(new ArrayList<String>(Collections.singleton("randomEmail@gmail.com"))), db_profile.getId(), null, true);
         assertEquals(HttpStatus.CREATED, add_emails_response.getStatusCode());
+    }
 
-        db_profile = repo.findByPrimaryEmail(jimmy.getPrimary_email()).get(0);
+    /**
+     * Tests that adding an email is correctly saved into the database
+     */
+    @Test
+    void addEmailToProfileCheckDatabaseTest() {
+        Profile jimmy = createNormalProfileJimmy();
+        profileController.createProfile(jimmy);
 
+        Profile db_profile = repo.findByPrimaryEmail(jimmy.getPrimary_email()).get(0);
+        profileController.addEmails(new EmailAddRequest(new ArrayList<String>(Collections.singleton("randomEmail@gmail.com"))), db_profile.getId(), null, true);
         List<String> emails_from_db_profile = new ArrayList<>(db_profile.getAdditional_email());
 
         assertEquals("randomEmail@gmail.com", emails_from_db_profile.get(0));
     }
 
     /**
-     * Tests to make sure changing the activityTypes works
+     * Tests that activity types are saved correctly when creating a new profile with activity types
+     * Profile should be able to save more than 1 activity type.
      */
     @Test
-    void changeActivityTypesTest() {
+    void profileWithActivityTypesTest() {
         Profile originalProfile = createNormalActivityTypesProfile();
         profileController.createProfile(originalProfile);
         long profileId = repo.findByPrimaryEmail(originalProfile.getPrimary_email()).get(0).getId();
         Profile expectedProfile = repo.findById(profileId).get();
 
-        Profile updatedProfile = createUpdatedActivityTypesProfile();
         assertEquals(expectedProfile.getActivityTypes().size(), 3, "Check profile saved successfully");
+    }
+
+    /**
+     * Tests when a profiles activity types are changed, the profile and its activity types are successfully updated.
+     */
+    @Test
+    void updateProfilesActivityTypesTest() {
+        Profile originalProfile = createNormalActivityTypesProfile();
+        profileController.createProfile(originalProfile);
+        long profileId = repo.findByPrimaryEmail(originalProfile.getPrimary_email()).get(0).getId();
+        Profile updatedProfile = createUpdatedActivityTypesProfile();
+
         profileController.updateProfile(updatedProfile, profileId);
 
-        expectedProfile = repo.findById(profileId).get();
-        assertEquals(expectedProfile.getActivityTypes().size(), 1, "Check activityTypes updated successfully");
+        Profile expectedProfile = repo.findById(profileId).get();
         assertEquals(expectedProfile.getActivityTypes(), updatedProfile.getActivityTypes(), "Check activityTypes updated successfully");
     }
 
+    /**
+     * Tests to check that when a valid and existing profile updates their passport countries, it returns the correct resposne
+     */
     @Test
-    void testEditProfileNormal(){
+    void editProfilesPassportCountryResponseTest(){
+        Profile testProfile = createNormalProfileJimmy();
+        Profile updateData = createNormalProfileMaurice();
+        Profile expectedProfile = createNormalProfileMaurice();
+
+        Set<PassportCountry> realPassports = new HashSet<>();
+        for (PassportCountry passportCountry: expectedProfile.getPassportObjects()){
+            realPassports.add(pcrepo.findByCountryName(passportCountry.getCountryName()).get(0));
+        }
+
+        expectedProfile.setPassports(realPassports);
+        updateData.setPassports(realPassports);
+        profileController.createProfile(testProfile);
+        long id = repo.findByPrimaryEmail(testProfile.getPrimary_email()).get(0).getId();
+
+        ResponseEntity<String> actualResponse = profileController.updateProfile(updateData, id);
+        assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
+    }
+
+    /**
+     * Tests to check that when a valid and existing profile updates their activity types, it returns the correct response
+     */
+    @Test
+    void editProfilesActivityTypeResponseTest() {
+        Profile testProfile = createNormalProfileJimmy();
+        Profile updateData = createNormalProfileMaurice();
+        Profile expectedProfile = createNormalProfileMaurice();
+        Set<PassportCountry> realPassports = new HashSet<>();
+        updateData.setPassports(realPassports);
+
+        Set<ActivityType> realActivityTypes = new HashSet<>();
+        for (ActivityType activityType: expectedProfile.getActivityTypeObjects()){
+            realActivityTypes.add(atrepo.findByActivityTypeName(activityType.getActivityTypeName()).get(0));
+        }
+        expectedProfile.setActivityTypes(realActivityTypes);
+
+        profileController.createProfile(testProfile);
+        long id = repo.findByPrimaryEmail(testProfile.getPrimary_email()).get(0).getId();
+
+        ResponseEntity<String> actualResponse = profileController.updateProfile(updateData, id);
+
+        assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
+    }
+
+
+    /**
+     * Tests to check that when a valid and existing profile updates their passport country, it updates correctly
+     * in the database
+     */
+    @Test
+    void editProfilePassportCountryWithPasswordTest(){
         Profile testProfile = createNormalProfileJimmy();
         Profile updateData = createNormalProfileMaurice();
         Profile expectedProfile = createNormalProfileMaurice();
@@ -260,6 +398,31 @@ class ProfileControllerTest {
         for (PassportCountry passportCountry: expectedProfile.getPassportObjects()){
             realPassports.add(pcrepo.findByCountryName(passportCountry.getCountryName()).get(0));
         }
+        expectedProfile.setPassword(Profile_Controller.hashPassword(testProfile.getPassword()));
+        expectedProfile.setPassports(realPassports);
+        updateData.setPassports(realPassports);
+
+        profileController.createProfile(testProfile);
+        long id = repo.findByPrimaryEmail(testProfile.getPrimary_email()).get(0).getId();
+
+        profileController.updateProfile(updateData, id);
+
+        Profile updatedProfile = repo.findById(id).get();
+        assertEquals(expectedProfile, updatedProfile, "Check profile updated successfully");
+    }
+
+    /**
+     * Tests to check that when a valid and existing profile updates their activity types, it updates correctly
+     * in the database
+     */
+    @Test
+    void editProfileActivityTypesWithPasswordTest(){
+        Profile testProfile = createNormalProfileJimmy();
+        Profile updateData = createNormalProfileMaurice();
+        Profile expectedProfile = createNormalProfileMaurice();
+        Set<PassportCountry> realPassports = new HashSet<>();
+        updateData.setPassports(realPassports);
+
         expectedProfile.setPassword(Profile_Controller.hashPassword(testProfile.getPassword()));
         expectedProfile.setPassports(realPassports);
         updateData.setPassports(realPassports);
@@ -272,17 +435,18 @@ class ProfileControllerTest {
 
         profileController.createProfile(testProfile);
         long id = repo.findByPrimaryEmail(testProfile.getPrimary_email()).get(0).getId();
-        assertEquals(testProfile, repo.findById(id).get(), "Sanity check: profile and ID saved successfully");
 
-        ResponseEntity<String> actualResponse = profileController.updateProfile(updateData, id);
+        profileController.updateProfile(updateData, id);
 
         Profile updatedProfile = repo.findById(id).get();
         assertEquals(expectedProfile, updatedProfile, "Check profile updated successfully");
-        assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
     }
 
+    /**
+     * Tests to check editing a profile with invalid data returns the correct response
+     */
     @Test
-    void testEditProfileWithInvalidData(){
+    void editProfileWithInvalidDataResponseTest(){
         Profile testProfile = createNormalProfileJimmy();
         Profile updateData = createInvalidFieldsProfileMaurice();
         Profile expectedProfile = createNormalProfileJimmy();
@@ -294,22 +458,85 @@ class ProfileControllerTest {
         expectedProfile.setPassports(realPassports);
         profileController.createProfile(testProfile);
         long id = repo.findByPrimaryEmail(testProfile.getPrimary_email()).get(0).getId();
-        assertEquals(testProfile, repo.findById(id).get(), "Sanity check: profile and ID saved successfully");
 
         ResponseEntity<String> actualResponse = profileController.updateProfile(updateData, id);
 
-        Profile updatedProfile = repo.findById(id).get();
-        assertEquals(expectedProfile, updatedProfile, "Check profile left unchanged");
         assertEquals(HttpStatus.BAD_REQUEST, actualResponse.getStatusCode());
     }
 
+    /**
+     * Test to check when editing a profile with invalid data will leave the profile in the database unchanged.
+     */
     @Test
-    void testAddEmailsNormal(){
+    void editProfileWithInvalidDataTest(){
+        Profile testProfile = createNormalProfileJimmy();
+        Profile updateData = createInvalidFieldsProfileMaurice();
+        Profile expectedProfile = createNormalProfileJimmy();
+        Set<PassportCountry> realPassports = new HashSet<>();
+        for (PassportCountry passportCountry: expectedProfile.getPassportObjects()){
+            realPassports.add(pcrepo.findByCountryName(passportCountry.getCountryName()).get(0));
+        }
+        expectedProfile.setPassword(profileController.hashPassword(testProfile.getPassword()));
+        expectedProfile.setPassports(realPassports);
+        profileController.createProfile(testProfile);
+        long id = repo.findByPrimaryEmail(testProfile.getPrimary_email()).get(0).getId();
+
+        profileController.updateProfile(updateData, id);
+
+        Profile updatedProfile = repo.findById(id).get();
+
+        assertEquals(expectedProfile, updatedProfile, "Check profile left unchanged");
+    }
+
+    /**
+     * Tests to check that adding new valid emails to a profile will be saved successfully
+     */
+    @Test
+    void addEmailsToProfileTest() {
+        Profile testProfile = createNormalProfileJimmy();
+        profileController.createProfile(testProfile);
+        long id = repo.findByPrimaryEmail(testProfile.getPrimary_email()).get(0).getId();
+
+        List<String> newEmails = Arrays.asList("newEmail@xtra.co.nz", "newEmail2@yahoo.co.nz");
+        Set<String> expectedAdditionalEmails = new HashSet<String>(testProfile.getAdditional_email());
+        expectedAdditionalEmails.addAll(newEmails);
+        EmailAddRequest testRequest = new EmailAddRequest(newEmails);
+
+        profileController.addEmails(testRequest, id, null, true);
+
+        Profile updatedProfile = repo.findById(id).get();
+        assertEquals(expectedAdditionalEmails, updatedProfile.getAdditional_email(), "Check that the emails have been added successfully");
+    }
+
+    /**
+     * Tests to check that adding new emails to a profile will not change the primary email address
+     */
+    @Test
+    void addEmailsKeepsPrimaryTest() {
+        Profile testProfile = createNormalProfileJimmy();
+        profileController.createProfile(testProfile);
+        long id = repo.findByPrimaryEmail(testProfile.getPrimary_email()).get(0).getId();
+
+        List<String> newEmails = Arrays.asList("newEmail@xtra.co.nz", "newEmail2@yahoo.co.nz");
+        Set<String> expectedAdditionalEmails = new HashSet<String>(testProfile.getAdditional_email());
+        expectedAdditionalEmails.addAll(newEmails);
+        EmailAddRequest testRequest = new EmailAddRequest(newEmails);
+
+        profileController.addEmails(testRequest, id, null, true);
+
+        Profile updatedProfile = repo.findById(id).get();
+        assertEquals(testProfile.getPrimary_email(), updatedProfile.getPrimary_email(), "Check that the primary email is unchanged");
+    }
+
+    /**
+     * Tests to check that adding new valid emails to the profile will return the correct response
+     */
+    @Test
+    void addValidEmailsResponseTest(){
         Profile testProfile = createNormalProfileJimmy();
         profileController.createProfile(testProfile);
         long id = repo.findByPrimaryEmail(testProfile.getPrimary_email()).get(0).getId();
         ResponseEntity<String> expectedResponse = new ResponseEntity<>("Emails added successfully.", HttpStatus.CREATED);
-        assertEquals(testProfile, repo.findById(id).get(), "Sanity check: profile and ID saved successfully");
 
         List<String> newEmails = Arrays.asList("newEmail@xtra.co.nz", "newEmail2@yahoo.co.nz");
         Set<String> expectedAdditionalEmails = new HashSet<String>(testProfile.getAdditional_email());
@@ -318,20 +545,23 @@ class ProfileControllerTest {
 
         ResponseEntity<String> actualResponse =  profileController.addEmails(testRequest, id, null, true);
 
-        Profile updatedProfile = repo.findById(id).get();
-        assertEquals(testProfile.getPrimary_email(), updatedProfile.getPrimary_email(), "Check that the primary email is unchanged");
-        assertEquals(expectedAdditionalEmails, updatedProfile.getAdditional_email(), "Check that the emails have been added successfully");
         assertEquals(expectedResponse, actualResponse, "Check response has correct message and status code (201).");
     }
 
+    /**
+     * Test the edit of a profile with valid activity types
+     */
     @Test
-    void testEditProfileActivityTypes(){
+    void editProfileActivityTypesTest(){
         Profile testProfile = createNormalProfileJimmy();
         profileController.createProfile(testProfile);
         ArrayList<String> newActivityTypes = new ArrayList<String>(Arrays.asList("Football", "Tennis"));
         assertEquals(profileController.editActivityTypes(newActivityTypes, testProfile.getId()), new ResponseEntity<>(HttpStatus.OK));
     }
 
+    /**
+     * Test the edit of a profile with invalid activity types
+     */
     @Test
     void testEditInvalidProfileActivityTypes(){
         Profile testProfile = createNormalProfileJimmy();
@@ -340,62 +570,43 @@ class ProfileControllerTest {
         assertEquals(profileController.editActivityTypes(newActivityTypes, testProfile.getId()), new ResponseEntity<>(HttpStatus.BAD_REQUEST));
     }
 
+    /**
+     * Test that you cannot add emails to a profile ID that is not valid
+     */
     @Test
-    void testAddEmailsWithInvalidProfileID(){
+    void addEmailsWithToInvalidProfileIDTest(){
+        List<String> newEmails = Arrays.asList("newEmail@xtra.co.nz", "newEmail2@yahoo.co.nz");
+        EmailAddRequest testRequest = new EmailAddRequest(newEmails);
+        long dummyID = 1657568479;
+
+        profileController.addEmails(testRequest, dummyID, null, true);
+        assertEquals(0, repo.count());
+    }
+
+    /**
+     * Test the response for adding emails to an invalid profile id
+     */
+    @Test
+    void addEmailsWithInvalidProfileIDResponseTest(){
         List<String> newEmails = Arrays.asList("newEmail@xtra.co.nz", "newEmail2@yahoo.co.nz");
         EmailAddRequest testRequest = new EmailAddRequest(newEmails);
         ResponseEntity<String> expectedResponse = new ResponseEntity<>("That profile does not exist.", HttpStatus.FORBIDDEN);
         long dummyID = 1657568479;
-        assertEquals(0, repo.count());
 
         ResponseEntity<String> actualResponse =  profileController.addEmails(testRequest, dummyID, null, true);
-        assertEquals(0, repo.count());
+
         assertEquals(expectedResponse, actualResponse, "Check response has correct message and status code (403).");
     }
 
-    /**
-     * Tests deleting a profile.
-     */
-    @Test
-    void deleteProfileTest() {
-        Profile jimmy = createNormalProfileJimmy();
 
-        int expected_in_repo = 0;
-        assertEquals(expected_in_repo, repo.count());
-
-        ResponseEntity<String> response_entity = profileController.createProfile(jimmy);
-        assertEquals(HttpStatus.CREATED, response_entity.getStatusCode());
-
-        expected_in_repo = 1;
-        assertEquals(expected_in_repo, repo.count());
-
-        Profile db_profile = repo.findByPrimaryEmail(jimmy.getPrimary_email()).get(0);
-
-        ResponseEntity<String> delete_profile_response = profileController.deleteProfile(db_profile.getId());
-        assertEquals(HttpStatus.OK, delete_profile_response.getStatusCode());
-
-        expected_in_repo = 0;
-        assertEquals(expected_in_repo, repo.count());
-
-    }
 
     /**
-     * This tests adding two new additional emails and keeping the existing primary email.
+     * This tests adding two new additional emails and that adding new emails will keep the existing primary email.
      */
     @Test
-    void editEmailsSuccessTest() {
+    void editEmailsKeepsPrimaryTest() {
         Profile jimmy = createNormalProfileJimmy();
-
-        int expected_in_repo = 0;
-        assertEquals(expected_in_repo, repo.count());
-
-        ResponseEntity<String> response_entity = profileController.createProfile(jimmy);
-        System.out.println("error string: " + response_entity.getBody());
-        assertEquals(HttpStatus.CREATED, response_entity.getStatusCode());
-
-        expected_in_repo = 1;
-        assertEquals(expected_in_repo, repo.count());
-
+        profileController.createProfile(jimmy);
         Profile db_profile = repo.findByPrimaryEmail(jimmy.getPrimary_email()).get(0);
 
         EmailUpdateRequest emailUpdateRequest = new EmailUpdateRequest(new ArrayList<>(Arrays.asList("a@g.c", "b@g.c")),
@@ -405,22 +616,15 @@ class ProfileControllerTest {
         assertEquals(HttpStatus.OK, edit_emails_response.getStatusCode());
     }
 
+
+
     /**
-     * Tests changing the primary email to an invalid one and adding two additional emails.
+     * Tests the changing of primary email to an invalid one and adding two additional emails.
      */
     @Test
     void editEmailsInvalidPrimary() {
         Profile jimmy = createNormalProfileJimmy();
-
-        int expected_in_repo = 0;
-        assertEquals(expected_in_repo, repo.count());
-
-        ResponseEntity<String> response_entity = profileController.createProfile(jimmy);
-        assertEquals(HttpStatus.CREATED, response_entity.getStatusCode());
-
-        expected_in_repo = 1;
-        assertEquals(expected_in_repo, repo.count());
-
+        profileController.createProfile(jimmy);
         Profile db_profile = repo.findByPrimaryEmail(jimmy.getPrimary_email()).get(0);
 
         EmailUpdateRequest emailUpdateRequest = new EmailUpdateRequest(new ArrayList<>(Arrays.asList("a@g.c", "b@g.c")),
@@ -436,16 +640,7 @@ class ProfileControllerTest {
     @Test
     void editEmailsChangePrimaryAddAdditionalsTest() {
         Profile jimmy = createNormalProfileJimmy();
-
-        int expected_in_repo = 0;
-        assertEquals(expected_in_repo, repo.count());
-
-        ResponseEntity<String> response_entity = profileController.createProfile(jimmy);
-        assertEquals(HttpStatus.CREATED, response_entity.getStatusCode());
-
-        expected_in_repo = 1;
-        assertEquals(expected_in_repo, repo.count());
-
+        profileController.createProfile(jimmy);
         Profile db_profile = repo.findByPrimaryEmail(jimmy.getPrimary_email()).get(0);
 
         EmailUpdateRequest emailUpdateRequest = new EmailUpdateRequest(new ArrayList<>(Arrays.asList("a@g.c", "b@g.c")),
@@ -456,30 +651,49 @@ class ProfileControllerTest {
     }
 
     /**
-     * Tests to make sure changing the password works.
+     * Tests to make sure changing the password returns the correct response
      */
     @Test
-    void changePasswordTest() {
+    void changePasswordResponseTest() {
         Profile jimmy = createNormalProfileJimmy();
-
-        int expected_in_repo = 0;
-        assertEquals(expected_in_repo, repo.count());
-
-        ResponseEntity<String> response_entity = profileController.createProfile(jimmy);
-        assertEquals(HttpStatus.CREATED, response_entity.getStatusCode());
-
-        expected_in_repo = 1;
-        assertEquals(expected_in_repo, repo.count());
-
+        profileController.createProfile(jimmy);
         Profile db_profile = repo.findByPrimaryEmail(jimmy.getPrimary_email()).get(0);
 
         ChangePasswordRequest newPasswordRequest = new ChangePasswordRequest(db_profile.getId(), "hushhush", "12345678", "12345678");
 
         ResponseEntity<String> change_password_response = profileController.changePassword(newPasswordRequest, db_profile.getId(), null, true);
         assertEquals(HttpStatus.OK, change_password_response.getStatusCode());
+    }
+
+    /**
+     * Tests to make sure changing the password works
+     */
+    @Test
+    void changePasswordTest() {
+        Profile jimmy = createNormalProfileJimmy();
+        profileController.createProfile(jimmy);
+        Profile db_profile = repo.findByPrimaryEmail(jimmy.getPrimary_email()).get(0);
+        ChangePasswordRequest newPasswordRequest = new ChangePasswordRequest(db_profile.getId(), "hushhush", "12345678", "12345678");
+
+        profileController.changePassword(newPasswordRequest, db_profile.getId(), null, true);
 
         db_profile = repo.findByPrimaryEmail(jimmy.getPrimary_email()).get(0);
         assertEquals(profileController.hashPassword("12345678"), db_profile.getPassword());
+    }
+
+    /**
+     * Tests to make sure the current password isn't changed when the new passwords are inconsistent by checking
+     * the response returned
+     */
+    @Test
+    void changePasswordInconsistentNewPasswordsResponseTest() {
+        Profile jimmy = createNormalProfileJimmy();
+        profileController.createProfile(jimmy);
+        Profile db_profile = repo.findByPrimaryEmail(jimmy.getPrimary_email()).get(0);
+        ChangePasswordRequest newPasswordRequest = new ChangePasswordRequest(db_profile.getId(), "hushhush", "12345678", "87654321");
+
+        ResponseEntity<String> change_password_response = profileController.changePassword(newPasswordRequest, db_profile.getId(), null, true);
+        assertEquals(HttpStatus.BAD_REQUEST, change_password_response.getStatusCode());
     }
 
     /**
@@ -488,25 +702,28 @@ class ProfileControllerTest {
     @Test
     void changePasswordInconsistentNewPasswordsTest() {
         Profile jimmy = createNormalProfileJimmy();
-
-        int expected_in_repo = 0;
-        assertEquals(expected_in_repo, repo.count());
-
-        ResponseEntity<String> response_entity = profileController.createProfile(jimmy);
-        assertEquals(HttpStatus.CREATED, response_entity.getStatusCode());
-
-        expected_in_repo = 1;
-        assertEquals(expected_in_repo, repo.count());
-
+        profileController.createProfile(jimmy);
         Profile db_profile = repo.findByPrimaryEmail(jimmy.getPrimary_email()).get(0);
-
         ChangePasswordRequest newPasswordRequest = new ChangePasswordRequest(db_profile.getId(), "hushhush", "12345678", "87654321");
 
-        ResponseEntity<String> change_password_response = profileController.changePassword(newPasswordRequest, db_profile.getId(), null, true);
-        assertEquals(HttpStatus.BAD_REQUEST, change_password_response.getStatusCode());
+        profileController.changePassword(newPasswordRequest, db_profile.getId(), null, true);
 
         db_profile = repo.findByPrimaryEmail(jimmy.getPrimary_email()).get(0);
         assertEquals(profileController.hashPassword("hushhush"), db_profile.getPassword());
+    }
+
+    /**
+     * Tests check the response if the user tries to change the password with the wrong current password.
+     */
+    @Test
+    void changePasswordIncorrectCurrentResponseTest() {
+        Profile jimmy = createNormalProfileJimmy();
+        profileController.createProfile(jimmy);
+        Profile db_profile = repo.findByPrimaryEmail(jimmy.getPrimary_email()).get(0);
+        ChangePasswordRequest newPasswordRequest = new ChangePasswordRequest(db_profile.getId(), "hashhash", "12345678", "12345678");
+
+        ResponseEntity<String> change_password_response = profileController.changePassword(newPasswordRequest, db_profile.getId(), null, true);
+        assertEquals(HttpStatus.BAD_REQUEST, change_password_response.getStatusCode());
     }
 
     /**
@@ -515,22 +732,11 @@ class ProfileControllerTest {
     @Test
     void changePasswordIncorrectCurrentTest() {
         Profile jimmy = createNormalProfileJimmy();
-
-        int expected_in_repo = 0;
-        assertEquals(expected_in_repo, repo.count());
-
-        ResponseEntity<String> response_entity = profileController.createProfile(jimmy);
-        assertEquals(HttpStatus.CREATED, response_entity.getStatusCode());
-
-        expected_in_repo = 1;
-        assertEquals(expected_in_repo, repo.count());
-
+        profileController.createProfile(jimmy);
         Profile db_profile = repo.findByPrimaryEmail(jimmy.getPrimary_email()).get(0);
-
         ChangePasswordRequest newPasswordRequest = new ChangePasswordRequest(db_profile.getId(), "hashhash", "12345678", "12345678");
 
-        ResponseEntity<String> change_password_response = profileController.changePassword(newPasswordRequest, db_profile.getId(), null, true);
-        assertEquals(HttpStatus.BAD_REQUEST, change_password_response.getStatusCode());
+        profileController.changePassword(newPasswordRequest, db_profile.getId(), null, true);
 
         db_profile = repo.findByPrimaryEmail(jimmy.getPrimary_email()).get(0);
         assertEquals(profileController.hashPassword("hushhush"), db_profile.getPassword());
@@ -543,25 +749,17 @@ class ProfileControllerTest {
     void createSimplifiedProfileListTest() {
         //Make and save new profiles to mock repo
         Profile jimmy = createNormalProfileJimmy();
-        assertEquals(0, repo.count());
-
-        ResponseEntity<List<SimplifiedProfileResponse>> response_1 = profileController.getUserProfiles(0);
-        assertEquals(0, response_1.getBody().size());
-
-        ResponseEntity<String> response_entity_jimmy = profileController.createProfile(jimmy);
-        assertEquals(HttpStatus.CREATED, response_entity_jimmy.getStatusCode());
-        assertEquals(1, repo.count());
-
+        profileController.createProfile(jimmy);
         Profile maurice = createNormalProfileMaurice();
-        ResponseEntity<String> response_entity_maurice = profileController.createProfile(maurice);
-        assertEquals(HttpStatus.CREATED, response_entity_maurice.getStatusCode());
-        assertEquals(2, repo.count());
+        profileController.createProfile(maurice);
 
         ResponseEntity<List<SimplifiedProfileResponse>> response_2 = profileController.getUserProfiles(0);
         assertEquals(2, response_2.getBody().size());
-
     }
 
+    /**
+     * Test to add a location to a profile
+     */
     @Test
     void addLocationTest(){
         Profile testProfile = createNormalProfileJimmy();
@@ -574,6 +772,9 @@ class ProfileControllerTest {
         assertEquals(testProfile.getProfileLocation(), updatedLocation);
     }
 
+    /**
+     * Test to edit a location in an already existing profile returns the correct response
+     */
     @Test
     void editLocationResponseTest(){
         Profile testProfile = createNormalProfileJimmy();
@@ -601,7 +802,9 @@ class ProfileControllerTest {
         assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
     }
 
-
+    /**
+     * Test to edit a location in an already existing profile returns the correct location
+     */
     @Test
     void editLocationDataTest(){
         Profile testProfile = createNormalProfileJimmy();
