@@ -33,6 +33,9 @@ class InitialDataHelperTest {
     @Autowired
     ActivityTypeRepository activityTypeRepository;
 
+    /**
+     * Needs to be run before each test to reset the repositories
+     */
     @BeforeEach
     private void setUp() {
         emailRepository.deleteAll();
@@ -41,17 +44,26 @@ class InitialDataHelperTest {
         activityTypeRepository.deleteAll();
     }
 
+    /**
+     * Test to check the default admin profile is updated correctly
+     */
     @Test
     void updateDefaultAdminTest() {
         assertEquals(20, updateDefaultAdmin(profileRepository, emailRepository).length());
     }
 
+    /**
+     * Test to check the default admin profile already exists
+     */
     @Test
     void updateDefaultAdminTestExistingAdmin() {
         updateDefaultAdmin(profileRepository, emailRepository).length();
         assertNull(updateDefaultAdmin(profileRepository, emailRepository));
     }
 
+    /**
+     * Test to check the example profiles created are valid profiles
+     */
     @Test
     void testExampleProfilesValidity() {
         // using method of field validation helper to test sample profile validity

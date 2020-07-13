@@ -38,12 +38,18 @@ class ActivityServiceTest {
     private Map<Long, Profile> profileIds = null;
     private static final String MISSING_EXCEPTION = "Exception should have been thrown.";
 
+    /**
+     * Needs to be run before each test to create new test profiles and repositories.
+     */
     @BeforeEach
     void setUp() {
         profileIds = populateProfiles();
         InitialDataHelper.init(typeRepository, profileRepository, emailRepository);
     }
 
+    /**
+     * Needs to be run after each test to ensure the repositories are emptied.
+     */
     @AfterEach
     void tearDown() {
         activityMembershipRepository.deleteAll();
@@ -52,6 +58,9 @@ class ActivityServiceTest {
         typeRepository.deleteAll();
     }
 
+    /**
+     * Test to create a basic new activity
+     **/
     @Test
     void createNewActivityTest() {
         Profile ben = createNormalProfileBen();
@@ -64,6 +73,9 @@ class ActivityServiceTest {
         assertEquals(result.get(0).getActivityName(), "Kaikoura Coast Track race");
     }
 
+    /**
+     * Test to check that an activity is saved under an activity type
+     **/
     @Test
     void findActivityByActivityTypeTest() {
         Profile ben = createNormalProfileBen();
@@ -79,6 +91,9 @@ class ActivityServiceTest {
         assertEquals(1, activityType.getActivities().size());
     }
 
+    /**
+     * Test to edit an already existing activity
+     **/
     @Test
     void updateActivityWithNormalDataSavesActivityTest() {
         activityRepository.save(createNormalActivitySilly());
@@ -95,25 +110,17 @@ class ActivityServiceTest {
         assertEquals(expectedActivity, actualActivity);
     }
 
-    @Test
-    void updateActivityWithNoNameTest() {
-        activityRepository.save(createNormalActivitySilly());
-        Long activityId = activityRepository.getLastInsertedId();
-        Activity expectedActivity = createNormalActivitySilly(), actualActivity = null;
-        Optional<Activity> result = activityRepository.findById(activityId);
-        if (result.isPresent()) {
-            actualActivity = result.get();
-        } else {
-            fail("Error: original activity is missing");
-        }
-        assertEquals(expectedActivity, actualActivity);
-    }
-
+    /**
+     * Test to edit an activity which doesn't already exist
+     **/
     @Test
     void updateActivityNotInDatabaseThrowsException() {
         assertThrows(IllegalArgumentException.class, ()->{ service.update(createNormalActivityKaikoura(), 0L);});
     }
 
+    /**
+     * Test to create an activity with no name
+     **/
     @Test
     void updateActivityWithBlankNameTest() {
         activityRepository.save(createNormalActivitySilly());
@@ -128,6 +135,9 @@ class ActivityServiceTest {
         assertEquals(expectedActivity, actualActivity);
     }
 
+    /**
+     * Test to edit an activity with no start date
+     **/
     @Test
     void updateActivityWithDurationAndNoStartDateTest() {
         activityRepository.save(createNormalActivitySilly());
@@ -142,6 +152,9 @@ class ActivityServiceTest {
         assertEquals(expectedActivity, actualActivity);
     }
 
+    /**
+     * Test to edit an activity with no end date
+     **/
     @Test
     void updateActivityWithDurationAndNoEndDateTest() {
         activityRepository.save(createNormalActivitySilly());
@@ -156,7 +169,9 @@ class ActivityServiceTest {
         assertEquals(expectedActivity, actualActivity);
     }
 
-
+    /**
+     * Test to edit an activity with end date before start date
+     **/
     @Test
     void updateActivityWithMisorderedDateThrowsExceptionTest() {
         activityRepository.save(createNormalActivitySilly());
@@ -171,6 +186,9 @@ class ActivityServiceTest {
         assertEquals(expectedActivity, actualActivity);
     }
 
+    /**
+     * Test to edit an activity with invalid activity types
+     **/
     @Test
     void updateActivityWithInvalidActivityTypesThrowsExceptionTest() {
         activityRepository.save(createNormalActivitySilly());
@@ -185,20 +203,9 @@ class ActivityServiceTest {
         assertEquals(expectedActivity, actualActivity);
     }
 
-    @Test
-    void updateActivityWithEmptyActivityTypesTest() {
-        activityRepository.save(createNormalActivitySilly());
-        Long activityId = activityRepository.getLastInsertedId();
-        Activity expectedActivity = createNormalActivitySilly(), actualActivity = null;
-        Optional<Activity> result = activityRepository.findById(activityId);
-        if (result.isPresent()) {
-            actualActivity = result.get();
-        } else {
-            fail("Error: original activity is missing");
-        }
-        assertEquals(expectedActivity, actualActivity);
-    }
-
+    /**
+     * Test to edit an activity with no activity types selected
+     **/
     @Test
     void updateActivityWithNoActivityTypesTest() {
         activityRepository.save(createNormalActivitySilly());
@@ -213,25 +220,28 @@ class ActivityServiceTest {
         assertEquals(expectedActivity, actualActivity);
     }
 
+    /**
+     * Test to delete an activity
+     **/
     @Test
     void deleteActivitySuccessTest() {
         Activity activity = activityRepository.save(createNormalActivityKaikoura());
         service.delete(activity.getId());
         assertEquals(0, activityRepository.count());
-
     }
 
-    @Test
-    void deleteActivityDoesNotExistInRepoTest() {
-        assertFalse(activityRepository.existsById((long) 1));
-    }
-
+    /**
+     * Test to delete an activity that doesn't exist
+     **/
     @Test
     void deleteActivityDoesNotExistTest() {
         assertFalse(service.delete((long) 1));
     }
 
 
+    /**
+     * Example activities to use in tests
+     **/
 
     static Activity createNormalActivity() {
         return new Activity("Kaikoura Coast Track race", "A big and nice race on a lovely peninsula",

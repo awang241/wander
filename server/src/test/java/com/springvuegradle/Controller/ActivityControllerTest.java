@@ -44,15 +44,6 @@ public class ActivityControllerTest {
     @Autowired
     private ActivityTypeRepository activityTypeRepo;
 
-
-//    @AfterEach
-//    void resetRepo() {
-//        amRepo.deleteAll();
-//        prepo.deleteAll();
-//        arepo.deleteAll();
-//
-//    }
-
     /**
      * Needs to be run before each test to ensure the repository starts empty.
      */

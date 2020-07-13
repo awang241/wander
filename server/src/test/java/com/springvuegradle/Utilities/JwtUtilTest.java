@@ -19,18 +19,27 @@ public class JwtUtilTest {
     @Autowired
     private JwtUtil jwtUtil;
 
+    /**
+     * Test to check if a token is in correct jwt format
+     */
     @Test
     void checkValidJwt(){
         String token = jwtUtil.generateToken(createNormalProfileMaurice());
         assertTrue(jwtUtil.validateToken(token));
     }
 
+    /**
+     * Test to check if a token is in incorrect jwt format
+     */
     @Test
     void checkInvalidJwt(){
         String token = "thisisnotavalidjwt";
         assertFalse(jwtUtil.validateToken(token));
     }
 
+    /**
+     * Test to get id from a jwt token
+     */
     @Test
     void getIdFromToken(){
         Profile profile = createNormalProfileMaurice();
@@ -39,6 +48,9 @@ public class JwtUtilTest {
         assertEquals(id, jwtUtil.extractId(token));
     }
 
+    /**
+     * Test to get permission level from a jwt token
+     */
     @Test
     void getPermissionLevelFromToken(){
         Profile profile = createNormalProfileMaurice();
