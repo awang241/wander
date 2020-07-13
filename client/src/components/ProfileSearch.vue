@@ -26,7 +26,6 @@
                         :open-on-focus="false"
                         placeholder="Add an activity type">
                 </b-taginput>
-
             </b-field>
 
             <div>
@@ -57,12 +56,16 @@
 
         </form>
 
-        <div id="results" class="column">
+        <div id="results" class="column" v-if="profiles.length">
             <div
                     v-for="profile in profiles"
                     :key="profile.id">
                 <ProfileSummary :profile="profile"/>
             </div>
+        </div>
+
+        <div v-else id="noMatches">
+            <h1>No profiles loaded!</h1>
         </div>
 
         <observer v-on:intersect="loadMoreProfiles"></observer>
@@ -75,7 +78,7 @@
     import ProfileSummary from "./ProfileSummary";
     import Observer from "./Observer";
 
-    const DEFAULT_COUNT = 10
+    const DEFAULT_RESULT_COUNT = 10
 
     export default {
         name: "ProfileSearch",
@@ -108,14 +111,15 @@
                 this.chosenActivityTypes = []
             },
             searchUser() {
+                console.log("search user called")
                 this.startIndex = 0
                 const searchParameters = this.getSearchParameters()
-                Api.getUserProfiles(localStorage.getItem('authToken'), searchParameters).then(response =>
-                    this.profiles = response.data.results)
-
+                Api.getUserProfiles(localStorage.getItem('authToken'), searchParameters).then(response => {
+                    this.startIndex += DEFAULT_RESULT_COUNT
+                    this.profiles = response.data.results})
             },
             getSearchParameters() {
-                const searchParameters = {count: DEFAULT_COUNT, startIndex: this.startIndex}
+                const searchParameters = {count: DEFAULT_RESULT_COUNT, startIndex: this.startIndex}
                 if (this.name.length !== 0) {
                     searchParameters.fullname = this.name
                 }
@@ -137,9 +141,10 @@
                 router.push('/Profile')
             },
             loadMoreProfiles() {
+                console.log("Load more profiles called")
                 const searchParameters = this.getSearchParameters()
                 Api.getUserProfiles(localStorage.getItem('authToken'), searchParameters).then(response => {
-                    this.startIndex += DEFAULT_COUNT
+                    this.startIndex += DEFAULT_RESULT_COUNT
                     const profiles = response.data.results
                     this.profiles = [...this.profiles, ...profiles]
                 })
@@ -151,5 +156,9 @@
 <style scoped>
     #results {
         padding-top: 4rem;
+    }
+    #noMatches{
+        padding-top: 4rem;
+        color: red;
     }
 </style>
