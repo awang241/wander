@@ -11,7 +11,7 @@
             </b-field>
 
             <b-field label="Email" expanded>
-                <b-input type="email"
+                <b-input type="text"
                          v-model="email"
                          placeholder="Email">
                 </b-input>
@@ -59,8 +59,8 @@
 
         <div id="results" class="column">
             <div
-                 v-for="profile in profiles"
-                 :key="profile.id">
+                    v-for="profile in profiles"
+                    :key="profile.id">
                 <ProfileSummary :profile="profile"/>
             </div>
         </div>
@@ -90,7 +90,7 @@
                 filteredActivityTypes: this.possibleActivityTypes,
                 observer: null,
                 profiles: [],
-                page: 1
+                startIndex: 0
             }
         },
         mounted() {
@@ -108,10 +108,21 @@
                 this.chosenActivityTypes = []
             },
             searchUser() {
-                //TODO Implement this function to make api call to search for user based on values in search form
-                Api.getUserProfiles(localStorage.getItem('authToken'), {count: DEFAULT_COUNT, startIndex: 0}).then(response =>
+                this.startIndex = 0
+                const searchParameters = this.getSearchParameters()
+                Api.getUserProfiles(localStorage.getItem('authToken'), searchParameters).then(response =>
                     this.profiles = response.data.results)
 
+            },
+            getSearchParameters() {
+                const searchParameters = {count: DEFAULT_COUNT, startIndex: this.startIndex}
+                if (this.name.length !== 0) {
+                    searchParameters.fullname = this.name
+                }
+                if (this.email.length !== 0) {
+                    searchParameters.email = this.email
+                }
+                return searchParameters
             },
             //Autocomplete to display activity types that finish the word the user is typing
             getFilteredActivityTypes(text) {
@@ -125,21 +136,20 @@
             openProfile() {
                 router.push('/Profile')
             },
-            loadMoreProfiles(){
-                //TODO uncomment this method and use correct api call to work with backend implementation
-                // api.getProfiles(store.getters.getUserId, localStorage.getItem('authToken'))
-                //     .then((response) => {
-                //         this.page += 1
-                //         const profiles = response.data;
-                //         this.profiles = [...this.profiles, ...profiles]
-                //     })
+            loadMoreProfiles() {
+                const searchParameters = this.getSearchParameters()
+                Api.getUserProfiles(localStorage.getItem('authToken'), searchParameters).then(response => {
+                    this.startIndex += DEFAULT_COUNT
+                    const profiles = response.data.results
+                    this.profiles = [...this.profiles, ...profiles]
+                })
             }
         }
     }
 </script>
 
 <style scoped>
-    #results{
+    #results {
         padding-top: 4rem;
     }
 </style>
