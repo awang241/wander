@@ -111,7 +111,6 @@
                 this.chosenActivityTypes = []
             },
             searchUser() {
-                console.log("search user called")
                 this.startIndex = 0
                 const searchParameters = this.getSearchParameters()
                 Api.getUserProfiles(localStorage.getItem('authToken'), searchParameters).then(response => {
@@ -141,7 +140,6 @@
                 router.push('/Profile')
             },
             loadMoreProfiles() {
-                console.log("Load more profiles called")
                 const searchParameters = this.getSearchParameters()
                 Api.getUserProfiles(localStorage.getItem('authToken'), searchParameters).then(response => {
                     this.startIndex += DEFAULT_RESULT_COUNT
