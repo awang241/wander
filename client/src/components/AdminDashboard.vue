@@ -45,7 +45,7 @@
             getProfilesForAdmin(){
                 api.getUserProfiles(localStorage.getItem('authToken'))
                     .then((response) => {
-                        this.allProfiles = response.data;
+                        this.allProfiles = response.data.results;
                     })
                     .catch(error => console.log(error));
             },
@@ -56,9 +56,6 @@
         mounted() {
             this.getProfilesForAdmin();
 
-
-            // MOCK DATA - will be replaced by real data when api endpoint has been created
-            // this.allProfiles = [[null, "Steven", "Stevenson", "steven@steven.com", "male"], [1, "Bob", "Joe", "bobby@jo.com", "male"]];
         }
     }
 </script>

@@ -1,6 +1,8 @@
 package com.springvuegradle.dto;
 
-public class SimplifiedProfileResponse {
+import com.springvuegradle.Model.Profile;
+
+public class ProfileSummary {
 
     /**
      * Holds the user id. Generated and assigned when the object is saved in the database.
@@ -37,12 +39,24 @@ public class SimplifiedProfileResponse {
      * @param email users primary email address
      * @param gender (Male, Female, Other)
      */
-    public SimplifiedProfileResponse(Long id, String firstname, String lastname, String email, String gender) {
+    public ProfileSummary(Long id, String firstname, String lastname, String email, String gender) {
         this.id = id;
         this.firstname = firstname;
         this.lastname = lastname;
         this.email = email;
         this.gender = gender;
+    }
+
+    /**
+     * Creates a ProfileSummary based of the given Profile.
+     * @param profile The profile being summarised.
+     */
+    public ProfileSummary(Profile profile) {
+        this.id = profile.getId();
+        this.firstname = profile.getFirstname();
+        this.lastname = profile.getLastname();
+        this.email = profile.getPrimary_email();
+        this.gender = profile.getGender();
     }
 
     public Long getId() {

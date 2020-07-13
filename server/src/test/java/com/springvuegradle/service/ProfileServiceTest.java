@@ -1,14 +1,10 @@
 package com.springvuegradle.service;
 
-import com.springvuegradle.Model.Email;
 import com.springvuegradle.Model.Profile;
+import com.springvuegradle.Model.ProfileSearchCriteria;
 import com.springvuegradle.Model.ProfileTestUtils;
-import com.springvuegradle.Repositories.ActivityTypeRepository;
 import com.springvuegradle.Repositories.EmailRepository;
-import com.springvuegradle.Repositories.PassportCountryRepository;
 import com.springvuegradle.Repositories.ProfileRepository;
-import org.hibernate.TransientObjectException;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -26,7 +22,6 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-//TODO Update unit tests for new implementation
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
 class ProfileServiceTest {
@@ -82,8 +77,7 @@ class ProfileServiceTest {
         expectedProfiles.add(steven);
 
         PageRequest request = PageRequest.of(0, (int) profileRepository.count());
-        Page<Profile> result = testService.getUsers(null, null, null, null,
-                null, request);
+        Page<Profile> result = testService.getUsers(new ProfileSearchCriteria(), request);
         assertTrue(result.getContent().containsAll(expectedProfiles), "Check no duplicates in result page");
         assertEquals(expectedProfiles.size(), result.getSize());
     }
@@ -101,8 +95,9 @@ class ProfileServiceTest {
         expectedProfiles.add(jimmyTwo);
 
         PageRequest request = PageRequest.of(0, (int) profileRepository.count());
-        Page<Profile> actualProfiles = testService.getUsers(jimmyOne.getFirstname(), null, null,
-                null, null, request);
+        ProfileSearchCriteria criteria = new ProfileSearchCriteria(jimmyOne.getFirstname(), null,
+                null, null, null);
+        Page<Profile> actualProfiles = testService.getUsers(criteria, request);
 
         assertTrue(expectedProfiles.containsAll(actualProfiles.getContent()), "Check page contains the correct profiles.");
         assertEquals(2, actualProfiles.getTotalElements(), "Check page is of the right size.");
@@ -121,8 +116,9 @@ class ProfileServiceTest {
         expectedProfiles.add(maurice);
 
         PageRequest request = PageRequest.of(0, (int) profileRepository.count());
-        Page<Profile> actualProfiles = testService.getUsers(null, maurice.getMiddlename(), null,
-                null, null, request);
+        ProfileSearchCriteria criteria = new ProfileSearchCriteria(null, maurice.getMiddlename(),
+                null, null, null);
+        Page<Profile> actualProfiles = testService.getUsers(criteria, request);
 
         assertTrue(expectedProfiles.containsAll(actualProfiles.getContent()), "Check page contains the correct profiles.");
         assertEquals(expectedProfiles.size(), actualProfiles.getTotalElements(), "Check page is of the right size.");
@@ -138,11 +134,11 @@ class ProfileServiceTest {
         Set<Profile> expectedProfiles = new HashSet<>();
         expectedProfiles.add(jimmyOne);
         expectedProfiles.addAll(profilesWithSameSurnameAsJimmy);
-
+        ProfileSearchCriteria criteria = new ProfileSearchCriteria(null, null, jimmyOne.getLastname(),
+                null, null);
         PageRequest request = PageRequest.of(0, Math.toIntExact(profileRepository.count()));
 
-        Page<Profile> actualProfiles = testService.getUsers(null, null, jimmyOne.getLastname(),
-                null, null, request);
+        Page<Profile> actualProfiles = testService.getUsers(criteria, request);
         assertTrue(expectedProfiles.containsAll(actualProfiles.getContent()), "Check page contains the correct profiles.");
         assertEquals(expectedProfiles.size(), actualProfiles.getTotalElements(), "Check page is of the right size.");
     }
@@ -160,8 +156,9 @@ class ProfileServiceTest {
 
         PageRequest request = PageRequest.of(0, Math.toIntExact(profileRepository.count()));
 
-        Page<Profile> actualProfiles = testService.getUsers(jimmyOne.getFirstname(), jimmyOne.getMiddlename(), jimmyOne.getLastname(),
-                null, null, request);
+        ProfileSearchCriteria criteria = new ProfileSearchCriteria(jimmyOne.getFirstname(), jimmyOne.getMiddlename(),
+                jimmyOne.getLastname(), null, null);
+        Page<Profile> actualProfiles = testService.getUsers(criteria, request);
         assertTrue(expectedProfiles.containsAll(actualProfiles.getContent()), "Check page contains the correct profiles.");
         assertEquals(expectedProfiles.size(), actualProfiles.getTotalElements(), "Check page is of the right size.");
     }
@@ -177,15 +174,16 @@ class ProfileServiceTest {
         expectedProfiles.add(nicknamedQuick);
 
         PageRequest request = PageRequest.of(0, Math.toIntExact(profileRepository.count()));
-
-        Page<Profile> actualProfiles = testService.getUsers(null, null, null,
-                nicknamedQuick.getNickname(), null, request);
+        ProfileSearchCriteria criteria = new ProfileSearchCriteria(null, null, null,
+                nicknamedQuick.getNickname(), null);
+        Page<Profile> actualProfiles = testService.getUsers(criteria, request);
         assertTrue(expectedProfiles.containsAll(actualProfiles.getContent()), "Check page contains the correct profiles.");
         assertEquals(expectedProfiles.size(), actualProfiles.getTotalElements(), "Check page is of the right size.");
     }
 
     @Disabled
     @Test
+    //TODO Fix transient object bug
     void getUsersByEmailNormalTest() {
         String email = steven.getPrimary_email();
         profileRepository.save(jimmyOne);
@@ -198,14 +196,13 @@ class ProfileServiceTest {
         expectedProfiles.add(steven);
 
         PageRequest request = PageRequest.of(0, Math.toIntExact(profileRepository.count()));
-
-        Page<Profile> actualProfiles = testService.getUsers(null, null, null,
-                null, email, request);
+        ProfileSearchCriteria criteria = new ProfileSearchCriteria(null, null, null,
+                null, email);
+        Page<Profile> actualProfiles = testService.getUsers(criteria, request);
         assertTrue(expectedProfiles.containsAll(actualProfiles.getContent()), "Check page contains the correct profiles.");
         assertEquals(expectedProfiles.size(), actualProfiles.getTotalElements(), "Check page is of the right size.");
     }
 
-    @Disabled
     @Test
     void getUsersWithNoProfilesMatchingParamsReturnsNoProfilesTest() {
         jimmyOne = profileRepository.save(jimmyOne);
@@ -213,23 +210,10 @@ class ProfileServiceTest {
         steven = profileRepository.save(steven);
 
         PageRequest request = PageRequest.of(0, Math.toIntExact(profileRepository.count()));
-        Collection<Profile> profiles = profileRepository.findAll();
-//        for (Profile profile: profiles) {
-//            for (Email email: profile.retrieveEmails()) {
-//                email.setProfile(profile);
-//                emailRepository.save(email);
-//            }
-//        }
-        Collection<Email> emails = emailRepository.findAll();
         Page<Profile> actualProfiles;
-/*        try {
-            actualProfiles = testService.getUsers("Jim", "Bim", "Dim", "Gim",
-                    "Fim", request);
-        } catch (TransientObjectException e) {
-            System.out.print(e);
-        }*/
-        actualProfiles = testService.getUsers("Jim", "Bim", "Dim", "Gim",
-            "Fim", request);
+        ProfileSearchCriteria criteria = new ProfileSearchCriteria("Jim", "Bim", "Dim",
+                "Gim", null);
+        actualProfiles = testService.getUsers(criteria, request);
         assertTrue(actualProfiles.isEmpty());
     }
 
@@ -243,9 +227,9 @@ class ProfileServiceTest {
         expectedProfiles.add(steven);
 
         PageRequest request = PageRequest.of(0, Math.toIntExact(profileRepository.count()));
-
-        Page<Profile> actualProfiles = testService.getUsers("ste", null, null,
-                null, null, request);
+        ProfileSearchCriteria criteria = new ProfileSearchCriteria("ste", null, null,
+                null, null);
+        Page<Profile> actualProfiles = testService.getUsers(criteria, request);
         assertTrue(expectedProfiles.containsAll(actualProfiles.getContent()), "Check page contains the correct profiles.");
         assertEquals(expectedProfiles.size(), actualProfiles.getTotalElements(), "Check page is of the right size.");
     }

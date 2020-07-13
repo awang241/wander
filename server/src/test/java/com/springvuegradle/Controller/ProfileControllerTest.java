@@ -8,9 +8,7 @@ import com.springvuegradle.Repositories.*;
 import com.springvuegradle.dto.ChangePasswordRequest;
 import com.springvuegradle.dto.EmailAddRequest;
 import com.springvuegradle.dto.EmailUpdateRequest;
-import com.springvuegradle.dto.SimplifiedProfileResponse;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -531,35 +529,6 @@ class ProfileControllerTest {
 
         db_profile = repo.findByPrimaryEmail(jimmy.getPrimary_email()).get(0);
         assertEquals(profileController.hashPassword("hushhush"), db_profile.getPassword());
-    }
-
-    /**
-     * Test if a list of simplified profiles can be created from normal profiles
-     */
-    @Disabled
-    @Test
-    void createSimplifiedProfileListTest() {
-        //Make and save new profiles to mock repo
-        //TODO Write unit tests for getUserProfiles method/ update this unit test; will require mocking.
-        /*
-        Profile jimmy = createNormalProfileJimmy();
-        assertEquals(0, repo.count());
-
-        ResponseEntity<List<SimplifiedProfileResponse>> response_1 = profileController.getUserProfiles(0);
-        assertEquals(0, response_1.getBody().size());
-
-        ResponseEntity<String> response_entity_jimmy = profileController.createProfile(jimmy);
-        assertEquals(HttpStatus.CREATED, response_entity_jimmy.getStatusCode());
-        assertEquals(1, repo.count());
-
-        Profile maurice = createNormalProfileMaurice();
-        ResponseEntity<String> response_entity_maurice = profileController.createProfile(maurice);
-        assertEquals(HttpStatus.CREATED, response_entity_maurice.getStatusCode());
-        assertEquals(2, repo.count());
-
-        ResponseEntity<List<SimplifiedProfileResponse>> response_2 = profileController.getUserProfiles(0);
-        assertEquals(2, response_2.getBody().size());
-        */
     }
 
     /**

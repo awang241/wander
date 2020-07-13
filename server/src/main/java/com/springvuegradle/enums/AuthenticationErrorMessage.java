@@ -1,4 +1,4 @@
-package com.springvuegradle.Controller.enums;
+package com.springvuegradle.enums;
 
 public enum AuthenticationErrorMessage {
     AUTHENTICATION_REQUIRED("Authentication required."),

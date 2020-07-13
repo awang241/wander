@@ -3,12 +3,14 @@ package com.springvuegradle.service;
 import com.springvuegradle.Model.ActivityType;
 import com.springvuegradle.Model.Email;
 import com.springvuegradle.Model.Profile;
+import com.springvuegradle.Model.ProfileSearchCriteria;
 import com.springvuegradle.Repositories.ProfileRepository;
 import com.springvuegradle.Repositories.spec.ProfileSpecifications;
 import com.springvuegradle.Utilities.FieldValidationHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -31,17 +33,10 @@ public class ProfileService {
     }
 
     /**
-     * Given a page index and size, calculates the appropriate page all profiles with the
-     * provided name. The profiles that are in that page are then returned.
+     * Given a page index and size, calculates the appropriate page all profiles . The profiles that are in that page are then returned.
      *
-     * The provided name can either be a single word or multiple space-separated words. In the case of a single word, it
-     * will match profiles with that surname or nickname. Multiple words are interpreted as a full name, where the first
-     * and last words are taken as the first and last names respectively, with all other words as the middle name(s).
      *
-     * @param name The name to be matched to.
-     * @param pageSize The maximum number of profiles that a page can have.
-     * @param pageNumber The index of the page to be returned. Page indices start at 0.
-     * @return The page of profiles requested.
+
      */
     public Page<Profile> getUsersByName(String name, Integer pageSize, Integer pageNumber) {
         PageRequest p = PageRequest.of(pageNumber, pageSize);
@@ -49,26 +44,34 @@ public class ProfileService {
         return profileRepository.findAll(spec, p);
     }
 
-    public Page<Profile> getUsers(String firstName, String middleName, String lastName, String nickname, String email, PageRequest request) {
+    /**
+     * Returns the specified page from the list of all profiles that match the search criteria.
+     *
+     * Criteria given
+     * @param criteria A ProfileSearchCriteria object containing the relevant criteria
+     * @param request A page request containing the index and size of the page to be returned.
+     * @return The specified page from the list of all profiles that match the search criteria.
+     */
+    public Page<Profile> getUsers(ProfileSearchCriteria criteria, Pageable request) {
         Specification<Profile> spec = ProfileSpecifications.notDefaultAdmin();
-        if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(firstName))) {
-            spec = spec.and(ProfileSpecifications.firstNameContains(firstName));
+        if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getFirstName()))) {
+            spec = spec.and(ProfileSpecifications.firstNameContains(criteria.getFirstName()));
         }
 
-        if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(middleName))) {
-            spec = spec.and(ProfileSpecifications.middleNameContains(middleName));
+        if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getMiddleName()))) {
+            spec = spec.and(ProfileSpecifications.middleNameContains(criteria.getMiddleName()));
         }
 
-        if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(lastName))) {
-            spec = spec.and(ProfileSpecifications.lastNameContains(lastName));
+        if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getLastName()))) {
+            spec = spec.and(ProfileSpecifications.lastNameContains(criteria.getLastName()));
         }
 
-        if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(nickname))) {
-            spec = spec.and(ProfileSpecifications.nicknameContains(nickname));
+        if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getNickname()))) {
+            spec = spec.and(ProfileSpecifications.nicknameContains(criteria.getNickname()));
         }
 
-        if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(email))) {
-            spec = spec.and(ProfileSpecifications.hasEmail(new Email(email)));
+        if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getEmail()))) {
+            spec = spec.and(ProfileSpecifications.hasEmail(new Email(criteria.getEmail())));
         }
         /*
         if (!FieldValidationHelper.isNullOrEmpty(activityTypes)) {
