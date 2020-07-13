@@ -2,10 +2,11 @@
     <div class="card">
         <div class="columns">
             <div class="column">
-                <h4><strong>{{this.name}}</strong></h4>
-                <p>{{profileData.gender}}</p>
+                <h4><strong>{{name}}</strong></h4>
+                <p>{{profile.gender}}</p>
+                <p>{{profile.email}}</p>
             </div>
-            <div v-for="activity in profileData.activityTypes" :key="activity.id">
+            <div v-for="activity in profile.activities" :key="activity.id">
                 <label>{{activity.activity_name}}</label>
             </div>
         </div>
@@ -25,7 +26,7 @@
         },
         computed: {
             name() {
-                return this.profileData.firstname + this.profileData.lastname;
+                return `${this.profile.firstname}  ${this.profile.lastname}`
             }
         },
         props: {
@@ -35,5 +36,7 @@
 </script>
 
 <style scoped>
-
+    .columns{
+        padding: 1rem;
+    }
 </style>

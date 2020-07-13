@@ -16,10 +16,11 @@ export default {
   editProfile: (userId, newData, token) => localAxiosInstance.put('/profiles/' + userId, newData, {headers: {"authorization":token}}),
   logout: (userId, token) => localAxiosInstance.post('logout/', userId, {headers: {"authorization":token}}),
   getProfile: (userId, token) => localAxiosInstance.get('profiles/'+userId, {headers: {"authorization":token}}),
+
   editEmail: (emails, userId, token) => localAxiosInstance.put('profiles/'+userId+'/emails', emails, {headers: {"authorization":token}}),
   editPassword: (passwordDetails, userId, token) => localAxiosInstance.put('profiles/'+ userId+'/password', passwordDetails, {headers: {"authorization":token}}),
   getActivityTypesList: () => localAxiosInstance.get('/activityTypes'),
-  getUserProfiles: (token) => localAxiosInstance.get('profiles/', {headers: {"authorization":token}}),
+  getUserProfiles: (token, parameters = {}) => localAxiosInstance.get('profiles/', {headers: {"authorization":token}, params: parameters}),
   getAuthLevel: (token) => localAxiosInstance.get('authLevel/', {headers: {"authorization":token}}),
   createActivity: (userId, data, token) => localAxiosInstance.post('/profiles/'+userId+'/activities', data, {headers: {"authorization":token}}),
   getActivitiesList: () => localAxiosInstance.get('activities'),

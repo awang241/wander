@@ -52,15 +52,14 @@
                     <b-field>
                         <b-button native-type="submit" class="is-primary">Submit</b-button>
                     </b-field>
-
                 </div>
             </div>
 
         </form>
 
-        <div id="results" class="column" v-if="searchData.length > 0">
-            <div class="container"
-                 v-for="profile in searchData"
+        <div id="results" class="column">
+            <div
+                 v-for="profile in profiles"
                  :key="profile.id">
                 <ProfileSummary :profile="profile"/>
             </div>
@@ -76,12 +75,13 @@
     import ProfileSummary from "./ProfileSummary";
     import Observer from "./Observer";
 
+    const DEFAULT_COUNT = 10
+
     export default {
         name: "ProfileSearch",
         components: {Observer, ProfileSummary},
         data() {
             return {
-                searchData: {},
                 activitySearchType: "all",
                 chosenActivityTypes: [],
                 email: "",
@@ -109,6 +109,9 @@
             },
             searchUser() {
                 //TODO Implement this function to make api call to search for user based on values in search form
+                Api.getUserProfiles(localStorage.getItem('authToken'), {count: DEFAULT_COUNT, startIndex: 0}).then(response =>
+                    this.profiles = response.data.results)
+
             },
             //Autocomplete to display activity types that finish the word the user is typing
             getFilteredActivityTypes(text) {
@@ -136,5 +139,7 @@
 </script>
 
 <style scoped>
-
+    #results{
+        padding-top: 4rem;
+    }
 </style>
