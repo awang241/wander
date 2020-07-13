@@ -46,6 +46,16 @@
         components: {List},
         mixins: [toastMixin],
         props: ["profile"],
+        data() {
+            return {
+                primaryEmail: this.profile.primary_email,
+                optionalEmails: this.profile.additional_email,
+                newEmail: "",
+                newPrimaryEmail: "",
+                originalPrimaryEmail: this.profile.primary_email,
+                originalOptionalEmails: this.profile.additional_email,
+            }
+        },
         methods: {
             addEmail() {
                 if (this.optionalEmails.length > 3) {
@@ -72,16 +82,12 @@
                 this.optionalEmails = this.optionalEmails.filter(email => email != emailToDelete)
             },
             submitEmails(){
-                this.$parent.updateEmails(this.primaryEmail, this.optionalEmails)
-                this.successToast("Updated emails")
+                if ((this.primaryEmail === this.originalPrimaryEmail) && (this.optionalEmails === this.originalOptionalEmails)) {
+                    this.warningToast("No changes made")
+                } else {
+                    this.$parent.updateEmails(this.primaryEmail, this.optionalEmails)
+                    this.successToast("Updated emails")
                 }
-            },
-        data() {
-            return {
-            primaryEmail: this.profile.primary_email,
-            optionalEmails: this.profile.additional_email,
-            newEmail: "",
-            newPrimaryEmail: "",
             }
         }
     }

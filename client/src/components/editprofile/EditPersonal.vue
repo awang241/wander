@@ -119,7 +119,19 @@
 
         methods: {
             sendUpdatedData(){
-                this.dateOfBirth.setHours(23)
+                //this.dateOfBirth.setHours(23)
+                const original =
+                    {
+                        "firstname": this.profile.firstname,
+                        "lastname": this.profile.lastname,
+                        "middlename": this.profile.middlename,
+                        "nickname": this.profile.nickname,
+                        "bio": this.profile.bio,
+                        "date_of_birth": new Date(this.profile.date_of_birth),
+                        "gender": this.profile.gender,
+                        "fitness": this.profile.fitness
+                    }
+
                 const personalDetails =
                     {
                     "firstname": this.firstName,
@@ -131,8 +143,12 @@
                     "gender": this.gender,
                     "fitness": this.fitness_level
                     }
-                this.$parent.updatePersonal(personalDetails)
-                this.successToast("Personal details saved!")
+                if (JSON.stringify(original) !== JSON.stringify(personalDetails)) {
+                    this.$parent.updatePersonal(personalDetails)
+                    this.successToast("New personal details saved")
+                } else {
+                    this.warningToast("No changes made")
+                }
             },
 
             getErrorMessageFromStatusCode(statusCode) {
