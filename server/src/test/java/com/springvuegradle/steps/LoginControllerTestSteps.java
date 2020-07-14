@@ -1,9 +1,9 @@
 package com.springvuegradle.steps;
 
-import com.springvuegradle.Controller.LoginController;
-import com.springvuegradle.Model.Profile;
-import com.springvuegradle.Repositories.EmailRepository;
-import com.springvuegradle.Utilities.JwtUtil;
+import com.springvuegradle.controller.LoginController;
+import com.springvuegradle.model.Profile;
+import com.springvuegradle.repositories.EmailRepository;
+import com.springvuegradle.utilities.JwtUtil;
 import com.springvuegradle.dto.LoginRequest;
 import com.springvuegradle.dto.LoginResponse;
 import io.cucumber.java.Before;

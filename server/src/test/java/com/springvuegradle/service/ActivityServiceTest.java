@@ -1,11 +1,11 @@
 package com.springvuegradle.service;
 
-import com.springvuegradle.Model.Activity;
-import com.springvuegradle.Model.ActivityType;
-import com.springvuegradle.Model.Profile;
-import com.springvuegradle.Repositories.*;
-import com.springvuegradle.Utilities.FormatHelper;
-import com.springvuegradle.Utilities.InitialDataHelper;
+import com.springvuegradle.model.Activity;
+import com.springvuegradle.model.ActivityType;
+import com.springvuegradle.model.Profile;
+import com.springvuegradle.repositories.*;
+import com.springvuegradle.utilities.FormatHelper;
+import com.springvuegradle.utilities.InitialDataHelper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

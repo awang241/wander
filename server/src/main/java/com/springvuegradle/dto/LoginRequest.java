@@ -1,7 +1,5 @@
 package com.springvuegradle.dto;
 
-import javax.persistence.Entity;
-
 /**
  * Model Class for incoming email/password requests used for logging in
  */

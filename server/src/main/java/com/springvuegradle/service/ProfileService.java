@@ -1,9 +1,9 @@
 package com.springvuegradle.service;
 
-import com.springvuegradle.Model.Profile;
-import com.springvuegradle.Model.ProfileLocation;
-import com.springvuegradle.Repositories.ProfileLocationRepository;
-import com.springvuegradle.Repositories.ProfileRepository;
+import com.springvuegradle.model.Profile;
+import com.springvuegradle.model.ProfileLocation;
+import com.springvuegradle.repositories.ProfileLocationRepository;
+import com.springvuegradle.repositories.ProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
