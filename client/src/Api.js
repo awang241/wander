@@ -7,7 +7,7 @@ console.log(SERVER_URL + "@@@");
   
 const localAxiosInstance = axios.create({
   baseURL: SERVER_URL,  
-  timeout: 10000
+  timeout: 1000
 });  
   
 export default {
