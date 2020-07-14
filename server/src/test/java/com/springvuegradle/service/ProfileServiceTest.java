@@ -1,10 +1,13 @@
 package com.springvuegradle.service;
 
+import com.springvuegradle.Controller.Profile_Controller;
+import com.springvuegradle.Model.Email;
 import com.springvuegradle.Model.Profile;
 import com.springvuegradle.Model.ProfileSearchCriteria;
 import com.springvuegradle.Model.ProfileTestUtils;
 import com.springvuegradle.Repositories.EmailRepository;
 import com.springvuegradle.Repositories.ProfileRepository;
+import io.cucumber.java.bs.A;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -32,6 +35,8 @@ class ProfileServiceTest {
     private EmailRepository emailRepository;
     @Autowired
     private ProfileService testService;
+    @Autowired
+    private Profile_Controller controller;
 
     private Profile jimmyOne, jimmyTwo, steven, maurice, nicknamedQuick;
     private List<Profile> profilesWithSameSurnameAsJimmy;
@@ -181,19 +186,18 @@ class ProfileServiceTest {
         assertEquals(expectedProfiles.size(), actualProfiles.getTotalElements(), "Check page is of the right size.");
     }
 
-    @Disabled
     @Test
-    //TODO Fix transient object bug
     void getUsersByEmailNormalTest() {
         String email = steven.getPrimary_email();
-        profileRepository.save(jimmyOne);
-        profileRepository.save(jimmyTwo);
-        profileRepository.save(nicknamedQuick);
-        steven = profileRepository.save(steven);
-        profileRepository.saveAll(profilesWithSameSurnameAsJimmy);
+        saveWithEmails(jimmyOne);
+        saveWithEmails(jimmyTwo);
+        steven = saveWithEmails(steven);
 
         Set<Profile> expectedProfiles = new HashSet<>();
         expectedProfiles.add(steven);
+
+        List<Profile> someProfiles = profileRepository.findAll();
+        List<Email> someEmails = emailRepository.findAll();
 
         PageRequest request = PageRequest.of(0, Math.toIntExact(profileRepository.count()));
         ProfileSearchCriteria criteria = new ProfileSearchCriteria(null, null, null,
@@ -201,6 +205,25 @@ class ProfileServiceTest {
         Page<Profile> actualProfiles = testService.getUsers(criteria, request);
         assertTrue(expectedProfiles.containsAll(actualProfiles.getContent()), "Check page contains the correct profiles.");
         assertEquals(expectedProfiles.size(), actualProfiles.getTotalElements(), "Check page is of the right size.");
+    }
+
+    @Test
+    void getUsersByEmailWithNoProfileWithThatEmailReturnsNothingTest() {
+        saveWithEmails(jimmyOne);
+        saveWithEmails(jimmyTwo);
+        steven = saveWithEmails(steven);
+
+        Set<Profile> expectedProfiles = new HashSet<>();
+        expectedProfiles.add(steven);
+
+        List<Profile> someProfiles = profileRepository.findAll();
+        List<Email> someEmails = emailRepository.findAll();
+
+        PageRequest request = PageRequest.of(0, Math.toIntExact(profileRepository.count()));
+        ProfileSearchCriteria criteria = new ProfileSearchCriteria(null, null, null,
+                null, "not a real email");
+        Page<Profile> actualProfiles = testService.getUsers(criteria, request);
+        assertTrue(actualProfiles.isEmpty(), "Check no results are returned");
     }
 
     @Test
@@ -234,4 +257,11 @@ class ProfileServiceTest {
         assertEquals(expectedProfiles.size(), actualProfiles.getTotalElements(), "Check page is of the right size.");
     }
 
+    private Profile saveWithEmails(Profile profile) {
+        Profile updated = profileRepository.save(profile);
+        for (Email email: profile.retrieveEmails()) {
+            emailRepository.save(email);
+        }
+        return  updated;
+    }
 }

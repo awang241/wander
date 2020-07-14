@@ -2,6 +2,8 @@ package com.springvuegradle.dto;
 
 import com.springvuegradle.Model.Profile;
 
+import java.util.Objects;
+
 public class ProfileSummary {
 
     /**
@@ -91,8 +93,26 @@ public class ProfileSummary {
         this.email = email;
     }
 
+
     public String getGender() {
         return gender;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ProfileSummary that = (ProfileSummary) o;
+        return Objects.equals(id, that.id) &&
+                Objects.equals(firstname, that.firstname) &&
+                Objects.equals(lastname, that.lastname) &&
+                Objects.equals(email, that.email) &&
+                Objects.equals(gender, that.gender);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, firstname, lastname, email, gender);
     }
 
     public void setGender(String gender) {

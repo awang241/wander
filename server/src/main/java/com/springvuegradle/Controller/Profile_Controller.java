@@ -260,9 +260,7 @@ public class Profile_Controller {
     protected List<ProfileSummary> createSimplifiedProfiles(List<Profile> profiles) {
         List<ProfileSummary> simplifiedProfiles = new ArrayList<>();
         for(Profile profile: profiles) {
-            String tempEmail = eRepo.findPrimaryByProfile(profile);
-            simplifiedProfiles.add(new ProfileSummary(profile.getId(), profile.getFirstname(), profile.getLastname(),
-                    tempEmail, profile.getGender()));
+            simplifiedProfiles.add(new ProfileSummary(profile));
         }
         return simplifiedProfiles;
     }
