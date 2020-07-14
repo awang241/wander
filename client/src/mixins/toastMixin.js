@@ -2,7 +2,7 @@ export default {
     methods: {
         successToast(message) {
             this.$buefy.toast.open({
-                duration: 5500,
+                duration: 3500,
                 message: message,
                 type: 'is-success',
                 position: 'is-top'
@@ -10,7 +10,7 @@ export default {
         },
         warningToast(message) {
             this.$buefy.toast.open({
-                duration: 5500,
+                duration: 3500,
                 message: message,
                 type: 'is-danger',
                 position: 'is-top'
