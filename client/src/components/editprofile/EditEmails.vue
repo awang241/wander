@@ -86,7 +86,9 @@
                     this.warningToast("No changes made")
                 } else {
                     this.$parent.updateEmails(this.primaryEmail, this.optionalEmails)
-                    this.successToast("Updated emails")
+                    this.successToast("New emails saved")
+                    this.originalPrimaryEmail = this.primaryEmail
+                    this.originalOptionalEmails = this.optionalEmails
                 }
             }
         }
