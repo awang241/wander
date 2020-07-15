@@ -1,37 +1,32 @@
 <template>
-    <div>
-        <div class="container containerColor">
-            <h1 class="title is-3">Admin Dashboard</h1>
-            <br>
-            <h2 class="title is-5">All Users:</h2>
-            <table>
-                <tr>
-                    <th>Profile ID</th>
-                    <th>First Name</th>
-                    <th>Last Name</th>
-                    <th>Gender</th>
-                    <th>Primary Email</th>
-                    <th>View Profile</th>
-                </tr>
-                <tr v-for="profile in allProfiles" v-bind:key="profile">
-                    <td>{{ profile.id }}</td>
-                    <td>{{ profile.firstname }}</td>
-                    <td>{{ profile.lastname }}</td>
-                    <td>{{ profile.gender }}</td>
-                    <td>{{ profile.email }}</td>
-                    <td>
-                        <b-button type="is-info" native-type="submit" @click="goToProfile(profile.id)">Edit Profile
-                        </b-button>
-                    </td>
-                </tr>
-            </table>
-        </div>
-        <observer v-on:intersect="loadMoreProfiles"></observer>
+    <div class="container containerColor">
+        <h1 class="title is-3">Admin Dashboard</h1>
+        <br>
+        <h2 class="title is-5">All Users:</h2>
+        <table>
+            <caption hidden>Table of All Users</caption>
+            <tr>
+                <th scope="col">Profile ID</th>
+                <th scope="col">First Name</th>
+                <th scope="col">Last Name</th>
+                <th scope="col">Gender</th>
+                <th scope="col">Primary Email</th>
+                <th scope="col">View Profile</th>
+            </tr>
+            <tr v-for="profile in allProfiles" v-bind:key="profile">
+                <td>{{ profile.id }}</td>
+                <td>{{ profile.firstname }}</td>
+                <td>{{ profile.lastname }}</td>
+                <td>{{ profile.gender }}</td>
+                <td>{{ profile.email }}</td>
+                <td><b-button type="is-info" native-type="submit" @click="goToProfile(profile.id)">Edit Profile</b-button></td>
+            </tr>
+        </table>
+    <observer v-on:intersect="loadMoreProfiles"></observer>
     </div>
 </template>
 
 <script>
-
     import api from '../Api';
     import router from "../router";
     import Observer from "./Observer";
@@ -79,11 +74,9 @@
     .containerColor {
         background-color: #F7F8F9
     }
-
     th {
         width: 150px;
     }
-
     table, th, td {
         border: 1px solid black;
         padding: 10px;

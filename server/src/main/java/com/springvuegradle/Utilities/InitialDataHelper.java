@@ -15,6 +15,8 @@ import java.util.Random;
 
 public class InitialDataHelper {
 
+    private static Random random = new Random();
+
     private InitialDataHelper(){};
 
     /**
@@ -50,7 +52,7 @@ public class InitialDataHelper {
         if (steves.size() == 0) {
             Profile regularProfile = new Profile(1L, "Steve", "Tester", "The", "Stevetest",
                     "Steve@test.com", extraEmails, Profile_Controller.hashPassword("987654321"), "Here to run some tests!", calendar1,
-                    "Male", 2, new String[]{}, new String[]{});
+                    "male", 2, new String[]{}, new String[]{});
             repo.save(regularProfile);
             Email regularEmail = regularProfile.retrievePrimaryEmail();
             regularEmail.setProfile(regularProfile);
@@ -60,7 +62,7 @@ public class InitialDataHelper {
         if (daves.size() == 0) {
             Profile daveAdminProfile = new Profile(2L, "Dave", "Tester", "The", "Davetest",
                     "Dave@test.com", extraEmails, Profile_Controller.hashPassword("SecureAdminPassword"), "I'm a model Admin!", calendar2,
-                    "Male", 2, new String[]{}, new String[]{});
+                    "male", 2, new String[]{}, new String[]{});
             daveAdminProfile.setAuthLevel(1);
             repo.save(daveAdminProfile);
             Email daveEmail = daveAdminProfile.retrievePrimaryEmail();
@@ -83,7 +85,6 @@ public class InitialDataHelper {
             int minAscii = 48;
             int maxAscii = 122;
             int passwordLength = 20;
-            Random random = new Random();
             String password = random.ints(minAscii, maxAscii).filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
                     .limit(passwordLength)
                     .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)

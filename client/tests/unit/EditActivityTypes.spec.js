@@ -12,7 +12,7 @@ beforeEach(() => {
         stubs: {},
         methods: {},
     });
-    wrapper.vm.showWarning = jest.fn();
+    wrapper.vm.warningToast = jest.fn();
 });
 
 afterEach(() => {

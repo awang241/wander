@@ -39,7 +39,6 @@ public class ValidationHelper {
             String data = new String(in.readAllBytes());
             countries.addAll(Arrays.asList(mapper.readValue(data, PassportCountry[].class)));
         } catch(ConnectException e) {
-            e.printStackTrace();
             throw e;
         }
         return countries;

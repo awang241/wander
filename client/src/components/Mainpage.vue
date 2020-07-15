@@ -1,7 +1,7 @@
 <template>
     <div class="container containerColor">
 
-        <img class="mainpage-banner" src="../../images/WANDER-day-navbar.png"/>
+        <img class="mainpage-banner" src="../../images/WANDER-day-navbar.png" alt="Light Wander Logo"/>
         <div class="container has-text-centered">
             <h2 class="title">Our Philosophy</h2>
             <p>
@@ -16,7 +16,7 @@
                 <div class="card">
                     <div class="card-image">
                         <figure class="image is-2by1">
-                            <img class="crop-banner" src="../../images/cycling.jpg"/>
+                            <img class="crop-banner" src="../../images/cycling.jpg" alt="Pretty picture of cycling"/>
                         </figure>
                     </div>
                     <div class="card-content">
@@ -38,7 +38,7 @@
                         <div class="card">
                             <div class="card-image">
                                 <figure class="image is-2by1">
-                                    <img class="crop-banner" src="../../images/basketball.jpg"/>
+                                    <img class="crop-banner" src="../../images/basketball.jpg" alt="Pretty Picture of Basketball"/>
                                 </figure>
                             </div>
                             <div class="card-content">
@@ -59,7 +59,7 @@
                         <div class="card">
                             <div class="card-image">
                                 <figure class="image is-2by1">
-                                    <img class="crop-banner" src="../../images/hiking.jpg"/>
+                                    <img class="crop-banner" src="../../images/hiking.jpg" alt="Pretty Picture of Hiking"/>
                                 </figure>
                             </div>
                             <div class="card-content">
@@ -117,37 +117,37 @@
                     <article class="tile is-child box">
                         <p class="title">Barry</p>
                         <p class="subtitle">03/04/2020, Christchurch, NZ</p>
-                        <p><i>I met my current wife on this website on our hiking trip!</i> </p>
+                        <p><em>I met my current wife on this website on our hiking trip!</em> </p>
                     </article>
                 </div>
                 <div class="tile is-parent">
                     <article class="tile is-child box">
                         <p class="title">Joe</p>
                         <p class="subtitle">02/07/2020, Tibet</p>
-                        <p><i>What a fantastic app. Through this app, I was able to meet like minded people
-                        and start a new hobby.</i> </p>
+                        <p><em>What a fantastic app. Through this app, I was able to meet like minded people
+                        and start a new hobby.</em> </p>
                     </article>
                 </div>
                 <div class="tile is-parent">
                     <article class="tile is-child box">
                         <p class="title">Kate</p>
                         <p class="subtitle">05/01/2020, New York, USA</p>
-                        <p><i>Better than facebook!</i> </p>
+                        <p><em>Better than facebook!</em> </p>
                     </article>
                 </div>
                 <div class="tile is-parent">
                     <article class="tile is-child box">
                         <p class="title">Lisa</p>
                         <p class="subtitle">12/02/2020, Osaka, Japan</p>
-                        <p><i>Great way to stay active and meet new people. Love it!
-                        Used it while I was travelling around the world</i> </p>
+                        <p><em>Great way to stay active and meet new people. Love it!
+                        Used it while I was travelling around the world</em> </p>
                     </article>
                 </div>
                 <div class="tile is-parent">
                     <article class="tile is-child box">
                         <p class="title">Peter</p>
                         <p class="subtitle">02  3/07/2020, Sydney, Australia</p>
-                        <p><i>Awesome app to plan stuff with the boys like weekend basketball.</i> </p>
+                        <p><em>Awesome app to plan stuff with the boys like weekend basketball.</em> </p>
                     </article>
                 </div>
             </div>
