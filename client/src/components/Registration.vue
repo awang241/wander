@@ -85,9 +85,11 @@
 <script>
     import api from '../Api';
     import router from '../router.js'
+    import toastMixin from '../mixins/toastMixin'
 
     export default {
         name: "Registration",
+        mixins: [toastMixin],
         data() {
             const today = new Date()
             return {
@@ -123,8 +125,8 @@
 
         methods: {
             createUser() {
-                if(this.password.length < 8) {
-                    this.showWarning("Password must be 8 characters long")
+                if (this.password.length < 8) {
+                    this.warningToast("Password must be 8 characters long")
                 } else {
                     this.dateOfBirth.setHours(23)
                     api.createProfile({
@@ -143,34 +145,12 @@
                         activities: [],
                         authLevel: 5
                     })
-                        .then((response => {
-                            this.showMessage(this.displayError(response.status))
-                            console.log(response)
+                        .then(() => {
+                            this.successToast("Account created!")
                             router.push('Login')
-                        }))
-                        .catch(error => window.alert(error.response.data))
+                        })
+                        .catch(error => this.warningToast(error.response.data))
                 }
-            },
-            showWarning(errorStatusCode) {
-                const message = errorStatusCode
-                this.$buefy.toast.open({
-                    duration: 5500,
-                    message: message,
-                    type: 'is-danger',
-                    position: 'is-top'
-                })
-            },
-            showMessage(message) {
-                this.$buefy.toast.open({
-                    duration: 5500,
-                    message: message,
-                    type: 'is-success',
-                    position: 'is-top'
-                })
-            },
-            displayError(){
-                let message = "Account created successfully"
-                return message;
             },
 
             dateFormatter(dt){

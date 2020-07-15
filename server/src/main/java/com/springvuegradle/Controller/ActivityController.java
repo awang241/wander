@@ -8,6 +8,7 @@ import com.springvuegradle.Repositories.ActivityRepository;
 import com.springvuegradle.Utilities.FieldValidationHelper;
 import com.springvuegradle.Utilities.JwtUtil;
 import com.springvuegradle.service.ActivityService;
+import com.springvuegradle.service.SecurityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,9 @@ public class ActivityController {
     private JwtUtil jwtUtil;
 
     @Autowired
+    private SecurityService securityService;
+
+    @Autowired
     private ActivityService activityService;
 
     /**
@@ -39,13 +43,6 @@ public class ActivityController {
         this.jwtUtil = jwtUtil;
     }
 
-    /**
-     * Way to access Activity Repository (Activity table in db).
-     */
-
-    private boolean checkEditPermission(String token, Long id) {
-        return (jwtUtil.validateToken(token) && (jwtUtil.extractPermission(token) == 0 || jwtUtil.extractPermission(token) == 1 || (jwtUtil.extractId(token).equals(id))));
-    }
 
     /**
      * Endpoint for creating activities.
@@ -66,7 +63,7 @@ public class ActivityController {
         if (!testing) {
             if (token == null || token.isBlank()) {
                 return new ResponseEntity<>("Authorization required", HttpStatus.UNAUTHORIZED);
-            } else if (!checkEditPermission(token, id)) {
+            } else if (!securityService.checkEditPermission(token, id)) {
                 return new ResponseEntity<>("Permission denied", HttpStatus.FORBIDDEN);
             }
         }
@@ -95,7 +92,7 @@ public class ActivityController {
         if (token == null || token.isBlank()) {
             return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
                                         HttpStatus.UNAUTHORIZED);
-        } else if (!checkEditPermission(token, profileId)) {
+        } else if (!securityService.checkEditPermission(token, profileId)) {
             return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(),
                     HttpStatus.FORBIDDEN);
         }
@@ -169,7 +166,7 @@ public class ActivityController {
             if (token == null || token.isBlank()) {
                 return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
                         HttpStatus.UNAUTHORIZED);
-            } else if (!checkEditPermission(token, profileId)) {
+            } else if (!securityService.checkEditPermission(token, profileId)) {
                 return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(),
                         HttpStatus.FORBIDDEN);
             }

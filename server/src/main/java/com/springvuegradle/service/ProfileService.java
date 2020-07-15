@@ -1,47 +1,91 @@
 package com.springvuegradle.service;
 
-import com.springvuegradle.Model.ActivityType;
 import com.springvuegradle.Model.Email;
 import com.springvuegradle.Model.Profile;
-import com.springvuegradle.Model.ProfileSearchCriteria;
+import com.springvuegradle.Model.ProfileLocation;
+import com.springvuegradle.Repositories.EmailRepository;
+import com.springvuegradle.Repositories.ProfileLocationRepository;
 import com.springvuegradle.Repositories.ProfileRepository;
 import com.springvuegradle.Repositories.spec.ProfileSpecifications;
 import com.springvuegradle.Utilities.FieldValidationHelper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import com.springvuegradle.Model.ProfileSearchCriteria;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
 
-/**
- * Class that handles business logic for profiles.
- */
+import java.util.Optional;
+
+
 @Service
 public class ProfileService {
 
+    @Autowired
+    private SecurityService securityService;
+
+    @Autowired
+    private ProfileLocationRepository profileLocationRepository;
+
+    private EmailRepository emailRepository;
+
+    @Autowired
     private ProfileRepository profileRepository;
 
     @Autowired
-    public ProfileService(ProfileRepository profileRepository) {
+    public ProfileService(ProfileRepository profileRepository, EmailRepository emailRepository) {
         this.profileRepository = profileRepository;
+        this.emailRepository = emailRepository;
+    }
+
+
+    /**
+     * Updates the location associated with a users profile
+     * @param newLocation the new location for the users profile
+     * @param id the id of the profile whose location is being edited
+     * @return a response status detailing if the operation was successful
+     */
+    public ResponseEntity<String> updateProfileLocation(ProfileLocation newLocation, Long id) {
+        Optional<Profile> optionalProfile = profileRepository.findById(id);
+        if(optionalProfile.isEmpty()){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        Profile profile = optionalProfile.get();
+        Optional<ProfileLocation> location = profileLocationRepository.findLocationByProfile(profile);
+        if(location.isPresent()) {
+            location.get().update(newLocation);
+        } else {
+            profile.setLocation(newLocation);
+        }
+        profileRepository.save(profile);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     /**
-     * Given a page index and size, calculates the appropriate page all profiles . The profiles that are in that page are then returned.
-     *
-     *
-
+     * Deletes a location from the profile with the given ID if it exists
+     * @param token the token sent with the http request
+     * @param id the id of the profile whose location is being edited
+     * @return a response status detailing if the operation was successful
      */
-    public Page<Profile> getUsersByName(String name, Integer pageSize, Integer pageNumber) {
-        PageRequest p = PageRequest.of(pageNumber, pageSize);
-        Specification<Profile> spec = ProfileSpecifications.nicknameContains(name).or(ProfileSpecifications.lastNameContains(name));
-        return profileRepository.findAll(spec, p);
+    public ResponseEntity<String> deleteProfileLocation(String token, Long id) {
+        if(!securityService.checkEditPermission(token, id)){
+            return new ResponseEntity<>("Permission denied", HttpStatus.FORBIDDEN);
+        }
+        Optional<Profile> optionalProfile = profileRepository.findById(id);
+        if(optionalProfile.isEmpty()){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        Profile profile = optionalProfile.get();
+        ProfileLocation location = profile.getProfileLocation();
+        if(location != null) {
+            profile.setLocation(null);
+            profileLocationRepository.deleteById(location.getId());
+        }
+        profileRepository.save(profile);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     /**
@@ -54,6 +98,7 @@ public class ProfileService {
      */
     public Page<Profile> getUsers(ProfileSearchCriteria criteria, Pageable request) {
         Specification<Profile> spec = ProfileSpecifications.notDefaultAdmin();
+
         if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getFirstName()))) {
             spec = spec.and(ProfileSpecifications.firstNameContains(criteria.getFirstName()));
         }
@@ -70,8 +115,16 @@ public class ProfileService {
             spec = spec.and(ProfileSpecifications.nicknameContains(criteria.getNickname()));
         }
 
+
         if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getEmail()))) {
-            spec = spec.and(ProfileSpecifications.hasEmail(new Email(criteria.getEmail())));
+            Email searchEmail;
+            Optional<Email> result = emailRepository.findByAddress(criteria.getEmail());
+            if (result.isPresent()) {
+                searchEmail = result.get();
+                spec = spec.and(ProfileSpecifications.hasEmail(searchEmail));
+            } else {
+                spec = spec.and(Specification.not(spec));
+            }
         }
         /*
         if (!FieldValidationHelper.isNullOrEmpty(activityTypes)) {
@@ -79,19 +132,6 @@ public class ProfileService {
         }
          */
         return profileRepository.findAll(spec, request);
-    }
-
-    /**
-     * Given a page index and size, calculates the appropriate page in the list of all profiles that have the
-     * provided email. The profiles that are in that page are then returned.
-     *
-     * @param email The email to be matched to.
-     * @param pageSize The maximum number of profiles that a page can have.
-     * @param pageNumber The index of the page to be returned. Page indices start at 0.
-     * @return The list of profiles that belong to the page.
-     */
-    public List<Profile> getUsersByEmail(String email, Integer pageSize, Integer pageNumber) {
-        throw new UnsupportedOperationException("Not yet implemented");
     }
 
 }

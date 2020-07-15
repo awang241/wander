@@ -71,9 +71,7 @@ class ProfileControllerMockedTest {
         maurice = null;
     }
 
-    @Disabled
     @Test
-    //TODO Fix transient object bug
     void getUserProfilesWithNormalParamsReturnsNormalResponseTest(){
         String mockToken = "mockToken";
         List<Profile> expectedProfiles = new ArrayList<>();

@@ -10,6 +10,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class FormatHelperTest {
 
+    /**
+     * Test to ensure date is saving to correct format
+     */
     @Test
     void parseOffsetDateTimeTest() {
         String dateText = "2020-02-20T08:00:00+1300";

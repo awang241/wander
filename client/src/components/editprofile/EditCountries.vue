@@ -20,9 +20,11 @@
 <script>
     import List from "../List";
     import axios from "axios";
+    import toastMixin from "../../mixins/toastMixin";
 
     export default {
         name: "EditCountries",
+        mixins: [toastMixin],
         components: {List},
         props: ["profile"],
         data(){
@@ -33,24 +35,15 @@
             }
         },
         methods: {
-            showWarning(message) {
-                this.$buefy.snackbar.open({
-                    duration: 5000,
-                    message: message,
-                    type: 'is-danger',
-                    position: 'is-bottom-left',
-                    queue: false,
-                })
-            },
             deleteCountry(chosenCountry) {
                 this.chosenCountries = this.chosenCountries.filter(country => country != chosenCountry)
             },
             addCountry() {
                 console.log("adding country")
                 if (this.newCountry === ""){
-                    this.showWarning("No country selected")
+                    this.warningToast("No country selected")
                 } else if (this.chosenCountries.includes(this.newCountry)) {
-                    this.showWarning("Country already in list")
+                    this.warningToast("Country already in list")
                 } else {
                     this.chosenCountries = [...this.chosenCountries, this.newCountry]
                 }

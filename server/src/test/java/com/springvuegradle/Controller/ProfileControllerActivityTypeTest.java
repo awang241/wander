@@ -48,10 +48,8 @@ class ProfileControllerActivityTypeTest {
     @Test
     void checkActivitiesMatchTest() {
         List<String> testActivities = Arrays.asList("Football", "Tennis", "Hockey", "Basketball", "Hiking", "Rock Climbing");
-
         ResponseEntity<ActivityTypesResponse> response_entity = profileController.getActivityTypesList();
         ActivityTypesResponse activities_response = response_entity.getBody();
-        //assertArrayEquals(testActivities, activities_response.getAllActivities());
         assertLinesMatch(testActivities, activities_response.getAllActivityTypes());
     }
 

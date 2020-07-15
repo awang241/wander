@@ -36,26 +36,54 @@ class ProfileTest {
 
     }
 
+    /**
+     * To check that the two profiles are equal
+     */
     @Test
-    void testTwoProfilesAreEqual(){
+    void twoProfilesAreEqualTest(){
         assertEquals(firstProfile, firstProfileAgain);
     }
 
+    /**
+     *  Test to check that the first name is updated correctly
+     */
     @Test
-    void testUpdateProfileWithNewInfo(){
+    void updateProfileCheckFirstNameTest(){
         firstProfile.updateProfileExceptEmailsPassword(secondProfile);
         assertEquals(firstProfile.getFirstname(), secondProfile.getFirstname());
+    }
+
+    /**
+     *  Test to check that the nick name is updated correctly
+     */
+    @Test
+    void updateProfileCheckNickNameTest(){
+        firstProfile.updateProfileExceptEmailsPassword(secondProfile);
         assertEquals(firstProfile.getNickname(), secondProfile.getNickname());
     }
 
+    /**
+     *  Test to check that the list of country names is the right size
+     */
     @Test
-    void testGetListOfCountryNames(){
+    void listOfCountryNamesSizeTest(){
         assertEquals(2, firstProfile.getPassports().size());
+    }
+
+    /**
+     *  Test to check that the list of country names are correct
+     */
+
+    @Test
+    void getListOfCountryNamesTest(){
         assertEquals(firstProfile.getPassports().get(0).getClass(), String.class);
     }
 
+    /**
+     *  Test the format of date of birth
+     */
     @Test
-    void testGetDateOfBirthInCorrectStringFormat(){
+    void getDateOfBirthInCorrectStringFormatTest(){
         String expectedString = "2000-12-05";
         assertEquals(expectedString, firstProfile.getDateOfBirth());
     }
