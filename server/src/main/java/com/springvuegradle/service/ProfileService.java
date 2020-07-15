@@ -1,13 +1,22 @@
 package com.springvuegradle.service;
 
+import com.springvuegradle.Model.Email;
 import com.springvuegradle.Model.Profile;
 import com.springvuegradle.Model.ProfileLocation;
+import com.springvuegradle.Repositories.EmailRepository;
 import com.springvuegradle.Repositories.ProfileLocationRepository;
 import com.springvuegradle.Repositories.ProfileRepository;
+import com.springvuegradle.Repositories.spec.ProfileSpecifications;
+import com.springvuegradle.Utilities.FieldValidationHelper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import com.springvuegradle.Model.ProfileSearchCriteria;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 
 import java.util.Optional;
 
@@ -21,8 +30,17 @@ public class ProfileService {
     @Autowired
     private ProfileLocationRepository profileLocationRepository;
 
+    private EmailRepository emailRepository;
+
     @Autowired
     private ProfileRepository profileRepository;
+
+    @Autowired
+    public ProfileService(ProfileRepository profileRepository, EmailRepository emailRepository) {
+        this.profileRepository = profileRepository;
+        this.emailRepository = emailRepository;
+    }
+
 
     /**
      * Updates the location associated with a users profile
@@ -69,4 +87,51 @@ public class ProfileService {
         profileRepository.save(profile);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    /**
+     * Returns the specified page from the list of all profiles that match the search criteria.
+     *
+     * Criteria given
+     * @param criteria A ProfileSearchCriteria object containing the relevant criteria
+     * @param request A page request containing the index and size of the page to be returned.
+     * @return The specified page from the list of all profiles that match the search criteria.
+     */
+    public Page<Profile> getUsers(ProfileSearchCriteria criteria, Pageable request) {
+        Specification<Profile> spec = ProfileSpecifications.notDefaultAdmin();
+
+        if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getFirstName()))) {
+            spec = spec.and(ProfileSpecifications.firstNameContains(criteria.getFirstName()));
+        }
+
+        if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getMiddleName()))) {
+            spec = spec.and(ProfileSpecifications.middleNameContains(criteria.getMiddleName()));
+        }
+
+        if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getLastName()))) {
+            spec = spec.and(ProfileSpecifications.lastNameContains(criteria.getLastName()));
+        }
+
+        if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getNickname()))) {
+            spec = spec.and(ProfileSpecifications.nicknameContains(criteria.getNickname()));
+        }
+
+
+        if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getEmail()))) {
+            Email searchEmail;
+            Optional<Email> result = emailRepository.findByAddress(criteria.getEmail());
+            if (result.isPresent()) {
+                searchEmail = result.get();
+                spec = spec.and(ProfileSpecifications.hasEmail(searchEmail));
+            } else {
+                spec = spec.and(Specification.not(spec));
+            }
+        }
+        /*
+        if (!FieldValidationHelper.isNullOrEmpty(activityTypes)) {
+            spec = spec.and(ProfileSpecifications.activityTypesContains(activityTypes, matchAll));
+        }
+         */
+        return profileRepository.findAll(spec, request);
+    }
+
 }

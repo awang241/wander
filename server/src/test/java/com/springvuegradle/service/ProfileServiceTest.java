@@ -23,12 +23,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -45,21 +44,20 @@ class ProfileServiceTest {
     @Autowired
     private Profile_Controller controller;
 
+    @Autowired
+    ProfileService profileService;
+
+    @Autowired
+    ProfileLocationRepository profileLocationRepository;
+
+    @AfterEach
+    void tearDown() {
+        profileLocationRepository.deleteAll();
+    }
+
     private Profile jimmyOne, jimmyTwo, steven, maurice, nicknamedQuick;
     private List<Profile> profilesWithSameSurnameAsJimmy;
 
-//    @BeforeAll
-//    public static void setUpBeforeClass() {
-//        jimmyOne = ProfileTestUtils.createProfileJimmy();
-//        jimmyOne.setPassports(new HashSet<>());
-//        jimmyTwo = ProfileTestUtils.createProfileJimmyAlternate();
-//        nicknamedQuick = ProfileTestUtils.createProfileNicknameMatchesJimmySurname();
-//        steven = ProfileTestUtils.createProfileWithMinimalFields();
-//        maurice = ProfileTestUtils.createNormalProfileMaurice();
-//        maurice.setPassports(new HashSet<>());
-//        profilesWithSameSurnameAsJimmy = ProfileTestUtils.createProfilesWithSameSurnameAsJimmy();
-//
-//    }
 
     @BeforeEach
     public void setUp(){
@@ -264,43 +262,6 @@ class ProfileServiceTest {
         assertEquals(expectedProfiles.size(), actualProfiles.getTotalElements(), "Check page is of the right size.");
     }
 
-    private Profile saveWithEmails(Profile profile) {
-        Profile updated = profileRepository.save(profile);
-        for (Email email: profile.retrieveEmails()) {
-            emailRepository.save(email);
-        }
-        return  updated;
-    }
-}
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-@ExtendWith(SpringExtension.class)
-@DataJpaTest
-public class ProfileServiceTest {
-
-    @Autowired
-    ProfileService profileService;
-
-    @Autowired
-    ProfileRepository profileRepository;
-
-    @Autowired
-    ProfileLocationRepository profileLocationRepository;
-
-    @AfterEach
-    void tearDown() {
-        profileLocationRepository.deleteAll();
-    }
-
     /**
      * Test to ensure HTTP Ok response returned when successfully editing profile
      **/
@@ -368,4 +329,11 @@ public class ProfileServiceTest {
                 20), "male", 1, new String[]{}, new String[]{});
     }
 
+    private Profile saveWithEmails(Profile profile) {
+        Profile updated = profileRepository.save(profile);
+        for (Email email: profile.retrieveEmails()) {
+            emailRepository.save(email);
+        }
+        return  updated;
+    }
 }
