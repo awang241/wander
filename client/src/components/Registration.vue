@@ -179,6 +179,9 @@
 
         methods: {
             createUser() {
+                if (this.validateEmail(this.primary_email)) {
+                    return
+                }
                 if (this.password.length < 8) {
                     this.warningToast("Password must be 8 characters long")
                 } else {
@@ -205,6 +208,11 @@
                         })
                         .catch(error => this.warningToast(error.response.data))
                 }
+            },
+
+            validateEmail(email) {
+                const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+                return re.test(String(email).toLowerCase());
             },
 
             dateFormatter(dt){
