@@ -55,7 +55,7 @@
 
 
                             <b-field group-multiline grouped>
-                                <ValidationProvider rules="required" name="Date of Birth" v-slot="{ errors, valid }" slim>
+                                <ValidationProvider rules="required|maxBirthDate" name="Date of Birth" v-slot="{ errors, valid }" slim>
                                     <b-field label="Date of Birth"
                                              :type="{ 'is-danger': errors[0], 'is-success': valid }"
                                              :message="errors"
@@ -66,7 +66,8 @@
                                                 placeholder="Select Date of Birth"
                                                 :date-formatter="dateFormatter"
                                                 :min-date="minDate"
-                                                :max-date="maxDate" ref="dateOfBirth"
+                                                :max-date="maxDate"
+                                                ref="dateOfBirth"
                                                 v-model="dateOfBirth"
                                                 type="date"
                                                 validation-message="Please enter a valid date"
@@ -94,9 +95,10 @@
                                 </ValidationProvider>
                             </b-field>
 
-                            <ValidationProvider rules="required" name="FitnessLevel" v-slot="{ valid }" slim>
+                            <ValidationProvider rules="required" name="FitnessLevel" v-slot="{ errors, valid }" slim>
                                 <b-field label="Fitness Level"
-                                         :type="{ 'is-success': valid }"
+                                         :type="{ 'is-danger': errors[0], 'is-success': valid }"
+                                         :message="errors"
                                          expanded >
                                     <b-select v-model="fitness" placeholder="Fitness Level" expanded>
                                         <option value="0">Beginner: I am not active at all </option>
@@ -170,6 +172,9 @@
         methods: {
             createUser() {
                 if (this.validateEmail(this.primary_email)) {
+                    return
+                }
+                if (this.dateOfBirth > this.maxDate) {
                     return
                 }
                 if (this.password.length < 8) {

@@ -44,3 +44,15 @@ extend("confirmed", {
     ...confirmed,
     message: "These passwords do not match"
 });
+
+extend("maxBirthDate", value => {
+    const today = new Date()
+    let maxDate = new Date(today.getFullYear(), today.getMonth(), today.getDate())
+
+    if (value.getTime() < maxDate.getTime()) {
+        return true
+    }
+
+    return "Cannot choose a future date"
+
+});
