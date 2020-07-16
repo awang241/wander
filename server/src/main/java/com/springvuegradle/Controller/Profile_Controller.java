@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.xml.bind.DatatypeConverter;
+import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -226,6 +227,8 @@ public class Profile_Controller {
      * @param nickname string pattern to be matched to profile nickname
      * @param fullName string pattern to be matched to profile's full name.
      * @param email string pattern to be matched.
+     * @param activityTypes A list of activity types the user is searching by
+     * @param method Whether the user is searching for a user with ALL the required activity types or any of them
      * @param count number of profiles to be returned.
      * @param startIndex index
      * @return response entity containing a list of simplified profiles and an OK status code if the request was successful;
@@ -236,6 +239,8 @@ public class Profile_Controller {
             @RequestParam(name = "nickname", required = false) String nickname,
             @RequestParam(name = "fullname", required = false) String fullName,
             @RequestParam(name = "email", required = false) String email,
+            @RequestParam(name = "activityTypes", required = false) String[] activityTypes,
+            @RequestParam(name = "method", required = false) String method,
             @RequestParam(name = "count") int count,
             @RequestParam(name = "startIndex") int startIndex,
             @RequestHeader("authorization") String token) {
@@ -265,6 +270,7 @@ public class Profile_Controller {
                     criteria.setMiddleName(String.join(" ", names.subList(1, names.size() - 1)));
                 }
             }
+
             criteria.setNickname(nickname);
             criteria.setEmail(email);
             Page<Profile> profiles = profileService.getUsers(criteria, request);

@@ -125,6 +125,10 @@
                 if (this.email.length !== 0) {
                     searchParameters.email = this.email
                 }
+                if (this.chosenActivityTypes.length > 0){
+                    searchParameters.activityTypes = this.chosenActivityTypes.join(",")
+                    searchParameters.method = this.activitySearchType
+                }
                 return searchParameters
             },
             //Autocomplete to display activity types that finish the word the user is typing

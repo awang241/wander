@@ -7,16 +7,10 @@ import com.springvuegradle.Model.ProfileSearchCriteria;
 import com.springvuegradle.Model.ProfileTestUtils;
 import com.springvuegradle.Repositories.EmailRepository;
 import com.springvuegradle.Repositories.ProfileRepository;
-import io.cucumber.java.bs.A;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import com.springvuegradle.Model.Activity;
-import com.springvuegradle.Model.ActivityType;
-import com.springvuegradle.Model.Profile;
 import com.springvuegradle.Model.ProfileLocation;
 import com.springvuegradle.Repositories.*;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -201,9 +195,6 @@ class ProfileServiceTest {
         Set<Profile> expectedProfiles = new HashSet<>();
         expectedProfiles.add(steven);
 
-        List<Profile> someProfiles = profileRepository.findAll();
-        List<Email> someEmails = emailRepository.findAll();
-
         PageRequest request = PageRequest.of(0, Math.toIntExact(profileRepository.count()));
         ProfileSearchCriteria criteria = new ProfileSearchCriteria(null, null, null,
                 null, email);
@@ -220,9 +211,6 @@ class ProfileServiceTest {
 
         Set<Profile> expectedProfiles = new HashSet<>();
         expectedProfiles.add(steven);
-
-        List<Profile> someProfiles = profileRepository.findAll();
-        List<Email> someEmails = emailRepository.findAll();
 
         PageRequest request = PageRequest.of(0, Math.toIntExact(profileRepository.count()));
         ProfileSearchCriteria criteria = new ProfileSearchCriteria(null, null, null,
@@ -283,7 +271,7 @@ class ProfileServiceTest {
         Profile profile = createProfile();
         profileRepository.save(profile);
         ResponseEntity<String> response = profileService.updateProfileLocation(location, profile.getId());
-        assertTrue(profile.getProfileLocation().equals(location));
+        assertEquals(profile.getProfileLocation(), location);
     }
 
     /**
@@ -317,7 +305,7 @@ class ProfileServiceTest {
     void testNonExistentProfileData(){
         ProfileLocation location = new ProfileLocation("New Zealand", "Christchurch", "Canterbury");
         ResponseEntity<String> response = profileService.updateProfileLocation(location, -1L);
-        assertEquals(profileLocationRepository.count(), 0L);
+        assertEquals(0L, profileLocationRepository.count());
     }
 
     /**
