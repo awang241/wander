@@ -160,7 +160,7 @@
                         this.profile = response.data;
                     })
                     .catch((error) => {
-                        router.push({path: '/'});
+                        router.push({path: '/login'});
                         console.log(error)
                     })
             },

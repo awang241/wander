@@ -37,6 +37,7 @@
         },
         methods: {
             gotoProfile(profileID) {
+                window.scrollTo(0,0);
                 router.push('Profile/' + profileID);
             }
         }
