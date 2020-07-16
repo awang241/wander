@@ -3,27 +3,55 @@
                 <h1 class="title">Create Account</h1>
                     <form @submit.prevent="createUser">
 
-                        <b-field group-multiline grouped>
-                        <b-field label="First Name" expanded >
-                            <b-input v-model="firstName" placeholder="First Name" required></b-input>
-                        </b-field>
-                        <b-field label="Last Name" expanded>
-                            <b-input v-model="lastName" placeholder="Last Name" required></b-input>
-                        </b-field>
-                        </b-field>
+                        <ValidationProvider rules="required" name="Names" v-slot="{ errors, valid }">
+                            <b-field group-multiline grouped>
+                                <b-field label="First Name"
+                                         :type="{ 'is-danger': errors[0], 'is-success': valid }"
+                                         :message="errors"
+                                         expanded >
+                                    <b-input v-model="firstName" placeholder="First Name" required></b-input>
+                                </b-field>
+                                <b-field label="Last Name"
+                                         :type="{ 'is-danger': errors[0], 'is-success': valid }"
+                                         :message="errors"
+                                         expanded>
+                                    <b-input v-model="lastName" placeholder="Last Name" required></b-input>
+                                </b-field>
+                            </b-field>
+                        </ValidationProvider>
 
-                        <b-field label="Email" expanded>
-                                 <b-input type="email"
-                                     v-model="email"
-                                     placeholder="Email"
-                                     required>
-                                 </b-input>
-                        </b-field>
+                        <ValidationProvider rules="required|email" name="Email" v-slot="{ errors, valid }">
+                            <b-field label="Email"
+                                     :type="{ 'is-danger': errors[0], 'is-success': valid }"
+                                     :message="errors"
+                                     expanded>
+                                     <b-input type="email"
+                                         v-model="email"
+                                         placeholder="Email"
+                                         required>
+                                     </b-input>
+                            </b-field>
+                        </ValidationProvider>
 
-                        <b-field label="Password" expanded>
-                            <b-input v-model="password" type="password" placeholder="Password"
-                                     required></b-input>
-                        </b-field>
+<!--                        <ValidationProvider rules="required|email" name="Email" v-slot="{ errors, valid }">-->
+<!--                            <b-field-->
+<!--                                    label="Email"-->
+<!--                                    :type="{ 'is-danger': errors[0], 'is-success': valid }"-->
+<!--                                    :message="errors"-->
+<!--                            >-->
+<!--                                <b-input type="email" v-model="email"></b-input>-->
+<!--                            </b-field>-->
+<!--                        </ValidationProvider>-->
+
+                        <ValidationProvider rules="required" name="Password" v-slot="{ errors, valid }">
+                            <b-field label="Password"
+                                     :type="{ 'is-danger': errors[0], 'is-success': valid }"
+                                     :message="errors"
+                                     expanded>
+                                <b-input v-model="password" type="password" placeholder="Password"
+                                         required></b-input>
+                            </b-field>
+                        </ValidationProvider>
 
                         <b-field label="Confirm Password"
                                  :message="[{'Passwords do not match':isDisabled}]" expanded>
@@ -75,6 +103,21 @@
                         <b-button native-type="submit" :disabled="isDisabled">Submit</b-button>
                     </b-field>
             </form>
+
+            <validation-provider rules="required" v-slot="{ errors }">
+                <input v-model="value" name="myinput" type="text" />
+                <span>{{ errors[0] }}</span>
+            </validation-provider>
+
+            <ValidationProvider rules="required|email" name="Email" v-slot="{ errors, valid }">
+                <b-field
+                        label="Email"
+                        :type="{ 'is-danger': errors[0], 'is-success': valid }"
+                        :message="errors"
+                >
+                    <b-input type="email" v-model="email"></b-input>
+                </b-field>
+            </ValidationProvider>
         </div>
 
 </template>
@@ -87,8 +130,19 @@
     import router from '../router.js'
     import toastMixin from '../mixins/toastMixin'
 
+    import {ValidationProvider, extend} from 'vee-validate'
+    import { required } from 'vee-validate/dist/rules';
+
+    extend('required', {
+        ...required,
+        message: 'This field is required'
+    });
+
     export default {
         name: "Registration",
+        components: {
+            ValidationProvider
+        },
         mixins: [toastMixin],
         data() {
             const today = new Date()

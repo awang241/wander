@@ -6,6 +6,7 @@ import router from "./router.js";
 import Buefy from 'buefy'
 import api from './Api'
 import store from './store'
+import './veeValidate'
 
 Vue.use(Buefy);
 
