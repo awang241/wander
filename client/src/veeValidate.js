@@ -1,9 +1,38 @@
 import { required, confirmed, email } from "vee-validate/dist/rules";
 import { extend } from "vee-validate";
 
+extend('minName', value => {
+
+    if (value.length >= 2) {
+        return true;
+    }
+
+    return '{_field_} must be at least 2 characters long';
+});
+
+
+extend('minPassword', value => {
+
+    if (value.length >= 8) {
+        return true;
+    }
+
+    return 'Password must be at least 8 characters long';
+});
+
+extend("requiredGender", {
+    ...required,
+    message: "You must choose a gender"
+});
+
 extend("required", {
     ...required,
-    message: "This field is required boss"
+    message: "{_field_} is required"
+});
+
+extend("requiredConfirm", {
+    ...required,
+    message: "You must re-enter your password for validation purposes"
 });
 
 extend("email", {
@@ -11,9 +40,7 @@ extend("email", {
     message: "This field must be a valid email (contains an @)"
 });
 
-
-
 extend("confirmed", {
     ...confirmed,
-    message: "This field confirmation does not match"
+    message: "These passwords do not match"
 });
