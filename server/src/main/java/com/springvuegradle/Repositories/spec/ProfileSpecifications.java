@@ -73,10 +73,10 @@ public class ProfileSpecifications {
     public static Specification<Profile> activityTypesContains(String[] types, String searchMethod) {
         Specification<Profile> spec = Specification.where(null);
         for(int i = 0; i < types.length; i++) {
-            final String type2 = types[i];
+            final String type = types[i];
             Specification<Profile> activitySpec = (root, query, criteriaBuilder) -> {
                 Join<Profile, ActivityType> groupJoin = root.join(Profile_.activityTypes);
-                return criteriaBuilder.equal(groupJoin.get("activityTypeName"), type2);
+                return criteriaBuilder.equal(groupJoin.get("activityTypeName"), type);
             };
 
             if (searchMethod.equals("all")) {
