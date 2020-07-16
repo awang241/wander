@@ -13,7 +13,7 @@
             <b-button type="is-primary" @click="addCountry">Add</b-button>
         </b-field>
         <List v-bind:chosenItems="chosenCountries" v-on:deleteListItem="deleteCountry"></List>
-        <b-button type="is-primary" @click="submitCountries">Save</b-button>
+        <b-button type="is-info" @click="submitCountries">Save</b-button>
     </div>
 </template>
 

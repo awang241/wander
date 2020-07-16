@@ -19,7 +19,7 @@
                 <td>{{ profile.lastname }}</td>
                 <td>{{ profile.gender }}</td>
                 <td>{{ profile.email }}</td>
-                <td><b-button type="is-info" native-type="submit" @click="goToProfile(profile.id)">Edit Profile</b-button></td>
+                <td><b-button type="is-text" native-type="submit" @click="goToProfile(profile.id)">Edit Profile</b-button></td>
             </tr>
         </table>
     <observer v-on:intersect="loadMoreProfiles"></observer>
