@@ -13,7 +13,8 @@
             <b-button type="is-primary" @click="addActivityType">Add</b-button>
         </b-field>
         <List v-bind:chosenItems="chosenActivityTypes" v-on:deleteListItem="deleteActivityType"></List>
-        <b-button type="is-info" @click="submitActivityTypes">Save</b-button>
+        <b-button style="float:right" type="is-primary" @click="submitActivityTypes">Save</b-button>
+        <br>
     </div>
 </template>
 
@@ -56,7 +57,7 @@
                 this.$parent.updateActivityTypes(this.chosenActivityTypes)
                 this.$buefy.toast.open({
                     duration: 2000,
-                    message: "Saved!",
+                    message: "Activity types saved",
                     type: 'is-success',
                     position: 'is-top'
                 })

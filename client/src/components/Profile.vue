@@ -105,7 +105,7 @@
         <section class="section">
             <h3 class="center activityTypesTitle title is-2">Countries</h3>
             <div class="container containerColor">
-                <div class="box" v-if="checkLengthPassports == true">
+                <div class="box" v-if="profile.passports != null && profile.passports.length">
                     <h3 v-for="country in profile.passports" :key="country" class="title is-4">{{country}}</h3>
                 </div>
                 <div v-else class="box">
@@ -116,7 +116,7 @@
         <section class="section">
             <h3 class="center activityTypesTitle title is-2">Activity Types</h3>
             <div class="container containerColor">
-                <div class="box" v-if="checkActivitiesLength == true">
+                <div class="box" v-if="profile.activities != null && profile.activities.length">
                     <h3 v-for="activityType in profile.activities" :key="activityType" class="title is-4">
                         {{activityType}}</h3>
                 </div>
@@ -163,20 +163,6 @@
                         router.push({path: '/login'});
                         console.log(error)
                     })
-            },
-            checkActivitiesLength() {
-                if(this.profile.activities.length > 0) {
-                    return true
-                } else {
-                    return false
-                }
-            },
-            checkLengthPassports() {
-                if(this.profile.activities.length > 0) {
-                    return true
-                } else {
-                    return false
-                }
             }
         },
         computed: {
