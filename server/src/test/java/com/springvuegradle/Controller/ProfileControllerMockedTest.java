@@ -95,14 +95,14 @@ class ProfileControllerMockedTest {
         Mockito.when(mockService.getUsers(criteria, mockRequest)).thenReturn(mockPage);
 
         ResponseEntity<ProfileSearchResponse> actualResponse = profileController.getUserProfiles(null,
-                "Jimmy Jones Quick", null, count, startIndex, mockToken);
+                "Jimmy Jones Quick", null, null, null, count, startIndex, mockToken);
         assertEquals(expectedResponse, actualResponse);
     }
 
     @Test
     void getUserProfilesWithNoTokenReturnsUnauthorizedResponseTest(){
         ResponseEntity<ProfileSearchResponse> response = profileController.getUserProfiles(null,
-                null, null, 2, 0, null);
+                null, null, null, null, 2, 0, null);
         assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
         assertEquals(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(), response.getBody().getMessage());
     }
@@ -112,7 +112,7 @@ class ProfileControllerMockedTest {
         String mockToken = "badToken";
         Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(false);
         ResponseEntity<ProfileSearchResponse> response = profileController.getUserProfiles(null,
-                null, null, 2, 0, mockToken);
+                null, null, null, null, 2, 0, mockToken);
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
     }
 
@@ -121,7 +121,7 @@ class ProfileControllerMockedTest {
         String mockToken = "mockToken";
         Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
         ResponseEntity<ProfileSearchResponse> response = profileController.getUserProfiles(null,
-                null, null, 0, 0, mockToken);
+                null, null, null, null, 0, 0, mockToken);
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 }
