@@ -24,12 +24,8 @@ export default {
   editPassword: (passwordDetails, userId, token) => localAxiosInstance.put('profiles/'+ userId+'/password', passwordDetails, {headers: {"authorization":token}}),
   editProfile: (userId, newData, token) => localAxiosInstance.put('/profiles/' + userId, newData, {headers: {"authorization":token}}),
   editProfileLocation: (userId, location, token) => localAxiosInstance.put('/profiles/' + userId + '/location', location, {headers: {"authorization":token}}),
-
-
-      // All get API requests
-  getActivitiesList: () => localAxiosInstance.get('activities'),
+// All get API requests
   getActivityTypesList: () => localAxiosInstance.get('/activityTypes'),
-  getAuthLevel: (token) => localAxiosInstance.get('authLevel/', {headers: {"authorization":token}}),
   getProfile: (userId, token) => localAxiosInstance.get('profiles/'+userId, {headers: {"authorization":token}}),
   getUserActivitiesList: (userId, token) => localAxiosInstance.get('/profiles/' + userId + '/activities', {headers: {"authorization":token}}),
   getUserProfiles: (token) => localAxiosInstance.get('profiles/', {headers: {"authorization":token}}),

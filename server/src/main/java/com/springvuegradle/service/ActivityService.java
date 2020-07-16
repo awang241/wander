@@ -1,11 +1,11 @@
 package com.springvuegradle.service;
 
-import com.springvuegradle.Controller.enums.ActivityResponseMessage;
-import com.springvuegradle.Model.Activity;
-import com.springvuegradle.Model.ActivityMembership;
-import com.springvuegradle.Model.Profile;
-import com.springvuegradle.Model.ActivityType;
-import com.springvuegradle.Repositories.*;
+import com.springvuegradle.controller.enums.ActivityResponseMessage;
+import com.springvuegradle.model.Activity;
+import com.springvuegradle.model.ActivityMembership;
+import com.springvuegradle.model.Profile;
+import com.springvuegradle.model.ActivityType;
+import com.springvuegradle.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

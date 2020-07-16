@@ -6,17 +6,18 @@
 
         <form @submit.prevent="updatePassword">
             <b-field v-if="store.getters.getAuthenticationLevel > 1"
-                    label="Current Password" expanded >
+                     label="Current Password" expanded>
                 <b-input v-model="currentPassword" type="password" placeholder="Current Password" required></b-input>
             </b-field>
-            <b-field label="New Password" expanded >
-            <b-input v-model="password" type="password" placeholder="New Password" required></b-input>
+            <b-field label="New Password" expanded>
+                <b-input v-model="password" type="password" placeholder="New Password" required></b-input>
             </b-field>
-            <b-field label="Confirm Password" :message="[{'Passwords do not match':isDisabled}]" expanded >
+            <b-field label="Confirm Password" id="errorMessage" :message="[{'Passwords do not match':isDisabled}]"
+                      expanded>
                 <b-input v-model="confPassword" type="password" placeholder="Confirm Password" required></b-input>
             </b-field>
             <b-field>
-                <b-button type="is-info" native-type="submit" :disabled="isDisabled">Save</b-button>
+                <b-button type="is-info" native-type="submit">Save</b-button>
             </b-field>
         </form>
     </div>
@@ -47,8 +48,10 @@
         },
         methods: {
             updatePassword() {
-                if(this.password.length < 8) {
+                if (this.password.length < 8) {
                     this.warningToast("Password must be 8 characters long")
+                } else if (this.confPassword !== this.password) {
+                    this.warningToast("Passwords do not match!")
                 } else {
                     const passwordDetails = {
                         "currentPassword": this.currentPassword,
@@ -59,16 +62,16 @@
                         .catch(error => this.warningToast(this.getErrorMessageFromStatusCode(error.response.status)))
                         .then(response => this.successToast(this.getErrorMessageFromStatusCode(response.status)))
                 }
-            },
-            getErrorMessageFromStatusCode(statusCode){
-                let message = ""
-                if(statusCode == 200) {
-                    message = "Password changed successfully"
-                } else if(statusCode == 400 || statusCode == 403 || statusCode == 401) {
-                    message = "Incorrect details entered"
-                }
-                return message;
             }
+        },
+        getErrorMessageFromStatusCode(statusCode) {
+            let message = ""
+            if (statusCode == 200) {
+                message = "Password changed successfully"
+            } else if (statusCode == 400 || statusCode == 403 || statusCode == 401) {
+                message = "Incorrect details entered"
+            }
+            return message;
         }
     }
 
@@ -80,6 +83,10 @@
         background-color: #F7F8F9;
         margin-top: 0px;
         padding: 0px;
+    }
+
+    #errorMessage {
+        color: red;
     }
 
 </style>

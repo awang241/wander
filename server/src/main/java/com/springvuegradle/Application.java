@@ -1,8 +1,8 @@
 package com.springvuegradle;
 
-import com.springvuegradle.Repositories.*;
-import com.springvuegradle.Utilities.InitialDataHelper;
-import com.springvuegradle.Utilities.ValidationHelper;
+import com.springvuegradle.repositories.*;
+import com.springvuegradle.utilities.InitialDataHelper;
+import com.springvuegradle.utilities.ValidationHelper;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.SpringApplication;
@@ -17,11 +17,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
-
-import static com.springvuegradle.Controller.Profile_Controller.hashPassword;
-
 @SpringBootApplication
-@ComponentScan({"com.springvuegradle.Controller", "com.springvuegradle.Utilities", "com.springvuegradle.service"})
+@ComponentScan({"com.springvuegradle.controller", "com.springvuegradle.utilities", "com.springvuegradle.service"})
 public class Application {
 
     public static void main(String[] args) {

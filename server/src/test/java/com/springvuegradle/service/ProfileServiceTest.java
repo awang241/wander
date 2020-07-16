@@ -1,12 +1,9 @@
 package com.springvuegradle.service;
 
-import com.springvuegradle.Model.Activity;
-import com.springvuegradle.Model.ActivityType;
-import com.springvuegradle.Model.Profile;
-import com.springvuegradle.Model.ProfileLocation;
-import com.springvuegradle.Repositories.*;
+import com.springvuegradle.model.Profile;
+import com.springvuegradle.model.ProfileLocation;
+import com.springvuegradle.repositories.*;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +14,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
