@@ -227,6 +227,8 @@ public class Profile_Controller {
      * @param nickname string pattern to be matched to profile nickname
      * @param fullName string pattern to be matched to profile's full name.
      * @param email string pattern to be matched.
+     * @param activityTypes A list of activity types the user is searching by
+     * @param method Whether the user is searching for a user with ALL the required activity types or any of them
      * @param count number of profiles to be returned.
      * @param startIndex index
      * @return response entity containing a list of simplified profiles and an OK status code if the request was successful;
