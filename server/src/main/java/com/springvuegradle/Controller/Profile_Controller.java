@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.xml.bind.DatatypeConverter;
+import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -236,6 +237,8 @@ public class Profile_Controller {
             @RequestParam(name = "nickname", required = false) String nickname,
             @RequestParam(name = "fullname", required = false) String fullName,
             @RequestParam(name = "email", required = false) String email,
+            @RequestParam(name = "activityTypes", required = false) String[] activityTypes,
+            @RequestParam(name = "method", required = false) String method,
             @RequestParam(name = "count") int count,
             @RequestParam(name = "startIndex") int startIndex,
             @RequestHeader("authorization") String token) {
@@ -265,6 +268,7 @@ public class Profile_Controller {
                     criteria.setMiddleName(String.join(" ", names.subList(1, names.size() - 1)));
                 }
             }
+
             criteria.setNickname(nickname);
             criteria.setEmail(email);
             Page<Profile> profiles = profileService.getUsers(criteria, request);
