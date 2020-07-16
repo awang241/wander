@@ -23,12 +23,14 @@
         </form>
 
         <div class="row">
+            <br>
             <b-field style="float:left">
                 <b-button type="is-danger" @click="clearLocation()">Clear fields</b-button>
             </b-field>
             <b-field style="float:right">
                 <b-button type="is-primary" @click="submitLocation()">Save</b-button>
             </b-field>
+            <br>
         </div>
         <br/>
     </div>

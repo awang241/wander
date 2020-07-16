@@ -20,9 +20,10 @@
                         </b-input>
                     </b-field>
                     <b-button @click="login"
-                              type="is-info">
+                              type="is-primary" style="float:right">
                         Login
                     </b-button>
+                    <br>
                 </form>
             </section>
         </div>

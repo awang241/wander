@@ -13,6 +13,7 @@
             <b-button type="is-primary" @click="addActivityType">Add</b-button>
         </b-field>
         <List v-bind:chosenItems="chosenActivityTypes" v-on:deleteListItem="deleteActivityType"></List>
+        <br>
         <b-button style="float:right" type="is-primary" @click="submitActivityTypes">Save</b-button>
         <br>
     </div>

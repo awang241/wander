@@ -11,7 +11,7 @@
 
                 <!-- redirect to add activity -->
                 <b-button v-if="store.getters.getAuthenticationLevel > 0" @click="goToAddActivity"
-                          type="is-info">
+                          type="is-primary">
                     Add Activity
                 </b-button>
             </div>

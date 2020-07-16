@@ -7,7 +7,7 @@
                 <p>{{profile.email}}</p>
             </div>
             <div v-if="profile.activities.length > 0" class="column">
-                <strong>Activities</strong>
+                <strong>Activity Types</strong>
                 <div v-for="activity in profile.activities" :key="activity">
                     <p> {{activity}}</p>
                 </div>

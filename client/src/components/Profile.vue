@@ -15,7 +15,7 @@
 
                 <b-button v-if="viewingOwnProfile"
                           @click="editProfile"
-                          type="is-info">
+                          type="is-primary">
                     Edit Profile
                 </b-button>
 
