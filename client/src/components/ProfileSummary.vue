@@ -6,8 +6,11 @@
                 <p>{{profile.gender}}</p>
                 <p>{{profile.email}}</p>
             </div>
-            <div v-for="activity in profile.activities" :key="activity.id">
-                <label>{{activity.activity_name}}</label>
+            <div v-if="profile.activities.length > 0" class="column">
+                <strong>Activities</strong>
+                <div v-for="activity in profile.activities" :key="activity">
+                    <p> {{activity}}</p>
+                </div>
             </div>
             <b-button type="is-text" @click="gotoProfile(profile.id)">View profile</b-button>
         </div>
