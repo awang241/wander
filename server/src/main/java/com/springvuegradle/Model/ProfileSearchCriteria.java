@@ -10,30 +10,32 @@ public class ProfileSearchCriteria {
     private String middleName;
     private String lastName;
     private String nickname;
-    private String email;
+    private String emailAddress;
     private String searchMethod;
     private String[] activityTypes;
 
     /**
-     * Creates a blank ProfileSearchCriteria with all criteria set to null and the page set to the index 0 and the
-     * default page size.
+     * Creates a blank ProfileSearchCriteria with all criteria set to null.
      */
     public ProfileSearchCriteria() {
         firstName = null;
         middleName = null;
         lastName = null;
         nickname = null;
-        email = null;
+        emailAddress = null;
         activityTypes = null;
         searchMethod = null;
     }
 
+    /**
+     * Creates a new ProfileSearchCriteria with the given criteria.
+     */
     public ProfileSearchCriteria(String firstName, String middleName, String lastName, String nickname, String email) {
         this.firstName = firstName;
         this.middleName = middleName;
         this.lastName = lastName;
         this.nickname = nickname;
-        this.email = email;
+        this.emailAddress = email;
     }
 
     public String getFirstName() {
@@ -68,12 +70,12 @@ public class ProfileSearchCriteria {
         this.nickname = nickname;
     }
 
-    public String getEmail() {
-        return email;
+    public String getEmailAddress() {
+        return emailAddress;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setEmailAddress(String email) {
+        this.emailAddress = email;
     }
 
     public void setSearchMethod(String searchMethod) {
@@ -98,11 +100,11 @@ public class ProfileSearchCriteria {
                 Objects.equals(middleName, criteria.middleName) &&
                 Objects.equals(lastName, criteria.lastName) &&
                 Objects.equals(nickname, criteria.nickname) &&
-                Objects.equals(email, criteria.email);
+                Objects.equals(emailAddress, criteria.emailAddress);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(firstName, middleName, lastName, nickname, email);
+        return Objects.hash(firstName, middleName, lastName, nickname, emailAddress);
     }
 }

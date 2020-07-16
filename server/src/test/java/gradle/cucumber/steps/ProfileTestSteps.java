@@ -3,7 +3,7 @@ package gradle.cucumber.steps;
 import com.springvuegradle.Application;
 import com.springvuegradle.Controller.LoginController;
 import com.springvuegradle.Controller.Profile_Controller;
-import com.springvuegradle.Controller.enums.EmailResponseMessage;
+import com.springvuegradle.enums.EmailResponseMessage;
 import com.springvuegradle.Model.Profile;
 import com.springvuegradle.Repositories.*;
 import com.springvuegradle.Utilities.JwtUtil;

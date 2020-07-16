@@ -9,7 +9,6 @@ import com.springvuegradle.service.SecurityService;
 import com.springvuegradle.dto.*;
 import com.springvuegradle.enums.ProfileErrorMessage;
 import com.springvuegradle.service.ProfileService;
-import com.springvuegradle.service.ProfileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,7 +21,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.xml.bind.DatatypeConverter;
-import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -160,7 +158,7 @@ public class Profile_Controller {
         if (jwtUtil.validateToken(token)) {
             return getProfile(id);
         } else {
-            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 
         }
     }
@@ -260,6 +258,7 @@ public class Profile_Controller {
             int pageIndex = startIndex / count;
             PageRequest request = PageRequest.of(pageIndex, count);
 
+            fullName = fullName.strip();
             if (fullName != null) {
                 List<String> names = Arrays.asList(fullName.split(" "));
                 if (names.size() == 1) {
@@ -277,7 +276,7 @@ public class Profile_Controller {
             }
 
             criteria.setNickname(nickname);
-            criteria.setEmail(email);
+            criteria.setEmailAddress(email);
             Page<Profile> profiles = profileService.getUsers(criteria, request);
             List<ProfileSummary> simplifiedProfiles = createSimplifiedProfiles(profiles.getContent());
             searchResponse = new ProfileSearchResponse(simplifiedProfiles);
@@ -465,7 +464,7 @@ public class Profile_Controller {
         if (profileWithId.isPresent()) {
             return new ResponseEntity<>(profileWithId.get(), HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -479,7 +478,7 @@ public class Profile_Controller {
         if(jwtUtil.validateToken(token)) {
             return new ResponseEntity<>(jwtUtil.extractPermission(token), HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
     }
 

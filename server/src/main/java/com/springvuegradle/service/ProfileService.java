@@ -1,7 +1,6 @@
 package com.springvuegradle.service;
 
 import com.springvuegradle.Model.*;
-import com.springvuegradle.Repositories.EmailRepository;
 import com.springvuegradle.Repositories.ProfileLocationRepository;
 import com.springvuegradle.Repositories.ProfileRepository;
 import com.springvuegradle.Repositories.spec.ProfileSpecifications;
@@ -17,7 +16,9 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.Optional;
 
-
+/**
+ * Service-layer class containing all business logic handling profiles.
+ */
 @Service
 public class ProfileService {
 
@@ -27,15 +28,12 @@ public class ProfileService {
     @Autowired
     private ProfileLocationRepository profileLocationRepository;
 
-    private EmailRepository emailRepository;
-
     @Autowired
     private ProfileRepository profileRepository;
 
     @Autowired
-    public ProfileService(ProfileRepository profileRepository, EmailRepository emailRepository) {
+    public ProfileService(ProfileRepository profileRepository) {
         this.profileRepository = profileRepository;
-        this.emailRepository = emailRepository;
     }
 
 
@@ -88,7 +86,6 @@ public class ProfileService {
     /**
      * Returns the specified page from the list of all profiles that match the search criteria.
      *
-     * Criteria given
      * @param criteria A ProfileSearchCriteria object containing the relevant criteria
      * @param request A page request containing the index and size of the page to be returned.
      * @return The specified page from the list of all profiles that match the search criteria.
@@ -112,12 +109,11 @@ public class ProfileService {
             spec = spec.and(ProfileSpecifications.nicknameContains(criteria.getNickname()));
         }
 
-
-        if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getEmail()))) {
-            spec = spec.and(ProfileSpecifications.hasEmail(new Email(criteria.getEmail())));
+        if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getEmailAddress()))) {
+            spec = spec.and(ProfileSpecifications.emailContains(criteria.getEmailAddress()));
         }
 
-        if (!FieldValidationHelper.isNullOrEmpty(criteria.getActivityTypes())) {
+        if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getActivityTypes()))) {
             spec = spec.and(ProfileSpecifications.activityTypesContains(criteria.getActivityTypes(), criteria.getSearchMethod()));
         }
 

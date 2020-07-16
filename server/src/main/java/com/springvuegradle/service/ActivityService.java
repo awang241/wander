@@ -12,6 +12,9 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityNotFoundException;
 import java.util.*;
 
+/**
+ * Service-layer class containing business logic handling activities.
+ */
 @Service(value = "activityService")
 public class ActivityService {
 
@@ -20,15 +23,27 @@ public class ActivityService {
     private ActivityTypeRepository typeRepo;
     private ActivityMembershipRepository membershipRepo;
 
+    /**
+     * Autowired constructor for Spring to create an ActivityService and inject the correct dependencies.
+     * @param profileRepo
+     * @param activityRepo
+     * @param activityTypeRepo
+     * @param activityMembershipRepository
+     */
     @Autowired
     public ActivityService(ProfileRepository profileRepo, ActivityRepository activityRepo, ActivityTypeRepository activityTypeRepo,
-                           ActivityMembershipRepository activityMembershipRepository, EmailRepository erepo) {
+                           ActivityMembershipRepository activityMembershipRepository) {
         this.profileRepo = profileRepo;
         this.activityRepo = activityRepo;
         this.typeRepo = activityTypeRepo;
         this.membershipRepo = activityMembershipRepository;
     }
 
+    /**
+     * Inserts the given activity into the database and registers the profile with the given ID as the creator.
+     * @param activity The activity to be added to the database.
+     * @param creatorId The ID of the creator's profile.
+     */
     public void create(Activity activity, Long creatorId) {
         validateActivity(activity);
         Optional<Profile> profileResult = profileRepo.findById(creatorId);
@@ -56,7 +71,7 @@ public class ActivityService {
      * Check if there is an activity with an associated activityId
      *
      * @param activityId the id of the activity we want to retrieve
-     * @return activity if it exists, false otherwise
+     * @return The activity if it exists, null otherwise
      */
     public Activity read(Long activityId) {
         Optional<Activity> activity = activityRepo.findById(activityId);
@@ -126,6 +141,11 @@ public class ActivityService {
         return false;
     }
 
+    /**
+     * Returns all activities associated with the given profile.
+     * @param profileId The ID of the profile whose activities are being retrieved.
+     * @return A list of the given profile's activities.
+     */
     public List<Activity> getActivitiesByProfileId(Long profileId) {
         Profile profile = profileRepo.findAllById(profileId).get(0);
         List<Activity> userActivities = new ArrayList<>();

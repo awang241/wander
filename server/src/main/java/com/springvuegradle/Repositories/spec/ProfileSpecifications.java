@@ -7,16 +7,12 @@ import com.springvuegradle.Model.Profile_;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.Join;
-import javax.persistence.metamodel.SingularAttribute;
-import java.beans.Expression;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * Helper class containing methods to create Specifications to use in ProfileRepository. Specifications can be passed to
- * findAll() to filter results. The specifications can be chained to create more complex criteria (e.g. (nickname matches
- * pattern X and firstname matches pattern Y) or lastname matches pattern Z); see the Specification javadoc page.
+ * findAll() to filter results. The specifications can be chained using the and()/or()/not() etc. methods to create more
+ * complex criteria (e.g. (nickname matches * pattern X and firstname matches pattern Y) or lastname matches pattern Z);
+ * see the Specification javadoc page.
  */
 public class ProfileSpecifications {
 
@@ -24,42 +20,67 @@ public class ProfileSpecifications {
      * Private constructor for class.
      */
     private ProfileSpecifications() {
+        throw new UnsupportedOperationException("Cannot instantiate helper class.");
     }
 
+    /**
+     * Creates a specification matching all profiles that are not the default admin (i.e. have an authorization level of
+     * 1 or more)
+     * @return A specification matching all profiles that are not the default admin.
+     */
     public static Specification<Profile> notDefaultAdmin() {
         return (root, query, criteriaBuilder) -> criteriaBuilder.greaterThan(root.get("authLevel"), 0);
     }
 
+    /**
+     * Creates a specification matching all profiles whose first name contains the given substring.
+     * @param substring The string pattern to be matched to.
+     * @return A specification matching all profiles whose first name contains the given substring.
+     */
     public static Specification<Profile> firstNameContains(String substring) {
         String pattern = "%" + substring.toLowerCase() + "%";
         return (root, query, criteriaBuilder) -> criteriaBuilder.like(criteriaBuilder.lower(root.get("firstname")), pattern);
     }
 
+    /**
+     * Creates a specification matching all profiles whose middle name contains the given substring.
+     * @param substring The string pattern to be matched to.
+     * @return A specification matching all profiles whose middle name contains the given substring.
+     */
     public static Specification<Profile> middleNameContains(String substring) {
         String pattern = "%" + substring.toLowerCase() + "%";
         return (root, query, criteriaBuilder) -> criteriaBuilder.like(criteriaBuilder.lower(root.get("middlename")), pattern);
     }
 
+    /**
+     * Creates a specification matching all profiles whose nickname contains the given substring.
+     * @param substring The string pattern to be matched to.
+     * @return A specification matching all profiles whose nickname contains the given substring.
+     */
     public static Specification<Profile> nicknameContains(String substring) {
         String pattern = "%" + substring.toLowerCase() + "%";
         return (root, query, criteriaBuilder) -> criteriaBuilder.like(
                 criteriaBuilder.lower(root.get("nickname")), pattern);
     }
 
+    /**
+     * Creates a specification matching all profiles whose last name contains the given substring.
+     * @param substring The string pattern to be matched to.
+     * @return A specification matching all profiles whose last name contains the given substring.
+     */
     public static Specification<Profile> lastNameContains(String substring) {
         String pattern = "%" + substring.toLowerCase() + "%";
         return (root, query, criteriaBuilder) -> criteriaBuilder.like(
                 criteriaBuilder.lower(root.get("lastname")), pattern);
     }
 
-    public static Specification<Profile> stringFieldContains(SingularAttribute<Profile, String> field, String substring) {
-        String pattern = "%" + substring.toLowerCase() + "%";
-        return (root, query, criteriaBuilder) -> criteriaBuilder.like(
-                criteriaBuilder.lower(root.get(field)), pattern);
-    }
-
-    public static Specification<Profile> hasEmail(Email email) {
-        String pattern = "%" + email.getAddress().toLowerCase() + "%";
+    /**
+     * Creates a specification matching all profiles that has an associated email address containing the given substring.
+     * @param address The email address to be matched to.
+     * @return A specification matching all profiles that has an associated email address containing the given substring.
+     */
+    public static Specification<Profile> emailContains(String address) {
+        String pattern = "%" + address.toLowerCase() + "%";
         return (root, query, criteriaBuilder) -> {
             Join<Profile, Email> profileEmailJoin = root.join("emails");
             return criteriaBuilder.like(criteriaBuilder.lower(profileEmailJoin.get("address")), pattern);
