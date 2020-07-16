@@ -1,7 +1,9 @@
 package com.springvuegradle.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.springvuegradle.Model.Profile;
 
+import java.util.List;
 import java.util.Objects;
 
 public class ProfileSummary {
@@ -31,6 +33,8 @@ public class ProfileSummary {
      */
     private String gender;
 
+    private List<String> activityTypes;
+
 
     /**
      * Constructor for Profile. The way the JSONProperty is structured is how the getProfile method should display the
@@ -41,12 +45,13 @@ public class ProfileSummary {
      * @param email users primary email address
      * @param gender (Male, Female, Other)
      */
-    public ProfileSummary(Long id, String firstname, String lastname, String email, String gender) {
+    public ProfileSummary(Long id, String firstname, String lastname, String email, String gender, List<String> activityTypes) {
         this.id = id;
         this.firstname = firstname;
         this.lastname = lastname;
         this.email = email;
         this.gender = gender;
+        this.activityTypes = activityTypes;
     }
 
     /**
@@ -59,6 +64,7 @@ public class ProfileSummary {
         this.lastname = profile.getLastname();
         this.email = profile.getPrimary_email();
         this.gender = profile.getGender();
+        this.activityTypes = profile.getActivityTypes();
     }
 
     public Long getId() {
@@ -93,6 +99,8 @@ public class ProfileSummary {
         this.email = email;
     }
 
+    @JsonProperty("activities")
+    public List<String> getActivityTypes(){return this.activityTypes;}
 
     public String getGender() {
         return gender;
