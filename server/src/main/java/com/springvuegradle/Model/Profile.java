@@ -28,6 +28,7 @@ public class Profile {
     /**
      * Holds the user's firstname.
      */
+    @Column(name = "firstname")
     @NotNull
     private String firstname;
 
