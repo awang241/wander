@@ -7,9 +7,8 @@ import com.springvuegradle.Model.Profile_;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.Join;
-import javax.persistence.criteria.JoinType;
-import javax.persistence.metamodel.SetAttribute;
 import javax.persistence.metamodel.SingularAttribute;
+import java.beans.Expression;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -28,7 +27,7 @@ public class ProfileSpecifications {
     }
 
     public static Specification<Profile> notDefaultAdmin() {
-        return (root, query, criteriaBuilder) -> criteriaBuilder.greaterThan(root.get(Profile_.authLevel), 0);
+        return (root, query, criteriaBuilder) -> criteriaBuilder.greaterThan(root.get("authLevel"), 0);
     }
 
     public static Specification<Profile> firstNameContains(String substring) {
@@ -60,14 +59,18 @@ public class ProfileSpecifications {
     }
 
     public static Specification<Profile> hasEmail(Email email) {
-        return (root, query, criteriaBuilder) -> criteriaBuilder.isMember(email, root.get("emails"));
+        String pattern = "%" + email.getAddress().toLowerCase() + "%";
+        return (root, query, criteriaBuilder) -> {
+            Join<Profile, Email> profileEmailJoin = root.join("emails");
+            return criteriaBuilder.like(criteriaBuilder.lower(profileEmailJoin.get("address")), pattern);
+        };
     }
 
     /**
-     * Creates specification to match profiles that have the provided activity types.
+     * Creates a specification to match profiles that have the provided activity types.
      * @param types The collection of activity types to me matched against.
-     * @param matchAll true if only profiles that match all activity types should be provided. If false, any profile that
-     *                 has any of the types given will be returned.
+     * @param searchMethod true if only profiles that match all activity types should be provided. If false, any profile
+     *                     that has any of the types given will be returned.
      * @return a specification that matches profiles that have the provided activity types.
      */
     public static Specification<Profile> activityTypesContains(String[] types, String searchMethod) {

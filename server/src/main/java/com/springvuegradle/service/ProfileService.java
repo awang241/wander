@@ -114,14 +114,7 @@ public class ProfileService {
 
 
         if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getEmail()))) {
-            Email searchEmail;
-            Optional<Email> result = emailRepository.findByAddress(criteria.getEmail());
-            if (result.isPresent()) {
-                searchEmail = result.get();
-                spec = spec.and(ProfileSpecifications.hasEmail(searchEmail));
-            } else {
-                spec = spec.and(Specification.not(spec));
-            }
+            spec = spec.and(ProfileSpecifications.hasEmail(new Email(criteria.getEmail())));
         }
 
         if (!FieldValidationHelper.isNullOrEmpty(criteria.getActivityTypes())) {

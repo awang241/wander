@@ -204,7 +204,7 @@ class ProfileServiceTest {
     }
 
     @Test
-    void getUsersByEmailWithNoProfileWithThatEmailReturnsNothingTest() {
+    void getUsersByEmailWithUnusedEmailReturnsNothingTest() {
         saveWithEmails(jimmyOne);
         saveWithEmails(jimmyTwo);
         steven = saveWithEmails(steven);
