@@ -1,8 +1,6 @@
 package com.springvuegradle.service;
 
-import com.springvuegradle.Model.Email;
-import com.springvuegradle.Model.Profile;
-import com.springvuegradle.Model.ProfileLocation;
+import com.springvuegradle.Model.*;
 import com.springvuegradle.Repositories.EmailRepository;
 import com.springvuegradle.Repositories.ProfileLocationRepository;
 import com.springvuegradle.Repositories.ProfileRepository;
@@ -13,7 +11,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import com.springvuegradle.Model.ProfileSearchCriteria;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -126,11 +123,11 @@ public class ProfileService {
                 spec = spec.and(Specification.not(spec));
             }
         }
-        /*
-        if (!FieldValidationHelper.isNullOrEmpty(activityTypes)) {
-            spec = spec.and(ProfileSpecifications.activityTypesContains(activityTypes, matchAll));
+
+        if (!FieldValidationHelper.isNullOrEmpty(criteria.getActivityTypes())) {
+            spec = spec.and(ProfileSpecifications.activityTypesContains(criteria.getActivityTypes(), criteria.getSearchMethod()));
         }
-         */
+
         return profileRepository.findAll(spec, request);
     }
 

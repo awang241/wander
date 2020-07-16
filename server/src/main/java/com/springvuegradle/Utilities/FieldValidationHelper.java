@@ -155,4 +155,15 @@ public class FieldValidationHelper {
             return true;
         } else return collection.isEmpty();
     }
+
+    /**
+     * Checks if the collection is null or empty.
+     * @param array The array being checked.
+     * @return True if the collection is null or empty, false otherwise.
+     */
+    public static Boolean isNullOrEmpty(String[] array) {
+        if (array == null) {
+            return true;
+        } else return array.length == 0;
+    }
 }

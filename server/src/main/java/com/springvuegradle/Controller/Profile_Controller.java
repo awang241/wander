@@ -228,7 +228,7 @@ public class Profile_Controller {
      * @param fullName string pattern to be matched to profile's full name.
      * @param email string pattern to be matched.
      * @param activityTypes A list of activity types the user is searching by
-     * @param method Whether the user is searching for a user with ALL the required activity types or any of them
+     * @param searchMethod Whether the user is searching for a user with ALL the required activity types or any of them
      * @param count number of profiles to be returned.
      * @param startIndex index
      * @return response entity containing a list of simplified profiles and an OK status code if the request was successful;
@@ -240,7 +240,7 @@ public class Profile_Controller {
             @RequestParam(name = "fullname", required = false) String fullName,
             @RequestParam(name = "email", required = false) String email,
             @RequestParam(name = "activityTypes", required = false) String[] activityTypes,
-            @RequestParam(name = "method", required = false) String method,
+            @RequestParam(name = "method", required = false) String searchMethod,
             @RequestParam(name = "count") int count,
             @RequestParam(name = "startIndex") int startIndex,
             @RequestHeader("authorization") String token) {
@@ -269,6 +269,11 @@ public class Profile_Controller {
                     criteria.setLastName(names.get(names.size() - 1));
                     criteria.setMiddleName(String.join(" ", names.subList(1, names.size() - 1)));
                 }
+            }
+
+            if(activityTypes != null){
+                criteria.setActivityTypes(activityTypes);
+                criteria.setSearchMethod(searchMethod);
             }
 
             criteria.setNickname(nickname);

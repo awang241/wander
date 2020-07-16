@@ -11,6 +11,8 @@ public class ProfileSearchCriteria {
     private String lastName;
     private String nickname;
     private String email;
+    private String searchMethod;
+    private String[] activityTypes;
 
     /**
      * Creates a blank ProfileSearchCriteria with all criteria set to null and the page set to the index 0 and the
@@ -22,6 +24,8 @@ public class ProfileSearchCriteria {
         lastName = null;
         nickname = null;
         email = null;
+        activityTypes = null;
+        searchMethod = null;
     }
 
     public ProfileSearchCriteria(String firstName, String middleName, String lastName, String nickname, String email) {
@@ -71,6 +75,19 @@ public class ProfileSearchCriteria {
     public void setEmail(String email) {
         this.email = email;
     }
+
+    public void setSearchMethod(String searchMethod) {
+        this.searchMethod = searchMethod;
+    }
+
+    public void setActivityTypes(String[] activityTypes) {
+        this.activityTypes = activityTypes;
+    }
+
+    public String[] getActivityTypes(){return this.activityTypes;}
+
+    public String getSearchMethod(){return this.searchMethod;}
+
 
     @Override
     public boolean equals(Object o) {

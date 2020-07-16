@@ -6,9 +6,13 @@ import com.springvuegradle.Model.Profile;
 import com.springvuegradle.Model.Profile_;
 import org.springframework.data.jpa.domain.Specification;
 
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
+import javax.persistence.metamodel.SetAttribute;
 import javax.persistence.metamodel.SingularAttribute;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * Helper class containing methods to create Specifications to use in ProfileRepository. Specifications can be passed to
@@ -66,13 +70,16 @@ public class ProfileSpecifications {
      *                 has any of the types given will be returned.
      * @return a specification that matches profiles that have the provided activity types.
      */
-    public static Specification<Profile> activityTypesContains(Collection<ActivityType> types, Boolean matchAll) {
+    public static Specification<Profile> activityTypesContains(String[] types, String searchMethod) {
         Specification<Profile> spec = Specification.where(null);
-        Iterator<ActivityType> iterator = types.iterator();
-        while (iterator.hasNext()) {
-            Specification<Profile> activitySpec = (root, query, criteriaBuilder) ->
-                    criteriaBuilder.isMember(types.iterator().next(), root.get(Profile_.activityTypes));
-            if (Boolean.TRUE.equals(matchAll)) {
+        for(int i = 0; i < types.length; i++) {
+            final String type2 = types[i];
+            Specification<Profile> activitySpec = (root, query, criteriaBuilder) -> {
+                Join<Profile, ActivityType> groupJoin = root.join(Profile_.activityTypes);
+                return criteriaBuilder.equal(groupJoin.get("activityTypeName"), type2);
+            };
+
+            if (searchMethod.equals("all")) {
                 spec = spec.and(activitySpec);
             } else {
                 spec = spec.or(activitySpec);
