@@ -49,7 +49,7 @@
                 </div>
                 <div class="is-pulled-right">
                     <b-field>
-                        <b-button native-type="submit" class="is-primary">Submit</b-button>
+                        <b-button native-type="submit" class="is-primary">Search</b-button>
                     </b-field>
                 </div>
             </div>

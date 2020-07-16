@@ -85,7 +85,7 @@
                     //     }
                     // }
                     document.getElementById("autocompleteCities").value = city.address_components[0].long_name;
-                    //document.getElementById("autocompleteStates").value = state
+                    // document.getElementById("autocompleteStates").value = state
                 })
 
             },
