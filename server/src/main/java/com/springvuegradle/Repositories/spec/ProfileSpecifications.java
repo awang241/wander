@@ -29,26 +29,24 @@ public class ProfileSpecifications {
 
     public static Specification<Profile> firstNameContains(String substring) {
         String pattern = "%" + substring.toLowerCase() + "%";
-        return (root, query, criteriaBuilder) -> criteriaBuilder.like(
-                criteriaBuilder.lower(root.get(Profile_.firstname)), pattern);
+        return (root, query, criteriaBuilder) -> criteriaBuilder.like(criteriaBuilder.lower(root.get("firstname")), pattern);
     }
 
     public static Specification<Profile> middleNameContains(String substring) {
         String pattern = "%" + substring.toLowerCase() + "%";
-        return (root, query, criteriaBuilder) -> criteriaBuilder.like(
-                criteriaBuilder.lower(root.get(Profile_.middlename)), pattern);
+        return (root, query, criteriaBuilder) -> criteriaBuilder.like(criteriaBuilder.lower(root.get("middlename")), pattern);
     }
 
     public static Specification<Profile> nicknameContains(String substring) {
         String pattern = "%" + substring.toLowerCase() + "%";
         return (root, query, criteriaBuilder) -> criteriaBuilder.like(
-                criteriaBuilder.lower(root.get(Profile_.nickname)), pattern);
+                criteriaBuilder.lower(root.get("nickname")), pattern);
     }
 
     public static Specification<Profile> lastNameContains(String substring) {
         String pattern = "%" + substring.toLowerCase() + "%";
         return (root, query, criteriaBuilder) -> criteriaBuilder.like(
-                criteriaBuilder.lower(root.get(Profile_.lastname)), pattern);
+                criteriaBuilder.lower(root.get("lastname")), pattern);
     }
 
     public static Specification<Profile> stringFieldContains(SingularAttribute<Profile, String> field, String substring) {
@@ -58,7 +56,7 @@ public class ProfileSpecifications {
     }
 
     public static Specification<Profile> hasEmail(Email email) {
-        return (root, query, criteriaBuilder) -> criteriaBuilder.isMember(email, root.get(Profile_.emails));
+        return (root, query, criteriaBuilder) -> criteriaBuilder.isMember(email, root.get("emails"));
     }
 
     /**

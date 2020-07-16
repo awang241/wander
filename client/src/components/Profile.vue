@@ -11,7 +11,6 @@
                     <h2 class="subtitle is-5">
                         {{ profile.nickname }}
                     </h2>
-
                 </div>
 
                 <b-button v-if="viewingOwnProfile"
@@ -54,10 +53,6 @@
                 <p>{{ profile.bio }}</p>
             </div>
         </div>
-        <section class="section" id="about">
-
-            <hr class="hrLine">
-
             <div class="container containerColor has-same-height is-gapless">
                 <div class="column">
                     <!-- Profile -->
@@ -93,61 +88,47 @@
                                         <td>Additional Email:</td>
                                         <td>{{email}}</td>
                                     </tr>
+                                    <tr>
+                                        <td>Fitness Level:</td>
+                                        <td>{{ fitnessStatement }}</td>
+                                    </tr>
+
                                 </table>
                             </div>
                             <br>
                         </div>
                     </div>
                 </div>
-
-                <div class="column">
-                    <!-- Fitness Level-->
-                    <div class="card">
-                        <div class="card-content skills-content">
-                            <h3 class="title is-4">Fitness Level</h3>
-                            <div class="content">
-                                <article class="media">
-                                    <div class="media-content">
-                                        <div class="content">
-                                            <p>
-                                                <strong>{{ fitnessStatement }}</strong>
-                                            </p>
-                                        </div>
-                                    </div>
-                                </article>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
-        </section>
 
 
         <section class="section">
-            <div class="section-heading">
-                <h3 class="center activityTypesTitle title is-2">Countries</h3>
-                <h4 class="subtitle is-5"></h4>
-            </div>
+            <h3 class="center activityTypesTitle title is-2">Countries</h3>
             <div class="container containerColor">
-                <div class="box">
+                <div class="box" v-if="checkLengthPassports == true">
                     <h3 v-for="country in profile.passports" :key="country" class="title is-4">{{country}}</h3>
                 </div>
+                <div v-else class="box">
+                    <h1>No passport countries chosen</h1>
+                </div>
             </div>
         </section>
         <section class="section">
-            <div class="section-heading">
-                <h3 class="center activityTypesTitle title is-2">Activity Types</h3>
-                <h4 class="subtitle is-5"></h4>
-            </div>
+            <h3 class="center activityTypesTitle title is-2">Activity Types</h3>
             <div class="container containerColor">
-                <div class="box">
+                <div class="box" v-if="checkActivitiesLength == true">
                     <h3 v-for="activityType in profile.activities" :key="activityType" class="title is-4">
                         {{activityType}}</h3>
+                </div>
+                <div v-else class="box">
+                    <h1>No activities created</h1>
                 </div>
             </div>
         </section>
     </div>
 </template>
+
+
 
 <script>
     import api from '../Api';
@@ -182,6 +163,20 @@
                         router.push({path: '/'});
                         console.log(error)
                     })
+            },
+            checkActivitiesLength() {
+                if(this.profile.activities.length > 0) {
+                    return true
+                } else {
+                    return false
+                }
+            },
+            checkLengthPassports() {
+                if(this.profile.activities.length > 0) {
+                    return true
+                } else {
+                    return false
+                }
             }
         },
         computed: {
@@ -221,10 +216,6 @@
 </script>
 
 <style scoped>
-    .bannerColor {
-        background-color: #64C6E3
-    }
-
     .containerColor {
         background-color: #F7F8F9
     }
@@ -232,9 +223,4 @@
     .center {
         text-align: center;
     }
-
-    .hrLine {
-        border: 2px solid #EDEEEE;
-    }
-
 </style>

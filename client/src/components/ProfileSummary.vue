@@ -9,11 +9,14 @@
             <div v-for="activity in profile.activities" :key="activity.id">
                 <label>{{activity.activity_name}}</label>
             </div>
+            <b-button type="is-text" @click="gotoProfile(profile.id)">View profile</b-button>
         </div>
     </div>
 </template>
 
 <script>
+    import router from "../router";
+
     export default {
         name: "ProfileSummary",
         data() {
@@ -31,6 +34,11 @@
         },
         props: {
             profile: Object
+        },
+        methods: {
+            gotoProfile(profileID) {
+                router.push('Profile/' + profileID);
+            }
         }
     }
 </script>
