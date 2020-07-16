@@ -116,7 +116,7 @@
         <section class="section">
             <h3 class="center activityTypesTitle title is-2">Activity Types</h3>
             <div class="container containerColor">
-                <div class="box" v-if="checkLengthActivities == true">
+                <div class="box" v-if="checkActivitiesLength == true">
                     <h3 v-for="activityType in profile.activities" :key="activityType" class="title is-4">
                         {{activityType}}</h3>
                 </div>
@@ -164,7 +164,7 @@
                         console.log(error)
                     })
             },
-            checkLengthActivities() {
+            checkActivitiesLength() {
                 if(this.profile.activities.length > 0) {
                     return true
                 } else {
