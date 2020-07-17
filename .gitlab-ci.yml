@@ -60,6 +60,7 @@ dev-build:
     - cp -r ./build/libs /home/gitlab-runner/test-server
     - rm -rf /home/gitlab-runner/test-client/
     - mkdir -p /home/gitlab-runner/test-client/
+    - ls
     - cp -r ./dist /home/gitlab-runner/test-client
     #update scripts and restart service vvv
     - rm -f /home/gitlab-runner/runTestServer.sh || true
