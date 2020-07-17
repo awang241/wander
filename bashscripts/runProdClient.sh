@@ -1,0 +1,1 @@
+serve -s prod-client/dist/ -l 9000

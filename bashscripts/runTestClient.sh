@@ -1,0 +1,1 @@
+serve -s test-client/dist/ -l 9500
