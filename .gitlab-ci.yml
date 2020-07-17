@@ -47,8 +47,8 @@ dev-build:
     - npm run build
     - cd ../server
     - ./gradlew bootJar
+    - cd ..
 #old block
-#    - cd ..
 #    - mkdir -p ../client-dev/
 #    - mkdir -p ../server-dev/
 #    - cp -r ./client/dist/ ../client-dev/
