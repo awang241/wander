@@ -45,9 +45,14 @@ dev-build:
     - fuser -k 9499/tcp 9500/tcp || true
     - cd client
     - npm run build
+    - rm -rf /home/gitlab-runner/test-client/
+    - mkdir -p /home/gitlab-runner/test-client/
+    - cp -r ./dist /home/gitlab-runner/test-client
     - cd ../server
     - ./gradlew bootJar
-    - cd ..
+    - rm -rf /home/gitlab-runner/test-server/
+    - mkdir -p /home/gitlab-runner/test-server/
+    - cp -r ./build/libs /home/gitlab-runner/test-server
 #old block
 #    - mkdir -p ../client-dev/
 #    - mkdir -p ../server-dev/
@@ -55,13 +60,6 @@ dev-build:
 #    - cp -r ./server/build/libs ../server-dev
 #    - screen -d -m serve -s ../client-dev/dist -l 9500 # convert to be run with service
 #    - screen -d -m java -jar ../server-dev/libs/server-0.0.1-SNAPSHOT.jar --server.port=9499 # convert to be run with service
-    - rm -rf /home/gitlab-runner/test-server/
-    - mkdir -p /home/gitlab-runner/test-server/
-    - cp -r ./build/libs /home/gitlab-runner/test-server
-    - rm -rf /home/gitlab-runner/test-client/
-    - mkdir -p /home/gitlab-runner/test-client/
-    - ls
-    - cp -r ./dist /home/gitlab-runner/test-client
     #update scripts and restart service vvv
     - rm -f /home/gitlab-runner/runTestServer.sh || true
     - cp ../bashscripts/runTestServer.sh /home/gitlab-runner/runTestServer.sh
