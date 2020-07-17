@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 public class SecurityService {
 
     @Autowired
-    private JwtUtil jwtUtil;
+    private JwtUtil jwtUtil = new JwtUtil();
 
     /**
      * Checks if the user has permission to edit the profile. User will be given permission if

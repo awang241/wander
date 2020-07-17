@@ -209,6 +209,15 @@ class ProfileControllerTest {
     }
 
     /**
+     * Tests response when deleting a profile that doesn't exist.
+     */
+    @Test
+    void deleteInvalidProfileResponseTest() {
+        ResponseEntity<String> delete_profile_response = profileController.deleteProfile(999999999999l);
+        assertEquals(HttpStatus.NOT_FOUND, delete_profile_response.getStatusCode());
+    }
+
+    /**
      * Tests response when deleting a profile.
      */
     @Test

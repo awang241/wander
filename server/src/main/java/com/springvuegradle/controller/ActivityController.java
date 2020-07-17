@@ -47,15 +47,16 @@ public class ActivityController {
     /**
      * Endpoint for creating activities.
      * Creates a new Activity object given a set of JSON data and saves the new data to the database.
+     *
      * @param newActivity contains data relating to the activity to add to the database.
-     * @param id referring to the profile
+     * @param id          referring to the profile
      * @return the created activity and/or status code.
      */
     @PostMapping("/profiles/{id}/activities")
-    public ResponseEntity<String> createActivity (@PathVariable Long id,
-                                                  @RequestBody Activity newActivity,
-                                                  @RequestHeader("authorization") String token
-                                                  ) {
+    public ResponseEntity<String> createActivity(@PathVariable Long id,
+                                                 @RequestBody Activity newActivity,
+                                                 @RequestHeader("authorization") String token
+    ) {
         return createActivity(id, newActivity, token, false);
     }
 
@@ -81,6 +82,7 @@ public class ActivityController {
      * REST endpoint for editing an existing activity. Given a HTTP request containing a correctly formatted JSON file,
      * updates the given database entry. For more information on the JSON format, see the @JsonCreator-tagged constructor
      * in the Activity class.
+     *
      * @param request The contents of HTTP request body, automatically mapped from a JSON file to an activity.
      * @return A HTTP response notifying the sender whether the edit was successful
      */
@@ -91,7 +93,7 @@ public class ActivityController {
                                                  @PathVariable Long activityId) {
         if (token == null || token.isBlank()) {
             return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
-                                        HttpStatus.UNAUTHORIZED);
+                    HttpStatus.UNAUTHORIZED);
         } else if (!securityService.checkEditPermission(token, profileId)) {
             return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(),
                     HttpStatus.FORBIDDEN);
@@ -115,6 +117,7 @@ public class ActivityController {
 
     /**
      * Queries the Database to find all the activities.
+     *
      * @return a response with all the activities in the database.
      */
     @GetMapping("/activities")
@@ -126,6 +129,7 @@ public class ActivityController {
 
     /**
      * Queries the Database to find all the activities of a user with their profile id.
+     *
      * @return a response with all the activities of the user in the database.
      */
     @GetMapping("/profiles/{profileId}/activities")
@@ -150,17 +154,20 @@ public class ActivityController {
 
     /**
      * Deletes an activity from the repository given that it exists in the database.
-     * @param profileId the id of the profile that created the activity
+     *
+     * @param profileId  the id of the profile that created the activity
      * @param activityId the id of the activity to be deleted
      * @return http response code and feedback message on the result of the delete operation
      */
     @DeleteMapping("/profiles/{profileId}/activities/{activityId}")
-    public @ResponseBody ResponseEntity<String> deleteActivity(@RequestHeader("authorization") String token,
-                                                               @PathVariable Long profileId,
-                                                               @PathVariable Long activityId) {
+    public @ResponseBody
+    ResponseEntity<String> deleteActivity(@RequestHeader("authorization") String token,
+                                          @PathVariable Long profileId,
+                                          @PathVariable Long activityId) {
         return deleteActivity(token, profileId, activityId, false);
 
     }
+
     public ResponseEntity<String> deleteActivity(String token, Long profileId, Long activityId, Boolean testing) {
         if (!testing) {
             if (token == null || token.isBlank()) {
@@ -177,6 +184,4 @@ public class ActivityController {
         }
         return new ResponseEntity<>("The activity does not exist in the database.", HttpStatus.NOT_FOUND);
     }
-
-
 }
