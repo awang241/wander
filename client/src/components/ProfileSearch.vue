@@ -140,9 +140,6 @@
                         .indexOf(text.toLowerCase()) >= 0
                 })
             },
-            openProfile() {
-                router.push('/Profile')
-            },
             loadMoreProfiles() {
                 const searchParameters = this.getSearchParameters()
                 Api.getUserProfiles(localStorage.getItem('authToken'), searchParameters).then(response => {

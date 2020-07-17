@@ -7,10 +7,13 @@
                     <h1 class="title is-1">
                         {{ profile.firstname }} {{ profile.middlename }} {{ profile.lastname }}
                     </h1>
-                    <br>
-                    <h2 class="subtitle is-5">
-                        {{ profile.nickname }}
+                    <h2 v-if="profile.nickname" class="subtitle is-5">
+                        ({{ profile.nickname }})
                     </h2>
+                    <div id="profile-bio" v-if="profile.bio">
+                        <h3 class="title is-5">{{ profile.bio }}</h3>
+                    </div>
+
                 </div>
 
                 <div>
@@ -23,11 +26,6 @@
 
             </div>
         </section>
-        <div class="section-heading">
-            <div class="center container containerColor">
-                <p>{{ profile.bio }}</p>
-            </div>
-        </div>
 
         <div class="has-same-height is-gapless">
             <div class="column">
@@ -70,8 +68,9 @@
                                 </tr>
 
                             </table>
-                            <br>
+
                             <div v-if="profile.passports != null && profile.passports.length">
+                                <br>
                                 <h3 class="title is-4">Countries</h3>
                                 <table class="table-profile">
                                     <tr v-for="country in profile.passports" :key="country">
@@ -81,6 +80,7 @@
                             </div>
                             <br>
                             <div v-if="profile.activities != null && profile.activities.length">
+                                <br>
                                 <h3 class="title is-4">Activity types</h3>
                                 <table class="table-profile">
                                     <tr v-for="activityType in profile.activities" :key="activityType">
@@ -88,9 +88,7 @@
                                     </tr>
                                 </table>
                             </div>
-
                         </div>
-                        <br>
                     </div>
                 </div>
             </div>
@@ -197,12 +195,8 @@
         background-color: #F7F8F9
     }
 
-    .center {
-        text-align: center;
-    }
-
-    #beans {
-        background: red;
+    #profile-bio {
+        margin: 0 0 1rem 0;
     }
 
     #profile-key-info{
