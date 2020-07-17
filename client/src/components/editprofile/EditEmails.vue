@@ -9,30 +9,33 @@
 
         <form>
             <div v-if="optionalEmails.length>0">
-            <b-field label="Change your primary email">
-                <b-select v-model="newPrimaryEmail" class="selectNewPEList" expanded>
-                    <option class="singleEmail" v-for="email in optionalEmails" :key="email">{{email}}</option>
-                </b-select>
-            </b-field>
-            <b-button  type="is-info" @click="changePrimaryEmail()">
-                Change
-            </b-button>
+                <b-field label="Change your primary email">
+                    <b-select v-model="newPrimaryEmail" class="selectNewPEList" expanded>
+                        <option class="singleEmail" v-for="email in optionalEmails" :key="email">{{email}}</option>
+                    </b-select>
+                </b-field>
+                <b-button type="is-info" @click="changePrimaryEmail()">
+                    Change
+                </b-button>
             </div>
             <br>
 
-            <b-field label="Enter in an email address and click the 'Add' button to add it to your profile! (5 email limit)" expanded></b-field>
+            <b-field
+                    label="Enter in an email address and click the 'Add' button to add it to your profile! (5 email limit)"
+                    expanded></b-field>
             <b-field group-multiline grouped>
-                <b-input type="email" class="addForm" v-model="newEmail" placeholder="Enter an email" maxlength="30" expanded ></b-input>
-                <b-button class="addButton" type="is-info" @click="addEmail()">Add</b-button>
+                <b-input type="email" class="addForm" v-model="newEmail" placeholder="Enter an email" maxlength="30"
+                         expanded></b-input>
+                <b-button class="addButton" type="is-primary" @click="addEmail()">Add</b-button>
             </b-field>
         </form>
 
         <list v-bind:chosenItems="optionalEmails" v-on:deleteListItem="deleteEmail"></list>
 
         <b-field>
-            <b-button type="is-info" @click="submitEmails()">Save</b-button>
+            <b-button style="float:right" type="is-primary" @click="submitEmails()">Save</b-button>
         </b-field>
-
+        <br>
     </div>
 </template>
 
@@ -60,7 +63,7 @@
                 }
             },
             changePrimaryEmail() {
-                if(this.newPrimaryEmail === "") {
+                if (this.newPrimaryEmail === "") {
                     this.warningToast("No additional email address selected")
                 } else {
                     this.optionalEmails.push(this.primaryEmail);
@@ -68,20 +71,20 @@
                     this.primaryEmail = this.newPrimaryEmail;
                 }
             },
-            deleteEmail(emailToDelete){
+            deleteEmail(emailToDelete) {
                 this.optionalEmails = this.optionalEmails.filter(email => email != emailToDelete)
             },
-            submitEmails(){
+            submitEmails() {
                 this.$parent.updateEmails(this.primaryEmail, this.optionalEmails)
                 this.successToast("Updated emails")
-                }
-            },
+            }
+        },
         data() {
             return {
-            primaryEmail: this.profile.primary_email,
-            optionalEmails: this.profile.additional_email,
-            newEmail: "",
-            newPrimaryEmail: "",
+                primaryEmail: this.profile.primary_email,
+                optionalEmails: this.profile.additional_email,
+                newEmail: "",
+                newPrimaryEmail: "",
             }
         }
     }

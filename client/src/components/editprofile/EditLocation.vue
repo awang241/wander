@@ -23,12 +23,14 @@
         </form>
 
         <div class="row">
+            <br>
             <b-field style="float:left">
-                <b-button type="is-info" @click="submitLocation()">Save</b-button>
+                <b-button type="is-danger" @click="clearLocation()">Clear fields</b-button>
             </b-field>
             <b-field style="float:right">
-                <b-button type="is-danger" @click="clearLocation()">Clear Location</b-button>
+                <b-button type="is-primary" @click="submitLocation()">Save</b-button>
             </b-field>
+            <br>
         </div>
         <br/>
     </div>
@@ -78,14 +80,7 @@
 
                 autocompleteCity.addListener('place_changed', function() {
                     var city = autocompleteCity.getPlace();
-                    // let state = "";
-                    // for (let addressComponentIndex in city.address_components) {
-                    //     if (city.address_components[addressComponentIndex].types.includes("administrative_area_level_1")) {
-                    //         state = city.address_components[addressComponentIndex].long_name
-                    //     }
-                    // }
                     document.getElementById("autocompleteCities").value = city.address_components[0].long_name;
-                    // document.getElementById("autocompleteStates").value = state
                 })
 
             },
