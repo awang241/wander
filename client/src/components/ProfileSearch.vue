@@ -74,7 +74,6 @@
 
 <script>
     import Api from "../Api";
-    import router from "../router"
     import ProfileSummary from "./ProfileSummary";
     import Observer from "./Observer";
 
