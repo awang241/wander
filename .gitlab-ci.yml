@@ -67,7 +67,6 @@ dev-build:
     - rm -f /home/gitlab-runner/runTestClient.sh || true
     - cp ../bashscripts/runTestClient.sh /home/gitlab-runner/runTestClient.sh
     - sudo systemctl restart testClient
-    - journalctl
 #  only:
 #    refs:
 #      - development
