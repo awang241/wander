@@ -75,8 +75,8 @@
                     <b-field>
                         <b-button native-type="submit" class="is-primary">Submit</b-button>
                     </b-field>
-
                 </div>
+                <br>
             </div>
 
 

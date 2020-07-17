@@ -6,8 +6,11 @@
                 <p>{{profile.gender}}</p>
                 <p>{{profile.email}}</p>
             </div>
-            <div v-for="activity in profile.activities" :key="activity.id">
-                <label>{{activity.activity_name}}</label>
+            <div v-if="profile.activities.length > 0" class="column">
+                <strong>Activity Types</strong>
+                <div v-for="activity in profile.activities" :key="activity">
+                    <p> {{activity}}</p>
+                </div>
             </div>
             <b-button type="is-text" @click="gotoProfile(profile.id)">View profile</b-button>
         </div>
@@ -15,9 +18,7 @@
 </template>
 
 <script>
-
     import Profile from "./Profile.vue";
-
 
     export default {
         name: "ProfileSummary",
@@ -43,17 +44,9 @@
                     parent: this,
                     props: {id:this.profile.id},
                     component: Profile,
-                    //hasModalCard: true,
                     trapFocus: true,
-                    //fullScreen: true,
                     scroll: "clip"
-
                 })
-
-                //window.scrollTo(0,0);
-                //router.push('Profile/' + profileID);
-
-
             }
         }
     }
@@ -62,9 +55,5 @@
 <style scoped>
     .columns{
         padding: 1rem;
-    }
-
-    .modal_dimensions {
-        width: 80%;
     }
 </style>

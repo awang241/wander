@@ -20,9 +20,25 @@ const routes = [
 
     {path: "/AddActivity", name: "addActivity", component: AddActivityComponent},
     {path: "/Activities", name: "activities", component:ActivitiesComponent},
-    {path: "/ProfileSearch", name: "profileSearch", component:ProfileSearchComponent},
+    {path: "/ProfileSearch", name: "profileSearch", component:ProfileSearchComponent, beforeEnter: (to, from, next) => {
+            if (store.getters.getAuthenticationStatus) {
+                next()
+            } else {
+                next({
+                    name: "login"
+                })
+            }
+    }},
     {path: "/EditActivity/:", name:"editActivity", component:AddActivityComponent, props: true},
-    {path: "/Profile/:id", name: "profile", component:ProfileComponent},
+    {path: "/Profile/:id", name: "profile", component:ProfileComponent, beforeEnter: (to, from, next) => {
+            if (store.getters.getAuthenticationStatus) {
+                next()
+            } else {
+                next({
+                    name: "login"
+                })
+            }
+        }},
     {
         //This route is only accessible if the user is authenticated, else it sends them back to the main page
         path: "/EditProfile/:id", name: "editProfile", component: EditProfileComponent, beforeEnter: (to, from, next) => {
