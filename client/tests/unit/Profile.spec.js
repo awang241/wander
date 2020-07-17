@@ -16,7 +16,12 @@ beforeEach(() => {
         },
         stubs: {},
         methods: {},
-        routes: {}
+        routes: {},
+        data() {
+            return {
+                profile: {activities : [], passports: []}
+            }
+        }
     });
 
 });
