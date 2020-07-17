@@ -137,25 +137,32 @@
 
     export default {
         name: "Profile",
+        props: ['id'],
         data() {
             return {
                 profile: {},
                 store: store,
-                id: this.$route.params.id
+               // id: this.$route.params.id
             }
         },
-        watch: {
-            '$route.params.id': function (id) {
-                this.id = id
-                this.getProfile()
-            }
-        },
+        // watch: {
+        //     '$route.params.id': function (id) {
+        //         this.id = id
+        //         this.getProfile()
+        //     }
+        // },
         methods: {
             editProfile(){
                 router.push({path: '/EditProfile/' + store.getters.getUserId});
             },
             getProfile() {
-                api.getProfile(this.id, localStorage.getItem("authToken"))
+                let tempId;
+                if (this.id) {
+                    tempId = this.id;
+                } else {
+                    tempId = this.$route.params.id;
+                }
+                api.getProfile(tempId, localStorage.getItem("authToken"))
                     .then((response) => {
                         this.profile = response.data;
                     })
@@ -209,6 +216,7 @@
             }
         },
         mounted() {
+            console.log(this.id)
             this.getProfile()
 
         },

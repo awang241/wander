@@ -15,7 +15,9 @@
 </template>
 
 <script>
-    import router from "../router";
+
+    import Profile from "./Profile.vue";
+
 
     export default {
         name: "ProfileSummary",
@@ -36,8 +38,22 @@
             profile: Object
         },
         methods: {
-            gotoProfile(profileID) {
-                router.push('Profile/' + profileID);
+            gotoProfile() {
+                this.$buefy.modal.open({
+                    parent: this,
+                    props: {id:this.profile.id},
+                    component: Profile,
+                    //hasModalCard: true,
+                    trapFocus: true,
+                    //fullScreen: true,
+                    scroll: "clip"
+
+                })
+
+                //window.scrollTo(0,0);
+                //router.push('Profile/' + profileID);
+
+
             }
         }
     }
@@ -46,5 +62,9 @@
 <style scoped>
     .columns{
         padding: 1rem;
+    }
+
+    .modal_dimensions {
+        width: 80%;
     }
 </style>
