@@ -6,6 +6,7 @@ import com.springvuegradle.Repositories.ProfileRepository;
 import com.springvuegradle.Repositories.spec.ProfileSpecifications;
 import com.springvuegradle.Utilities.FieldValidationHelper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +15,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 
+import java.awt.*;
+import java.util.ArrayList;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Service-layer class containing all business logic handling profiles.
@@ -116,7 +120,12 @@ public class ProfileService {
         if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getActivityTypes()))) {
             spec = spec.and(ProfileSpecifications.activityTypesContains(criteria.getActivityTypes(), criteria.getSearchMethod()));
         }
+/*
+        Page<Profile> repoResults = profileRepository.findAll(spec, request);
+        Set<Profile> resultSet = repoResults.toSet();
+        Page<Profile> result = new PageImpl<>(new ArrayList<>(resultSet), request, )
 
+ */
         return profileRepository.findAll(spec, request);
     }
 

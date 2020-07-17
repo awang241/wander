@@ -3,10 +3,10 @@ package com.springvuegradle.Repositories.spec;
 import com.springvuegradle.Model.ActivityType;
 import com.springvuegradle.Model.Email;
 import com.springvuegradle.Model.Profile;
-import com.springvuegradle.Model.Profile_;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
 
 /**
  * Helper class containing methods to create Specifications to use in ProfileRepository. Specifications can be passed to
@@ -82,7 +82,8 @@ public class ProfileSpecifications {
     public static Specification<Profile> emailContains(String address) {
         String pattern = "%" + address.toLowerCase() + "%";
         return (root, query, criteriaBuilder) -> {
-            Join<Profile, Email> profileEmailJoin = root.join("emails");
+            query.distinct(true);
+            Join<Profile, Email> profileEmailJoin = root.joinSet("emails");
             return criteriaBuilder.like(criteriaBuilder.lower(profileEmailJoin.get("address")), pattern);
         };
     }
@@ -99,7 +100,8 @@ public class ProfileSpecifications {
         for(int i = 0; i < types.length; i++) {
             final String type = types[i];
             Specification<Profile> activitySpec = (root, query, criteriaBuilder) -> {
-                Join<Profile, ActivityType> groupJoin = root.join(Profile_.activityTypes);
+                query.distinct(true);
+                Join<Profile, ActivityType> groupJoin = root.joinSet("activityTypes");
                 return criteriaBuilder.equal(groupJoin.get("activityTypeName"), type);
             };
 

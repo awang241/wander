@@ -258,8 +258,8 @@ public class Profile_Controller {
             int pageIndex = startIndex / count;
             PageRequest request = PageRequest.of(pageIndex, count);
 
-            fullName = fullName.strip();
             if (fullName != null) {
+                fullName = fullName.strip();
                 List<String> names = Arrays.asList(fullName.split(" "));
                 if (names.size() == 1) {
                     criteria.setLastName(names.get(0));
