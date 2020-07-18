@@ -16,7 +16,7 @@
                          placeholder="Email">
                 </b-input>
             </b-field>
-
+            <br>
             <b-field label="Activity types">
                 <b-taginput
                         v-model="chosenActivityTypes"
@@ -114,7 +114,8 @@
                 const searchParameters = this.getSearchParameters()
                 Api.getUserProfiles(localStorage.getItem('authToken'), searchParameters).then(response => {
                     this.startIndex += DEFAULT_RESULT_COUNT
-                    this.profiles = response.data.results})
+                    this.profiles = response.data.results
+                })
             },
             getSearchParameters() {
                 const searchParameters = {count: DEFAULT_RESULT_COUNT, startIndex: this.startIndex}
@@ -124,7 +125,7 @@
                 if (this.email.length !== 0) {
                     searchParameters.email = this.email
                 }
-                if (this.chosenActivityTypes.length > 0){
+                if (this.chosenActivityTypes.length > 0) {
                     searchParameters.activityTypes = this.chosenActivityTypes.join(",")
                     searchParameters.method = this.activitySearchType
                 }
@@ -155,7 +156,8 @@
     #results {
         padding-top: 4rem;
     }
-    #noMatches{
+
+    #noMatches {
         padding-top: 4rem;
         color: red;
     }

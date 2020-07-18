@@ -137,20 +137,6 @@
                         router.push({path: '/login'});
                         console.log(error)
                     })
-            },
-            checkActivitiesLength() {
-                if (this.profile.activities.length > 0) {
-                    return true
-                } else {
-                    return false
-                }
-            },
-            checkLengthPassports() {
-                if (this.profile.activities.length > 0) {
-                    return true
-                } else {
-                    return false
-                }
             }
         },
         computed: {
