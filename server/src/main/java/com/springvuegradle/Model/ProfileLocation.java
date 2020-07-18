@@ -80,7 +80,7 @@ public class ProfileLocation {
         return country;
     }
 
-    public void setCountry(long id) {
+    public void setCountry(String country) {
         this.country = country;
     }
 
@@ -88,7 +88,7 @@ public class ProfileLocation {
         return city;
     }
 
-    public void setCity(long id) {
+    public void setCity(String city) {
         this.city = city;
     }
 
@@ -96,7 +96,7 @@ public class ProfileLocation {
         return state;
     }
 
-    public void setState(long id) {
+    public void setState(String state) {
         this.state = state;
     }
 
