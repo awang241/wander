@@ -144,7 +144,7 @@
                 return this.profile.id == store.getters.getUserId
             },
             fitnessStatement: function () {
-                switch (this.profile.fitness_statement) {
+                switch (this.profile.fitness) {
                     case 0 :
                         return "Beginner: I am not active at all";
                     case 1 :
