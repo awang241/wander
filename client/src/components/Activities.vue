@@ -1,23 +1,26 @@
 <template>
     <div v-if="store.getters.getAuthenticationStatus" class="container containerColor">
         <!-- Header -->
-        <section class="hero level">
-            <div class=" hero-body level-item">
-                <div class="container containerColor">
+        <section>
+            <br>
+            <div id="activities-key-info">
+                <div>
                     <h1 class="title is-1">
                         Activities
                     </h1>
                 </div>
-
                 <!-- redirect to add activity -->
-                <b-button v-if="store.getters.getAuthenticationLevel > 0" @click="goToAddActivity"
-                          type="is-primary">
-                    Add Activity
-                </b-button>
+                <div>
+                    <b-button v-if="store.getters.getAuthenticationLevel > 0" @click="goToAddActivity"
+                              type="is-primary">
+                        Add Activity
+                    </b-button>
+                </div>
             </div>
         </section>
-        <div class="container containerColor has-same-height is-gapless">
-
+        <br>
+        <br>
+        <div class="has-same-height is-gapless">
             <div v-if="activities.length">
                 <div v-for="activity in activities" v-bind:key="activity">
                     <div class="column">
@@ -166,6 +169,12 @@
 
     #editButton {
         margin-left: 1rem;
+    }
+
+    #activities-key-info{
+        display: flex;
+        justify-content: space-between;
+        padding: 0rem 1rem;
     }
 
 </style>
