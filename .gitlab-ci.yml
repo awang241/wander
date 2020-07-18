@@ -56,7 +56,7 @@ dev-build:
     - rm -rf /home/gitlab-runner/test-server/
     - mkdir -p /home/gitlab-runner/test-server/
     - cp -r ./build/libs /home/gitlab-runner/test-server
-    #update scripts and restart service vvv
+    #update scripts and restart service
     - rm -f /home/gitlab-runner/runTestClient.sh || true
     - cp ../bashscripts/runTestClient.sh /home/gitlab-runner/runTestClient.sh
     - sudo systemctl restart testClient
@@ -84,7 +84,7 @@ release-build:
     - rm -rf /home/gitlab-runner/prod-client/
     - mkdir -p /home/gitlab-runner/prod-client/
     - cp -r ./dist /home/gitlab-runner/prod-client
-    #update scripts and restart service vvv
+    #update scripts and restart service
     - rm -f /home/gitlab-runner/runProdServer.sh || true
     - cp ../bashscripts/runProdServer.sh /home/gitlab-runner/runProdServer.sh
     - sudo systemctl restart prodServer
