@@ -102,7 +102,10 @@ public class Profile_Controller {
 
     @DeleteMapping("/profiles/{id}/location")
     public @ResponseBody ResponseEntity<String> deleteLocation(@RequestHeader("authorization") String token, @PathVariable Long id) {
-        return profileService.deleteProfileLocation(token, id);
+        if(!securityService.checkEditPermission(token, id)){
+            return new ResponseEntity<>("Permission denied", HttpStatus.FORBIDDEN);
+        }
+        return profileService.deleteProfileLocation(id);
     }
 
 

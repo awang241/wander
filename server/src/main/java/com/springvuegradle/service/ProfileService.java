@@ -48,6 +48,9 @@ public class ProfileService {
      * @return a response status detailing if the operation was successful
      */
     public ResponseEntity<String> updateProfileLocation(ProfileLocation newLocation, Long id) {
+        if(FieldValidationHelper.isNullOrEmpty(newLocation.getCity()) || FieldValidationHelper.isNullOrEmpty(newLocation.getCountry())){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         Optional<Profile> optionalProfile = profileRepository.findById(id);
         if(optionalProfile.isEmpty()){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -65,14 +68,10 @@ public class ProfileService {
 
     /**
      * Deletes a location from the profile with the given ID if it exists
-     * @param token the token sent with the http request
      * @param id the id of the profile whose location is being edited
      * @return a response status detailing if the operation was successful
      */
-    public ResponseEntity<String> deleteProfileLocation(String token, Long id) {
-        if(!securityService.checkEditPermission(token, id)){
-            return new ResponseEntity<>("Permission denied", HttpStatus.FORBIDDEN);
-        }
+    public ResponseEntity<String> deleteProfileLocation(Long id) {
         Optional<Profile> optionalProfile = profileRepository.findById(id);
         if(optionalProfile.isEmpty()){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
