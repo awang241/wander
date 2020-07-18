@@ -61,7 +61,8 @@ dev-build:
 #    - screen -d -m serve -s ../client-dev/dist -l 9500 # convert to be run with service
 #    - screen -d -m java -jar ../server-dev/libs/server-0.0.1-SNAPSHOT.jar --server.port=9499 # convert to be run with service
     - touch /home/gitlab-runner/set-env-vars.txt
-    - chmod u+rw /home/gitlab-runner/set-env-vars.txt
+    - chmod a+rwx /home/gitlab-runner/set-env-vars.txt
+    - chown sengstudent /home/gitlab-runner/set-env-vars.txt
     #update scripts and restart service vvv
     - rm -f /home/gitlab-runner/runTestClient.sh || true
     - cp ../bashscripts/runTestClient.sh /home/gitlab-runner/runTestClient.sh
