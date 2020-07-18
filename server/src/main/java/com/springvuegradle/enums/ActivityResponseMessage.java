@@ -1,4 +1,4 @@
-package com.springvuegradle.Controller.enums;
+package com.springvuegradle.enums;
 
 import java.util.Arrays;
 import java.util.HashSet;

@@ -15,9 +15,9 @@
             <b-field label="Confirm Password" :message="[{'Passwords do not match':isDisabled}]" expanded >
                 <b-input v-model="confPassword" type="password" placeholder="Confirm Password" required></b-input>
             </b-field>
-            <b-field>
-                <b-button type="is-info" native-type="submit" :disabled="isDisabled">Save</b-button>
-            </b-field>
+            <br>
+            <b-button style="float:right" type="is-primary" native-type="submit" :disabled="isDisabled">Save</b-button>
+            <br>
         </form>
     </div>
 

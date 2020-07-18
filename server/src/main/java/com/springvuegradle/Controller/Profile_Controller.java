@@ -1,14 +1,17 @@
 package com.springvuegradle.Controller;
 
-import com.springvuegradle.Controller.enums.AuthenticationErrorMessage;
+import com.springvuegradle.enums.AuthenticationErrorMessage;
 import com.springvuegradle.Model.*;
 import com.springvuegradle.Repositories.*;
 import com.springvuegradle.Utilities.FieldValidationHelper;
 import com.springvuegradle.Utilities.JwtUtil;
 import com.springvuegradle.service.SecurityService;
 import com.springvuegradle.dto.*;
+import com.springvuegradle.enums.ProfileErrorMessage;
 import com.springvuegradle.service.ProfileService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -155,7 +158,7 @@ public class Profile_Controller {
         if (jwtUtil.validateToken(token)) {
             return getProfile(id);
         } else {
-            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 
         }
     }
@@ -212,28 +215,74 @@ public class Profile_Controller {
     }
 
     /**
-     * Endpoint for getting all profiles for admin
-     * @param token to check if the user is currently authenticated
-     * @return response entity which contains a list of simplified profiles and an ok status code or an unauthorized status code
+     * Endpoint for searching all profiles. The request parameters will filter the results to those that match the
+     * search criteria.
+     *
+     * The provided full name can either be a single word or multiple space-separated words. In the case of a single word,
+     * it will match profiles with that surname or nickname. Multiple words are interpreted as a full name, where the first
+     * and last words are taken as the first and last names respectively, with all other words as the middle name(s).
+     * @param token token provided
+     * @param nickname string pattern to be matched to profile nickname
+     * @param fullName string pattern to be matched to profile's full name.
+     * @param email string pattern to be matched.
+     * @param activityTypes A list of activity types the user is searching by
+     * @param searchMethod Whether the user is searching for a user with ALL the required activity types or any of them
+     * @param count number of profiles to be returned.
+     * @param startIndex index
+     * @return response entity containing a list of simplified profiles and an OK status code if the request was successful;
+     * otherwise an empty response with the appropriate error code is returned.
      */
     @GetMapping("/profiles")
-    public @ResponseBody ResponseEntity<List<SimplifiedProfileResponse>> getUserProfiles(@RequestHeader("authorization") String token) {
-        if(jwtUtil.validateToken(token)) {
-            return getUserProfiles(jwtUtil.extractPermission(token));
+    public @ResponseBody ResponseEntity<ProfileSearchResponse> getUserProfiles(
+            @RequestParam(name = "nickname", required = false) String nickname,
+            @RequestParam(name = "fullname", required = false) String fullName,
+            @RequestParam(name = "email", required = false) String email,
+            @RequestParam(name = "activityTypes", required = false) String[] activityTypes,
+            @RequestParam(name = "method", required = false) String searchMethod,
+            @RequestParam(name = "count") int count,
+            @RequestParam(name = "startIndex") int startIndex,
+            @RequestHeader("authorization") String token) {
+        ProfileSearchResponse searchResponse;
+        HttpStatus status;
+        if (token == null) {
+            status = HttpStatus.UNAUTHORIZED;
+            searchResponse = new ProfileSearchResponse(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage());
+        } else if (Boolean.FALSE.equals(jwtUtil.validateToken(token))) {
+            status = HttpStatus.FORBIDDEN;
+            searchResponse = new ProfileSearchResponse(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage());
+        } else if (count <= 0) {
+            status = HttpStatus.BAD_REQUEST;
+            searchResponse = new ProfileSearchResponse(ProfileErrorMessage.INVALID_SEARCH_COUNT.getMessage());
         } else {
-            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
-        }
-    }
+            ProfileSearchCriteria criteria = new ProfileSearchCriteria();
+            int pageIndex = startIndex / count;
+            PageRequest request = PageRequest.of(pageIndex, count);
 
-    /**
-     * Retrieves all profile data relevant for admin to view
-     * @param authLevel the authentication level of the user
-     * @return list of simplified profile responses
-     */
-    protected ResponseEntity<List<SimplifiedProfileResponse>> getUserProfiles(int authLevel) {
-        List<Profile> profilesForAdmin = repo.findAllBelowAuthlevel(authLevel);
-        List<SimplifiedProfileResponse> simplifiedProfiles = createSimplifiedProfiles(profilesForAdmin);
-        return new ResponseEntity<>(simplifiedProfiles, HttpStatus.OK);
+            if (fullName != null) {
+                fullName = fullName.strip();
+                List<String> names = Arrays.asList(fullName.split(" "));
+                if (names.size() == 1) {
+                    criteria.setLastName(names.get(0));
+                } else if (names.size() > 1){
+                    criteria.setFirstName(names.get(0));
+                    criteria.setLastName(names.get(names.size() - 1));
+                    criteria.setMiddleName(String.join(" ", names.subList(1, names.size() - 1)));
+                }
+            }
+
+            if(activityTypes != null){
+                criteria.setActivityTypes(activityTypes);
+                criteria.setSearchMethod(searchMethod);
+            }
+
+            criteria.setNickname(nickname);
+            criteria.setEmailAddress(email);
+            Page<Profile> profiles = profileService.getUsers(criteria, request);
+            List<ProfileSummary> simplifiedProfiles = createSimplifiedProfiles(profiles.getContent());
+            searchResponse = new ProfileSearchResponse(simplifiedProfiles);
+            status = HttpStatus.OK;
+        }
+        return new ResponseEntity<>(searchResponse, status);
     }
 
     /**
@@ -241,12 +290,10 @@ public class Profile_Controller {
      * @param profiles a list of normal profile objects to be simplified
      * @return a list of simplified profiles
      */
-    protected List<SimplifiedProfileResponse> createSimplifiedProfiles(List<Profile> profiles) {
-        List<SimplifiedProfileResponse> simplifiedProfiles = new ArrayList<>();
+    protected List<ProfileSummary> createSimplifiedProfiles(List<Profile> profiles) {
+        List<ProfileSummary> simplifiedProfiles = new ArrayList<>();
         for(Profile profile: profiles) {
-            String tempEmail = eRepo.findPrimaryByProfile(profile);
-            simplifiedProfiles.add(new SimplifiedProfileResponse(profile.getId(), profile.getFirstname(), profile.getLastname(),
-                    tempEmail, profile.getGender()));
+            simplifiedProfiles.add(new ProfileSummary(profile));
         }
         return simplifiedProfiles;
     }
@@ -417,7 +464,7 @@ public class Profile_Controller {
         if (profileWithId.isPresent()) {
             return new ResponseEntity<>(profileWithId.get(), HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -431,7 +478,7 @@ public class Profile_Controller {
         if(jwtUtil.validateToken(token)) {
             return new ResponseEntity<>(jwtUtil.extractPermission(token), HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
     }
 

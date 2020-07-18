@@ -13,7 +13,9 @@
             <b-button type="is-primary" @click="addCountry">Add</b-button>
         </b-field>
         <List v-bind:chosenItems="chosenCountries" v-on:deleteListItem="deleteCountry"></List>
-        <b-button type="is-primary" @click="submitCountries">Save</b-button>
+        <br>
+        <b-button style="float:right" type="is-primary" @click="submitCountries">Save</b-button>
+        <br>
     </div>
 </template>
 

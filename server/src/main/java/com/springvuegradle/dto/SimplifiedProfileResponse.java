@@ -31,11 +31,12 @@ public class SimplifiedProfileResponse {
     /**
      * Constructor for Profile. The way the JSONProperty is structured is how the getProfile method should display the
      * users details as well.
-     * @param id id of user
+     *
+     * @param id        id of user
      * @param firstname first name of user
-     * @param lastname last name of user
-     * @param email users primary email address
-     * @param gender (Male, Female, Other)
+     * @param lastname  last name of user
+     * @param email     users primary email address
+     * @param gender    (Male, Female, Other)
      */
     public SimplifiedProfileResponse(Long id, String firstname, String lastname, String email, String gender) {
         this.id = id;

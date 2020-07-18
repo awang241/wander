@@ -1,17 +1,28 @@
 package com.springvuegradle.service;
 
-import com.springvuegradle.Model.Profile;
-import com.springvuegradle.Model.ProfileLocation;
+import com.springvuegradle.Model.*;
 import com.springvuegradle.Repositories.ProfileLocationRepository;
 import com.springvuegradle.Repositories.ProfileRepository;
+import com.springvuegradle.Repositories.spec.ProfileSpecifications;
+import com.springvuegradle.Utilities.FieldValidationHelper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
+
+import java.awt.*;
+import java.util.ArrayList;
 import java.util.Optional;
+import java.util.Set;
 
-
+/**
+ * Service-layer class containing all business logic handling profiles.
+ */
 @Service
 public class ProfileService {
 
@@ -23,6 +34,12 @@ public class ProfileService {
 
     @Autowired
     private ProfileRepository profileRepository;
+
+    @Autowired
+    public ProfileService(ProfileRepository profileRepository) {
+        this.profileRepository = profileRepository;
+    }
+
 
     /**
      * Updates the location associated with a users profile
@@ -69,4 +86,47 @@ public class ProfileService {
         profileRepository.save(profile);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    /**
+     * Returns the specified page from the list of all profiles that match the search criteria.
+     *
+     * @param criteria A ProfileSearchCriteria object containing the relevant criteria
+     * @param request A page request containing the index and size of the page to be returned.
+     * @return The specified page from the list of all profiles that match the search criteria.
+     */
+    public Page<Profile> getUsers(ProfileSearchCriteria criteria, Pageable request) {
+        Specification<Profile> spec = ProfileSpecifications.notDefaultAdmin();
+
+        if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getFirstName()))) {
+            spec = spec.and(ProfileSpecifications.firstNameContains(criteria.getFirstName()));
+        }
+
+        if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getMiddleName()))) {
+            spec = spec.and(ProfileSpecifications.middleNameContains(criteria.getMiddleName()));
+        }
+
+        if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getLastName()))) {
+            spec = spec.and(ProfileSpecifications.lastNameContains(criteria.getLastName()));
+        }
+
+        if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getNickname()))) {
+            spec = spec.and(ProfileSpecifications.nicknameContains(criteria.getNickname()));
+        }
+
+        if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getEmailAddress()))) {
+            spec = spec.and(ProfileSpecifications.emailContains(criteria.getEmailAddress()));
+        }
+
+        if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getActivityTypes()))) {
+            spec = spec.and(ProfileSpecifications.activityTypesContains(criteria.getActivityTypes(), criteria.getSearchMethod()));
+        }
+/*
+        Page<Profile> repoResults = profileRepository.findAll(spec, request);
+        Set<Profile> resultSet = repoResults.toSet();
+        Page<Profile> result = new PageImpl<>(new ArrayList<>(resultSet), request, )
+
+ */
+        return profileRepository.findAll(spec, request);
+    }
+
 }
