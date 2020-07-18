@@ -10,7 +10,7 @@ plugins {
 
 //group = 'com.spring-vue-gradle'
 group = 'Team100'
-version = '4.0.1-SNAPSHOT'
+version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
 
 configurations {
