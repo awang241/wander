@@ -49,7 +49,7 @@ export default new Vuex.Store({
             commit('SET_AUTHENTICATION_STATUS', authenticationStatus)
             commit('SET_AUTHENTICATION_LEVEL', authenticationLevel)
             return;
-            },
+        },
         resetUserData({commit}, payload) {
             const token = payload.token
             const userId = payload.userId

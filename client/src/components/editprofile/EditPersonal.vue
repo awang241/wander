@@ -64,8 +64,10 @@
                 <b-input v-model="bio" maxlength="200" type="textarea" placeholder="Enter a bio"></b-input>
             </b-field>
             <b-field>
-                <b-button type="is-info" native-type="submit">Save</b-button>
+                <b-button style="float:right" type="is-primary" native-type="submit">Save</b-button>
             </b-field>
+            <br>
+
         </form>
 
     </div>

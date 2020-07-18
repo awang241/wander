@@ -8,11 +8,14 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import java.util.List;
+import java.util.Optional;
 
 @RepositoryRestResource
 public interface EmailRepository extends JpaRepository<Email, Long> {
 
     List<Email> findAllByAddress(String address);
+
+    Optional<Email> findByAddress(String address);
 
     Boolean existsByAddress(String address);
 

@@ -16,7 +16,12 @@ beforeEach(() => {
         },
         stubs: {},
         methods: {},
-        routes: {}
+        routes: {},
+        data() {
+            return {
+                profile: {activities : [], passports: []}
+            }
+        }
     });
 
 });
@@ -27,7 +32,7 @@ afterEach(() => {
 
 describe('Profile.vue', () => {
     test('Computed fitness statement property works given a fitness level', () => {
-        wrapper.vm.profile = {"fitness_statement": 3}
+        wrapper.vm.profile = {"fitness": 3}
         expect(wrapper.vm.fitnessStatement).toContain("Advanced");
     });
     test('Default fitness statement as beginner when fitness level not given', () => {

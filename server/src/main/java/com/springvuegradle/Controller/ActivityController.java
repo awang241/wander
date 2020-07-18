@@ -1,8 +1,8 @@
 package com.springvuegradle.Controller;
 
 
-import com.springvuegradle.Controller.enums.ActivityResponseMessage;
-import com.springvuegradle.Controller.enums.AuthenticationErrorMessage;
+import com.springvuegradle.enums.ActivityResponseMessage;
+import com.springvuegradle.enums.AuthenticationErrorMessage;
 import com.springvuegradle.Model.Activity;
 import com.springvuegradle.Repositories.ActivityRepository;
 import com.springvuegradle.Utilities.FieldValidationHelper;

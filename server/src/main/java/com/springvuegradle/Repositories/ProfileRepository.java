@@ -1,9 +1,10 @@
 package com.springvuegradle.Repositories;
 
 
-import com.springvuegradle.Model.Email;
 import com.springvuegradle.Model.Profile;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
@@ -11,7 +12,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import java.util.List;
 
 @RepositoryRestResource
-public interface ProfileRepository extends JpaRepository<Profile, Long> {
+public interface ProfileRepository extends JpaRepository<Profile, Long>, JpaSpecificationExecutor<Profile> {
 
     @Query("SELECT max(id) from Profile")
     Long getLastInsertedId();
@@ -31,4 +32,12 @@ public interface ProfileRepository extends JpaRepository<Profile, Long> {
     @Query("SELECT p FROM Profile p WHERE p.authLevel > :auth_level")
     List<Profile> findAllBelowAuthlevel(@Param("auth_level") Integer auth_level);
 
+    @Query(value = "SELECT p FROM Profile p WHERE p.firstname = :firstname and " +
+            "(p.middlename = :middlename or :middlename is null) and p.lastname = :lastname" )
+    List<Profile> findAllByName(@Param("firstname") String firstname, @Param("middlename") String middlename,
+                                @Param("lastname") String lastname, Pageable pageable);
+
+    List<Profile> findAllByLastname(@Param("lastname") String lastName, Pageable pageable);
+
+    List<Profile> findAllByNickname(@Param("nickname") String nickname, Pageable pageable);
 }

@@ -70,10 +70,8 @@
                                     <option value="4">Pro: I work out 5+ times per week</option>
                                 </b-select>
                             </b-field>
-
-                    <b-field>
-                        <b-button native-type="submit" :disabled="isDisabled">Submit</b-button>
-                    </b-field>
+                        <br>
+                        <b-button style="float:right" type="is-primary" native-type="submit" :disabled="isDisabled">Submit</b-button>
             </form>
         </div>
 

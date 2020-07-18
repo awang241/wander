@@ -28,6 +28,7 @@ public class Profile {
     /**
      * Holds the user's firstname.
      */
+    @Column(name = "firstname")
     @NotNull
     private String firstname;
 
@@ -356,19 +357,19 @@ public class Profile {
     public boolean equals(Object o) {
         if (o instanceof Profile) {
             Profile other = (Profile) o;
-            return this.firstname.equals(other.firstname) &&
-                    this.lastname.equals(other.lastname) &&
-                    this.middlename.equals(other.middlename) &&
-                    this.nickname.equals(other.nickname) &&
-                    this.getPrimary_email().equals(other.getPrimary_email()) &&
-                    this.getAdditional_email().equals(other.getAdditional_email()) &&
-                    this.password.equals(other.password) &&
-                    this.bio.equals(other.bio) &&
-                    this.getDateOfBirth().equals(other.getDateOfBirth()) &&
-                    this.gender.equals(other.gender) &&
+            return Objects.equals(this.firstname, other.firstname) &&
+                    Objects.equals(this.lastname, other.lastname) &&
+                    Objects.equals(this.middlename, other.middlename) &&
+                    Objects.equals(this.nickname, other.nickname) &&
+                    Objects.equals(this.getPrimary_email(), other.getPrimary_email()) &&
+                    Objects.equals(getAdditional_email(), other.getAdditional_email()) &&
+                    Objects.equals(this.password, other.password) &&
+                    Objects.equals(this.bio, other.bio) &&
+                    Objects.equals(this.getDateOfBirth(), other.getDateOfBirth()) &&
+                    Objects.equals(this.gender, other.gender) &&
                     this.fitness == other.fitness &&
-                    this.passports.equals(other.passports) &&
-                    this.activityTypes.equals(other.activityTypes);
+                    Objects.equals(this.passports, other.passports) &&
+                    Objects.equals(this.activityTypes, other.activityTypes);
         } else {
             return false;
         }
@@ -406,8 +407,6 @@ public class Profile {
 
     public void setAuthLevel(int authLevel){this.authLevel = authLevel;}
 
-
-
     public void setId(Long id) {
         this.id = id;
     }
@@ -438,6 +437,10 @@ public class Profile {
 
     public void setMiddlename(String middlename) {
         this.middlename = middlename;
+    }
+
+    public String getFullName(){
+        return firstname + " " + middlename + " " + lastname;
     }
 
     public String getNickname() {
