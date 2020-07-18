@@ -4,7 +4,6 @@ import com.springvuegradle.Application;
 import com.springvuegradle.Controller.LoginController;
 import com.springvuegradle.Controller.Profile_Controller;
 import com.springvuegradle.enums.EmailResponseMessage;
-import com.springvuegradle.Controller.enums.EmailResponseMessage;
 import com.springvuegradle.Model.PassportCountry;
 import com.springvuegradle.Model.Profile;
 import com.springvuegradle.Repositories.*;
@@ -200,23 +199,31 @@ public class ProfileTestSteps{
 
     @When("I register an account with email {string} and password {string} and fitness level {int} and the following passport countries are added")
     public void i_register_an_account_with_email_and_password_and_fitness_level_and_the_following_passport_countries_are_added(String email, String password, Integer fitness_level, io.cucumber.datatable.DataTable dataTable) {
-        ArrayList<String> passport_countries = new ArrayList<String>();
-        for (Map<String, String> countryMapping : dataTable.asMaps()) {
-            passport_countries.add(countryMapping.get("name"));
+        System.out.println(pcRepo.count());
+        ArrayList<String> passport_countries = new ArrayList<>();
+        for (String name : dataTable.asList()) {
+            if (!name.equals("name")) {
+                passport_countries.add(name);
+                System.out.println(name);
+                System.out.println(pcRepo.existsByCountryName(name));
+            }
         }
-        String[] passport_countries_list = (String[]) passport_countries.toArray();
-        Profile jacky = createNormalProfileJackyWithFitnessLevelPassportCountries(email, password, fitness_level, passport_countries_list);
+        String[] myArray = new String[passport_countries.size()];
+        passport_countries.toArray(myArray);
+        Profile jacky = createNormalProfileJackyWithFitnessLevelPassportCountries(email, password, fitness_level, myArray);
         createProfileResponse = profileController.createProfile(jacky);
+        System.out.println(createProfileResponse.getBody());
     }
 
     @Then("An account with email {string} exists with fitness level {int} and the following passport countries")
     public void an_account_with_email_exists_with_fitness_level_and_the_following_passport_countries(String email, Integer fitness_level, io.cucumber.datatable.DataTable dataTable) {
+        System.out.println(repo.count());
         Profile profile = repo.findByEmail(email).get(0);
         assertTrue(profile != null);
         assertEquals(fitness_level, profile.getFitness());
-        ArrayList<String> passport_countries = new ArrayList<String>();
-        for (Map<String, String> countryMapping : dataTable.asMaps()) {
-            passport_countries.add(countryMapping.get("name"));
+        ArrayList<String> passport_countries = new ArrayList<>();
+        for (String name : dataTable.asList()) {
+            passport_countries.add(name);
         }
         for (PassportCountry passportCountry: profile.getPassportObjects()) {
             assertTrue(passport_countries.contains(passportCountry.getCountryName()));
