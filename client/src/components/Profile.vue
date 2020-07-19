@@ -81,7 +81,7 @@
                             <br>
                             <div v-if="profile.activities != null && profile.activities.length">
                                 <br>
-                                <h3 class="title is-4">Activity types</h3>
+                                <h3 class="title is-4">Activity Types</h3>
                                 <table class="table-profile">
                                     <tr v-for="activityType in profile.activities" :key="activityType">
                                         <td>{{activityType}}</td>
