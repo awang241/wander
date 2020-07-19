@@ -16,9 +16,9 @@ setup:
   stage: setup
   script:
     - npm install
-#   cache:
-#     paths:
-#       - client/node_modules/
+  cache:
+    paths:
+      - client/node_modules/
   artifacts:
     paths:
       - client/node_modules/
@@ -44,6 +44,7 @@ dev-build:
   script:
     - fuser -k 9499/tcp 9500/tcp || true
     - cd client
+    - npm install
     - npm run build
     - cd ../server
     - ./gradlew bootJar
