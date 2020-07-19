@@ -4,6 +4,7 @@ import com.springvuegradle.Application;
 import com.springvuegradle.Controller.LoginController;
 import com.springvuegradle.Controller.Profile_Controller;
 import com.springvuegradle.enums.EmailResponseMessage;
+import com.springvuegradle.Model.PassportCountry;
 import com.springvuegradle.Model.Profile;
 import com.springvuegradle.Repositories.*;
 import com.springvuegradle.Utilities.JwtUtil;
@@ -22,9 +23,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 import java.sql.SQLException;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -120,6 +119,18 @@ public class ProfileTestSteps{
                 28), "male", 1, new String[]{}, new String[]{});
     }
 
+    static Profile createNormalProfileJackyWithFitnessLevel(String email, String password, Integer fitness_level) {
+        return new Profile(null, "Jacky", "Jones", "J", "Jac", email, new String[]{}, password,
+                "The quick brown fox jumped over the lazy dog.", new GregorianCalendar(1999, Calendar.NOVEMBER,
+                28), "male", fitness_level, new String[]{}, new String[]{});
+    }
+
+    static Profile createNormalProfileJackyWithFitnessLevelPassportCountries(String email, String password, Integer fitness_level, String[] passport_countries) {
+        return new Profile(null, "Jacky", "Jones", "J", "Jac", email, new String[]{}, password,
+                "The quick brown fox jumped over the lazy dog.", new GregorianCalendar(1999, Calendar.NOVEMBER,
+                28), "male", fitness_level, passport_countries, new String[]{});
+    }
+
     @Then("I receive a {int} response code")
     public void iReceiveAError(int arg0) {
         assertEquals(arg0, createProfileResponse.getStatusCodeValue());
@@ -168,5 +179,54 @@ public class ProfileTestSteps{
     @And("the password field is equal to the hash of {string}")
     public void thePasswordFieldIsEqualToTheHashOf(String arg0) {
         assertEquals(Profile_Controller.hashPassword(arg0), dbPassword);
+    }
+
+    /** U2 - Fitness level and passport countries **/
+
+    @When("I register an account with email {string} and password {string} and fitness level {int}")
+    public void i_register_an_account_with_email_and_password_and_fitness_level(String email, String password, Integer fitness_level) {
+        Profile jacky = createNormalProfileJackyWithFitnessLevel(email, password, fitness_level);
+        createProfileResponse = profileController.createProfile(jacky);
+    }
+
+    @Then("An account with email {string} exists with fitness level {int}")
+    public void an_account_with_email_exists_with_fitness_level(String email, Integer fitness_level) {
+        Profile profile = repo.findByEmail(email).get(0);
+        assertTrue(profile != null);
+        assertEquals(fitness_level, profile.getFitness());
+    }
+
+
+    @When("I register an account with email {string} and password {string} and fitness level {int} and the following passport countries are added")
+    public void i_register_an_account_with_email_and_password_and_fitness_level_and_the_following_passport_countries_are_added(String email, String password, Integer fitness_level, io.cucumber.datatable.DataTable dataTable) {
+        System.out.println(pcRepo.count());
+        ArrayList<String> passport_countries = new ArrayList<>();
+        for (String name : dataTable.asList()) {
+            if (!name.equals("name")) {
+                passport_countries.add(name);
+                System.out.println(name);
+                System.out.println(pcRepo.existsByCountryName(name));
+            }
+        }
+        String[] myArray = new String[passport_countries.size()];
+        passport_countries.toArray(myArray);
+        Profile jacky = createNormalProfileJackyWithFitnessLevelPassportCountries(email, password, fitness_level, myArray);
+        createProfileResponse = profileController.createProfile(jacky);
+        System.out.println(createProfileResponse.getBody());
+    }
+
+    @Then("An account with email {string} exists with fitness level {int} and the following passport countries")
+    public void an_account_with_email_exists_with_fitness_level_and_the_following_passport_countries(String email, Integer fitness_level, io.cucumber.datatable.DataTable dataTable) {
+        System.out.println(repo.count());
+        Profile profile = repo.findByEmail(email).get(0);
+        assertTrue(profile != null);
+        assertEquals(fitness_level, profile.getFitness());
+        ArrayList<String> passport_countries = new ArrayList<>();
+        for (String name : dataTable.asList()) {
+            passport_countries.add(name);
+        }
+        for (PassportCountry passportCountry: profile.getPassportObjects()) {
+            assertTrue(passport_countries.contains(passportCountry.getCountryName()));
+        }
     }
 }
