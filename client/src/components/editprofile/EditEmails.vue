@@ -14,7 +14,7 @@
                         <option class="singleEmail" v-for="email in optionalEmails" :key="email">{{email}}</option>
                     </b-select>
                 </b-field>
-                <b-button type="is-info" @click="changePrimaryEmail()">
+                <b-button  type="is-info" @click="changePrimaryEmail()">
                     Change
                 </b-button>
             </div>
@@ -49,6 +49,16 @@
         components: {List},
         mixins: [toastMixin],
         props: ["profile"],
+        data() {
+            return {
+                primaryEmail: this.profile.primary_email,
+                optionalEmails: this.profile.additional_email,
+                newEmail: "",
+                newPrimaryEmail: "",
+                originalPrimaryEmail: this.profile.primary_email,
+                originalOptionalEmails: this.profile.additional_email,
+            }
+        },
         methods: {
             addEmail() {
                 if (this.optionalEmails.length > 3) {
@@ -67,24 +77,23 @@
                     this.warningToast("No additional email address selected")
                 } else {
                     this.optionalEmails.push(this.primaryEmail);
-                    this.optionalEmails = this.optionalEmails.filter(email => email != this.newPrimaryEmail)
+                    let index = this.optionalEmails.indexOf(this.newPrimaryEmail);
+                    this.optionalEmails.splice(index, 1);
                     this.primaryEmail = this.newPrimaryEmail;
                 }
             },
             deleteEmail(emailToDelete) {
                 this.optionalEmails = this.optionalEmails.filter(email => email != emailToDelete)
             },
-            submitEmails() {
-                this.$parent.updateEmails(this.primaryEmail, this.optionalEmails)
-                this.successToast("Updated emails")
-            }
-        },
-        data() {
-            return {
-                primaryEmail: this.profile.primary_email,
-                optionalEmails: this.profile.additional_email,
-                newEmail: "",
-                newPrimaryEmail: "",
+            submitEmails(){
+                if ((this.primaryEmail === this.originalPrimaryEmail) && (this.optionalEmails === this.originalOptionalEmails)) {
+                    this.warningToast("No changes made")
+                } else {
+                    this.$parent.updateEmails(this.primaryEmail, this.optionalEmails)
+                    this.successToast("New emails saved")
+                    this.originalPrimaryEmail = this.primaryEmail
+                    this.originalOptionalEmails = this.optionalEmails
+                }
             }
         }
     }

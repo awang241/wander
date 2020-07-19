@@ -34,6 +34,7 @@
                 possibleActivityTypes: [],
                 newActivityType: "",
                 chosenActivityTypes: this.profile.activities,
+                originalActivityTypes: this.profile.activities
             }
         },
         methods: {
@@ -55,13 +56,13 @@
                 }
             },
             submitActivityTypes() {
-                this.$parent.updateActivityTypes(this.chosenActivityTypes)
-                this.$buefy.toast.open({
-                    duration: 2000,
-                    message: "Activity types saved",
-                    type: 'is-success',
-                    position: 'is-top'
-                })
+                if (this.originalActivityTypes === this.chosenActivityTypes) {
+                    this.warningToast("No changes made")
+                } else {
+                    this.$parent.updateActivityTypes(this.chosenActivityTypes)
+                    this.successToast("New activity types saved")
+                    this.originalActivityTypes = this.chosenActivityTypes
+                }
             }
         },
         mounted() {

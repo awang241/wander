@@ -56,7 +56,6 @@ public class FieldValidationHelper {
     public static String verifyProfile(Profile newProfile, boolean edit_mode, PassportCountryRepository pcRepo,
                                        ActivityTypeRepository aRepo, EmailRepository eRepo) {
         StringBuilder errorBuilder = new StringBuilder();
-        String error = "";
         if (newProfile.retrievePrimaryEmail().getAddress().isBlank() ||
                 newProfile.retrievePrimaryEmail().getAddress() == null) {
             errorBuilder.append("The email field is blank.\n");

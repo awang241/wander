@@ -175,7 +175,7 @@ class ProfileControllerTest {
                 "The fitness level isn't valid.\n" +
                 "ActivityType random does not exist in the database.\n" +
                 "The Gender field must contain either 'male', 'female' or 'non-Binary'.\n";
-        assertThat(expected_error_message.equals(actual_error_message));
+        assertEquals(expected_error_message, actual_error_message);
     }
 
     /**
@@ -205,6 +205,15 @@ class ProfileControllerTest {
 
         ResponseEntity<String> delete_profile_response = profileController.deleteProfile(db_profile.getId());
         assertEquals(HttpStatus.OK, delete_profile_response.getStatusCode());
+    }
+
+    /**
+     * Tests response when deleting a profile that doesn't exist.
+     */
+    @Test
+    void deleteInvalidProfileResponseTest() {
+        ResponseEntity<String> delete_profile_response = profileController.deleteProfile(999999999999l);
+        assertEquals(HttpStatus.NOT_FOUND, delete_profile_response.getStatusCode());
     }
 
     /**

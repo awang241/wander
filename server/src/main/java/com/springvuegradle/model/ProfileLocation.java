@@ -12,9 +12,8 @@ import javax.persistence.*;
  */
 @Entity
 public class ProfileLocation {
-    public ProfileLocation() { }
 
-    ;
+    public ProfileLocation() { }
 
     @JsonCreator
     public ProfileLocation(
@@ -75,6 +74,12 @@ public class ProfileLocation {
         this.id = id;
     }
 
+    public void update(ProfileLocation newLocation) {
+        this.city = newLocation.city;
+        this.state = newLocation.state;
+        this.country = newLocation.country;
+    }
+
     public String getCountry() {
         return country;
     }
@@ -97,12 +102,6 @@ public class ProfileLocation {
 
     public void setState(String state) {
         this.state = state;
-    }
-
-    public void update(ProfileLocation newLocation) {
-        this.city = newLocation.city;
-        this.state = newLocation.state;
-        this.country = newLocation.country;
     }
 
     @Override

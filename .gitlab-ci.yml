@@ -47,6 +47,7 @@ dev-build:
     - source /home/gitlab-runner/set-env-vars.txt
     - fuser -k 9499/tcp 9500/tcp || true
     - cd client
+    - npm install
     - npm run build
     - rm -rf /home/gitlab-runner/test-client/
     - mkdir -p /home/gitlab-runner/test-client/
