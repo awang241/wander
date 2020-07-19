@@ -11,7 +11,7 @@
                 </b-field>
                 <b-field label="Middle Name" expanded>
                     <b-input v-model="middleName" placeholder="Middle Name"></b-input>
-                 </b-field>
+                </b-field>
                 <b-field label="Last Name" expanded>
                     <b-input v-model="lastName" placeholder="Last Name" required></b-input>
                 </b-field>
@@ -23,32 +23,32 @@
 
 
             <b-field group-multiline grouped>
-            <b-field label="Date of Birth" expanded>
+                <b-field label="Date of Birth" expanded>
 
-                <b-datepicker
-                        editable
-                        :use-html5-validation="false"
-                        placeholder="Select Date of Birth"
-                        :date-formatter="dateFormatter"
-                        :min-date="minDate"
-                        :max-date="maxDate"
-                        ref="dateOfBirth"
-                        v-model="dateOfBirth"
-                        type="date" required
-                        validation-message="Please enter a valid date"
-                        pattern="^(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]))\1|(?:(?:29|30)(\/|-|\.)(?:0?[13-9]|1[0-2])\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/|-|\.)0?2\3(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\d|2[0-8])(\/|-|\.)(?:(?:0?[1-9])|(?:1[0-2]))\4(?:(?:1[6-9]|[2-9]\d)?\d{2})$">>
-                </b-datepicker>
-            </b-field>
+                    <b-datepicker
+                            editable
+                            :use-html5-validation="false"
+                            placeholder="Select Date of Birth"
+                            :date-formatter="dateFormatter"
+                            :min-date="minDate"
+                            :max-date="maxDate"
+                            ref="dateOfBirth"
+                            v-model="dateOfBirth"
+                            type="date" required
+                            validation-message="Please enter a valid date"
+                            pattern="^(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]))\1|(?:(?:29|30)(\/|-|\.)(?:0?[13-9]|1[0-2])\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/|-|\.)0?2\3(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\d|2[0-8])(\/|-|\.)(?:(?:0?[1-9])|(?:1[0-2]))\4(?:(?:1[6-9]|[2-9]\d)?\d{2})$">>
+                    </b-datepicker>
+                </b-field>
 
-            <b-field label="Gender" expanded>
-                <b-select
-                        placeholder="Choose a gender"
-                        v-model="gender" required expanded>
-                    <option value="female">Female</option>
-                    <option value="male">Male</option>
-                    <option value="non-Binary">Non-Binary</option>
-                </b-select>
-            </b-field>
+                <b-field label="Gender" expanded>
+                    <b-select
+                            placeholder="Choose a gender"
+                            v-model="gender" required expanded>
+                        <option value="female">Female</option>
+                        <option value="male">Male</option>
+                        <option value="non-Binary">Non-Binary</option>
+                    </b-select>
+                </b-field>
             </b-field>
 
             <b-field label="Fitness Level" expanded >
@@ -134,14 +134,14 @@
 
                 const personalDetails =
                     {
-                    "firstname": this.firstName,
-                    "lastname": this.lastName,
-                    "middlename": this.middleName,
-                    "nickname": this.nickName,
-                    "bio": this.bio,
-                    "date_of_birth": this.dateOfBirth,
-                    "gender": this.gender,
-                    "fitness": this.fitness_level
+                        "firstname": this.firstName,
+                        "lastname": this.lastName,
+                        "middlename": this.middleName,
+                        "nickname": this.nickName,
+                        "bio": this.bio,
+                        "date_of_birth": this.dateOfBirth,
+                        "gender": this.gender,
+                        "fitness": this.fitness_level
                     }
                 if (JSON.stringify(original) !== JSON.stringify(personalDetails)) {
                     this.$parent.updatePersonal(personalDetails)

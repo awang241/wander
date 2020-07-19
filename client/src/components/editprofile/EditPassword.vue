@@ -13,7 +13,7 @@
                 <b-input v-model="password" type="password" placeholder="New Password" required></b-input>
             </b-field>
             <b-field label="Confirm Password" id="errorMessage" :message="[{'Passwords do not match':isDisabled}]"
-                      expanded>
+                     expanded>
                 <b-input v-model="confPassword" type="password" placeholder="Confirm Password" required></b-input>
             </b-field>
             <b-field>
@@ -48,10 +48,15 @@
         },
         methods: {
             updatePassword() {
+
+
+
                 if (this.password.length < 8) {
                     this.warningToast("Password must be 8 characters long")
                 } else if (this.confPassword !== this.password) {
                     this.warningToast("Passwords do not match!")
+                } else if (this.password == this.currentPassword || this.password === "") {
+                    this.warningToast("No changes made")
                 } else {
                     const passwordDetails = {
                         "currentPassword": this.currentPassword,

@@ -50,11 +50,12 @@
                 }
             },
             submitCountries(){
-                if (this.originalCountries === this.chosenCountries) {
-                    this.warningToast("No changes made")
-                } else {
+                if (this.originalCountries !== this.chosenCountries) {
                     this.$parent.updateCountries(this.chosenCountries)
                     this.successToast("New countries saved")
+                    this.originalCountries = this.chosenCountries
+                } else {
+                    this.warningToast("No changes made")
                 }
             },
             getAllCountries(){

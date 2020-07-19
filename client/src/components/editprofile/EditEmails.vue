@@ -9,14 +9,14 @@
 
         <form>
             <div v-if="optionalEmails.length>0">
-            <b-field label="Change your primary email">
-                <b-select v-model="newPrimaryEmail" class="selectNewPEList" expanded>
-                    <option class="singleEmail" v-for="email in optionalEmails" :key="email">{{email}}</option>
-                </b-select>
-            </b-field>
-            <b-button  type="is-info" @click="changePrimaryEmail()">
-                Change
-            </b-button>
+                <b-field label="Change your primary email">
+                    <b-select v-model="newPrimaryEmail" class="selectNewPEList" expanded>
+                        <option class="singleEmail" v-for="email in optionalEmails" :key="email">{{email}}</option>
+                    </b-select>
+                </b-field>
+                <b-button  type="is-info" @click="changePrimaryEmail()">
+                    Change
+                </b-button>
             </div>
             <br>
 
@@ -74,7 +74,8 @@
                     this.warningToast("No additional email address selected")
                 } else {
                     this.optionalEmails.push(this.primaryEmail);
-                    this.optionalEmails = this.optionalEmails.filter(email => email != this.newPrimaryEmail)
+                    let index = this.optionalEmails.indexOf(this.newPrimaryEmail);
+                    this.optionalEmails.splice(index, 1);
                     this.primaryEmail = this.newPrimaryEmail;
                 }
             },

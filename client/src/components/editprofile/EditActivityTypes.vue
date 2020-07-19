@@ -59,6 +59,7 @@
                 } else {
                     this.$parent.updateActivityTypes(this.chosenActivityTypes)
                     this.successToast("New activity types saved")
+                    this.originalActivityTypes = this.chosenActivityTypes
                 }
             }
         },

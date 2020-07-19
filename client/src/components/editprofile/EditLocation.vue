@@ -71,6 +71,7 @@
                     types: ['(cities)'],
                     componentRestrictions: {'country' : this.restrictionCountryAlphaCode}
                 }
+
                 // eslint-disable-next-line no-undef
                 autocompleteCity = new google.maps.places.Autocomplete(document.getElementById("autocompleteCities"), options)
                 autocompleteCity.setFields(['address_components'])
@@ -78,6 +79,7 @@
                     var city = autocompleteCity.getPlace();
                     document.getElementById("autocompleteCities").value = city.address_components[0].long_name;
                 })
+
 
             },
             initAutoCompleteStates : function() {
@@ -141,21 +143,20 @@
                 document.getElementById("autocompleteCities").value = null;
                 document.getElementById("autocompleteStates").value = null;
                 document.getElementById("country").value = 'New Zealand';
-                this.location = {country: "", city: "", state: ""}
+                this.location = {country: "New Zealand", city: "", state: ""}
+                console.log(this.location)
             },
             submitLocation(){
                 //Using JSON methods to make a constant and compare two JSON objects
-                const original = JSON.parse(JSON.stringify(this.profile.location))
+                const original = JSON.stringify(this.profile.location)
+
                 this.location.city = document.getElementById("autocompleteCities").value;
                 this.location.state = document.getElementById("autocompleteStates").value;
                 if(this.location.country === ""){
                     this.warningToast("Please enter a country")
                 } else if(this.location.city === ""){
                     this.warningToast("Please enter a city")
-                }
-                else if (JSON.stringify(this.location) === JSON.stringify(original)) {
-                    console.log(this.location.state)
-                    console.log(this.profile.location.state)
+                } else if (JSON.stringify((this.location)) === original) {
                     this.warningToast("No changes made")
                 }
                 else {
@@ -169,7 +170,6 @@
                     document.getElementById("country").value = this.location.country;
                     document.getElementById("autocompleteCities").value = this.location.city;
                     document.getElementById("autocompleteStates").value = this.location.state;
-
                 }
             }
         },
