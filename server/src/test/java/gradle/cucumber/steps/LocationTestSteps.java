@@ -105,6 +105,7 @@ public class LocationTestSteps {
         location.setCountry(country);
         location.setCity(city);
         profile.setLocation(location);
+        location.setProfile(profile);
         profileRepository.save(profile);
     }
 
@@ -125,7 +126,9 @@ public class LocationTestSteps {
 
     @When("I choose to delete the location from this profile")
     public void iChooseToDeleteTheLocationFromThisProfile() {
-        profileService.deleteProfileLocation(profile.getId());
+        profileLocationRepository.delete(profile.getProfileLocation());
+        profile.setLocation(null);
+        profileRepository.save(profile);
     }
 
     @Then("the profile now has no location")

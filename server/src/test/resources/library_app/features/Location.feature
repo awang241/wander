@@ -24,8 +24,8 @@ Feature: CRUD for a profiles location
     When I select "Chile" as country "Santiago" city
     Then The profile should now have "Chile" As country and "Santiago" as city
 
-#  @U9-location
-#  Scenario: Deleting a users location
-#    Given A profile exists with city "Wellington" and country "New Zealand"
-#    When I choose to delete the location from this profile
-#    Then the profile now has no location
+  @U9-location
+  Scenario: Deleting a users location
+    Given A profile exists with city "Wellington" and country "New Zealand"
+    When I choose to delete the location from this profile
+    Then the profile now has no location
