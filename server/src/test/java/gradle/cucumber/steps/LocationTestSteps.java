@@ -1,11 +1,11 @@
 package gradle.cucumber.steps;
 
-import com.springvuegradle.Model.Email;
-import com.springvuegradle.Model.Profile;
-import com.springvuegradle.Model.ProfileLocation;
-import com.springvuegradle.Repositories.EmailRepository;
-import com.springvuegradle.Repositories.ProfileLocationRepository;
-import com.springvuegradle.Repositories.ProfileRepository;
+import com.springvuegradle.model.Email;
+import com.springvuegradle.model.Profile;
+import com.springvuegradle.model.ProfileLocation;
+import com.springvuegradle.repositories.EmailRepository;
+import com.springvuegradle.repositories.ProfileLocationRepository;
+import com.springvuegradle.repositories.ProfileRepository;
 import com.springvuegradle.service.ProfileService;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;

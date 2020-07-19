@@ -1,6 +1,6 @@
 package com.springvuegradle.service;
 
-import com.springvuegradle.Utilities.JwtUtil;
+import com.springvuegradle.utilities.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

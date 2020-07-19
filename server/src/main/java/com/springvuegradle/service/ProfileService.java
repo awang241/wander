@@ -1,12 +1,11 @@
 package com.springvuegradle.service;
 
-import com.springvuegradle.Model.*;
-import com.springvuegradle.Repositories.ProfileLocationRepository;
-import com.springvuegradle.Repositories.ProfileRepository;
-import com.springvuegradle.Repositories.spec.ProfileSpecifications;
-import com.springvuegradle.Utilities.FieldValidationHelper;
+import com.springvuegradle.model.*;
+import com.springvuegradle.repositories.ProfileLocationRepository;
+import com.springvuegradle.repositories.ProfileRepository;
+import com.springvuegradle.repositories.spec.ProfileSpecifications;
+import com.springvuegradle.utilities.FieldValidationHelper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,10 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 
-import java.awt.*;
-import java.util.ArrayList;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * Service-layer class containing all business logic handling profiles.

@@ -1,13 +1,13 @@
 package gradle.cucumber.steps;
 
 import com.springvuegradle.Application;
-import com.springvuegradle.Controller.LoginController;
-import com.springvuegradle.Controller.Profile_Controller;
+import com.springvuegradle.controller.LoginController;
+import com.springvuegradle.controller.Profile_Controller;
 import com.springvuegradle.enums.EmailResponseMessage;
-import com.springvuegradle.Model.PassportCountry;
-import com.springvuegradle.Model.Profile;
-import com.springvuegradle.Repositories.*;
-import com.springvuegradle.Utilities.JwtUtil;
+import com.springvuegradle.model.PassportCountry;
+import com.springvuegradle.model.Profile;
+import com.springvuegradle.repositories.*;
+import com.springvuegradle.utilities.JwtUtil;
 import com.springvuegradle.dto.LoginRequest;
 import com.springvuegradle.dto.LoginResponse;
 import io.cucumber.java.Before;
