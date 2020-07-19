@@ -1,5 +1,7 @@
 import { required, confirmed, email } from "vee-validate/dist/rules";
+// eslint-disable-next-line no-unused-vars
 import { extend } from "vee-validate";
+
 
 extend('minName', value => {
 

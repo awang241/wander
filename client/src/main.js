@@ -6,10 +6,9 @@ import router from "./router.js";
 import Buefy from 'buefy'
 import api from './Api'
 import store from './store'
-import veeValidate from './veeValidate'
+import './veeValidate'
 
 Vue.use(Buefy);
-Vue.use(veeValidate);
 Vue.use(VueRouter);
 Vue.config.productionTip = false;
 
@@ -33,6 +32,7 @@ if (localStorage.getItem('authToken') != null) {
 }
 
 import VueLogger from 'vuejs-logger';
+import {ValidationProvider} from "vee-validate";
 
 const options = {
   isEnabled: true,
@@ -50,6 +50,6 @@ Vue.use(VueLogger, options);
 new Vue({
   el: '#app',
   template: '<App/>',
-  components: { App },
+  components: { App, ValidationProvider },
   router
 });
