@@ -80,6 +80,30 @@ public class ProfileLocation {
         this.country = newLocation.country;
     }
 
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(long id) {
+        this.country = country;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(long id) {
+        this.city = city;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(long id) {
+        this.state = state;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o instanceof ProfileLocation) {
