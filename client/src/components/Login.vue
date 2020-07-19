@@ -5,6 +5,7 @@
                 <form action="" method="post" class="form-register">
                     <h1 class="title">Login</h1>
                     <b-field label="Email">
+                        <template slot="label">Email <span>*</span></template>
                         <b-input class="help" placeholder="Email"
                                  v-model="email"
 
@@ -13,6 +14,7 @@
                     </b-field>
 
                     <b-field label="Password">
+                        <template slot="label">Password <span>*</span></template>
                         <b-input placeholder="Password"
                                  v-model="password"
                                  type="password"
@@ -89,6 +91,10 @@
         .container {
             width: 100%;
         }
+    }
+
+    span {
+        color: red;
     }
 
 </style>

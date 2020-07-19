@@ -11,6 +11,7 @@
                                  :type="{ 'is-danger': errors[0], 'is-success': valid }"
                                  :message="errors"
                                  expanded >
+                            <template slot="label">First Name <span>*</span></template>
                             <b-input v-model="firstName" placeholder="First Name"></b-input>
                         </b-field>
                     </ValidationProvider>
@@ -19,6 +20,7 @@
                                  :type="{ 'is-danger': errors[0], 'is-success': valid }"
                                  :message="errors"
                                  expanded>
+                            <template slot="label">Last Name <span>*</span></template>
                             <b-input v-model="lastName" placeholder="Last Name"></b-input>
                         </b-field>
                     </ValidationProvider>
@@ -29,6 +31,7 @@
                              :type="{ 'is-danger': errors[0], 'is-success': valid }"
                              :message="errors"
                              expanded>
+                        <template slot="label">Email <span>*</span></template>
                         <b-input type="email" v-model="email" placeholder="Email">
                         </b-input>
                     </b-field>
@@ -39,6 +42,7 @@
                              :type="{ 'is-danger': errors[0], 'is-success': valid }"
                              :message="errors"
                              expanded>
+                        <template slot="label">Password <span>*</span></template>
                         <b-input v-model="password" type="password" placeholder="Password"></b-input>
                     </b-field>
                 </ValidationProvider>
@@ -48,6 +52,7 @@
                              :type="{ 'is-danger': errors[0], 'is-success': valid }"
                              :message="errors"
                              expanded>
+                        <template slot="label">Confirm Password <span>*</span></template>
                         <b-input v-model="confpassword" type="password" placeholder="Confirm Password"></b-input>
                     </b-field>
                 </ValidationProvider>
@@ -60,6 +65,7 @@
                                  :type="{ 'is-danger': errors[0], 'is-success': valid }"
                                  :message="errors"
                                  expanded>
+                            <template slot="label">Date of Birth <span>*</span></template>
                             <b-datepicker
                                     editable
                                     :use-html5-validation="false"
@@ -83,6 +89,7 @@
                                  :type="{ 'is-danger': errors[0], 'is-success': valid }"
                                  :message="errors"
                                  expanded>
+                            <template slot="label">Gender <span>*</span></template>
                             <b-select
                                     placeholder="Choose a gender"
                                     v-model="gender"
@@ -100,6 +107,7 @@
                              :type="{ 'is-danger': errors[0], 'is-success': valid }"
                              :message="errors"
                              expanded >
+                        <template slot="label">Fitness Level <span>*</span></template>
                         <b-select v-model="fitness" placeholder="Fitness Level" expanded>
                             <option value="0">Beginner: I am not active at all </option>
                             <option value="1">Novice: I do a low level of exercise (walking)</option>
@@ -227,6 +235,10 @@
         .container {
             width: 100%;
         }
+    }
+
+    span {
+        color: red;
     }
 
 </style>
