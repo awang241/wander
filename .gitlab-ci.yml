@@ -16,9 +16,9 @@ setup:
   stage: setup
   script:
     - npm install
-  cache:
-    paths:
-      - client/node_modules/
+#   cache:
+#     paths:
+#       - client/node_modules/
   artifacts:
     paths:
       - client/node_modules/
