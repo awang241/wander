@@ -1,4 +1,4 @@
-package com.springvuegradle.controller.enums;
+package com.springvuegradle.enums;
 
 public enum EmailResponseMessage {
     DUPLICATE_EMAILS("Duplicate email addresses detected."),

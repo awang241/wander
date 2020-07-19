@@ -1,6 +1,6 @@
 package com.springvuegradle.service;
 
-import com.springvuegradle.controller.enums.ActivityResponseMessage;
+import com.springvuegradle.enums.ActivityResponseMessage;
 import com.springvuegradle.model.Activity;
 import com.springvuegradle.model.ActivityMembership;
 import com.springvuegradle.model.Profile;
