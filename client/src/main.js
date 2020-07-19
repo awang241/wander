@@ -12,7 +12,7 @@ Vue.use(Buefy);
 Vue.use(VueRouter);
 Vue.config.productionTip = false;
 
-Vue.use(Vuex)
+Vue.use(Vuex);
 //Check if a token is expired or null, if so it will redirect a user to the homepage
 if (localStorage.getItem('authToken') != null) {
     console.log("MAIN");
@@ -32,7 +32,6 @@ if (localStorage.getItem('authToken') != null) {
 }
 
 import VueLogger from 'vuejs-logger';
-import {ValidationProvider} from "vee-validate";
 
 const options = {
   isEnabled: true,
@@ -50,6 +49,6 @@ Vue.use(VueLogger, options);
 new Vue({
   el: '#app',
   template: '<App/>',
-  components: { App, ValidationProvider },
+  components: { App },
   router
 });
