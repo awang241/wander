@@ -1,7 +1,9 @@
 package gradle.cucumber.steps;
 
+import com.springvuegradle.Model.Email;
 import com.springvuegradle.Model.Profile;
 import com.springvuegradle.Model.ProfileLocation;
+import com.springvuegradle.Repositories.EmailRepository;
 import com.springvuegradle.Repositories.ProfileLocationRepository;
 import com.springvuegradle.Repositories.ProfileRepository;
 import com.springvuegradle.service.ProfileService;
@@ -14,6 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -30,6 +34,9 @@ public class LocationTestSteps {
     @Autowired
     ProfileService profileService;
 
+    @Autowired
+    EmailRepository emailRepository;
+
     private Profile profile;
 
     @AfterEach()
@@ -40,6 +47,10 @@ public class LocationTestSteps {
     @Given("A profile exists with no location")
     public void aProfileExistsWithNoLocation() {
         profile = createNormalProfileJacky("jacky@gmail.com", "password");
+        Email email = new Email("jacky@gmail.com");
+        emailRepository.save(email);
+        email.setProfile(profile);
+        profile.setEmails(Set.copyOf(List.of(email)));
         profileRepository.save(profile);
     }
 
@@ -50,7 +61,7 @@ public class LocationTestSteps {
         location.setCity(city);
         location.setCountry(country);
         profile.setLocation(location);
-        profileRepository.save(profile);
+        profileService.updateProfileLocation(location, profile.getId());
     }
 
     @Then("The profile has the country {string} and city {string}")
@@ -61,20 +72,13 @@ public class LocationTestSteps {
     }
 
 
-    private Profile createNormalProfileJacky(String email, String password) {
-        return new Profile(1L, "Jacky", "Jones", "J", "Jac", email, new String[]{}, password,
-                "The quick brown fox jumped over the lazy dog.", new GregorianCalendar(1999, Calendar.NOVEMBER,
-                28), "male", 1, new String[]{}, new String[]{});
-    }
-
     @When("I select the country {string} and city {string} and the state {string}")
     public void iSelectTheCountryAndCityAndTheState(String country, String city, String state) {
         ProfileLocation location = new ProfileLocation();
         location.setCity(city);
         location.setCountry(country);
         location.setState(state);
-        profile.setLocation(location);
-        profileRepository.save(profile);
+        profileService.updateProfileLocation(location, profile.getId());
     }
 
     @Then("The profile has the country {string} city {string} and state {string}")
@@ -134,5 +138,11 @@ public class LocationTestSteps {
     @Then("the profile now has no location")
     public void theProfileNowHasNoLocation() {
         assertNull(profile.getProfileLocation());
+    }
+
+    private Profile createNormalProfileJacky(String email, String password) {
+        return new Profile(1L, "Jacky", "Jones", "J", "Jac", email, new String[]{}, password,
+                "The quick brown fox jumped over the lazy dog.", new GregorianCalendar(1999, Calendar.NOVEMBER,
+                28), "male", 1, new String[]{}, new String[]{});
     }
 }
