@@ -1,15 +1,15 @@
 package com.springvuegradle.service;
 
-import com.springvuegradle.Controller.Profile_Controller;
-import com.springvuegradle.Model.Email;
-import com.springvuegradle.Model.Profile;
-import com.springvuegradle.Model.ProfileSearchCriteria;
-import com.springvuegradle.Model.ProfileTestUtils;
-import com.springvuegradle.Repositories.EmailRepository;
-import com.springvuegradle.Repositories.ProfileRepository;
+import com.springvuegradle.controller.Profile_Controller;
+import com.springvuegradle.model.Email;
+import com.springvuegradle.model.Profile;
+import com.springvuegradle.model.ProfileLocation;
+import com.springvuegradle.model.ProfileSearchCriteria;
+import com.springvuegradle.model.ProfileTestUtils;
+import com.springvuegradle.repositories.EmailRepository;
+import com.springvuegradle.repositories.ProfileRepository;
 import org.junit.jupiter.api.BeforeEach;
-import com.springvuegradle.Model.ProfileLocation;
-import com.springvuegradle.Repositories.*;
+import com.springvuegradle.repositories.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,7 +21,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.*;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 
 import static org.junit.jupiter.api.Assertions.*;
 

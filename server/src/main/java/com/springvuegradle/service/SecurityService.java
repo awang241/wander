@@ -1,6 +1,6 @@
 package com.springvuegradle.service;
 
-import com.springvuegradle.Utilities.JwtUtil;
+import com.springvuegradle.utilities.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 public class SecurityService {
 
     @Autowired
-    private JwtUtil jwtUtil;
+    private JwtUtil jwtUtil = new JwtUtil();
 
     /**
      * Checks if the user has permission to edit the profile. User will be given permission if
@@ -23,10 +23,6 @@ public class SecurityService {
      * @return true if the user can edit the profile, false otherwise
      */
     public boolean checkEditPermission(String token, Long id) {
-        if (jwtUtil.validateToken(token) && (jwtUtil.extractPermission(token) == 0 || jwtUtil.extractPermission(token) == 1 || (jwtUtil.extractId(token).equals(id)))) {
-            return true;
-        } else {
-            return false;
-        }
+        return jwtUtil.validateToken(token) && (jwtUtil.extractPermission(token) == 0 || jwtUtil.extractPermission(token) == 1 || (jwtUtil.extractId(token).equals(id)));
     }
 }

@@ -34,6 +34,7 @@
                 possibleCountries: "",
                 newCountry: "",
                 chosenCountries: this.profile.passports,
+                originalCountries: this.profile.passports
             }
         },
         methods: {
@@ -51,13 +52,13 @@
                 }
             },
             submitCountries(){
-                this.$parent.updateCountries(this.chosenCountries)
-                this.$buefy.toast.open({
-                    duration: 2000,
-                    message: "Countries saved",
-                    type: 'is-success',
-                    position: 'is-top'
-                })
+                if (this.originalCountries !== this.chosenCountries) {
+                    this.$parent.updateCountries(this.chosenCountries)
+                    this.successToast("New countries saved")
+                    this.originalCountries = this.chosenCountries
+                } else {
+                    this.warningToast("No changes made")
+                }
             },
             getAllCountries(){
                 axios.get("https://restcountries.eu/rest/v2/all")

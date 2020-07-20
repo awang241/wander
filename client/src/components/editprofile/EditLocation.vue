@@ -15,10 +15,10 @@
             <br>
             <br>
 
-            <input class="input" type="text" placeholder="Enter a city" id="autocompleteCities"/>
+            <input class="input" type="text" placeholder="Enter a city (required)" id="autocompleteCities"/>
             <br>
             <br>
-            <input onkeypress="return /[a-z ]/i.test(event.key)" class="input" type="text" placeholder="Enter a state" id="autocompleteStates"/>
+            <input onkeypress="return /[a-z ]/i.test(event.key)" class="input" type="text" placeholder="Enter a state (optional)" id="autocompleteStates"/>
 
         </form>
 
@@ -50,7 +50,6 @@
     let autocompleteState;
 
 
-
     export default {
         name: "EditLocation",
         props: ["profile"],
@@ -74,14 +73,15 @@
                     types: ['(cities)'],
                     componentRestrictions: {'country' : this.restrictionCountryAlphaCode}
                 }
-                //eslint-disable-next-line no-undef
+
+                // eslint-disable-next-line no-undef
                 autocompleteCity = new google.maps.places.Autocomplete(document.getElementById("autocompleteCities"), options)
                 autocompleteCity.setFields(['address_components'])
-
                 autocompleteCity.addListener('place_changed', function() {
                     var city = autocompleteCity.getPlace();
                     document.getElementById("autocompleteCities").value = city.address_components[0].long_name;
                 })
+
 
             },
             initAutoCompleteStates : function() {
@@ -145,21 +145,25 @@
                 document.getElementById("autocompleteCities").value = null;
                 document.getElementById("autocompleteStates").value = null;
                 document.getElementById("country").value = 'New Zealand';
-                this.location = {country: "", city: "", state: ""}
+                this.location = {country: "New Zealand", city: "", state: ""}
+                console.log(this.location)
             },
             submitLocation(){
+                //Using JSON methods to make a constant and compare two JSON objects
+                const original = JSON.stringify(this.profile.location)
+
                 this.location.city = document.getElementById("autocompleteCities").value;
                 this.location.state = document.getElementById("autocompleteStates").value;
-
-                console.log(this.location)
                 if(this.location.country === ""){
                     this.warningToast("Please enter a country")
                 } else if(this.location.city === ""){
                     this.warningToast("Please enter a city")
+                } else if (JSON.stringify((this.location)) === original) {
+                    this.warningToast("No changes made")
                 }
                 else {
                     this.$parent.updateLocation(this.location)
-                    this.successToast("Updated location")
+                    this.successToast("New location saved")
                 }
             },
             setLocation(){
@@ -168,7 +172,6 @@
                     document.getElementById("country").value = this.location.country;
                     document.getElementById("autocompleteCities").value = this.location.city;
                     document.getElementById("autocompleteStates").value = this.location.state;
-
                 }
             }
         },

@@ -1,7 +1,7 @@
 package com.springvuegradle.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.springvuegradle.Model.Profile;
+import com.springvuegradle.model.Profile;
 
 import java.util.List;
 import java.util.Objects;

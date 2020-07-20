@@ -1,79 +1,129 @@
 <template>
-        <div class="container">
-                <h1 class="title">Create Account</h1>
-                    <form @submit.prevent="createUser">
+    <div class="container">
+        <h1 class="title">Create Account</h1>
 
-                        <b-field group-multiline grouped>
-                        <b-field label="First Name" expanded >
-                            <b-input v-model="firstName" placeholder="First Name" required></b-input>
+        <ValidationObserver v-slot="{ handleSubmit }">
+            <form @submit.prevent="handleSubmit(createUser)">
+
+                <b-field group-multiline grouped>
+                    <ValidationProvider rules="required|minName" name="First Name" v-slot="{ errors, valid }" slim>
+                        <b-field label="First Name"
+                                 :type="{ 'is-danger': errors[0], 'is-success': valid }"
+                                 :message="errors"
+                                 expanded >
+                            <template slot="label">First Name <span>*</span></template>
+                            <b-input v-model="firstName" placeholder="First Name"></b-input>
                         </b-field>
-                        <b-field label="Last Name" expanded>
-                            <b-input v-model="lastName" placeholder="Last Name" required></b-input>
+                    </ValidationProvider>
+                    <ValidationProvider rules="required|minName" name="Last Name" v-slot="{ errors, valid }" slim>
+                        <b-field label="Last Name"
+                                 :type="{ 'is-danger': errors[0], 'is-success': valid }"
+                                 :message="errors"
+                                 expanded>
+                            <template slot="label">Last Name <span>*</span></template>
+                            <b-input v-model="lastName" placeholder="Last Name"></b-input>
                         </b-field>
+                    </ValidationProvider>
+                </b-field>
+
+                <ValidationProvider rules="required|email" name="Email" v-slot="{ errors, valid }">
+                    <b-field label="Email"
+                             :type="{ 'is-danger': errors[0], 'is-success': valid }"
+                             :message="errors"
+                             expanded>
+                        <template slot="label">Email <span>*</span></template>
+                        <b-input type="email" v-model="email" placeholder="Email">
+                        </b-input>
+                    </b-field>
+                </ValidationProvider>
+
+                <ValidationProvider rules="required|minPassword" name="Password" v-slot="{ errors, valid }" vid="password">
+                    <b-field label="Password"
+                             :type="{ 'is-danger': errors[0], 'is-success': valid }"
+                             :message="errors"
+                             expanded>
+                        <template slot="label">Password <span>*</span></template>
+                        <b-input v-model="password" type="password" placeholder="Password"></b-input>
+                    </b-field>
+                </ValidationProvider>
+
+                <ValidationProvider rules="requiredConfirm|confirmed:password" name="Confirm Password" v-slot="{ errors, valid }">
+                    <b-field label="Confirm Password"
+                             :type="{ 'is-danger': errors[0], 'is-success': valid }"
+                             :message="errors"
+                             expanded>
+                        <template slot="label">Confirm Password <span>*</span></template>
+                        <b-input v-model="confpassword" type="password" placeholder="Confirm Password"></b-input>
+                    </b-field>
+                </ValidationProvider>
+
+
+
+                <b-field group-multiline grouped>
+                    <ValidationProvider rules="required|maxBirthDate" name="Date of Birth" v-slot="{ errors, valid }" slim>
+                        <b-field label="Date of Birth"
+                                 :type="{ 'is-danger': errors[0], 'is-success': valid }"
+                                 :message="errors"
+                                 expanded>
+                            <template slot="label">Date of Birth <span>*</span></template>
+                            <b-datepicker
+                                    editable
+                                    :use-html5-validation="false"
+                                    placeholder="Select Date of Birth"
+                                    :date-formatter="dateFormatter"
+                                    :min-date="minDate"
+                                    :max-date="maxDate"
+                                    ref="dateOfBirth"
+                                    v-model="dateOfBirth"
+                                    type="date"
+                                    validation-message="Please enter a valid date"
+
+                                    pattern="^(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]))\1|(?:(?:29|30)(\/|-|\.)(?:0?[13-9]|1[0-2])\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/|-|\.)0?2\3(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\d|2[0-8])(\/|-|\.)(?:(?:0?[1-9])|(?:1[0-2]))\4(?:(?:1[6-9]|[2-9]\d)?\d{2})$">
+                                >
+                            </b-datepicker>
                         </b-field>
+                    </ValidationProvider>
 
-                        <b-field label="Email" expanded>
-                                 <b-input type="email"
-                                     v-model="email"
-                                     placeholder="Email"
-                                     required>
-                                 </b-input>
+                    <ValidationProvider rules="requiredGender" name="Gender" v-slot="{ errors, valid }" slim>
+                        <b-field label="Gender"
+                                 :type="{ 'is-danger': errors[0], 'is-success': valid }"
+                                 :message="errors"
+                                 expanded>
+                            <template slot="label">Gender <span>*</span></template>
+                            <b-select
+                                    placeholder="Choose a gender"
+                                    v-model="gender"
+                                    expanded>
+                                <option value="female">Female</option>
+                                <option value="male">Male</option>
+                                <option value="non-Binary">Non-Binary</option>
+                            </b-select>
                         </b-field>
+                    </ValidationProvider>
+                </b-field>
 
-                        <b-field label="Password" expanded>
-                            <b-input v-model="password" type="password" placeholder="Password"
-                                     required></b-input>
-                        </b-field>
+                <ValidationProvider rules="required" name="FitnessLevel" v-slot="{ errors, valid }" slim>
+                    <b-field label="Fitness Level"
+                             :type="{ 'is-danger': errors[0], 'is-success': valid }"
+                             :message="errors"
+                             expanded >
+                        <template slot="label">Fitness Level <span>*</span></template>
+                        <b-select v-model="fitness" placeholder="Fitness Level" expanded>
+                            <option value="0">Beginner: I am not active at all </option>
+                            <option value="1">Novice: I do a low level of exercise (walking)</option>
+                            <option value="2">Intermediate: I work out 1-2 times per week</option>
+                            <option value="3">Advanced: I work out 3-4 times per week</option>
+                            <option value="4">Pro: I work out 5+ times per week</option>
+                        </b-select>
+                    </b-field>
+                </ValidationProvider>
 
-                        <b-field label="Confirm Password"
-                                 :message="[{'Passwords do not match':isDisabled}]" expanded>
-                            <b-input v-model="confpassword" type="password" placeholder="Confirm Password"
-                                     required></b-input>
-                        </b-field>
+                <br>
+                <b-button style="float:right" type="is-primary" native-type="submit" :disabled="isDisabled">Submit</b-button>
 
-
-                        <b-field group-multiline grouped>
-                            <b-field label="Date of Birth" expanded>
-                                <b-datepicker
-                                        editable
-                                        :use-html5-validation="false"
-                                        placeholder="Select Date of Birth"
-                                        :date-formatter="dateFormatter"
-                                        :min-date="minDate"
-                                        :max-date="maxDate" ref="dateOfBirth"
-                                        v-model="dateOfBirth"
-                                        type="date" required
-                                        validation-message="Please enter a valid date"
-
-                                        pattern="^(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]))\1|(?:(?:29|30)(\/|-|\.)(?:0?[13-9]|1[0-2])\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/|-|\.)0?2\3(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\d|2[0-8])(\/|-|\.)(?:(?:0?[1-9])|(?:1[0-2]))\4(?:(?:1[6-9]|[2-9]\d)?\d{2})$">
-                                    >
-                                </b-datepicker>
-                            </b-field>
-
-                            <b-field label="Gender" expanded>
-                                <b-select
-                                        placeholder="Choose a gender"
-                                        v-model="gender" required expanded>
-                                    <option value="female">Female</option>
-                                    <option value="male">Male</option>
-                                    <option value="non-Binary">Non-Binary</option>
-                                </b-select>
-                            </b-field>
-                        </b-field>
-
-                            <b-field label="Fitness Level" expanded >
-                                <b-select v-model="fitness" placeholder="Fitness Level" expanded>
-                                    <option value="0">Beginner: I am not active at all </option>
-                                    <option value="1">Novice: I do a low level of exercise (walking)</option>
-                                    <option value="2">Intermediate: I work out 1-2 times per week</option>
-                                    <option value="3">Advanced: I work out 3-4 times per week</option>
-                                    <option value="4">Pro: I work out 5+ times per week</option>
-                                </b-select>
-                            </b-field>
-                        <br>
-                        <b-button style="float:right" type="is-primary" native-type="submit" :disabled="isDisabled">Submit</b-button>
             </form>
-        </div>
+        </ValidationObserver>
+    </div>
 
 </template>
 
@@ -84,9 +134,15 @@
     import api from '../Api';
     import router from '../router.js'
     import toastMixin from '../mixins/toastMixin'
+    import {ValidationProvider, ValidationObserver} from 'vee-validate'
+
 
     export default {
         name: "Registration",
+        components: {
+            ValidationProvider,
+            ValidationObserver
+        },
         mixins: [toastMixin],
         data() {
             const today = new Date()
@@ -123,6 +179,12 @@
 
         methods: {
             createUser() {
+                if (this.validateEmail(this.primary_email)) {
+                    return
+                }
+                if (this.dateOfBirth > this.maxDate) {
+                    return
+                }
                 if (this.password.length < 8) {
                     this.warningToast("Password must be 8 characters long")
                 } else {
@@ -151,6 +213,11 @@
                 }
             },
 
+            validateEmail(email) {
+                const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+                return re.test(String(email).toLowerCase());
+            },
+
             dateFormatter(dt){
                 return dt.toLocaleDateString('en-GB', { year: 'numeric', month: 'numeric', day: 'numeric' });
             }
@@ -168,6 +235,10 @@
         .container {
             width: 100%;
         }
+    }
+
+    span {
+        color: red;
     }
 
 </style>
