@@ -38,8 +38,8 @@ For full instructions on how to use the application, please refer to our [User M
 Add the licensing for each of our dependencies (business cases) here
 
 ##### Buefy
-(Includes node-sass and sass-loader)
-Buefy is licensed under the MIT License
+(Includes node-sass and sass-loader)  
+Buefy is licensed under the MIT License  
 Copyright (c) 2017-2019 Rafael Beraldo
 
 `Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -61,29 +61,29 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.`  
   
 ##### Vue-router
-Vue-router is licensed under the MIT License  
-Copyright (c) 2013-present Evan You  
-`[SEE ABOVE]`
+Vue-router is licensed under the MIT License    
+Copyright (c) 2013-present Evan You    
+`[SEE ABOVE]`  
 
 ##### VueX
-Vuex is licensed under the MIT License  
-Copyright (c) 2015-present Evan You  
-`[SEE ABOVE]`
-  
+Vuex is licensed under the MIT License    
+Copyright (c) 2015-present Evan You    
+`[SEE ABOVE]`  
+    
 ##### Vee-Valitade
-Vee-validate is licensed under the MIT License 
-`[SEE ABOVE]`
+Vee-validate is licensed under the MIT License   
+`[SEE ABOVE]`  
 
 ##### Jwt-Decode
-Jwt-decode is licensed under the MIT License 
-Copyright (c) 2015 Auth0, Inc
-`[SEE ABOVE]`
- 
+Jwt-decode is licensed under the MIT License   
+Copyright (c) 2015 Auth0, Inc  
+`[SEE ABOVE]`  
+   
 ##### JsonWebToken
-JsonWebToken is licensed under the MIT License 
-Copyright (c) 2015 Auth0, Inc
-`[SEE ABOVE]`
-
+JsonWebToken is licensed under the MIT License   
+Copyright (c) 2015 Auth0, Inc  
+`[SEE ABOVE]`  
+  
 ### Reference
 - [Spring Boot Docs](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/)
 - [Spring JPA docs](https://docs.spring.io/spring-data/jpa/docs/current/reference/html/#preface)
