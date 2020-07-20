@@ -75,12 +75,14 @@ public class Profile_Controller {
     private ActivityRepository activityRepo;
 
 
-    public Profile_Controller(ProfileRepository profileRepository,
+    public Profile_Controller(ProfileService profileService,
+                              ProfileRepository profileRepository,
                               PassportCountryRepository pcRepository,
                               EmailRepository emailRepository,
                               ActivityTypeRepository activityTypeRepository,
                               ActivityRepository activityRepository,
                               JwtUtil jwtUtil) {
+        this.profileService = profileService;
         repo = profileRepository;
         pcRepo = pcRepository;
         eRepo = emailRepository;
