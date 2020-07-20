@@ -80,13 +80,17 @@ public class Profile_Controller {
                               EmailRepository emailRepository,
                               ActivityTypeRepository activityTypeRepository,
                               ActivityRepository activityRepository,
-                              JwtUtil jwtUtil) {
+                              ProfileLocationRepository profileLocationRepository,
+                              JwtUtil jwtUtil,
+                              SecurityService securityService) {
         repo = profileRepository;
         pcRepo = pcRepository;
         eRepo = emailRepository;
         activityRepo = activityRepository;
         aRepo = activityTypeRepository;
+        this.profileLocationRepository = profileLocationRepository;
         this.jwtUtil = jwtUtil;
+        this.securityService = securityService;
     }
 
     @Autowired
