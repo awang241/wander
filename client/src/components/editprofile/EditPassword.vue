@@ -6,13 +6,14 @@
 
         <form @submit.prevent="updatePassword">
             <b-field v-if="store.getters.getAuthenticationLevel > 1"
-                    label="Current Password" expanded >
+                     label="Current Password" expanded>
                 <b-input v-model="currentPassword" type="password" placeholder="Current Password" required></b-input>
             </b-field>
-            <b-field label="New Password" expanded >
-            <b-input v-model="password" type="password" placeholder="New Password" required></b-input>
+            <b-field label="New Password" expanded>
+                <b-input v-model="password" type="password" placeholder="New Password" required></b-input>
             </b-field>
-            <b-field label="Confirm Password" :message="[{'Passwords do not match':isDisabled}]" expanded >
+            <b-field label="Confirm Password" id="errorMessage" :message="[{'Passwords do not match':isDisabled}]"
+                     expanded>
                 <b-input v-model="confPassword" type="password" placeholder="Confirm Password" required></b-input>
             </b-field>
             <br>
@@ -49,6 +50,10 @@
             updatePassword() {
                 if(this.password.length < 8) {
                     this.warningToast("Password must be 8 characters long")
+                } else if (this.confPassword !== this.password) {
+                    this.warningToast("Passwords do not match!")
+                } else if (this.password == this.currentPassword || this.password === "") {
+                    this.warningToast("No changes made")
                 } else {
                     const passwordDetails = {
                         "currentPassword": this.currentPassword,
@@ -80,6 +85,10 @@
         background-color: #F7F8F9;
         margin-top: 0px;
         padding: 0px;
+    }
+
+    #errorMessage {
+        color: red;
     }
 
 </style>

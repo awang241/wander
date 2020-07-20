@@ -17,8 +17,6 @@ public class InitialDataHelper {
 
     private static Random random = new Random();
 
-    private InitialDataHelper(){};
-
     /**
      * Load initial activity types into the activity type database
      *

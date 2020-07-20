@@ -520,7 +520,7 @@ public class Profile_Controller {
             db_profile.setActivityTypes(updatedActivityTypes);
 
             // verifying emails, reuses the editEmails method
-            EmailUpdateRequest mockRequest = new EmailUpdateRequest(new ArrayList<String>(editedProfile.getAdditional_email()), editedProfile.getPrimary_email(), id.intValue());
+            EmailUpdateRequest mockRequest = new EmailUpdateRequest(new ArrayList<>(editedProfile.getAdditional_email()), editedProfile.getPrimary_email(), id.intValue());
             ResponseEntity<String> response = editEmails(mockRequest, id);
             if (!response.getStatusCode().equals(HttpStatus.OK)) {
                 return new ResponseEntity<>(response.getBody(), response.getStatusCode());
