@@ -43,8 +43,7 @@ dev-build:
   stage: deploy
   script:
 #   - touch /home/gitlab-runner/set-env-vars.txt
-#   - chmod a+rwx /home/gitlab-runner/set-env-vars.txt
-    - cp /home/gitlab-runner/set-env-vars.txt /home/gitlab-runner/set-env-vars-prod.txt
+    - chmod a+rwx /home/gitlab-runner/set-env-vars-prod.txt
     - source /home/gitlab-runner/set-env-vars.txt
     - fuser -k 9499/tcp 9500/tcp || true
     - cd client
