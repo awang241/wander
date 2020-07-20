@@ -1,18 +1,18 @@
 package gradle.cucumber.steps;
 
 import com.springvuegradle.Application;
-import com.springvuegradle.Controller.LoginController;
-import com.springvuegradle.Controller.Profile_Controller;
+import com.springvuegradle.controller.LoginController;
+import com.springvuegradle.controller.Profile_Controller;
+import com.springvuegradle.dto.LoginRequest;
+import com.springvuegradle.dto.LoginResponse;
 import com.springvuegradle.dto.ProfileSearchResponse;
 import com.springvuegradle.dto.ProfileSummary;
 import com.springvuegradle.enums.EmailResponseMessage;
 import com.springvuegradle.model.PassportCountry;
 import com.springvuegradle.model.Profile;
 import com.springvuegradle.repositories.*;
-import com.springvuegradle.utilities.JwtUtil;
-import com.springvuegradle.dto.LoginRequest;
-import com.springvuegradle.dto.LoginResponse;
 import com.springvuegradle.service.ProfileService;
+import com.springvuegradle.utilities.JwtUtil;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
@@ -26,7 +26,10 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
