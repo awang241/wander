@@ -2,15 +2,10 @@ package gradle.cucumber.steps;
 
 import com.springvuegradle.controller.LoginController;
 import com.springvuegradle.controller.Profile_Controller;
-import com.springvuegradle.dto.EmailAddRequest;
-import com.springvuegradle.dto.EmailUpdateRequest;
 import com.springvuegradle.dto.LoginRequest;
 import com.springvuegradle.dto.LoginResponse;
-import com.springvuegradle.model.Email;
 import com.springvuegradle.model.Profile;
-import com.springvuegradle.model.ProfileLocation;
 import com.springvuegradle.repositories.EmailRepository;
-import com.springvuegradle.repositories.ProfileLocationRepository;
 import com.springvuegradle.repositories.ProfileRepository;
 import com.springvuegradle.service.ProfileService;
 import io.cucumber.java.en.Given;
@@ -18,7 +13,6 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.junit.jupiter.api.AfterEach;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.rest.webmvc.ProfileController;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
