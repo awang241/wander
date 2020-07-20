@@ -7,14 +7,14 @@
         <form @submit.prevent="updatePassword">
             <b-field v-if="store.getters.getAuthenticationLevel > 1"
                      label="Current Password" expanded>
-                <b-input v-model="currentPassword" type="password" placeholder="Current Password" required></b-input>
+                <b-input v-model="currentPassword" type="password" placeholder="Current Password" ></b-input>
             </b-field>
             <b-field label="New Password" expanded>
-                <b-input v-model="password" type="password" placeholder="New Password" required></b-input>
+                <b-input v-model="password" type="password" placeholder="New Password" ></b-input>
             </b-field>
             <b-field label="Confirm Password" id="errorMessage" :message="[{'Passwords do not match':isDisabled}]"
                      expanded>
-                <b-input v-model="confPassword" type="password" placeholder="Confirm Password" required></b-input>
+                <b-input v-model="confPassword" type="password" placeholder="Confirm Password" ></b-input>
             </b-field>
             <br>
             <b-button style="float:right" type="is-primary" native-type="submit" :disabled="isDisabled">Save</b-button>
@@ -48,12 +48,13 @@
         },
         methods: {
             updatePassword() {
-                if(this.password.length < 8) {
-                    this.warningToast("Password must be 8 characters long")
+
+                if (this.password == this.currentPassword) {
+                    this.warningToast("No changes made")
+                } else if(this.password.length < 8) {
+                    this.warningToast("Password must be at least 8 characters long")
                 } else if (this.confPassword !== this.password) {
                     this.warningToast("Passwords do not match!")
-                } else if (this.password == this.currentPassword || this.password === "") {
-                    this.warningToast("No changes made")
                 } else {
                     const passwordDetails = {
                         "currentPassword": this.currentPassword,
