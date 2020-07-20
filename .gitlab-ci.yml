@@ -43,7 +43,7 @@ dev-build:
   stage: deploy
   script:
 #   - touch /home/gitlab-runner/set-env-vars.txt
-    - chmod a+rwx /home/gitlab-runner/set-env-vars-prod.txt
+#    - chmod a+rwx /home/gitlab-runner/set-env-vars-prod.txt
     - source /home/gitlab-runner/set-env-vars.txt
     - fuser -k 9499/tcp 9500/tcp || true
     - cd client
@@ -52,6 +52,7 @@ dev-build:
     - rm -rf /home/gitlab-runner/test-client/
     - mkdir -p /home/gitlab-runner/test-client/
     - cp -r ./dist /home/gitlab-runner/test-client
+    
     - cd ../server
     - ./gradlew bootJar
     - rm -rf /home/gitlab-runner/test-server/
@@ -78,14 +79,15 @@ release-build:
     - cd client
     - npm install
     - npm run build-prod
+    - rm -rf /home/gitlab-runner/prod-client/
+    - mkdir -p /home/gitlab-runner/prod-client/
+    - cp -r ./dist /home/gitlab-runner/prod-client
+    
     - cd ../server
     - ./gradlew bootJar
     - rm -rf /home/gitlab-runner/prod-server/
     - mkdir -p /home/gitlab-runner/prod-server/
     - cp -r ./build/libs /home/gitlab-runner/prod-server
-    - rm -rf /home/gitlab-runner/prod-client/
-    - mkdir -p /home/gitlab-runner/prod-client/
-    - cp -r ./dist /home/gitlab-runner/prod-client
     #update scripts and restart service
     - rm -f /home/gitlab-runner/runProdServer.sh || true
     - cp ../bashscripts/runProdServer.sh /home/gitlab-runner/runProdServer.sh
