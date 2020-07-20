@@ -50,7 +50,8 @@ public class Application {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
         // *** URL below needs to match the Vue client URL and port ***
-        config.setAllowedOrigins(new ArrayList(Arrays.asList("http://localhost:9000", "http://localhost:9499", "http://localhost:9500", "https://csse-s302g1.canterbury.ac.nz/test", "https://csse-s302g1.canterbury.ac.nz/prod", "https://csse-s302g1.canterbury.ac.nz")));
+        //config.setAllowedOrigins(new ArrayList(Arrays.asList("http://localhost:9000", "http://localhost:9499", "http://localhost:9500", "https://csse-s302g1.canterbury.ac.nz/test", "https://csse-s302g1.canterbury.ac.nz/prod", "https://csse-s302g1.canterbury.ac.nz", "https://csse-s302g1.canterbury.ac.nz/test/api", "https://csse-s302g1.canterbury.ac.nz/prod/api")));
+        config.setAllowedOrigins(Collections.singletonList("*"));
         config.setAllowedMethods(Collections.singletonList("*"));
         config.setAllowedHeaders(Collections.singletonList("*"));
         source.registerCorsConfiguration("/**", config);
