@@ -76,6 +76,7 @@ release-build:
     - source /home/gitlab-runner/set-env-vars-prod.txt
     - fuser -k 8999/tcp 9000/tcp || true
     - cd client
+    - npm install
     - npm run build-prod
     - cd ../server
     - ./gradlew bootJar
