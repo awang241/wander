@@ -5,6 +5,7 @@
                 <form action="" method="post" class="form-register">
                     <h1 class="title">Login</h1>
                     <b-field label="Email">
+                        <template slot="label">Email <span>*</span></template>
                         <b-input class="help" placeholder="Email"
                                  v-model="email"
 
@@ -13,6 +14,7 @@
                     </b-field>
 
                     <b-field label="Password">
+                        <template slot="label">Password <span>*</span></template>
                         <b-input placeholder="Password"
                                  v-model="password"
                                  type="password"
@@ -20,9 +22,10 @@
                         </b-input>
                     </b-field>
                     <b-button @click="login"
-                              type="is-info">
+                              type="is-primary" style="float:right">
                         Login
                     </b-button>
+                    <br>
                 </form>
             </section>
         </div>
@@ -34,9 +37,11 @@
     import router from "../router";
     import store from '../store';
     import jwt_decode from "jwt-decode";
+    import toastMixin from "../mixins/toastMixin";
 
     export default {
         name: 'Login',
+        mixins: [toastMixin],
         data() {
             return {
                 email: "",
@@ -61,21 +66,12 @@
                         router.push({path: '/AdminDashboard'});
                     }
                     else{
-                        router.push('Profile')
+                        router.push({path: '/Profile/' + store.getters.getUserId})
                     }
                 }))
-                    .catch(error => this.displayError(error.response.status))
+                    .catch(error => this.warningToast(this.getErrorMessageFromStatusCode(error.response.status)))
             },
 
-            displayError(errorStatusCode){
-                const message = this.getErrorMessageFromStatusCode(errorStatusCode)
-                this.$buefy.toast.open({
-                    duration:5500,
-                    message: message,
-                    type: 'is-danger',
-                    position: 'is-top'
-                })
-            },
             getErrorMessageFromStatusCode(statusCode){
                 let message = "Incorrect email or password"
                 if(statusCode === 401){
@@ -96,6 +92,10 @@
         .container {
             width: 100%;
         }
+    }
+
+    span {
+        color: red;
     }
 
 </style>

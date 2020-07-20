@@ -1,16 +1,20 @@
 package com.springvuegradle.service;
 
-import com.springvuegradle.Controller.enums.ActivityResponseMessage;
-import com.springvuegradle.Model.Activity;
-import com.springvuegradle.Model.ActivityMembership;
-import com.springvuegradle.Model.Profile;
-import com.springvuegradle.Model.ActivityType;
-import com.springvuegradle.Repositories.*;
+import com.springvuegradle.enums.ActivityResponseMessage;
+import com.springvuegradle.model.Activity;
+import com.springvuegradle.model.ActivityMembership;
+import com.springvuegradle.model.Profile;
+import com.springvuegradle.model.ActivityType;
+import com.springvuegradle.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.*;
 
+/**
+ * Service-layer class containing business logic handling activities.
+ */
 @Service(value = "activityService")
 public class ActivityService {
 
@@ -19,25 +23,39 @@ public class ActivityService {
     private ActivityTypeRepository typeRepo;
     private ActivityMembershipRepository membershipRepo;
 
+    /**
+     * Autowired constructor for Spring to create an ActivityService and inject the correct dependencies.
+     * @param profileRepo
+     * @param activityRepo
+     * @param activityTypeRepo
+     * @param activityMembershipRepository
+     */
     @Autowired
     public ActivityService(ProfileRepository profileRepo, ActivityRepository activityRepo, ActivityTypeRepository activityTypeRepo,
-                           ActivityMembershipRepository activityMembershipRepository, EmailRepository erepo) {
+                           ActivityMembershipRepository activityMembershipRepository) {
         this.profileRepo = profileRepo;
         this.activityRepo = activityRepo;
         this.typeRepo = activityTypeRepo;
         this.membershipRepo = activityMembershipRepository;
     }
 
+    /**
+     * Inserts the given activity into the database and registers the profile with the given ID as the creator.
+     * @param activity The activity to be added to the database.
+     * @param creatorId The ID of the creator's profile.
+     */
     public void create(Activity activity, Long creatorId) {
         validateActivity(activity);
-        Profile profile = profileRepo.findById(creatorId).get();
+        Optional<Profile> profileResult = profileRepo.findById(creatorId);
+        if (profileResult.isEmpty()) {
+            throw new EntityNotFoundException(ActivityResponseMessage.INVALID_PROFILE.toString());
+        }
+        Profile profile = profileResult.get();
 
-        Set<ActivityType> updatedActivityType = new HashSet<ActivityType>();
+        Set<ActivityType> updatedActivityType = new HashSet<>();
         for (ActivityType activityType : activity.retrieveActivityTypes()) {
             List<ActivityType> resultActivityTypes = typeRepo.findByActivityTypeName(activityType.getActivityTypeName());
-            {
-                updatedActivityType.add(resultActivityTypes.get(0));
-            }
+            updatedActivityType.add(resultActivityTypes.get(0));
         }
         activity.setActivityTypes(updatedActivityType);
 
@@ -53,7 +71,7 @@ public class ActivityService {
      * Check if there is an activity with an associated activityId
      *
      * @param activityId the id of the activity we want to retrieve
-     * @return activity if it exists, false otherwise
+     * @return The activity if it exists, null otherwise
      */
     public Activity read(Long activityId) {
         Optional<Activity> activity = activityRepo.findById(activityId);
@@ -75,25 +93,24 @@ public class ActivityService {
         if (result.isEmpty()) {
             throw new IllegalArgumentException(ActivityResponseMessage.INVALID_ACTIVITY.toString());
         } else {
-
+            //removes all the activity types from the activity
             for (ActivityType activityType : typeRepo.findAll()) {
                 if (activityType.getActivities().contains(activity)) {
                     activityType.removeActivity(activity);
                 }
             }
 
-            Set<ActivityType> updatedActivityType = new HashSet<ActivityType>();
+            //adds the activity types to the activity
+            Set<ActivityType> updatedActivityType = new HashSet<>();
             for (ActivityType activityType : activity.retrieveActivityTypes()) {
                 List<ActivityType> resultActivityTypes = typeRepo.findByActivityTypeName(activityType.getActivityTypeName());
-                {
-                    updatedActivityType.add(resultActivityTypes.get(0));
-                }
+                updatedActivityType.add(resultActivityTypes.get(0));
             }
             activity.setActivityTypes(updatedActivityType);
 
             Activity entry = result.get();
             entry.update(activity);
-            activityRepo.save(entry);
+            //activityRepo.save(entry);
         }
     }
 
@@ -114,7 +131,7 @@ public class ActivityService {
             }
             Optional<Activity> activity = activityRepo.findById(activityId);
             for (ActivityType activityType : typeRepo.findAll()) {
-                if (activityType.getActivities().contains(activity.get())) {
+                if (activity.isPresent() && activityType.getActivities().contains(activity.get())) {
                     activityType.removeActivity(activity.get());
                 }
             }
@@ -125,6 +142,11 @@ public class ActivityService {
         return false;
     }
 
+    /**
+     * Returns all activities associated with the given profile.
+     * @param profileId The ID of the profile whose activities are being retrieved.
+     * @return A list of the given profile's activities.
+     */
     public List<Activity> getActivitiesByProfileId(Long profileId) {
         Profile profile = profileRepo.findAllById(profileId).get(0);
         List<Activity> userActivities = new ArrayList<>();

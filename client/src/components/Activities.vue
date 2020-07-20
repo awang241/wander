@@ -1,79 +1,86 @@
 <template>
     <div v-if="store.getters.getAuthenticationStatus" class="container containerColor">
         <!-- Header -->
-        <section class="hero level">
-            <div class=" hero-body level-item">
-                <div class="container containerColor">
+        <section>
+            <br>
+            <div id="activities-key-info">
+                <div>
                     <h1 class="title is-1">
                         Activities
                     </h1>
                 </div>
-
                 <!-- redirect to add activity -->
-                <b-button v-if="store.getters.getAuthenticationLevel > 0" @click="goToAddActivity"
-                          type="is-info">
-                    Add Activity
-                </b-button>
+                <div>
+                    <b-button v-if="store.getters.getAuthenticationLevel > 0" @click="goToAddActivity"
+                              type="is-primary">
+                        Add Activity
+                    </b-button>
+                </div>
             </div>
         </section>
+        <br>
+        <br>
+        <div class="has-same-height is-gapless">
+            <div v-if="activities.length">
+                <div v-for="activity in activities" v-bind:key="activity">
+                    <div class="column">
+                        <!-- Activities -->
+                        <div class="card">
+                            <div class="card-content">
+                                <h3 class="title is-4">{{activity.activity_name}}</h3>
+                                Role: CREATOR
+                                <div class="content">
+                                    <table class="table-profile">
+                                        <caption hidden>Displayed Activity Table</caption>
+                                        <tr>
+                                            <th colspan="1" scope="col"></th>
+                                            <th colspan="2" scope="col"></th>
+                                        </tr>
+                                        <tr>
+                                            <td>Description:</td>
+                                            <td>{{activity.description}}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Continous/Duration:</td>
+                                            <td v-if="activity.continuous">continuous</td>
+                                            <td v-else>duration</td>
+                                        </tr>
 
-        <hr class="hrLine">
+                                        <tr v-if="!activity.continuous">
+                                            <td>Start Time:</td>
+                                            <td>UTC {{dateFormat(activity.start_time)}}</td>
+                                        </tr>
+                                        <tr v-if="!activity.continuous">
+                                            <td>End Time:</td>
+                                            <td>UTC {{dateFormat(activity.end_time)}}</td>
+                                        </tr>
 
-        <div v-for="activity in activities" v-bind:key="activity">
-            <div class="container containerColor has-same-height is-gapless">
-                <div class="column">
-                    <!-- Activities -->
-                    <div class="card">
-                        <div class="card-content">
-                            <h3 class="title is-4">{{activity.activity_name}}</h3>
-                            Role: CREATOR
-                            <div class="content">
-                                <table class="table-profile">
-                                    <tr>
-                                        <th colspan="1"></th>
-                                        <th colspan="2"></th>
-                                    </tr>
-                                    <tr>
-                                        <td>Description:</td>
-                                        <td>{{activity.description}}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Continous/Duration:</td>
-                                        <td v-if="activity.continuous">continuous</td>
-                                        <td v-else>duration</td>
-                                    </tr>
-
-                                    <tr v-if="!activity.continuous">
-                                        <td>Start Time:</td>
-                                        <td>UTC {{dateFormat(activity.start_time)}}</td>
-                                    </tr>
-                                    <tr v-if="!activity.continuous">
-                                        <td>End Time:</td>
-                                        <td>UTC {{dateFormat(activity.end_time)}}</td>
-                                    </tr>
-
-                                    <tr>
-                                        <td>Location:</td>
-                                        <td>{{activity.location}}</td>
-                                    </tr>
-                                    <tr v-for="type in activity.activity_type" :key="type">
-                                        <td>Activity Type:</td>
-                                        <td>{{type}}</td>
-                                    </tr>
-                                </table>
-                                <b-button @click="deleteActivity(activity.id)"
-                                          type="is-danger">
-                                    Delete
-                                </b-button>
-                                <b-button class='px-3' id="editButton" @click="editActivity(activity)"
+                                        <tr>
+                                            <td>Location:</td>
+                                            <td>{{activity.location}}</td>
+                                        </tr>
+                                        <tr v-for="type in activity.activity_type" :key="type">
+                                            <td>Activity Type:</td>
+                                            <td>{{type}}</td>
+                                        </tr>
+                                    </table>
+                                    <b-button @click="deleteActivity(activity.id)"
+                                              type="is-danger">
+                                        Delete
+                                    </b-button>
+                                    <b-button class='px-3' id="editButton" @click="editActivity(activity)"
                                               type="is-primary">
                                         Edit
-                                </b-button>
+                                    </b-button>
+                                </div>
+                                <br>
                             </div>
-                            <br>
                         </div>
                     </div>
                 </div>
+            </div>
+            <div v-else class="box">
+                <h1>No activities created</h1>
             </div>
         </div>
     </div>
@@ -83,9 +90,11 @@
     import api from '../Api';
     import router from "../router";
     import store from "../store"
+    import toastMixin from "../mixins/toastMixin";
 
     export default {
         name: "Activities",
+        mixins: [toastMixin],
         data() {
             return {
                 activities: null,
@@ -97,7 +106,7 @@
                 api.getUserActivitiesList(store.getters.getUserId, localStorage.getItem('authToken'))
                     .then((response) => {
                         this.activities = response.data;
-                        this.activities.sort(function(a,b){
+                        this.activities.sort(function (a, b) {
                                 return a.continuous - b.continuous;
                             }
                         );
@@ -106,7 +115,7 @@
             },
             goToAddActivity() {
                 router.push({path: '/AddActivity'});
-            }, editActivity(activity){
+            }, editActivity(activity) {
                 router.push({name: 'editActivity', params: {activityProp: activity}})
             },
             deleteActivity(id) {
@@ -114,12 +123,7 @@
                 api.deleteActivity(store.getters.getUserId, localStorage.getItem('authToken'), id)
                     .then((response) => {
                         console.log(response);
-                        this.$buefy.toast.open({
-                            duration: 5500,
-                            message: "Activity deleted",
-                            type: 'is-danger',
-                            position: 'is-top'
-                        })
+                        this.warningToast("Activity deleted")
                         this.activities = this.activities.filter(activity => activity.id != id);
                     })
                     .catch(error => console.log(error));
@@ -163,8 +167,14 @@
         border: 2px solid #EDEEEE;
     }
 
-    #editButton{
+    #editButton {
         margin-left: 1rem;
+    }
+
+    #activities-key-info{
+        display: flex;
+        justify-content: space-between;
+        padding: 0rem 1rem;
     }
 
 </style>

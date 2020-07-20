@@ -13,16 +13,20 @@
             <b-button type="is-primary" @click="addActivityType">Add</b-button>
         </b-field>
         <List v-bind:chosenItems="chosenActivityTypes" v-on:deleteListItem="deleteActivityType"></List>
-        <b-button type="is-primary" @click="submitActivityTypes">Save</b-button>
+        <br>
+        <b-button style="float:right" type="is-primary" @click="submitActivityTypes">Save</b-button>
+        <br>
     </div>
 </template>
 
 <script>
     import List from "../List";
     import Api from "../../Api";
+    import toastMixin from "../../mixins/toastMixin";
 
     export default {
         name: "EditActivityTypes",
+        mixins: [toastMixin],
         components: {List},
         props: ["profile"],
         data(){
@@ -30,18 +34,10 @@
                 possibleActivityTypes: [],
                 newActivityType: "",
                 chosenActivityTypes: this.profile.activities,
+                originalActivityTypes: this.profile.activities
             }
         },
         methods: {
-            showWarning(message) {
-                this.$buefy.snackbar.open({
-                    duration: 5000,
-                    message: message,
-                    type: 'is-danger',
-                    position: 'is-bottom-left',
-                    queue: false,
-                })
-            },
 
             getAllActivityTypes(){
                 Api.getActivityTypesList().then(response => this.possibleActivityTypes = response.data.allActivityTypes)
@@ -52,21 +48,21 @@
             },
             addActivityType() {
                 if (this.newActivityType === ""){
-                    this.showWarning("No activity selected")
+                    this.warningToast("No activity selected")
                 } else if (this.chosenActivityTypes.includes(this.newActivityType)) {
-                    this.showWarning("Activity already in list")
+                    this.warningToast("Activity already in list")
                 } else {
                     this.chosenActivityTypes = [...this.chosenActivityTypes, this.newActivityType]
                 }
             },
             submitActivityTypes() {
-                this.$parent.updateActivityTypes(this.chosenActivityTypes)
-                this.$buefy.toast.open({
-                    duration: 2000,
-                    message: "Saved!",
-                    type: 'is-success',
-                    position: 'is-top'
-                })
+                if (this.originalActivityTypes === this.chosenActivityTypes) {
+                    this.warningToast("No changes made")
+                } else {
+                    this.$parent.updateActivityTypes(this.chosenActivityTypes)
+                    this.successToast("New activity types saved")
+                    this.originalActivityTypes = this.chosenActivityTypes
+                }
             }
         },
         mounted() {

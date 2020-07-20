@@ -9,94 +9,91 @@
 
         <form>
             <div v-if="optionalEmails.length>0">
-            <b-field label="Change your primary email">
-                <b-select v-model="newPrimaryEmail" class="selectNewPEList" expanded>
-                    <option class="singleEmail" v-for="email in optionalEmails" :key="email">{{email}}</option>
-                </b-select>
-            </b-field>
-            <b-button  type="is-info" @click="changePrimaryEmail()">
-                Change
-            </b-button>
+                <b-field label="Change your primary email">
+                    <b-select v-model="newPrimaryEmail" class="selectNewPEList" expanded>
+                        <option class="singleEmail" v-for="email in optionalEmails" :key="email">{{email}}</option>
+                    </b-select>
+                </b-field>
+                <b-button  type="is-info" @click="changePrimaryEmail()">
+                    Change
+                </b-button>
             </div>
             <br>
 
-            <b-field label="Enter in an email address and click the 'Add' button to add it to your profile! (5 email limit)" expanded></b-field>
+            <b-field
+                    label="Enter in an email address and click the 'Add' button to add it to your profile! (5 email limit)"
+                    expanded></b-field>
             <b-field group-multiline grouped>
-                <b-input type="email" class="addForm" v-model="newEmail" placeholder="Enter an email" maxlength="30" expanded ></b-input>
-                <b-button class="addButton" type="is-info" @click="addEmail()">Add</b-button>
+                <b-input type="email" class="addForm" v-model="newEmail" placeholder="Enter an email" maxlength="30"
+                         expanded></b-input>
+                <b-button class="addButton" type="is-primary" @click="addEmail()">Add</b-button>
             </b-field>
         </form>
 
         <list v-bind:chosenItems="optionalEmails" v-on:deleteListItem="deleteEmail"></list>
 
         <b-field>
-            <b-button type="is-info" @click="submitEmails()">Save</b-button>
+            <b-button style="float:right" type="is-primary" @click="submitEmails()">Save</b-button>
         </b-field>
-
+        <br>
     </div>
 </template>
 
 <script>
 
     import List from "../List";
+    import toastMixin from "../../mixins/toastMixin";
 
     export default {
         name: "EditEmails",
         components: {List},
+        mixins: [toastMixin],
         props: ["profile"],
+        data() {
+            return {
+                primaryEmail: this.profile.primary_email,
+                optionalEmails: this.profile.additional_email,
+                newEmail: "",
+                newPrimaryEmail: "",
+                originalPrimaryEmail: this.profile.primary_email,
+                originalOptionalEmails: this.profile.additional_email,
+            }
+        },
         methods: {
-            showWarning(message) {
-                this.$buefy.toast.open({
-                    duration: 5000,
-                    message: message,
-                    type: 'is-danger',
-                    position: 'is-top',
-                    queue: false,
-                });
-            },
-            showSuccess(message){
-                this.$buefy.toast.open({
-                    duration: 2000,
-                    message: message,
-                    type: 'is-success',
-                    position: 'is-top'
-                })
-            },
             addEmail() {
                 if (this.optionalEmails.length > 3) {
-                    this.showWarning("Maximum email addresses reached")
+                    this.warningToast("Maximum email addresses reached")
                 } else if (this.optionalEmails.includes(this.newEmail) || this.newEmail === this.primaryEmail) {
-                    this.showWarning("Email address already in use")
+                    this.warningToast("Email address already in use")
                 } else if (this.newEmail === "" || this.newEmail.trim().length === 0 || !this.newEmail.includes('@', 0)) {
-                    this.showWarning("Please enter a valid email address")
+                    this.warningToast("Please enter a valid email address")
                 } else {
                     this.optionalEmails.push(this.newEmail)
                     this.newEmail = ""
                 }
             },
             changePrimaryEmail() {
-                if(this.newPrimaryEmail === "") {
-                    this.showWarning("No additional email address selected")
+                if (this.newPrimaryEmail === "") {
+                    this.warningToast("No additional email address selected")
                 } else {
                     this.optionalEmails.push(this.primaryEmail);
-                    this.optionalEmails = this.optionalEmails.filter(email => email != this.newPrimaryEmail)
+                    let index = this.optionalEmails.indexOf(this.newPrimaryEmail);
+                    this.optionalEmails.splice(index, 1);
                     this.primaryEmail = this.newPrimaryEmail;
                 }
             },
-            deleteEmail(emailToDelete){
+            deleteEmail(emailToDelete) {
                 this.optionalEmails = this.optionalEmails.filter(email => email != emailToDelete)
             },
             submitEmails(){
-                this.$parent.updateEmails(this.primaryEmail, this.optionalEmails)
-                this.showSuccess("Updated emails")
+                if ((this.primaryEmail === this.originalPrimaryEmail) && (this.optionalEmails === this.originalOptionalEmails)) {
+                    this.warningToast("No changes made")
+                } else {
+                    this.$parent.updateEmails(this.primaryEmail, this.optionalEmails)
+                    this.successToast("New emails saved")
+                    this.originalPrimaryEmail = this.primaryEmail
+                    this.originalOptionalEmails = this.optionalEmails
                 }
-            },
-        data() {
-            return {
-            primaryEmail: this.profile.primary_email,
-            optionalEmails: this.profile.additional_email,
-            newEmail: "",
-            newPrimaryEmail: "",
             }
         }
     }

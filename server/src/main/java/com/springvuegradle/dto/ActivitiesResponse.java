@@ -2,6 +2,9 @@ package com.springvuegradle.dto;
 
 import java.util.List;
 
+/**
+ * DTO object to return data to client upon a successful GET request for activities.
+ */
 public class ActivitiesResponse {
 
     private List<String> allActivities;
@@ -14,6 +17,10 @@ public class ActivitiesResponse {
         this.allActivities = activities;
     }
 
+    /**
+     * Returns all
+     * @return
+     */
     public List<String> getAllActivities() {
         return allActivities;
     }

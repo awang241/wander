@@ -11,6 +11,7 @@
                 <li><a v-on:click="changeToCountries">Passport Countries</a></li>
                 <li><a v-on:click="changeToActivityTypes">Activity Types</a></li>
                 <li><a v-on:click="changeToEmail">Emails</a></li>
+                <li><a v-on:click="changeToLocation">Location</a></li>
             </ul>
             <div>
                 <a v-if="store.getters.getAuthenticationLevel === 0 || store.getters.getAuthenticationLevel === 1"
@@ -35,6 +36,7 @@
     import editCountries from "./EditCountries";
     import editActivityTypes from "./EditActivityTypes";
     import editEmails from "./EditEmails";
+    import editLocation from "./EditLocation";
     import api from '../../Api';
     import router from "../../router";
     import store from "../../store";
@@ -68,11 +70,14 @@
             changeToActivityTypes() {
                 this.component = editActivityTypes
             },
+            changeToLocation() {
+                this.component = editLocation
+            },
             changeToEmail() {
                 this.component = editEmails
             },
             changeToProfile() {
-                router.push({path: '/Profile'});
+                router.push({path: '/Profile/' + store.getters.getUserId});
             },
             changeToDashboard() {
                 router.push({path: '/AdminDashboard'});
@@ -89,7 +94,6 @@
                         console.log(error)
                         router.go(-1)
                     })
-
             },
             updateCountries(newCountries) {
                 this.profile.passports = newCountries
@@ -106,6 +110,17 @@
                     "primary_email": primaryEmail,
                     "additional_email": optionalEmails
                 }, this.$route.params.id, localStorage.getItem('authToken'))
+            },
+            updateLocation(location) {
+                this.profile.location = location
+                api.editProfileLocation(this.$route.params.id, location, localStorage.getItem('authToken'))
+                .then(() => {
+                    this.successToast("Location updated!")
+                })
+                .catch(error => this.warningToast(error.response.data))
+            },
+            clearLocation() {
+                api.deleteLocation(this.$route.params.id, localStorage.getItem('authToken'));
             },
             updatePersonal(personalDetails) {
                 this.profile.firstname = personalDetails.firstname

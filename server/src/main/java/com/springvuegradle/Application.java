@@ -1,15 +1,12 @@
 package com.springvuegradle;
 
-import com.springvuegradle.Model.Activity;
-import com.springvuegradle.Repositories.*;
-import com.springvuegradle.Utilities.InitialDataHelper;
-import com.springvuegradle.Utilities.ValidationHelper;
-import com.springvuegradle.service.ActivityService;
+import com.springvuegradle.repositories.*;
+import com.springvuegradle.utilities.InitialDataHelper;
+import com.springvuegradle.utilities.ValidationHelper;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.SpringApplication;
 
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -20,11 +17,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
-
-import static com.springvuegradle.Controller.Profile_Controller.hashPassword;
-
 @SpringBootApplication
-@ComponentScan({"com.springvuegradle.Controller", "com.springvuegradle.Utilities", "com.springvuegradle.service"})
+@ComponentScan({"com.springvuegradle.controller", "com.springvuegradle.utilities", "com.springvuegradle.service"})
 public class Application {
 
     public static void main(String[] args) {
@@ -56,7 +50,8 @@ public class Application {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
         // *** URL below needs to match the Vue client URL and port ***
-        config.setAllowedOrigins(new ArrayList(Arrays.asList("http://localhost:9000", "http://localhost:9499", "http://localhost:9500", "https://csse-s302g0.canterbury.ac.nz/test", "https://csse-s302g0.canterbury.ac.nz/prod")));
+        config.setAllowedOrigins(new ArrayList(Arrays.asList("http://localhost:9000", "http://localhost:9499", "http://localhost:9500", "https://csse-s302g1.canterbury.ac.nz/test", "https://csse-s302g1.canterbury.ac.nz/prod", "https://csse-s302g1.canterbury.ac.nz", "https://csse-s302g1.canterbury.ac.nz/test/api", "https://csse-s302g1.canterbury.ac.nz/prod/api")));
+        //config.setAllowedOrigins(Collections.singletonList("*"));
         config.setAllowedMethods(Collections.singletonList("*"));
         config.setAllowedHeaders(Collections.singletonList("*"));
         source.registerCorsConfiguration("/**", config);

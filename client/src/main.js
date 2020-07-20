@@ -6,28 +6,27 @@ import router from "./router.js";
 import Buefy from 'buefy'
 import api from './Api'
 import store from './store'
+import './veeValidateErrorMessages'
 
 Vue.use(Buefy);
+Vue.use(VueRouter);
+Vue.config.productionTip = false;
 
-Vue.use(VueRouter)
-Vue.config.productionTip = false
-
-Vue.use(Vuex)
+Vue.use(Vuex);
 //Check if a token is expired or null, if so it will redirect a user to the homepage
 if (localStorage.getItem('authToken') != null) {
-    console.log("TEST")
-  api.verifyToken(localStorage.getItem('authToken'))
+    console.log("MAIN");
+    api.verifyToken(localStorage.getItem('authToken'))
       .then(r => {
         let payload = {'token': localStorage.getItem('authToken'), 'userId': localStorage.getItem('userId')}
-        store.dispatch('validateByTokenAndUserId', payload).then()
-          console.log(r)
+        store.dispatch('validateByTokenAndUserId', payload).then();
         return r
       })
       .catch((error) => {
           let payload = {'token': null, 'userId': null, 'authenticationStatus': false, 'authenticationLevel': 5};
         store.dispatch('resetUserData', payload).then();
-        localStorage.clear()
-          console.log(error)
+        localStorage.clear();
+          console.log(error);
           return error
       })
 }

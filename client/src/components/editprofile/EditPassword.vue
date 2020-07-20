@@ -6,18 +6,19 @@
 
         <form @submit.prevent="updatePassword">
             <b-field v-if="store.getters.getAuthenticationLevel > 1"
-                    label="Current Password" expanded >
-                <b-input v-model="currentPassword" type="password" placeholder="Current Password" required></b-input>
+                     label="Current Password" expanded>
+                <b-input v-model="currentPassword" type="password" placeholder="Current Password" ></b-input>
             </b-field>
-            <b-field label="New Password" expanded >
-            <b-input v-model="password" type="password" placeholder="New Password" required></b-input>
+            <b-field label="New Password" expanded>
+                <b-input v-model="password" type="password" placeholder="New Password" ></b-input>
             </b-field>
-            <b-field label="Confirm Password" :message="[{'Passwords do not match':isDisabled}]" expanded >
-                <b-input v-model="confPassword" type="password" placeholder="Confirm Password" required></b-input>
+            <b-field label="Confirm Password" id="errorMessage" :message="[{'Passwords do not match':isDisabled}]"
+                     expanded>
+                <b-input v-model="confPassword" type="password" placeholder="Confirm Password" ></b-input>
             </b-field>
-            <b-field>
-                <b-button type="is-info" native-type="submit" :disabled="isDisabled">Save</b-button>
-            </b-field>
+            <br>
+            <b-button style="float:right" type="is-primary" native-type="submit" :disabled="isDisabled">Save</b-button>
+            <br>
         </form>
     </div>
 
@@ -26,9 +27,11 @@
 <script>
     import api from "../../Api";
     import store from "../../store";
+    import toastMixin from "../../mixins/toastMixin";
 
     export default {
         name: "EditPassword",
+        mixins: [toastMixin],
         data() {
             return {
                 currentPassword: "",
@@ -40,13 +43,18 @@
 
         computed: {
             isDisabled() {
-                return !(this.password == this.confPassword);
+                return (this.password != this.confPassword);
             }
         },
         methods: {
             updatePassword() {
-                if(this.password.length < 8) {
-                    this.showMessage("Password must be 8 characters long")
+
+                if (this.password == this.currentPassword) {
+                    this.warningToast("No changes made")
+                } else if(this.password.length < 8) {
+                    this.warningToast("Password must be at least 8 characters long")
+                } else if (this.confPassword !== this.password) {
+                    this.warningToast("Passwords do not match!")
                 } else {
                     const passwordDetails = {
                         "currentPassword": this.currentPassword,
@@ -54,28 +62,11 @@
                         "confPassword": this.confPassword
                     }
                     api.editPassword(passwordDetails, this.$route.params.id, localStorage.getItem('authToken'))
-                        .catch(error => this.showError(this.displayError(error.response.status)))
-                        .then(response => this.showMessage(this.displayError(response.status)))
-                    // this.showMessage(this.displayError(status))
+                        .catch(error => this.warningToast(this.getErrorMessageFromStatusCode(error.response.status)))
+                        .then(response => this.successToast(this.getErrorMessageFromStatusCode(response.status)))
                 }
             },
-            showMessage(message) {
-                this.$buefy.toast.open({
-                    duration: 5500,
-                    message: message,
-                    type: 'is-success',
-                    position: 'is-top'
-                })
-            },
-            showError(message) {
-                this.$buefy.toast.open({
-                    duration: 5500,
-                    message: message,
-                    type: 'is-danger',
-                    position: 'is-top'
-                })
-            },
-            displayError(statusCode){
+            getErrorMessageFromStatusCode(statusCode){
                 let message = ""
                 if(statusCode == 200) {
                     message = "Password changed successfully"
@@ -95,6 +86,10 @@
         background-color: #F7F8F9;
         margin-top: 0px;
         padding: 0px;
+    }
+
+    #errorMessage {
+        color: red;
     }
 
 </style>

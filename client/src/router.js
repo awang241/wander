@@ -8,6 +8,7 @@ import EditProfileComponent from "./components/editprofile/EditProfile.vue";
 import ActivitiesComponent from "./components/Activities";
 import AdminDashboardComponent from "./components/AdminDashboard";
 import AddActivityComponent from "./components/AddActivity";
+import ProfileSearchComponent from "./components/ProfileSearch"
 import store from "./store";
 
 
@@ -16,13 +17,31 @@ const routes = [
     {path: "/Login", name: "login", component: LoginComponent},
     {path: "/Registration", name: "registration", component: RegistrationComponent},
     {path: "/NavBar", name: "navbar", component: NavBarComponent},
-    {path: "/EditProfile/:id", name: "editProfile", component: EditProfileComponent},
+
     {path: "/AddActivity", name: "addActivity", component: AddActivityComponent},
     {path: "/Activities", name: "activities", component:ActivitiesComponent},
+    {path: "/ProfileSearch", name: "profileSearch", component:ProfileSearchComponent, beforeEnter: (to, from, next) => {
+            if (store.getters.getAuthenticationStatus) {
+                next()
+            } else {
+                next({
+                    name: "login"
+                })
+            }
+    }},
     {path: "/EditActivity/:", name:"editActivity", component:AddActivityComponent, props: true},
+    {path: "/Profile/:id", name: "profile", component:ProfileComponent, beforeEnter: (to, from, next) => {
+            if (store.getters.getAuthenticationStatus) {
+                next()
+            } else {
+                next({
+                    name: "login"
+                })
+            }
+        }},
     {
         //This route is only accessible if the user is authenticated, else it sends them back to the main page
-        path: "/Profile", name: "profile", component: ProfileComponent, beforeEnter: (to, from, next) => {
+        path: "/EditProfile/:id", name: "editProfile", component: EditProfileComponent, beforeEnter: (to, from, next) => {
             if (store.getters.getAuthenticationStatus) {
                 next()
             } else {
@@ -47,8 +66,15 @@ const routes = [
 ]
 
 const router = new VueRouter({
-    routes,
-    mode: 'history'
+    mode: 'history',
+    scrollBehaviour(to, from, savedPosition) {
+        if (savedPosition) {
+            return savedPosition;
+        } else {
+            return {x: 0, y: 0};
+        }
+    },
+    routes
 })
 
 export default router;
