@@ -106,6 +106,10 @@ public class ProfileSummary {
         return gender;
     }
 
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -121,9 +125,5 @@ public class ProfileSummary {
     @Override
     public int hashCode() {
         return Objects.hash(id, firstname, lastname, email, gender);
-    }
-
-    public void setGender(String gender) {
-        this.gender = gender;
     }
 }

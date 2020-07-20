@@ -11,8 +11,9 @@ import com.springvuegradle.enums.EmailResponseMessage;
 import com.springvuegradle.model.PassportCountry;
 import com.springvuegradle.model.Profile;
 import com.springvuegradle.repositories.*;
+import com.springvuegradle.service.SecurityService;
 import com.springvuegradle.service.ProfileService;
-import com.springvuegradle.utilities.JwtUtil;
+import com.springvuegradle.utilities.*;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
@@ -25,12 +26,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.web.WebAppConfiguration;
 
+import java.security.Security;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.List;
-
+import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ContextConfiguration(classes = Application.class)
@@ -38,11 +36,20 @@ import static org.junit.jupiter.api.Assertions.*;
 @WebAppConfiguration
 public class ProfileTestSteps{
 
+    enum ResponseType{
+        GET("GET"), POST("POST"), PUT("PUT"), LOGIN("LOGIN");
+        private String name;
+        private ResponseType(String value){
+            name = value;
+        }
+    }
+
     private Profile_Controller profileController;
     private LoginController loginController;
     private ResponseEntity<String> createProfileResponse;
     private ResponseEntity<LoginResponse> loginResponse;
     private ResponseEntity<ProfileSearchResponse> searchResponse;
+    private Map<ResponseType, ResponseEntity<?>> responses;
     private String dbPassword;
 
     @Autowired
@@ -59,14 +66,19 @@ public class ProfileTestSteps{
     private ActivityTypeRepository aRepo;
     @Autowired
     private ActivityRepository activityRepo;
+    @Autowired
+    private ProfileLocationRepository profileLocationRepository;
+    @Autowired
+    private SecurityService securityService;
 
     @Before
     public void setUp() {
         loginController = new LoginController(jwtUtil, eRepo);
-        profileController = new Profile_Controller(profileService, repo, pcRepo, eRepo, aRepo, activityRepo, jwtUtil);
-        //profileController = new Profile_Controller();
+        profileController = new Profile_Controller(profileService, repo, pcRepo, eRepo, aRepo, activityRepo, profileLocationRepository,
+                jwtUtil, securityService);
         createProfileResponse = null;
         loginResponse = null;
+        responses = new HashMap<>();
         searchResponse = null;
         dbPassword = null;
         eRepo.deleteAll();
@@ -235,7 +247,7 @@ public class ProfileTestSteps{
     public void an_account_with_email_exists_with_fitness_level_and_the_following_passport_countries(String email, Integer fitness_level, io.cucumber.datatable.DataTable dataTable) {
         System.out.println(repo.count());
         Profile profile = repo.findByEmail(email).get(0);
-        assertTrue(profile != null);
+        assertNotNull(profile);
         assertEquals(fitness_level, profile.getFitness());
         ArrayList<String> passport_countries = new ArrayList<>();
         for (String name : dataTable.asList()) {
@@ -335,4 +347,74 @@ public class ProfileTestSteps{
                 "The quick brown fox jumped over the lazy dog.", new GregorianCalendar(1999, Calendar.NOVEMBER,
                 28), "male", 1, new String[]{}, new String[]{});
     }
+
+    @When("I change the nickname of the profile with email {string} to {string}")
+    public void iChangeTheNameOfTheProfileWithEmailTo(String email, String newName) {
+        String token = getTokenIfExists();
+        Profile profile = repo.findByEmail(email).iterator().next();
+        profile.setNickname(newName);
+        profileController.updateProfile(profile, token, profile.getId());
+    }
+
+    @And("The account with the email {string} does not have the nickname {string}")
+    public void theAccountWithTheEmailDoesNotHaveTheNickname(String email, String nickname) {
+        Profile profile = repo.findByEmail(email).iterator().next();
+        assertNotEquals(nickname, profile.getNickname());
+    }
+
+    @And("The account with the email {string} has the nickname {string}")
+    public void theAccountWithTheEmailHasTheNickname(String email, String nickname) {
+        Profile profile = repo.findByEmail(email).iterator().next();
+        assertEquals(nickname, profile.getNickname());
+    }
+
+    @And("The sample admin exists")
+    public void theSampleAdminExists() {
+        InitialDataHelper.addExampleProfiles(repo, eRepo);
+    }
+    @And("I log in as the sample admin")
+    public void iLogInAsTheSampleAdmin() {
+        LoginRequest request = new LoginRequest("Dave@test.com", "SecureAdminPassword");
+        loginResponse = loginController.loginUser(request);
+    }
+
+    @When("I load the profile with the email {string}")
+    public void iLoadTheProfileWithTheEmail(String arg0) {
+        List<Profile> result = repo.findByEmail(arg0);
+        long id = -1;
+        if (result.size() == 1) {
+            id = result.iterator().next().getId();
+        } else if (result.size() > 1){
+            fail("Server error - multiple profiles share the same email address");
+        }
+        responses.put(ResponseType.GET, profileController.getProfile(id, getTokenIfExists()));
+    }
+
+    private String getTokenIfExists() {
+        String token = null;
+        if (loginResponse != null) {
+            if (loginResponse.getBody() != null) {
+                return loginResponse.getBody().getToken();
+            }
+        }
+        return "not a real jwt token";
+    }
+
+    @Then("I receive the details of the profile with the email {string} in the get profile response")
+    public void iReceiveTheDetailsOfTheProfileWithTheEmailInTheGetProfileResponse(String arg0) {
+
+    }
+
+    @Then("I receive a {string} response with the response code {int}")
+    public void iReceiveAResponseWithTheResponseCode(String typeName, int code) {
+        ResponseType type = ResponseType.valueOf(typeName);
+        assertEquals(code, responses.get(type).getStatusCodeValue());
+    }
+
+    @Then("I receive a {string} response with the details of the profile with the email {string}")
+    public void iReceiveAResponseWithTheDetailsOfTheProfileWithTheEmail(String typeName, String email) {
+        ResponseType type = ResponseType.valueOf(typeName);
+        assertEquals(repo.findByEmail(email).iterator().next(), responses.get(type).getBody());
+    }
+
 }
