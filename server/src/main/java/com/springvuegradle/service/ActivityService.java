@@ -93,13 +93,14 @@ public class ActivityService {
         if (result.isEmpty()) {
             throw new IllegalArgumentException(ActivityResponseMessage.INVALID_ACTIVITY.toString());
         } else {
-
+            //removes all the activity types from the activity
             for (ActivityType activityType : typeRepo.findAll()) {
                 if (activityType.getActivities().contains(activity)) {
                     activityType.removeActivity(activity);
                 }
             }
 
+            //adds the activity types to the activity
             Set<ActivityType> updatedActivityType = new HashSet<>();
             for (ActivityType activityType : activity.retrieveActivityTypes()) {
                 List<ActivityType> resultActivityTypes = typeRepo.findByActivityTypeName(activityType.getActivityTypeName());
@@ -109,7 +110,7 @@ public class ActivityService {
 
             Activity entry = result.get();
             entry.update(activity);
-            activityRepo.save(entry);
+            //activityRepo.save(entry);
         }
     }
 
