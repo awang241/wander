@@ -55,8 +55,8 @@
                 optionalEmails: this.profile.additional_email,
                 newEmail: "",
                 newPrimaryEmail: "",
-                originalPrimaryEmail: this.profile.primary_email,
-                originalOptionalEmails: this.profile.additional_email,
+                originalOptionalEmails: JSON.parse(JSON.stringify(this.profile.additional_email)),
+                originalPrimaryEmail: JSON.parse(JSON.stringify(this.profile.primary_email))
             }
         },
         methods: {
@@ -86,13 +86,11 @@
                 this.optionalEmails = this.optionalEmails.filter(email => email != emailToDelete)
             },
             submitEmails(){
-                if ((this.primaryEmail === this.originalPrimaryEmail) && (this.optionalEmails === this.originalOptionalEmails)) {
+                if ((this.primaryEmail === this.originalPrimaryEmail) && (this.originalOptionalEmails.toString() === this.optionalEmails.toString())) {
                     this.warningToast("No changes made")
                 } else {
                     this.$parent.updateEmails(this.primaryEmail, this.optionalEmails)
                     this.successToast("New emails saved")
-                    this.originalPrimaryEmail = this.primaryEmail
-                    this.originalOptionalEmails = this.optionalEmails
                 }
             }
         }
