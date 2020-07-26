@@ -88,30 +88,18 @@ public class ActivityService {
      */
     public void update(Activity activity, Long activityId) {
         validateActivity(activity);
-
         Optional<Activity> result = activityRepo.findById(activityId);
-        if (result.isEmpty()) {
-            throw new IllegalArgumentException(ActivityResponseMessage.INVALID_ACTIVITY.toString());
-        } else {
-            //removes all the activity types from the activity
-            for (ActivityType activityType : typeRepo.findAll()) {
-                if (activityType.getActivities().contains(activity)) {
-                    activityType.removeActivity(activity);
-                }
-            }
+        Activity db_activity = result.get();
+        db_activity.setActivityTypes(activity.retrieveActivityTypes());
 
-            //adds the activity types to the activity
-            Set<ActivityType> updatedActivityType = new HashSet<>();
-            for (ActivityType activityType : activity.retrieveActivityTypes()) {
-                List<ActivityType> resultActivityTypes = typeRepo.findByActivityTypeName(activityType.getActivityTypeName());
-                updatedActivityType.add(resultActivityTypes.get(0));
-            }
-            activity.setActivityTypes(updatedActivityType);
-
-            Activity entry = result.get();
-            entry.update(activity);
-            //activityRepo.save(entry);
+        // verifying activityTypes
+        Set<ActivityType> updatedActivityTypes = new HashSet<>();
+        for (ActivityType activityType : result.get().retrieveActivityTypes()) {
+            List<ActivityType> resultActivityTypes = typeRepo.findByActivityTypeName(activityType.getActivityTypeName());
+            updatedActivityTypes.add(resultActivityTypes.get(0));
         }
+        db_activity.setActivityTypes(updatedActivityTypes);
+        activityRepo.save(db_activity);
     }
 
     /**
