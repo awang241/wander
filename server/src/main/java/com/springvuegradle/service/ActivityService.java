@@ -90,11 +90,11 @@ public class ActivityService {
         validateActivity(activity);
         Optional<Activity> result = activityRepo.findById(activityId);
         Activity db_activity = result.get();
-        db_activity.setActivityTypes(activity.retrieveActivityTypes());
+        //db_activity.setActivityTypes(activity.retrieveActivityTypes());
 
         // verifying activityTypes
         Set<ActivityType> updatedActivityTypes = new HashSet<>();
-        for (ActivityType activityType : result.get().retrieveActivityTypes()) {
+        for (ActivityType activityType : activity.retrieveActivityTypes()) {
             List<ActivityType> resultActivityTypes = typeRepo.findByActivityTypeName(activityType.getActivityTypeName());
             updatedActivityTypes.add(resultActivityTypes.get(0));
         }
