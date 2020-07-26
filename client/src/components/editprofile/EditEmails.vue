@@ -9,20 +9,24 @@
 
         <form>
             <div v-if="optionalEmails.length>0">
-                <b-field label="Change your primary email">
-                    <b-select v-model="newPrimaryEmail" class="selectNewPEList" expanded>
-                        <option class="singleEmail" v-for="email in optionalEmails" :key="email">{{email}}</option>
-                    </b-select>
-                </b-field>
+
+                <ValidationProvider rules="required|email" name="Email" v-slot="{ errors, valid }" slim>
+                    <b-field label="Change your primary email"
+                             :type="{'is-danger': errors[0], 'is-success': valid}"
+                             :message="errors">
+                        <b-select v-model="newPrimaryEmail" class="selectNewPEList" expanded>
+                            <option class="singleEmail" v-for="email in optionalEmails" :key="email">{{email}}</option>
+                        </b-select>
+                    </b-field>
+                </ValidationProvider>
+
                 <b-button  type="is-info" @click="changePrimaryEmail()">
                     Change
                 </b-button>
             </div>
             <br>
 
-            <b-field
-                    label="Enter in an email address and click the 'Add' button to add it to your profile! (5 email limit)"
-                    expanded></b-field>
+            <b-field label="Enter in an email address and click the 'Add' button to add it to your profile! (5 email limit)" expanded></b-field>
             <b-field group-multiline grouped>
                 <b-input type="email" class="addForm" v-model="newEmail" placeholder="Enter an email" maxlength="30"
                          expanded></b-input>
@@ -43,12 +47,18 @@
 
     import List from "../List";
     import toastMixin from "../../mixins/toastMixin";
+    import {ValidationProvider} from "vee-validate";
+
 
     export default {
         name: "EditEmails",
-        components: {List},
         mixins: [toastMixin],
         props: ["profile"],
+        components: {
+            ValidationProvider,
+            List
+            //ValidationObserver
+        },
         data() {
             return {
                 primaryEmail: this.profile.primary_email,

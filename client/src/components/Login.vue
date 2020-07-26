@@ -2,31 +2,45 @@
     <div class="container">
         <div class="form-container sign-in-container">
             <section>
-                <form action="" method="post" class="form-register">
+
+                <ValidationObserver v-slot="{ handleSubmit }">
+
+                <form action="" method="post" class="form-register" @submit.prevent="handleSubmit(login)">
                     <h1 class="title">Login</h1>
-                    <b-field label="Email">
-                        <template slot="label">Email <span>*</span></template>
-                        <b-input class="help" placeholder="Email"
-                                 v-model="email"
+                    <ValidationProvider rules="required|email" name="Email" v-slot="{ errors, valid }" slim>
+                        <b-field label="Email"
+                                 :type="{ 'is-danger': errors[0], 'is-success' : valid}"
+                                 :message="errors">
+                            <template slot="label">Email <span>*</span></template>
+                            <b-input class="help"
+                                     placeholder="Email"
+                                     v-model="email">
+                            </b-input>
+                        </b-field>
+                    </ValidationProvider>
 
-                                 maxlength="40">
-                        </b-input>
-                    </b-field>
+                    <ValidationProvider rules="required|minPassword" name="Password" v-slot="{ errors, valid }">
+                        <b-field label="Password"
+                                 :type="{ 'is-danger': errors[0], 'is-success': valid}"
+                                 :message="errors"
+                                 expanded>
+                            <template slot="label">Password <span>*</span></template>
+                            <b-input placeholder="Password"
+                                     v-model="password"
+                                     type="password">
+                            </b-input>
+                        </b-field>
+                    </ValidationProvider>
 
-                    <b-field label="Password">
-                        <template slot="label">Password <span>*</span></template>
-                        <b-input placeholder="Password"
-                                 v-model="password"
-                                 type="password"
-                                 maxlength="20">
-                        </b-input>
-                    </b-field>
-                    <b-button @click="login"
+                    <br>
+
+                    <b-button native-type="submit"
                               type="is-primary" style="float:right">
                         Login
                     </b-button>
                     <br>
                 </form>
+                </ValidationObserver>
             </section>
         </div>
     </div>
@@ -38,10 +52,15 @@
     import store from '../store';
     import jwt_decode from "jwt-decode";
     import toastMixin from "../mixins/toastMixin";
+    import {ValidationObserver, ValidationProvider} from "vee-validate";
 
     export default {
         name: 'Login',
         mixins: [toastMixin],
+        components: {
+            ValidationProvider,
+            ValidationObserver
+        },
         data() {
             return {
                 email: "",
