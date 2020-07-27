@@ -10,7 +10,7 @@
         <form>
             <div v-if="optionalEmails.length>0">
 
-                <ValidationProvider rules="required|email" name="Email" v-slot="{ errors, valid }" slim>
+                <ValidationProvider rules="changeEmail" name="Primary Email" v-slot="{ errors, valid }" slim>
                     <b-field label="Change your primary email"
                              :type="{'is-danger': errors[0], 'is-success': valid}"
                              :message="errors">
@@ -20,18 +20,21 @@
                     </b-field>
                 </ValidationProvider>
 
-                <b-button  type="is-info" @click="changePrimaryEmail()">
+                <b-button type="is-info" @click="changePrimaryEmail()">
                     Change
                 </b-button>
             </div>
             <br>
 
-            <b-field label="Enter in an email address and click the 'Add' button to add it to your profile! (5 email limit)" expanded></b-field>
-            <b-field group-multiline grouped>
-                <b-input type="email" class="addForm" v-model="newEmail" placeholder="Enter an email" maxlength="30"
-                         expanded></b-input>
-                <b-button class="addButton" type="is-primary" @click="addEmail()">Add</b-button>
-            </b-field>
+            <ValidationProvider rules="optionalEmail|email" name="Email" v-slot="{ errors, valid }" slim>
+                <b-field label="Add optional email addresses"
+                         :type="{'is-danger': errors[0], 'is-success': valid}"
+                         :message="errors"
+                         expanded>
+                    <b-input type="email" class="addForm" v-model="newEmail" placeholder="Enter an email" maxlength="30" expanded></b-input>
+                </b-field>
+            </ValidationProvider>
+            <b-button class="addButton" type="is-primary" @click="addEmail()">Add</b-button>
         </form>
 
         <list v-bind:chosenItems="optionalEmails" v-on:deleteListItem="deleteEmail"></list>
@@ -57,7 +60,6 @@
         components: {
             ValidationProvider,
             List
-            //ValidationObserver
         },
         data() {
             return {
@@ -78,8 +80,8 @@
                 } else if (this.newEmail === "" || this.newEmail.trim().length === 0 || !this.newEmail.includes('@', 0)) {
                     this.warningToast("Please enter a valid email address")
                 } else {
-                    this.optionalEmails.push(this.newEmail)
-                    this.newEmail = ""
+                    this.optionalEmails.push(this.newEmail);
+                    this.newEmail = "";
                 }
             },
             changePrimaryEmail() {

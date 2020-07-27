@@ -163,7 +163,7 @@
                 this.location.city = document.getElementById("autocompleteCities").value;
                 this.location.state = document.getElementById("autocompleteStates").value;
                 if(this.location.country === ""){
-                    this.warningToast("Please enter a country")
+                    this.warningToast("Please select a country")
                 } else if(this.location.city === ""){
                     this.warningToast("Please enter a city")
                 } else if (JSON.stringify((this.location)) === original) {

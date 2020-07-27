@@ -2,24 +2,28 @@ import { required, confirmed, email } from "vee-validate/dist/rules";
 // eslint-disable-next-line no-unused-vars
 import { extend } from "vee-validate";
 
-
 extend('minName', value => {
-
     if (value.length >= 2) {
         return true;
     }
-
     return '{_field_} must be at least 2 characters long';
 });
 
-
 extend('minPassword', value => {
-
     if (value.length >= 8) {
         return true;
     }
-
     return 'Password must be at least 8 characters long';
+});
+
+extend('changeEmail', {
+    ...required,
+    message: 'Must choose an additional email'
+})
+
+extend('optionalEmail', {
+    ...required,
+    message:" Add an optional email if you'd like"
 });
 
 extend("requiredGender", {
