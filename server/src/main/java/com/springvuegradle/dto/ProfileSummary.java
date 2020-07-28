@@ -24,7 +24,7 @@ public class ProfileSummary {
     private String lastname;
 
     /**
-     *
+     * Holds the user's email.
      */
     private String email;
 
@@ -35,6 +35,11 @@ public class ProfileSummary {
 
     private List<String> activityTypes;
 
+    /**
+     * Holds the user's authentication level.
+     */
+    private int authLevel;
+
 
     /**
      * Constructor for Profile. The way the JSONProperty is structured is how the getProfile method should display the
@@ -44,14 +49,17 @@ public class ProfileSummary {
      * @param lastname last name of user
      * @param email users primary email address
      * @param gender (Male, Female, Other)
+     * @param authLevel user's auth level
      */
-    public ProfileSummary(Long id, String firstname, String lastname, String email, String gender, List<String> activityTypes) {
+    public ProfileSummary(Long id, String firstname, String lastname, String email, String gender, List<String> activityTypes,
+                        Integer authLevel) {
         this.id = id;
         this.firstname = firstname;
         this.lastname = lastname;
         this.email = email;
         this.gender = gender;
         this.activityTypes = activityTypes;
+        this.authLevel = authLevel;
     }
 
     /**
@@ -65,6 +73,7 @@ public class ProfileSummary {
         this.email = profile.getPrimary_email();
         this.gender = profile.getGender();
         this.activityTypes = profile.getActivityTypes();
+        this.authLevel = profile.getAuthLevel();
     }
 
     public Long getId() {
@@ -102,6 +111,10 @@ public class ProfileSummary {
     @JsonProperty("activities")
     public List<String> getActivityTypes(){return this.activityTypes;}
 
+    public Integer getAuthLevel() {
+        return authLevel;
+    }
+
     public String getGender() {
         return gender;
     }
@@ -119,11 +132,12 @@ public class ProfileSummary {
                 Objects.equals(firstname, that.firstname) &&
                 Objects.equals(lastname, that.lastname) &&
                 Objects.equals(email, that.email) &&
-                Objects.equals(gender, that.gender);
+                Objects.equals(gender, that.gender) &&
+                Objects.equals(authLevel, that.authLevel);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, firstname, lastname, email, gender);
+        return Objects.hash(id, firstname, lastname, email, gender, authLevel);
     }
 }
