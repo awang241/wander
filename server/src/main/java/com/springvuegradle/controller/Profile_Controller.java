@@ -197,7 +197,7 @@ public class Profile_Controller {
      * @return http response code and feedback message on the result of the delete operation
      */
     @DeleteMapping(value="/profiles/{id}")
-    public @ResponseBody ResponseEntity<String> deleteProfile(@PathVariable Long id) {
+    public @ResponseBody ResponseEntity<String> deleteProfile(@RequestHeader("authorization") String token, @PathVariable Long id) {
         // remove this after done
 //        Optional<Profile> result = repo.findById(id);
 //        if (Boolean.TRUE.equals(result.isPresent())) {
@@ -210,6 +210,9 @@ public class Profile_Controller {
 //        } else {
 //            return new ResponseEntity<>("The profile does not exist in the database.", HttpStatus.NOT_FOUND);
 //        }
+        if(!securityService.checkEditPermission(token, id)){
+            return new ResponseEntity<>("Permission denied", HttpStatus.FORBIDDEN);
+        }
         return profileService.deleteProfile(id);
     }
 
