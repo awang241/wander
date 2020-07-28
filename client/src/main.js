@@ -8,7 +8,16 @@ import api from './Api'
 import store from './store'
 import './veeValidateErrorMessages'
 
-Vue.use(Buefy);
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { faEllipsisV } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+library.add(faEllipsisV)
+Vue.component('vue-fontawesome', FontAwesomeIcon);
+
+Vue.use(Buefy, {
+    defaultIconComponent: 'vue-fontawesome',
+    defaultIconPack: 'fas',
+});
 Vue.use(VueRouter);
 Vue.config.productionTip = false;
 
