@@ -11,7 +11,6 @@
                                  :type="{ 'is-danger': errors[0], 'is-success': valid }"
                                  :message="errors"
                                  expanded >
-                            <template slot="label">First Name <span>*</span></template>
                             <b-input v-model="firstName" placeholder="First Name"></b-input>
                         </b-field>
                     </ValidationProvider>
@@ -135,6 +134,7 @@
     import router from '../router.js'
     import toastMixin from '../mixins/toastMixin'
     import {ValidationProvider, ValidationObserver} from 'vee-validate'
+    import store from "../store";
 
 
     export default {
@@ -207,10 +207,23 @@
                     })
                         .then(() => {
                             this.successToast("Account created!")
-                            router.push('Login')
+                            this.login(this.email, this.password)
                         })
                         .catch(error => this.warningToast(error.response.data))
                 }
+            },
+
+            login(email, password) {
+                api.login({
+                    email, password
+                }).then((response => {
+                    localStorage.setItem('authToken', response.data.token)
+                    localStorage.setItem('userId', response.data.userId)
+                    let payload = {'token': response.data.token, 'userId': response.data.userId}
+                    store.dispatch('validateByTokenAndUserId', payload).then()
+                    router.push({path: '/Profile/' + store.getters.getUserId})
+                }))
+                    .catch(error => this.warningToast(this.getErrorMessageFromStatusCode(error.response.status)))
             },
 
             validateEmail(email) {

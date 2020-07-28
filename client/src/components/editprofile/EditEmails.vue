@@ -9,25 +9,32 @@
 
         <form>
             <div v-if="optionalEmails.length>0">
-                <b-field label="Change your primary email">
-                    <b-select v-model="newPrimaryEmail" class="selectNewPEList" expanded>
-                        <option class="singleEmail" v-for="email in optionalEmails" :key="email">{{email}}</option>
-                    </b-select>
-                </b-field>
-                <b-button  type="is-info" @click="changePrimaryEmail()">
+
+                <ValidationProvider rules="changeEmail" name="Primary Email" v-slot="{ errors, valid }" slim>
+                    <b-field label="Change your primary email"
+                             :type="{'is-danger': errors[0], 'is-success': valid}"
+                             :message="errors">
+                        <b-select v-model="newPrimaryEmail" class="selectNewPEList" expanded>
+                            <option class="singleEmail" v-for="email in optionalEmails" :key="email">{{email}}</option>
+                        </b-select>
+                    </b-field>
+                </ValidationProvider>
+
+                <b-button type="is-info" @click="changePrimaryEmail()">
                     Change
                 </b-button>
             </div>
             <br>
 
-            <b-field
-                    label="Enter in an email address and click the 'Add' button to add it to your profile! (5 email limit)"
-                    expanded></b-field>
-            <b-field group-multiline grouped>
-                <b-input type="email" class="addForm" v-model="newEmail" placeholder="Enter an email" maxlength="30"
-                         expanded></b-input>
-                <b-button class="addButton" type="is-primary" @click="addEmail()">Add</b-button>
-            </b-field>
+            <ValidationProvider rules="optionalEmail|email" name="Email" v-slot="{ errors, valid }" slim>
+                <b-field label="Add optional email addresses"
+                         :type="{'is-danger': errors[0], 'is-success': valid}"
+                         :message="errors"
+                         expanded>
+                    <b-input type="email" class="addForm" v-model="newEmail" placeholder="Enter an email" maxlength="30" expanded></b-input>
+                </b-field>
+            </ValidationProvider>
+            <b-button class="addButton" type="is-primary" @click="addEmail()">Add</b-button>
         </form>
 
         <list v-bind:chosenItems="optionalEmails" v-on:deleteListItem="deleteEmail"></list>
@@ -43,20 +50,25 @@
 
     import List from "../List";
     import toastMixin from "../../mixins/toastMixin";
+    import {ValidationProvider} from "vee-validate";
+
 
     export default {
         name: "EditEmails",
-        components: {List},
         mixins: [toastMixin],
         props: ["profile"],
+        components: {
+            ValidationProvider,
+            List
+        },
         data() {
             return {
                 primaryEmail: this.profile.primary_email,
                 optionalEmails: this.profile.additional_email,
                 newEmail: "",
                 newPrimaryEmail: "",
-                originalPrimaryEmail: this.profile.primary_email,
-                originalOptionalEmails: this.profile.additional_email,
+                originalOptionalEmails: JSON.parse(JSON.stringify(this.profile.additional_email)),
+                originalPrimaryEmail: JSON.parse(JSON.stringify(this.profile.primary_email))
             }
         },
         methods: {
@@ -68,8 +80,8 @@
                 } else if (this.newEmail === "" || this.newEmail.trim().length === 0 || !this.newEmail.includes('@', 0)) {
                     this.warningToast("Please enter a valid email address")
                 } else {
-                    this.optionalEmails.push(this.newEmail)
-                    this.newEmail = ""
+                    this.optionalEmails.push(this.newEmail);
+                    this.newEmail = "";
                 }
             },
             changePrimaryEmail() {
@@ -86,13 +98,11 @@
                 this.optionalEmails = this.optionalEmails.filter(email => email != emailToDelete)
             },
             submitEmails(){
-                if ((this.primaryEmail === this.originalPrimaryEmail) && (this.optionalEmails === this.originalOptionalEmails)) {
+                if ((this.primaryEmail === this.originalPrimaryEmail) && (this.originalOptionalEmails.toString() === this.optionalEmails.toString())) {
                     this.warningToast("No changes made")
                 } else {
                     this.$parent.updateEmails(this.primaryEmail, this.optionalEmails)
                     this.successToast("New emails saved")
-                    this.originalPrimaryEmail = this.primaryEmail
-                    this.originalOptionalEmails = this.optionalEmails
                 }
             }
         }
