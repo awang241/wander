@@ -1,5 +1,6 @@
 package com.springvuegradle.controller;
 
+import com.springvuegradle.enums.AuthLevel;
 import com.springvuegradle.enums.AuthenticationErrorMessage;
 import com.springvuegradle.model.*;
 import com.springvuegradle.repositories.*;
@@ -713,6 +714,29 @@ public class Profile_Controller {
             return new ResponseEntity<>("expired", HttpStatus.OK);
         } else {
             return new ResponseEntity<>("not expired", HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    /**
+     *
+     * @param editAuthLevelRequest The request
+     * @param id the profile id that's role is being edited
+     * @param token authentication token
+     * @return an HTTP response
+     */
+    @PutMapping("/profiles/{id}/role")
+    public @ResponseBody ResponseEntity<String> editAuthLevel(@RequestBody EditAuthLevelRequest editAuthLevelRequest, @PathVariable long id, @RequestHeader("authorization") String token) {
+        if (token == null) {
+            return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(), HttpStatus.UNAUTHORIZED);
+        }
+        else if (!jwtUtil.validateToken(token)) {
+            return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(), HttpStatus.FORBIDDEN);
+        }
+        else if (editAuthLevelRequest.getRole().equals("admin") || editAuthLevelRequest.getRole().equals("user")) {
+            profileService.setUserAuthLevel(id, AuthLevel.valueOf(editAuthLevelRequest.getRole()));
+            return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(ProfileErrorMessage.INVALID_ROLE.getMessage(), HttpStatus.FORBIDDEN);
         }
     }
 
