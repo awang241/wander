@@ -1,5 +1,6 @@
 package com.springvuegradle.service;
 
+import com.springvuegradle.enums.AuthLevel;
 import com.springvuegradle.enums.ProfileErrorMessage;
 import com.springvuegradle.model.*;
 import com.springvuegradle.repositories.ProfileLocationRepository;
@@ -125,8 +126,10 @@ public class ProfileService {
      * @param userId The ID of the profile being changed.
      * @param newAuthLevel The new auth level.
      */
-    public void setUserAuthLevel(long userId, int newAuthLevel) {
-        if (newAuthLevel < 1 || newAuthLevel > 5) {
+    public void setUserAuthLevel(long userId, AuthLevel newAuthLevel) {
+
+        if (newAuthLevel.getLevel() < AuthLevel.ADMIN.getLevel() ||
+                newAuthLevel.getLevel() > AuthLevel.USER.getLevel()) {
             throw new IllegalArgumentException(ProfileErrorMessage.INVALID_AUTH_LEVEL.getMessage());
         }
 
@@ -135,7 +138,7 @@ public class ProfileService {
             throw new IllegalArgumentException(ProfileErrorMessage.PROFILE_NOT_FOUND.getMessage());
         } else {
             Profile targetProfile = result.get();
-            targetProfile.setAuthLevel(newAuthLevel);
+            targetProfile.setAuthLevel(newAuthLevel.getLevel());
             profileRepository.save(targetProfile);
         }
     }
