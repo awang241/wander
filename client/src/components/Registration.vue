@@ -214,7 +214,6 @@
             },
 
             login(email, password) {
-                console.log
                 api.login({
                     email, password
                 }).then((response => {
