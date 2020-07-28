@@ -1,5 +1,4 @@
 import { required, confirmed, email } from "vee-validate/dist/rules";
-// eslint-disable-next-line no-unused-vars
 import { extend } from "vee-validate";
 
 extend('minName', value => {
@@ -26,9 +25,21 @@ extend('optionalEmail', {
     message:" Add an optional email if you'd like"
 });
 
+extend('activityDescription', value => {
+   if (value.split("").length < 3) {
+       return "Description must contain at least 2 words"
+   }
+   return true
+});
+
 extend("requiredGender", {
     ...required,
     message: "You must choose a gender"
+});
+
+extend("requiredActivityType", {
+    ...required,
+    message: "You must choose at least one activity type"
 });
 
 extend("required", {
