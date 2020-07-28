@@ -135,6 +135,7 @@
     import router from '../router.js'
     import toastMixin from '../mixins/toastMixin'
     import {ValidationProvider, ValidationObserver} from 'vee-validate'
+    import store from "../store";
 
 
     export default {
@@ -207,10 +208,25 @@
                     })
                         .then(() => {
                             this.successToast("Account created!")
-                            router.push('Login')
+                            this.login(this.email, this.password)
                         })
                         .catch(error => this.warningToast(error.response.data))
                 }
+            },
+
+            login(email, password) {
+                console.log
+                api.login({
+                    email, password
+                }).then((response => {
+                    console.log('test')
+                    localStorage.setItem('authToken', response.data.token)
+                    localStorage.setItem('userId', response.data.userId)
+                    let payload = {'token': response.data.token, 'userId': response.data.userId}
+                    store.dispatch('validateByTokenAndUserId', payload).then()
+                    router.push({path: '/Profile/' + store.getters.getUserId})
+                }))
+                    .catch(error => this.warningToast(this.getErrorMessageFromStatusCode(error.response.status)))
             },
 
             validateEmail(email) {
