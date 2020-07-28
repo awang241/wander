@@ -115,13 +115,27 @@ public class ProfileService {
         if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getActivityTypes()))) {
             spec = spec.and(ProfileSpecifications.activityTypesContains(criteria.getActivityTypes(), criteria.getSearchMethod()));
         }
-/*
-        Page<Profile> repoResults = profileRepository.findAll(spec, request);
-        Set<Profile> resultSet = repoResults.toSet();
-        Page<Profile> result = new PageImpl<>(new ArrayList<>(resultSet), request, )
 
- */
         return profileRepository.findAll(spec, request);
     }
 
+    /**
+     * Sets the auth level of the profile with the given ID to the given value.
+     * @param userId The ID of the profile being changed.
+     * @param newAuthLevel The new auth level.
+     */
+    public void setUserAuthLevel(long userId, int newAuthLevel) {
+        if (newAuthLevel < 1 || newAuthLevel > 5) {
+            throw new IllegalArgumentException("Authorization level must be between 1 and 5");
+        }
+
+        Optional<Profile> result = profileRepository.findById(userId);
+        if (result.isEmpty()) {
+            throw new IllegalArgumentException("No profile with that ID exists in the database");
+        } else {
+            Profile targetProfile = result.get();
+            targetProfile.setAuthLevel(newAuthLevel);
+            profileRepository.save(targetProfile);
+        }
+    }
 }
