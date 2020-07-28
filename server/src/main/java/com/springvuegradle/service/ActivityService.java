@@ -89,17 +89,16 @@ public class ActivityService {
     public void update(Activity activity, Long activityId) {
         validateActivity(activity);
         Optional<Activity> result = activityRepo.findById(activityId);
-        Activity db_activity = result.get();
-        //db_activity.setActivityTypes(activity.retrieveActivityTypes());
-
-        // verifying activityTypes
-        Set<ActivityType> updatedActivityTypes = new HashSet<>();
-        for (ActivityType activityType : activity.retrieveActivityTypes()) {
-            List<ActivityType> resultActivityTypes = typeRepo.findByActivityTypeName(activityType.getActivityTypeName());
-            updatedActivityTypes.add(resultActivityTypes.get(0));
+        if (result.isPresent()) {
+            Activity db_activity = result.get();
+            Set<ActivityType> updatedActivityTypes = new HashSet<>();
+            for (ActivityType activityType : activity.retrieveActivityTypes()) {
+                List<ActivityType> resultActivityTypes = typeRepo.findByActivityTypeName(activityType.getActivityTypeName());
+                updatedActivityTypes.add(resultActivityTypes.get(0));
+            }
+            db_activity.setActivityTypes(updatedActivityTypes);
+            activityRepo.save(db_activity);
         }
-        db_activity.setActivityTypes(updatedActivityTypes);
-        activityRepo.save(db_activity);
     }
 
     /**
