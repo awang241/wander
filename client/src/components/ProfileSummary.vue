@@ -36,7 +36,10 @@
             }
         },
         props: {
-            profile: Object
+            profile: {
+                type: Object,
+                required: true
+            }
         },
         methods: {
             gotoProfile() {

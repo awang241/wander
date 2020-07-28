@@ -60,8 +60,7 @@
 
         <div id="results" class="column" v-if="profiles.length">
             <div v-for="profile in profiles" :key="profile.id">
-                <AdminProfileSummary v-if="viewingAsAdmin" :profile="profile"></AdminProfileSummary>
-                <ProfileSummary v-else :profile="profile"></ProfileSummary>
+                <ProfileSummary :profile="profile"></ProfileSummary>
             </div>
         </div>
 
@@ -76,19 +75,13 @@
 <script>
     import Api from "../Api";
     import ProfileSummary from "./ProfileSummary";
-    import AdminProfileSummary from "./AdminProfileSummary";
     import Observer from "./Observer";
 
     const DEFAULT_RESULT_COUNT = 10
 
     export default {
         name: "ProfileSearch",
-        components: {AdminProfileSummary, Observer, ProfileSummary},
-        props: {
-            viewingAsAdmin: {
-                default: false,
-            }
-        },
+        components: {Observer, ProfileSummary},
         data() {
             return {
                 activitySearchType: "all",

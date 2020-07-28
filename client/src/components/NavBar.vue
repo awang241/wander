@@ -29,7 +29,7 @@
                         Register
                     </b-button>
                     <b-button  @click="goToProfileSearch"
-                               v-if="store.getters.getAuthenticationStatus && store.getters.getAuthenticationLevel > 0"
+                               v-if="store.getters.getAuthenticationStatus && store.getters.getAuthenticationLevel > 1"
                                type="is-light">
                         Search for a Profile
                     </b-button>
