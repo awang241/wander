@@ -213,6 +213,10 @@ public class Profile_Controller {
         if(!securityService.checkEditPermission(token, id)){
             return new ResponseEntity<>("Permission denied", HttpStatus.FORBIDDEN);
         }
+        return deleteProfile(id);
+    }
+
+    protected ResponseEntity<String> deleteProfile(@PathVariable Long id) {
         return profileService.deleteProfile(id);
     }
 
