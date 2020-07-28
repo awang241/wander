@@ -1,86 +1,107 @@
 <template>
     <div class="container">
         <h1 class="title">Activity</h1>
-        <form @submit.prevent="createActivity">
+        <ValidationObserver v-slot="{ handleSubmit }">
 
-            <b-field label="Activity Name" expanded>
-                <b-input v-model="activity.name" placeholder="Enter activity name here" required></b-input>
-            </b-field>
-
-            <b-field label="Description" expanded>
-                <b-input v-model="activity.description" maxlength="500" type="textarea"
-                         placeholder="Enter a description" required></b-input>
-            </b-field>
-
-            <div class="block">
-                <b-field label="Activity duration" expanded></b-field>
-                <b-radio v-model="activity.activityDuration"
-                         name="name"
-                         native-value="Continuous">
-                    Continuous
-                </b-radio>
-                <b-radio v-model="activity.activityDuration"
-                         name="name"
-                         native-value="Duration">
-                    Duration
-                </b-radio>
-            </div>
-
-
-            <div v-if="!isContinuous">
-                <b-field group-multiline grouped>
-                    <b-field label="Start date" expanded>
-                        <input class="input" type="date" v-model="activity.startDate">
+            <form @submit.prevent="handleSubmit(createActivity)">
+                <ValidationProvider rules="required|minName" name="Activity Name" v-slot="{ errors, valid }" slim>
+                    <b-field label="Activity Name"
+                             :type="{ 'is-danger': errors[0], 'is-success': valid }"
+                             :message="errors"
+                             expanded>
+                        <template slot="label">Activity Name <span class="requiredStar">*</span></template>
+                        <b-input v-model="activity.name" placeholder="Enter activity name here"></b-input>
                     </b-field>
-                    <b-field label="End date" expanded>
-                        <input class="input" type="date" v-model="activity.endDate">
+                </ValidationProvider>
+
+                <ValidationProvider rules="required|activityDescription" name="Description" v-slot="{ errors, valid }" slim>
+                    <b-field label="Description"
+                             :type="{ 'is-danger': errors[0], 'is-success': valid }"
+                             :message="errors"
+                             expanded>
+                        <template slot="label">Description <span class="requiredStar">*</span></template>
+                        <b-input v-model="activity.description" maxlength="500" type="textarea"
+                                 placeholder="Enter a description"></b-input>
                     </b-field>
-                </b-field>
-                <b-field group-multiline grouped>
-                    <b-field label="Start time" expanded>
-                        <input class="input" type="time" v-model="activity.startTime">
-                    </b-field>
-                    <b-field label="End time" expanded>
-                        <input class="input" type="time" v-model="activity.endTime">
-                    </b-field>
-                </b-field>
-                <br>
-            </div>
+                </ValidationProvider>
 
-            <b-field label="Activity location" expanded>
-                <b-input v-model="activity.location" placeholder="Enter activity location" required></b-input>
-            </b-field>
+                <div class="block">
 
-            <h4 class="label">Add at least one activity type</h4>
-            <b-field>
-                <b-select placeholder="Select at least one activity type" v-model="newActivityType" expanded>
-                    <option
-                            v-for="activityType in possibleActivityTypes"
-                            :value="activityType"
-                            :key="activityType">
-                        {{ activityType }}
-                    </option>
-                </b-select>
-                <b-button type="is-primary" @click="addActivityType">Add</b-button>
-            </b-field>
-            <List v-bind:chosenItems="activity.chosenActivityTypes" v-on:deleteListItem="deleteActivityType"></List>
-
-            <br>
-
-            <div class="column">
-                <div class="is-pulled-left">
-                    <b-button type="is-danger" @click="goBack">Cancel</b-button>
+                    <b-field > <template slot="label">Activity Duration <span class="requiredStar">*</span></template></b-field>
+                    <b-radio v-model="activity.activityDuration"
+                             name="name"
+                             native-value="Continuous">
+                        Continuous
+                    </b-radio>
+                    <b-radio v-model="activity.activityDuration"
+                             name="name"
+                             native-value="Duration">
+                        Duration
+                    </b-radio>
                 </div>
-                <div class="is-pulled-right">
-                    <b-field>
-                        <b-button native-type="submit" class="is-primary">Submit</b-button>
+
+
+                <div v-if="!isContinuous">
+                    <b-field group-multiline grouped>
+                        <b-field label="Start date" expanded>
+                            <input class="input" type="date" v-model="activity.startDate">
+                        </b-field>
+                        <b-field label="End date" expanded>
+                            <input class="input" type="date" v-model="activity.endDate">
+                        </b-field>
                     </b-field>
+                    <b-field group-multiline grouped>
+                        <b-field label="Start time" expanded>
+                            <input class="input" type="time" v-model="activity.startTime">
+                        </b-field>
+                        <b-field label="End time" expanded>
+                            <input class="input" type="time" v-model="activity.endTime">
+                        </b-field>
+                    </b-field>
+                    <br>
                 </div>
+                <ValidationProvider rules="required|minName" name="Activity Location" v-slot="{ errors, valid }" slim>
+
+                    <b-field label="Activity location"
+                             :type="{ 'is-danger': errors[0], 'is-success': valid }"
+                             :message="errors"
+                             expanded>
+                        <template slot="label">Activity Location <span class="requiredStar">*</span></template>
+                        <b-input v-model="activity.location" placeholder="Enter activity location"></b-input>
+                    </b-field>
+                </ValidationProvider>
+
+                <h4 class="label">Add at least one activity type <span class="requiredStar">*</span></h4>
+                <b-field>
+                    <b-select placeholder="Select at least one activity type" v-model="newActivityType" expanded>
+                        <option
+                                v-for="activityType in possibleActivityTypes"
+                                :value="activityType"
+                                :key="activityType">
+                            {{ activityType }}
+                        </option>
+                    </b-select>
+                    <b-button type="is-primary" @click="addActivityType">Add</b-button>
+                </b-field>
+                <List v-bind:chosenItems="activity.chosenActivityTypes" v-on:deleteListItem="deleteActivityType"></List>
+
                 <br>
-            </div>
+
+                <div class="column">
+                    <div class="is-pulled-left">
+                        <b-button type="is-danger" @click="goBack">Cancel</b-button>
+                    </div>
+                    <div class="is-pulled-right">
+                        <b-field>
+                            <b-button native-type="submit" class="is-primary">Submit</b-button>
+                        </b-field>
+                    </div>
+                    <br>
+                </div>
 
 
-        </form>
+            </form>
+        </ValidationObserver>
     </div>
 
 </template>
@@ -92,10 +113,16 @@
     import store from "../store";
     import router from "../router";
     import toastMixin from "../mixins/toastMixin";
+    import {ValidationProvider, ValidationObserver} from 'vee-validate'
+
 
     export default {
         name: "AddActivity",
-        components: {List},
+        components: {
+            List,
+            ValidationProvider,
+            ValidationObserver
+        },
         mixins: [toastMixin],
         props: {
             //Activity the user is editing if one exists
@@ -227,7 +254,7 @@
             },
             submitActivity(activity) {
                 const originalActivity = this.convertToProp(this.activityProp)
-                if(this.activity.creating){
+                if (this.activity.creating) {
                     Api.createActivity(store.getters.getUserId, activity, localStorage.getItem('authToken'))
                         .then((response) => {
                             console.log(response);
@@ -255,18 +282,19 @@
             },
             //Component to create/edit activities needs a prop with a different format to the HTTP GET request
             //This method converts the data from the request to a usable prop for the create/edit component
-            convertToProp(activity){
+            convertToProp(activity) {
                 //If we are creating activity rather than editing we don't need to modify props
-                if(activity.creating){
+                if (activity.creating) {
                     return activity
                 }
-                let activityProp = {"name": activity.activity_name,
+                let activityProp = {
+                    "name": activity.activity_name,
                     "description": activity.description,
                     "location": activity.location,
                     "chosenActivityTypes": activity.activity_type,
                     "id": activity.id
                 }
-                if(activity.continuous){
+                if (activity.continuous) {
                     activityProp.activityDuration = "Continuous"
                     activityProp.startDate = null
                     activityProp.endDate = null
@@ -275,9 +303,9 @@
                 } else {
                     activityProp.activityDuration = "Duration"
                     //Converting the UTC format to format used by HTML date inputs. Surely a better way to do this
-                    activityProp.startDate = activity.start_time.slice(0,10)
+                    activityProp.startDate = activity.start_time.slice(0, 10)
                     activityProp.startTime = activity.start_time.slice(11, 16)
-                    activityProp.endDate = activity.end_time.slice(0,10)
+                    activityProp.endDate = activity.end_time.slice(0, 10)
                     activityProp.endTime = activity.end_time.slice(11, 16)
                 }
 
@@ -302,6 +330,10 @@
     .column {
         padding: 0;
         margin: 0;
+    }
+
+    .requiredStar {
+        color:red
     }
 
 </style>
