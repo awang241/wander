@@ -1,8 +1,10 @@
 <template>
     <div class="container">
-        <h1 class="title">User search</h1>
+        <!--slot for name allows this component to be reused with different names-->
+        <slot name="header">
+            <h1 class="title">User search</h1>
+        </slot>
         <form @submit.prevent="searchUser">
-
             <b-field label="Name" expanded>
                 <b-input type="text"
                          v-model="name"
@@ -57,10 +59,9 @@
         </form>
 
         <div id="results" class="column" v-if="profiles.length">
-            <div
-                    v-for="profile in profiles"
-                    :key="profile.id">
-                <ProfileSummary :profile="profile"/>
+            <div v-for="profile in profiles" :key="profile.id">
+                <AdminProfileSummary v-if="viewingAsAdmin" :profile="profile"></AdminProfileSummary>
+                <ProfileSummary v-else :profile="profile"></ProfileSummary>
             </div>
         </div>
 
@@ -75,13 +76,19 @@
 <script>
     import Api from "../Api";
     import ProfileSummary from "./ProfileSummary";
+    import AdminProfileSummary from "./AdminProfileSummary";
     import Observer from "./Observer";
 
     const DEFAULT_RESULT_COUNT = 10
 
     export default {
         name: "ProfileSearch",
-        components: {Observer, ProfileSummary},
+        components: {AdminProfileSummary, Observer, ProfileSummary},
+        props: {
+            viewingAsAdmin: {
+                default: false,
+            }
+        },
         data() {
             return {
                 activitySearchType: "all",
