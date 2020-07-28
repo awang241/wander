@@ -198,17 +198,19 @@ public class Profile_Controller {
      */
     @DeleteMapping(value="/profiles/{id}")
     public @ResponseBody ResponseEntity<String> deleteProfile(@PathVariable Long id) {
-        Optional<Profile> result = repo.findById(id);
-        if (Boolean.TRUE.equals(result.isPresent())) {
-            Profile profileToDelete = result.get();
-            for (Email email: profileToDelete.retrieveEmails()) {
-                eRepo.delete(email);
-            }
-            repo.delete(profileToDelete);
-            return new ResponseEntity<>("The Profile does exist in the database.", HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("The profile does not exist in the database.", HttpStatus.NOT_FOUND);
-        }
+        // remove this after done
+//        Optional<Profile> result = repo.findById(id);
+//        if (Boolean.TRUE.equals(result.isPresent())) {
+//            Profile profileToDelete = result.get();
+//            for (Email email: profileToDelete.retrieveEmails()) {
+//                eRepo.delete(email);
+//            }
+//            repo.delete(profileToDelete);
+//            return new ResponseEntity<>("The Profile does exist in the database.", HttpStatus.OK);
+//        } else {
+//            return new ResponseEntity<>("The profile does not exist in the database.", HttpStatus.NOT_FOUND);
+//        }
+        return profileService.deleteProfile(id);
     }
 
     /**

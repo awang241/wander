@@ -1,6 +1,7 @@
 package com.springvuegradle.service;
 
 import com.springvuegradle.model.*;
+import com.springvuegradle.repositories.EmailRepository;
 import com.springvuegradle.repositories.ProfileLocationRepository;
 import com.springvuegradle.repositories.ProfileRepository;
 import com.springvuegradle.repositories.spec.ProfileSpecifications;
@@ -35,6 +36,15 @@ public class ProfileService {
     public ProfileService(ProfileRepository profileRepository) {
         this.profileRepository = profileRepository;
     }
+
+    @Autowired
+    private ProfileRepository repo;
+
+    /**
+     * Way to access Email Repository (Email table in db).
+     */
+    @Autowired
+    private EmailRepository eRepo;
 
 
     /**
@@ -122,6 +132,26 @@ public class ProfileService {
 
  */
         return profileRepository.findAll(spec, request);
+    }
+
+    /**
+     * Deletes a profile from the repository given that it exists in the database. The method was initially used for
+     * testing but might be useful for a later story.
+     * @param id the id of the profile to be deleted
+     * @return http response code and feedback message on the result of the delete operation
+     */
+    public ResponseEntity<String> deleteProfile(Long id) {
+        Optional<Profile> result = repo.findById(id);
+        if (Boolean.TRUE.equals(result.isPresent())) {
+            Profile profileToDelete = result.get();
+            for (Email email: profileToDelete.retrieveEmails()) {
+                eRepo.delete(email);
+            }
+            repo.delete(profileToDelete);
+            return new ResponseEntity<>("The Profile does exist in the database.", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("The profile does not exist in the database.", HttpStatus.NOT_FOUND);
+        }
     }
 
 }
