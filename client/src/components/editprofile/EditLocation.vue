@@ -119,9 +119,6 @@
                     this.possibleCountries = possibleCountries;
                     this.possibleCountriesAlpha2Code = possibleCountriesAlpha2Code;
                     if (this.location.country == "") {
-                        // this.restrictionCountryAlphaCode = 'NZ';
-                        // this.DropdownCountry = 'New Zealand';
-                        // this.location.country = 'New Zealand';
                         this.restrictionCountryAlphaCode = '';
                         this.DropdownCountry = '';
                         this.location.country = '';
@@ -150,8 +147,6 @@
                 this.successToast("Location removed")
                 document.getElementById("autocompleteCities").value = null;
                 document.getElementById("autocompleteStates").value = null;
-                // document.getElementById("country").value = 'New Zealand';
-                // this.location = {country: "New Zealand", city: "", state: ""}
                 document.getElementById("country").value = '';
                 this.location = {country: "", city: "", state: ""}
                 console.log(this.location)
