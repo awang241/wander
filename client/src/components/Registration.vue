@@ -218,7 +218,6 @@
                 api.login({
                     email, password
                 }).then((response => {
-                    console.log('test')
                     localStorage.setItem('authToken', response.data.token)
                     localStorage.setItem('userId', response.data.userId)
                     let payload = {'token': response.data.token, 'userId': response.data.userId}
