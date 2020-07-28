@@ -1,6 +1,7 @@
 package com.springvuegradle.service;
 
 import com.springvuegradle.controller.Profile_Controller;
+import com.springvuegradle.enums.ProfileErrorMessage;
 import com.springvuegradle.model.Email;
 import com.springvuegradle.model.Profile;
 import com.springvuegradle.model.ProfileLocation;
@@ -21,11 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.Set;
-import java.util.HashSet;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -312,6 +309,80 @@ class ProfileServiceTest {
         assertEquals(0L, profileLocationRepository.count());
     }
 
+    @Test
+    void setUserAuthLevelAsAdminTest(){
+        steven.setAuthLevel(5);
+        steven = profileRepository.save(steven);
+        long id = steven.getId();
+        assertNotEquals(1, steven.getAuthLevel(), "Sanity check: Profile is not an admin");
+        testService.setUserAuthLevel(id, 1);
+        Optional<Profile> updated =  profileRepository.findById(id);
+        if (updated.isEmpty()) {
+            fail("Error: Updated profile does not exist in repository");
+        } else {
+            assertEquals(1, updated.get().getAuthLevel());
+        }
+    }
+
+    @Test
+    void setUserAuthLevelAsNormalTest(){
+        steven.setAuthLevel(1);
+        steven = profileRepository.save(steven);
+        long id = steven.getId();
+        assertEquals(1, steven.getAuthLevel(), "Sanity check: Profile is an admin");
+        testService.setUserAuthLevel(id, 5);
+        Optional<Profile> updated =  profileRepository.findById(id);
+        if (updated.isEmpty()) {
+            fail("Error: Updated profile does not exist in repository");
+        } else {
+            assertEquals(5, updated.get().getAuthLevel());
+        }
+    }
+
+    @Test
+    void setUserAuthLevelWithTooHighAuthLevelTest(){
+        steven.setAuthLevel(1);
+        steven = profileRepository.save(steven);
+        long id = steven.getId();
+        try {
+            testService.setUserAuthLevel(id, 6);
+            fail("Should have thrown an IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            assertEquals(ProfileErrorMessage.INVALID_AUTH_LEVEL.getMessage(), e.getMessage());
+        } catch (Exception e) {
+            fail("Should have thrown an IllegalArgumentException");
+        }
+    }
+
+    @Test
+    void setUserAuthLevelWithTooLowAuthLevelTest(){
+        steven.setAuthLevel(1);
+        steven = profileRepository.save(steven);
+        long id = steven.getId();
+        try {
+            testService.setUserAuthLevel(id, 0);
+            fail("Should have thrown an IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            assertEquals(ProfileErrorMessage.INVALID_AUTH_LEVEL.getMessage(), e.getMessage());
+        } catch (Exception e) {
+            fail("Should have thrown an IllegalArgumentException");
+        }
+    }
+
+    @Test
+    void setUserAuthLevelWhereUserDoesNotExistTest(){
+        long badId = 0;
+        assertFalse(profileRepository.existsById(badId));
+        try {
+            testService.setUserAuthLevel(badId, 5);
+            fail("Should have thrown an IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            assertEquals(ProfileErrorMessage.PROFILE_NOT_FOUND.getMessage(), e.getMessage());
+        } catch (Exception e) {
+            fail("Should have thrown an IllegalArgumentException");
+        }
+    }
+
     /**
      * Example test profile to use in tests
      **/
@@ -328,4 +399,5 @@ class ProfileServiceTest {
         }
         return  updated;
     }
+
 }

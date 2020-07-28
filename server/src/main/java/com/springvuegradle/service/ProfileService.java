@@ -1,5 +1,6 @@
 package com.springvuegradle.service;
 
+import com.springvuegradle.enums.ProfileErrorMessage;
 import com.springvuegradle.model.*;
 import com.springvuegradle.repositories.ProfileLocationRepository;
 import com.springvuegradle.repositories.ProfileRepository;
@@ -126,12 +127,12 @@ public class ProfileService {
      */
     public void setUserAuthLevel(long userId, int newAuthLevel) {
         if (newAuthLevel < 1 || newAuthLevel > 5) {
-            throw new IllegalArgumentException("Authorization level must be between 1 and 5");
+            throw new IllegalArgumentException(ProfileErrorMessage.INVALID_AUTH_LEVEL.getMessage());
         }
 
         Optional<Profile> result = profileRepository.findById(userId);
         if (result.isEmpty()) {
-            throw new IllegalArgumentException("No profile with that ID exists in the database");
+            throw new IllegalArgumentException(ProfileErrorMessage.PROFILE_NOT_FOUND.getMessage());
         } else {
             Profile targetProfile = result.get();
             targetProfile.setAuthLevel(newAuthLevel);
