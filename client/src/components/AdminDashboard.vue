@@ -39,7 +39,8 @@
         data() {
             return {
                 allProfiles: [],
-                startIndex: 0
+                startIndex: 0,
+                moreProfilesExist: true
             }
         },
         methods: {
@@ -54,14 +55,20 @@
                 router.push('EditProfile/' + profileID);
             },
             loadMoreProfiles() {
-                api.getUserProfiles(localStorage.getItem('authToken'), {
-                    count: DEFAULT_RESULT_COUNT,
-                    startIndex: this.startIndex
-                }).then(response => {
-                    this.startIndex += DEFAULT_RESULT_COUNT
-                    const profiles = response.data.results
-                    this.allProfiles = [...this.allProfiles, ...profiles]
-                })
+                if(this.moreProfilesExist) {
+                    api.getUserProfiles(localStorage.getItem('authToken'), {
+                        count: DEFAULT_RESULT_COUNT,
+                        startIndex: this.startIndex
+                    }).then(response => {
+                        if(response.data.results.length == 0) {
+                            this.moreProfilesExist = false;
+                        } else {
+                            this.startIndex += DEFAULT_RESULT_COUNT
+                            const profiles = response.data.results
+                            this.allProfiles = [...this.allProfiles, ...profiles]
+                        }
+                    })
+                }
             }
         },
         mounted() {
