@@ -3,6 +3,8 @@
         <div class="columns">
             <div class="column">
                 <h4><strong>{{name}}</strong></h4>
+                <div v-if="profile.authLevel < 2" class="color-primary">Admin</div>
+
                 <p>{{profile.gender}}</p>
                 <p>{{profile.email}}</p>
             </div>
@@ -58,5 +60,8 @@
 <style scoped>
     .columns{
         padding: 1rem;
+    }
+    .color-primary {
+        color: #4099FF
     }
 </style>
