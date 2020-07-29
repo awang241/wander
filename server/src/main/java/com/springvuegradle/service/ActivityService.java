@@ -98,6 +98,8 @@ public class ActivityService {
             }
             db_activity.setActivityTypes(updatedActivityTypes);
             activityRepo.save(db_activity);
+        } else {
+            throw new IllegalArgumentException(ActivityResponseMessage.INVALID_ACTIVITY.toString());
         }
     }
 

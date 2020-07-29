@@ -117,7 +117,7 @@ class ActivityServiceTest {
      **/
     @Test
     void updateActivityNotInDatabaseThrowsException() {
-        assertThrows(NoSuchElementException.class, ()->{ service.update(createNormalActivityKaikoura(), 0L);});
+        assertThrows(IllegalArgumentException.class, ()->{ service.update(createNormalActivityKaikoura(), 0L);});
     }
 
     /**
