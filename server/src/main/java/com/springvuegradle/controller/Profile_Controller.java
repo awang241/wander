@@ -718,11 +718,11 @@ public class Profile_Controller {
     }
 
     /**
-     *
-     * @param editAuthLevelRequest The request
-     * @param id the profile id that's role is being edited
-     * @param token authentication token
-     * @return an HTTP response
+     * Updates the auth level of a user
+     * @param editAuthLevelRequest Contains the new auth level for the user
+     * @param id the profile id of the user that's auth level is being edited
+     * @param token the jwt token stored on the client
+     * @return response entity which can return a string if there is an error, all cases will return status code
      */
     @PutMapping("/profiles/{id}/role")
     public @ResponseBody ResponseEntity<String> editAuthLevel(@RequestBody EditAuthLevelRequest editAuthLevelRequest, @PathVariable long id, @RequestHeader("authorization") String token) {
