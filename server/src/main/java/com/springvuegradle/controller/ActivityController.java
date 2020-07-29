@@ -173,7 +173,7 @@ public class ActivityController {
             if (token == null || token.isBlank()) {
                 return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
                         HttpStatus.UNAUTHORIZED);
-            } else if (!securityService.checkEditPermission(token, profileId)) {
+            } else if (!securityService.checkEditPermission(token, profileId) || !activityService.checkActivityCreator(jwtUtil.extractId(token), activityId)) {
                 return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(),
                         HttpStatus.FORBIDDEN);
             }
