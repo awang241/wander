@@ -141,6 +141,7 @@ public class ProfileService {
 
     /**
      * Deletes a profile and related data from the repository given that it exists in the database.
+     * Checks if the profile about to be deleted is the default admin and stops if it is the default admin.
      * @param id the id of the profile to be deleted
      * @return http response code and feedback message on the result of the delete operation
      */
@@ -148,6 +149,9 @@ public class ProfileService {
         Optional<Profile> result = repo.findById(id);
         if (Boolean.TRUE.equals(result.isPresent())) {
             Profile profileToDelete = result.get();
+            if (profileToDelete.getAuthLevel() == 0) {
+                return new ResponseEntity<>("Cannot delete default admin.", HttpStatus.FORBIDDEN);
+            }
             for (Email email: profileToDelete.retrieveEmails()) {
                 eRepo.delete(email);
             }
