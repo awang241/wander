@@ -1,6 +1,7 @@
 package com.springvuegradle.service;
 
 import com.springvuegradle.model.*;
+import com.springvuegradle.repositories.ActivityMembershipRepository;
 import com.springvuegradle.repositories.EmailRepository;
 import com.springvuegradle.repositories.ProfileLocationRepository;
 import com.springvuegradle.repositories.ProfileRepository;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 
 
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Service-layer class containing all business logic handling profiles.
@@ -45,6 +47,9 @@ public class ProfileService {
      */
     @Autowired
     private EmailRepository eRepo;
+
+    @Autowired
+    private ActivityMembershipRepository actMemRepo;
 
 
     /**
@@ -135,8 +140,7 @@ public class ProfileService {
     }
 
     /**
-     * Deletes a profile from the repository given that it exists in the database. The method was initially used for
-     * testing but might be useful for a later story.
+     * Deletes a profile and related data from the repository given that it exists in the database.
      * @param id the id of the profile to be deleted
      * @return http response code and feedback message on the result of the delete operation
      */
@@ -147,6 +151,10 @@ public class ProfileService {
             for (Email email: profileToDelete.retrieveEmails()) {
                 eRepo.delete(email);
             }
+            for (ActivityMembership membership: profileToDelete.getActivities()) {
+                actMemRepo.delete(membership);
+            }
+            deleteProfileLocation(id);
             repo.delete(profileToDelete);
             return new ResponseEntity<>("The Profile does exist in the database.", HttpStatus.OK);
         } else {
