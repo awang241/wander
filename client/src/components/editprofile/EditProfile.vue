@@ -43,11 +43,10 @@
 
     export default {
         name: "EditProfile",
-
+        props: ['id'],
         data() {
             return {
                 component: "editPersonal",
-                profileId: this.$route.params.id,
                 profile: {},
                 store: store
             }
@@ -84,11 +83,11 @@
             },
 
             getProfile() {
-                if (!(this.$route.params.id == store.getters.getUserId || store.getters.getAuthenticationLevel < 2)) {
+                if (!(this.id == store.getters.getUserId || store.getters.getAuthenticationLevel < 2)) {
                     router.push({path: '/EditProfile/' + store.getters.getUserId})
 
                 }
-                api.getProfile(this.$route.params.id, localStorage.getItem('authToken'))
+                api.getProfile(this.id, localStorage.getItem('authToken'))
                     .then(response => this.profile = response.data)
                     .catch((error) => {
                         console.log(error)
@@ -113,14 +112,14 @@
             },
             updateLocation(location) {
                 this.profile.location = location
-                api.editProfileLocation(this.$route.params.id, location, localStorage.getItem('authToken'))
+                api.editProfileLocation(this.id, location, localStorage.getItem('authToken'))
                 .then(() => {
                     this.successToast("Location updated!")
                 })
                 .catch(error => this.warningToast(error.response.data))
             },
             clearLocation() {
-                api.deleteLocation(this.$route.params.id, localStorage.getItem('authToken'));
+                api.deleteLocation(this.id, localStorage.getItem('authToken'));
             },
             updatePersonal(personalDetails) {
                 this.profile.firstname = personalDetails.firstname
@@ -131,7 +130,7 @@
                 this.profile.date_of_birth = personalDetails.date_of_birth
                 this.profile.gender = personalDetails.gender
                 this.profile.fitness = personalDetails.fitness
-                api.editProfile(this.$route.params.id, this.profile, localStorage.getItem('authToken'))
+                api.editProfile(this.id, this.profile, localStorage.getItem('authToken'))
             }
         }
     }

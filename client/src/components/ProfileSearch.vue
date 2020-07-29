@@ -60,7 +60,7 @@
 
         <div id="results" class="column" v-if="profiles.length">
             <div v-for="profile in profiles" :key="profile.id">
-                <ProfileSummary :profile="profile"></ProfileSummary>
+                <ProfileSummary :profile="profile" @deleteClicked="deleteProfile"></ProfileSummary>
             </div>
         </div>
 
@@ -76,11 +76,13 @@
     import Api from "../Api";
     import ProfileSummary from "./ProfileSummary";
     import Observer from "./Observer";
+    import toastMixin from "../mixins/toastMixin";
 
     const DEFAULT_RESULT_COUNT = 10
 
     export default {
         name: "ProfileSearch",
+        mixins: [toastMixin],
         components: {Observer, ProfileSummary},
         data() {
             return {
@@ -102,7 +104,17 @@
             getPossibleActivityTypes() {
                 Api.getActivityTypesList()
                     .then(response => this.possibleActivityTypes = response.data.allActivityTypes)
-                    .catch(error => this.showMessage(error))
+                    .catch(() => this.warningToast("Could not get activity type list, please refresh"))
+            },
+            deleteProfile(id) {
+                Api.deleteProfile(id, localStorage.getItem('authToken'))
+                    .then(() => {
+                        this.profiles = this.profiles.filter((profile) => {
+                            return profile.id != id
+                        })
+                        this.successToast("Deleted profile")
+                    })
+                    .catch(() => this.warningToast("Profile could not be deleted"))
             },
             resetSearchFields() {
                 this.email = ""

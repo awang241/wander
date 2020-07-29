@@ -73,7 +73,7 @@
                 })
             },
             deleteProfile(){
-                console.log("deleted profile!")
+                this.$emit('deleteClicked', this.profile.id)
             }
         }
     }

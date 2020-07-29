@@ -33,7 +33,7 @@ const routes = [
     {path: "/Profile/:id", name: "profile", component:ProfileComponent, props: true},
     {
         //This route is only accessible if the user is authenticated, else it sends them back to the main page
-        path: "/EditProfile/:id", name: "editProfile", component: EditProfileComponent, beforeEnter: (to, from, next) => {
+        path: "/EditProfile/:id", name: "editProfile", props: true, component: EditProfileComponent, beforeEnter: (to, from, next) => {
             if (store.getters.getAuthenticationStatus) {
                 next()
             } else {
