@@ -6,7 +6,6 @@ public enum AuthLevel {
     AuthLevel(int level) {
         this.level = level;
     }
-
     public int getLevel() {
         return level;
     }

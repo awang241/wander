@@ -733,7 +733,7 @@ public class Profile_Controller {
             return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(), HttpStatus.FORBIDDEN);
         }
         else if (editAuthLevelRequest.getRole().equals("admin") || editAuthLevelRequest.getRole().equals("user")) {
-            profileService.setUserAuthLevel(id, AuthLevel.valueOf(editAuthLevelRequest.getRole()));
+            profileService.setUserAuthLevel(id, AuthLevel.valueOf(editAuthLevelRequest.getRole().toUpperCase()));
             return new ResponseEntity<>(HttpStatus.OK);
         } else {
             return new ResponseEntity<>(ProfileErrorMessage.INVALID_ROLE.getMessage(), HttpStatus.FORBIDDEN);
