@@ -62,6 +62,8 @@ public class ActivityTestSteps {
 
     private ResponseEntity<String> responseEntity;
 
+    private Activity activity;
+
     @AfterEach()
     private void tearDown() {
         profileRepository.deleteAll();
@@ -82,7 +84,7 @@ public class ActivityTestSteps {
     @When("I create a continuous activity with the title {string} and the location {string}")
     public void i_create_a_continuous_activity_with_the_title_with_the_activity_type_and_the_location(String title, String location) {
         typeRepository.save(new ActivityType("Running"));
-        assertEquals(201, activityController.createActivity(jwtUtil.extractId(loginResponse.getToken()), createNormalActivity(title, location), loginResponse.getToken()).getStatusCodeValue());
+        assertEquals(201, activityController.createActivity(jwtUtil.extractId(loginResponse.getToken()), activity = createNormalActivity(title, location), loginResponse.getToken()).getStatusCodeValue());
     }
 
     @Then("An activity with the title {string} exists")
@@ -113,6 +115,23 @@ public class ActivityTestSteps {
     public void the_activity_is_not_deleted() {
         assertEquals(403, responseEntity.getStatusCodeValue());
         assertEquals(1, activityRepository.count());
+    }
+
+    @When("I choose to edit the activity by changing the title to {string}")
+    public void i_choose_to_edit_the_activity_by_changing_the_title_to(String title) {
+        activity.setActivityName(title);
+        responseEntity = activityController.updateActivity(activity, loginResponse.getToken(), jwtUtil.extractId(loginResponse.getToken()), activityRepository.getLastInsertedId());
+
+    }
+
+    @Then("The activity is not edited")
+    public void the_activity_is_not_edited() {
+        assertEquals(403, responseEntity.getStatusCodeValue());
+    }
+
+    @Then("The activity was edited")
+    public void the_activity_was_edited() {
+        assertEquals(200, responseEntity.getStatusCodeValue());
     }
 
 
