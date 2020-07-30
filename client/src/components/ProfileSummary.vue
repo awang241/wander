@@ -3,7 +3,7 @@
         <div class="columns">
             <div class="column">
                 <h4><strong>{{name}}</strong></h4>
-                <div v-if="profile.authLevel < 2" class="color-primary">Admin</div>
+                <div v-if="this.profileIsAdmin" class="color-primary">Admin</div>
 
                 <p>{{profile.gender}}</p>
                 <p>{{profile.email}}</p>
@@ -14,18 +14,19 @@
                     <p> {{activity}}</p>
                 </div>
             </div>
-            <b-button v-if="false" type="is-text" @click="gotoProfile(profile.id)">View profile</b-button>
-            <b-menu-item v-else class="is-vertical-center">
+            <b-menu-item v-if="store.getters.getAuthenticationLevel <= 1" class="is-vertical-center">
                 <template slot="label">
                     <b-dropdown aria-role="list" class="is-pulled-right" position="is-bottom-left">
                         <b-icon icon="ellipsis-v" slot="trigger"></b-icon>
                         <b-dropdown-item aria-role="listitem" @click="gotoProfile">View profile</b-dropdown-item>
                         <b-dropdown-item aria-role="listitem" @click="editProfile">Edit profile </b-dropdown-item>
                         <b-dropdown-item aria-role="listitem" @click="deleteProfile">Delete profile</b-dropdown-item>
-                        <b-dropdown-item aria-role="listitem">Make admin</b-dropdown-item>
+                        <b-dropdown-item v-if="this.profileIsAdmin" aria-role="listitem" @click="changeAdminRights('user')">Remove admin rights</b-dropdown-item>
+                        <b-dropdown-item v-else aria-role="listitem" @click="changeAdminRights('admin')">Make admin</b-dropdown-item>
                     </b-dropdown>
                 </template>
             </b-menu-item>
+            <b-button v-else type="is-text" @click="gotoProfile(profile.id)">View profile</b-button>
         </div>
     </div>
 </template>
@@ -33,12 +34,17 @@
 <script>
     import Profile from "./Profile.vue";
     import EditProfile from "./editprofile/EditProfile"
+    import Api from "../Api";
+    import toastMixin from "../mixins/toastMixin";
+    import store from "../store";
 
     export default {
         name: "ProfileSummary",
+        mixins: [toastMixin],
         data() {
             return {
-                profileData: {}
+                profileData: {},
+                store: store
             }
         },
         mounted() {
@@ -47,6 +53,9 @@
         computed: {
             name() {
                 return `${this.profile.firstname}  ${this.profile.lastname}`
+            },
+            profileIsAdmin(){
+                return this.profile.authLevel < 2
             }
         },
         props: {
@@ -76,7 +85,20 @@
             },
             deleteProfile(){
                 this.$emit('deleteClicked', this.profile.id)
-            }
+            },
+            changeAdminRights(permissionLevel){
+                Api.editProfilePermissions(this.profile.id, permissionLevel, localStorage.getItem("authToken"))
+                .then(() => {
+                    if(permissionLevel === "admin"){
+                        this.successToast(`${this.profile.firstname} is now an admin`)
+                        this.profile.authLevel = 1
+                    } else {
+                        this.successToast(`${this.profile.firstname} is no longer an admin`)
+                        this.profile.authLevel = 5
+                    }
+                })
+                .catch(() => this.warningToast(`Chould not change user to ${permissionLevel}`))
+            },
         }
     }
 </script>

@@ -166,7 +166,6 @@
             }
         },
         mounted() {
-            console.log(this.id)
             this.getProfile()
 
         },
