@@ -1,5 +1,7 @@
 package com.springvuegradle.service;
 
+import com.springvuegradle.enums.AuthLevel;
+import com.springvuegradle.enums.ProfileErrorMessage;
 import com.springvuegradle.model.*;
 import com.springvuegradle.repositories.ProfileLocationRepository;
 import com.springvuegradle.repositories.ProfileRepository;
@@ -115,13 +117,30 @@ public class ProfileService {
         if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getActivityTypes()))) {
             spec = spec.and(ProfileSpecifications.activityTypesContains(criteria.getActivityTypes(), criteria.getSearchMethod()));
         }
-/*
-        Page<Profile> repoResults = profileRepository.findAll(spec, request);
-        Set<Profile> resultSet = repoResults.toSet();
-        Page<Profile> result = new PageImpl<>(new ArrayList<>(resultSet), request, )
 
- */
         return profileRepository.findAll(spec, request);
     }
 
+    /**
+     * Sets the auth level of the profile with the given ID to the given value.
+     * @param userId The ID of the profile being changed.
+     * @param newAuthLevel The new auth level.
+     * Throws an exception if the auth level is an invalid one or if the id of the profile is not found in the profile repository
+     */
+    public void setUserAuthLevel(long userId, AuthLevel newAuthLevel) {
+
+        if (newAuthLevel.getLevel() < AuthLevel.ADMIN.getLevel() ||
+                newAuthLevel.getLevel() > AuthLevel.USER.getLevel()) {
+            throw new IllegalArgumentException(ProfileErrorMessage.INVALID_AUTH_LEVEL.getMessage());
+        }
+
+        Optional<Profile> result = profileRepository.findById(userId);
+        if (result.isEmpty()) {
+            throw new IllegalArgumentException(ProfileErrorMessage.PROFILE_NOT_FOUND.getMessage());
+        } else {
+            Profile targetProfile = result.get();
+            targetProfile.setAuthLevel(newAuthLevel.getLevel());
+            profileRepository.save(targetProfile);
+        }
+    }
 }

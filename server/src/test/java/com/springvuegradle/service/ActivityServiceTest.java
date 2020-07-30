@@ -53,6 +53,7 @@ class ActivityServiceTest {
     @AfterEach
     void tearDown() {
         activityMembershipRepository.deleteAll();
+        emailRepository.deleteAll();
         profileRepository.deleteAll();
         activityRepository.deleteAll();
         typeRepository.deleteAll();
@@ -99,7 +100,7 @@ class ActivityServiceTest {
         activityRepository.save(createNormalActivitySilly());
         Long activityId = activityRepository.getLastInsertedId();
         Activity expectedActivity = createNormalActivityKaikoura(), actualActivity = null;
-
+        Activity activityBefore = activityRepository.findById(activityId).get();
         service.update(expectedActivity, activityId);
         Optional<Activity> result = activityRepository.findById(activityId);
         if (result.isPresent()) {
@@ -107,7 +108,8 @@ class ActivityServiceTest {
         } else {
             fail("Error: original activity is missing");
         }
-        assertEquals(expectedActivity, actualActivity);
+        assertEquals(activityId, actualActivity.getId());
+        assertEquals(activityBefore, actualActivity);
     }
 
     /**

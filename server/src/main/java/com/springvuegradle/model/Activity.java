@@ -48,6 +48,7 @@ public class Activity {
             joinColumns = @JoinColumn(name = "activity_id", referencedColumnName = "id"))
     private Set<ActivityType> activityTypes;
 
+
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "activity")
     private Set<ActivityMembership> members;
 
