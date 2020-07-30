@@ -11,6 +11,7 @@ import com.springvuegradle.model.Profile;
 import com.springvuegradle.repositories.*;
 import com.springvuegradle.service.ProfileService;
 import com.springvuegradle.utilities.JwtUtil;
+import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -81,13 +82,13 @@ public class ActivityTestSteps {
         loginResponse = loginController.loginUser(loginRequest).getBody();
     }
 
-    @When("I create a continuous activity with the title {string} and the location {string}")
+    @And("I create a continuous activity with the title {string} and the location {string}")
     public void i_create_a_continuous_activity_with_the_title_with_the_activity_type_and_the_location(String title, String location) {
         typeRepository.save(new ActivityType("Running"));
         assertEquals(201, activityController.createActivity(jwtUtil.extractId(loginResponse.getToken()), activity = createNormalActivity(title, location), loginResponse.getToken()).getStatusCodeValue());
     }
 
-    @Then("An activity with the title {string} exists")
+    @And("An activity with the title {string} exists")
     public void an_activity_with_the_title_exists(String title) {
         assertEquals(1, activityRepository.findByActivityNames(title).size());
     }
@@ -103,7 +104,7 @@ public class ActivityTestSteps {
         assertEquals(0, activityRepository.count());
     }
 
-    @Then("I register with email {string} and password {string} and login")
+    @And("I register with email {string} and password {string} and login")
     public void i_register_with_email_and_password_and_login(String email, String password) {
         profile = createNormalProfile(email, password);
         assertEquals(201, profileController.createProfile(profile).getStatusCodeValue());
