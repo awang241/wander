@@ -91,13 +91,12 @@ public class ActivityController {
                                                  @RequestHeader("authorization") String token,
                                                  @PathVariable Long profileId,
                                                  @PathVariable Long activityId) {
-        if (token == null || token.isBlank()) {
-            return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
-                    HttpStatus.UNAUTHORIZED);
-        } else if (!securityService.checkEditPermission(token, profileId)) {
-            return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(),
-                    HttpStatus.FORBIDDEN);
+
+        ResponseEntity<String> errorOccurred = checkActivityModifyPermissions(token, profileId, activityId);
+        if (errorOccurred != null) {
+            return errorOccurred;
         }
+
 
         try {
             activityService.update(request, activityId);
@@ -113,6 +112,24 @@ public class ActivityController {
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    /**
+     * Checks validity of token, as well as if the user can edit or delete the activity.
+     * @param token authentication token
+     * @param profileId The id of the user
+     * @param activityId The id the activity
+     * @return response entity with error message if unauthorised or forbidden. Null otherwise.
+     */
+    private ResponseEntity<String> checkActivityModifyPermissions(String token, Long profileId, Long activityId) {
+        if (token == null || token.isBlank()) {
+            return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
+                    HttpStatus.UNAUTHORIZED);
+        } else if (!securityService.checkEditPermission(token, profileId) || !activityService.checkActivityCreator(jwtUtil.extractId(token), activityId)) {
+            return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(),
+                    HttpStatus.FORBIDDEN);
+        }
+        return null;
     }
 
     /**
@@ -170,12 +187,9 @@ public class ActivityController {
 
     public ResponseEntity<String> deleteActivity(String token, Long profileId, Long activityId, Boolean testing) {
         if (!testing) {
-            if (token == null || token.isBlank()) {
-                return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
-                        HttpStatus.UNAUTHORIZED);
-            } else if (!securityService.checkEditPermission(token, profileId)) {
-                return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(),
-                        HttpStatus.FORBIDDEN);
+            ResponseEntity<String> errorOccurred = checkActivityModifyPermissions(token, profileId, activityId);
+            if (errorOccurred != null) {
+                return errorOccurred;
             }
         }
 

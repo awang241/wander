@@ -131,6 +131,24 @@ public class ActivityService {
         return false;
     }
 
+    /**\
+     * Checks if the userId corresponds to the creator of the activity associated with the activityId.
+     * @param userId id of the user making the request
+     * @param activityId id of the activity
+     * @return true if userId matches the creatorId, false otherwise
+     */
+    public boolean checkActivityCreator(Long userId, Long activityId) {
+        Optional<Activity> activity = activityRepo.findById(activityId);
+        if (activity.isPresent()) {
+            Optional<ActivityMembership> creator = membershipRepo.findActivityMembershipsByActivity_IdAndRole(activityId, ActivityMembership.Role.CREATOR);
+            if (creator.isPresent()) {
+                Long creatorId = creator.get().getProfile().getId();
+                return creatorId.equals(userId);
+            }
+        }
+        return false;
+    }
+
     /**
      * Returns all activities associated with the given profile.
      * @param profileId The ID of the profile whose activities are being retrieved.
