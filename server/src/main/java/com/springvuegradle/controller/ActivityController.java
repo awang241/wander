@@ -121,7 +121,7 @@ public class ActivityController {
      * @param activityId The id the activity
      * @return response entity with error message if unauthorised or forbidden. Null otherwise.
      */
-    public ResponseEntity<String> checkActivityModifyPermissions(String token, Long profileId, Long activityId) {
+    private ResponseEntity<String> checkActivityModifyPermissions(String token, Long profileId, Long activityId) {
         if (token == null || token.isBlank()) {
             return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
                     HttpStatus.UNAUTHORIZED);
