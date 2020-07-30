@@ -402,7 +402,6 @@ public class Profile {
 
     public void setFitness(int fitness_level){this.fitness = fitness_level;}
 
-    @JsonIgnore
     public int getAuthLevel(){return authLevel;}
 
     public void setAuthLevel(int authLevel){this.authLevel = authLevel;}

@@ -841,6 +841,19 @@ class ProfileControllerTest {
         assertEquals(expectedProfile.getProfileLocation(), updatedProfile.getProfileLocation(), "Check profile updated");
     }
 
+    /**
+     * Tests the get method for a valid Profile returns the right response with a valid auth level
+     */
+    @Test
+    void getProfileNormalResponseTestWithAuthLevel() {
+        Profile jimmy = createNormalProfileJimmy();
+        profileController.createProfile(jimmy);
+        long expected_id = repo.findAll().get(0).getId();
+        ResponseEntity<Profile> response_entity_new = profileController.getProfile(expected_id);
+        assertEquals(HttpStatus.OK, response_entity_new.getStatusCode());
+        assertEquals(5, response_entity_new.getBody().getAuthLevel());
+    }
+
 
 
     /**
