@@ -348,7 +348,6 @@ class ProfileServiceTest {
         steven = profileRepository.save(steven);
         long id = steven.getId();
         try {
-            //testService.setUserAuthLevel(id, 6);
             fail("Should have thrown an IllegalArgumentException");
         } catch (IllegalArgumentException e) {
             assertEquals(ProfileErrorMessage.INVALID_AUTH_LEVEL.getMessage(), e.getMessage());

@@ -125,6 +125,7 @@ public class ProfileService {
      * Sets the auth level of the profile with the given ID to the given value.
      * @param userId The ID of the profile being changed.
      * @param newAuthLevel The new auth level.
+     * Throws an exception if the auth level is an invalid one or if the id of the profile is not found in the profile repository
      */
     public void setUserAuthLevel(long userId, AuthLevel newAuthLevel) {
 

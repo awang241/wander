@@ -1,7 +1,6 @@
 package com.springvuegradle.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.springvuegradle.enums.AuthLevel;
 
 public class EditAuthLevelRequest {
     private String role;
