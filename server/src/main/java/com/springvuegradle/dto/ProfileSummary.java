@@ -40,6 +40,7 @@ public class ProfileSummary {
      */
     private int authLevel;
 
+
     /**
      * Constructor for Profile. The way the JSONProperty is structured is how the getProfile method should display the
      * users details as well.
@@ -48,8 +49,10 @@ public class ProfileSummary {
      * @param lastname last name of user
      * @param email users primary email address
      * @param gender (Male, Female, Other)
+     * @param authLevel user's auth level
      */
-    public ProfileSummary(Long id, String firstname, String lastname, String email, String gender, List<String> activityTypes, Integer authLevel) {
+    public ProfileSummary(Long id, String firstname, String lastname, String email, String gender, List<String> activityTypes,
+                        Integer authLevel) {
         this.id = id;
         this.firstname = firstname;
         this.lastname = lastname;

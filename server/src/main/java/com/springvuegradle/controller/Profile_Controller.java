@@ -192,24 +192,25 @@ public class Profile_Controller {
     }
 
     /**
-     * Deletes a profile from the repository given that it exists in the database. The method was initially used for
-     * testing but might be useful for a later story.
+     * Checks for the permission of the user and calls the protected deleteProfile method.
      * @param id the id of the profile to be deleted
      * @return http response code and feedback message on the result of the delete operation
      */
     @DeleteMapping(value="/profiles/{id}")
-    public @ResponseBody ResponseEntity<String> deleteProfile(@PathVariable Long id) {
-        Optional<Profile> result = repo.findById(id);
-        if (Boolean.TRUE.equals(result.isPresent())) {
-            Profile profileToDelete = result.get();
-            for (Email email: profileToDelete.retrieveEmails()) {
-                eRepo.delete(email);
-            }
-            repo.delete(profileToDelete);
-            return new ResponseEntity<>("The Profile does exist in the database.", HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("The profile does not exist in the database.", HttpStatus.NOT_FOUND);
+    public @ResponseBody ResponseEntity<String> deleteProfile(@RequestHeader("authorization") String token, @PathVariable Long id) {
+        if(!securityService.checkEditPermission(token, id)){
+            return new ResponseEntity<>("Permission denied", HttpStatus.FORBIDDEN);
         }
+        return deleteProfile(id);
+    }
+
+    /**
+     * Called by the other deleteProfile method. Calls the deleteProfile method in ProfileService class.
+     * @param id the id of the profile to be deleted
+     * @return http response code and feedback message on the result of the delete operation
+     */
+    protected ResponseEntity<String> deleteProfile(@PathVariable Long id) {
+        return profileService.deleteProfile(id);
     }
 
     /**

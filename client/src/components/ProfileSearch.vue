@@ -94,7 +94,8 @@
                 filteredActivityTypes: this.possibleActivityTypes,
                 observer: null,
                 profiles: [],
-                startIndex: 0
+                startIndex: 0,
+                moreProfilesExist: true
             }
         },
         mounted() {
@@ -153,12 +154,19 @@
                 })
             },
             loadMoreProfiles() {
-                const searchParameters = this.getSearchParameters()
-                Api.getUserProfiles(localStorage.getItem('authToken'), searchParameters).then(response => {
-                    this.startIndex += DEFAULT_RESULT_COUNT
-                    const profiles = response.data.results
-                    this.profiles = [...this.profiles, ...profiles]
-                })
+                if (this.moreProfilesExist) {
+
+                    const searchParameters = this.getSearchParameters()
+                    Api.getUserProfiles(localStorage.getItem('authToken'), searchParameters).then(response => {
+                        if (response.data.results.length == 0) {
+                            this.moreProfilesExist = false;
+                        } else {
+                            this.startIndex += DEFAULT_RESULT_COUNT
+                            const profiles = response.data.results
+                            this.profiles = [...this.profiles, ...profiles]
+                        }
+                    })
+                }
             }
         }
     }
