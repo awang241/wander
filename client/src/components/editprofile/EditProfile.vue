@@ -40,6 +40,7 @@
     import api from '../../Api';
     import router from "../../router";
     import store from "../../store";
+    import {eventBus} from '../../main';
 
     export default {
         name: "EditProfile",
@@ -99,11 +100,13 @@
             },
             updateActivityTypes(newActivities) {
                 this.profile.activities = newActivities
+                eventBus.$emit('profileWasEdited', this.profile)
                 api.editProfile(this.id, this.profile, localStorage.getItem('authToken'))
             },
             updateEmails(primaryEmail, optionalEmails) {
                 this.profile.primary_email = primaryEmail
                 this.profile.optional_email = optionalEmails
+                eventBus.$emit('profileWasEdited', this.profile)
                 api.editEmail({
                     "primary_email": primaryEmail,
                     "additional_email": optionalEmails
@@ -129,6 +132,7 @@
                 this.profile.date_of_birth = personalDetails.date_of_birth
                 this.profile.gender = personalDetails.gender
                 this.profile.fitness = personalDetails.fitness
+                eventBus.$emit('profileWasEdited', this.profile)
                 api.editProfile(this.id, this.profile, localStorage.getItem('authToken'))
             }
         }

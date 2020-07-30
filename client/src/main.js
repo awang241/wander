@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import Vuex from'vuex'
+import Vuex from 'vuex'
 import App from './App'
 import VueRouter from 'vue-router'
 import router from "./router.js";
@@ -8,9 +8,10 @@ import api from './Api'
 import store from './store'
 import './veeValidateErrorMessages'
 
-import { library } from '@fortawesome/fontawesome-svg-core'
-import { faEllipsisV } from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import {library} from '@fortawesome/fontawesome-svg-core'
+import {faEllipsisV} from '@fortawesome/free-solid-svg-icons'
+import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
+
 library.add(faEllipsisV)
 Vue.component('vue-fontawesome', FontAwesomeIcon);
 
@@ -26,38 +27,40 @@ Vue.use(Vuex);
 if (localStorage.getItem('authToken') != null) {
     console.log("MAIN");
     api.verifyToken(localStorage.getItem('authToken'))
-      .then(r => {
-        let payload = {'token': localStorage.getItem('authToken'), 'userId': localStorage.getItem('userId')}
-        store.dispatch('validateByTokenAndUserId', payload).then();
-        return r
-      })
-      .catch((error) => {
-          let payload = {'token': null, 'userId': null, 'authenticationStatus': false, 'authenticationLevel': 5};
-        store.dispatch('resetUserData', payload).then();
-        localStorage.clear();
-          console.log(error);
-          return error
-      })
+        .then(r => {
+            let payload = {'token': localStorage.getItem('authToken'), 'userId': localStorage.getItem('userId')}
+            store.dispatch('validateByTokenAndUserId', payload).then();
+            return r
+        })
+        .catch((error) => {
+            let payload = {'token': null, 'userId': null, 'authenticationStatus': false, 'authenticationLevel': 5};
+            store.dispatch('resetUserData', payload).then();
+            localStorage.clear();
+            console.log(error);
+            return error
+        })
 }
 
 import VueLogger from 'vuejs-logger';
 
 const options = {
-  isEnabled: true,
-  logLevel :'debug',
-  stringifyArguments : false,
-  showLogLevel : true,
-  showMethodName : false,
-  separator: '|',
-  showConsoleColors: true
+    isEnabled: true,
+    logLevel: 'debug',
+    stringifyArguments: false,
+    showLogLevel: true,
+    showMethodName: false,
+    separator: '|',
+    showConsoleColors: true
 };
 
 Vue.use(VueLogger, options);
 
+export const eventBus = new Vue({})
+
 /* eslint-disable no-new */
 new Vue({
-  el: '#app',
-  template: '<App/>',
-  components: { App },
-  router
+    el: '#app',
+    template: '<App/>',
+    components: {App},
+    router
 });

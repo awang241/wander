@@ -77,6 +77,7 @@
     import ProfileSummary from "./ProfileSummary";
     import Observer from "./Observer";
     import toastMixin from "../mixins/toastMixin";
+    import {eventBus} from "../main";
 
     const DEFAULT_RESULT_COUNT = 10
 
@@ -100,6 +101,18 @@
         },
         mounted() {
             this.getPossibleActivityTypes()
+        },
+        created() {
+            eventBus.$on('profileWasEdited', (editedProfile) => {
+                for (let i = 0; i < this.profiles.length; i++) {
+                    if(this.profiles[i].id === editedProfile.id){
+                        this.profiles[i].firstname = editedProfile.firstname
+                        this.profiles[i].lastname = editedProfile.lastname
+                        this.profiles[i].email = editedProfile.primary_email
+                        this.profiles[i].activities = editedProfile.activities
+                    }
+                }
+            })
         },
         methods: {
             getPossibleActivityTypes() {
@@ -167,7 +180,7 @@
                         }
                     })
                 }
-            }
+            },
         }
     }
 </script>
