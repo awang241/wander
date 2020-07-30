@@ -85,24 +85,30 @@
             },
             deleteProfile() {
                 this.$buefy.dialog.confirm({
-                    message: 'Are you sure you want to <b>delete</b> this profile? This will also delete all associated data.',
+                    message: `Are you sure you want to <b>delete</b> ${this.profile.firstname}'s profile? This will also delete all associated data.`,
                     type: "is-danger",
                     confirmText: 'Delete Profile',
                     onConfirm: () =>  this.$emit('deleteClicked', this.profile.id)
                 })
             },
             changeAdminRights(permissionLevel){
-                Api.editProfilePermissions(this.profile.id, permissionLevel, localStorage.getItem("authToken"))
-                .then(() => {
-                    if(permissionLevel === "admin"){
-                        this.successToast(`${this.profile.firstname} is now an admin`)
-                        this.profile.authLevel = 1
-                    } else {
-                        this.successToast(`${this.profile.firstname} is no longer an admin`)
-                        this.profile.authLevel = 5
+                this.$buefy.dialog.confirm({
+                    message: `Are you sure you want to change ${this.profile.firstname}'s role to ${permissionLevel}?`,
+                    confirmText: 'Yes',
+                    onConfirm: () =>  {
+                        Api.editProfilePermissions(this.profile.id, permissionLevel, localStorage.getItem("authToken"))
+                            .then(() => {
+                                if(permissionLevel === "admin"){
+                                    this.successToast(`${this.profile.firstname} is now an admin`)
+                                    this.profile.authLevel = 1
+                                } else {
+                                    this.successToast(`${this.profile.firstname} is no longer an admin`)
+                                    this.profile.authLevel = 5
+                                }
+                            })
+                            .catch(() => this.warningToast(`Chould not change user to ${permissionLevel}`))
                     }
                 })
-                .catch(() => this.warningToast(`Chould not change user to ${permissionLevel}`))
             },
         }
     }
