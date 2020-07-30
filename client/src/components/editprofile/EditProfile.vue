@@ -52,7 +52,6 @@
             }
         },
         mounted() {
-            // this.URLAuthorization(),
             this.getProfile()
         },
         // These methods are used to dynamically swap between components on click
@@ -96,11 +95,11 @@
             },
             updateCountries(newCountries) {
                 this.profile.passports = newCountries
-                api.editProfile(this.$route.params.id, this.profile, localStorage.getItem('authToken'))
+                api.editProfile(this.id, this.profile, localStorage.getItem('authToken'))
             },
             updateActivityTypes(newActivities) {
                 this.profile.activities = newActivities
-                api.editProfile(this.$route.params.id, this.profile, localStorage.getItem('authToken'))
+                api.editProfile(this.id, this.profile, localStorage.getItem('authToken'))
             },
             updateEmails(primaryEmail, optionalEmails) {
                 this.profile.primary_email = primaryEmail
@@ -108,7 +107,7 @@
                 api.editEmail({
                     "primary_email": primaryEmail,
                     "additional_email": optionalEmails
-                }, this.$route.params.id, localStorage.getItem('authToken'))
+                }, this.id, localStorage.getItem('authToken'))
             },
             updateLocation(location) {
                 this.profile.location = location
