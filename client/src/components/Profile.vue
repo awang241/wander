@@ -109,33 +109,30 @@
             return {
                 profile: {},
                 store: store,
-               // id: this.$route.params.id
             }
         },
-        // watch: {
-        //     '$route.params.id': function (id) {
-        //         this.id = id
-        //         this.getProfile()
-        //     }
-        // },
+        //Used to ensure the component updates to the new profile when the id is changed
+        watch: {
+            '$route.params.id': function (id) {
+                this.id = id
+                this.getProfile()
+            }
+        },
         methods: {
             editProfile() {
                 router.push({path: '/EditProfile/' + store.getters.getUserId});
             },
             getProfile() {
-                let tempId;
-                if (this.id) {
-                    tempId = this.id;
-                } else {
-                    tempId = this.$route.params.id;
-                }
-                api.getProfile(tempId, localStorage.getItem("authToken"))
+                api.getProfile(this.id, localStorage.getItem("authToken"))
                     .then((response) => {
                         this.profile = response.data;
                     })
-                    .catch((error) => {
-                        router.push({path: '/login'});
-                        console.log(error)
+                    .catch(() => {
+                        if(store.getters.getAuthenticationStatus){
+                            router.push({path: '/Profile/' + store.getters.getUserId})
+                        } else {
+                            router.push({path: '/Login'});
+                        }
                     })
             }
         },

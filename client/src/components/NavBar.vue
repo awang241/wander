@@ -25,7 +25,8 @@
                     <b-button v-if="!store.getters.getAuthenticationStatus"
                               tag="router-link"
                               to="/Registration"
-                              type="is-light">
+                              type="is-light"
+                              id="registrationButton">
                         Register
                     </b-button>
                     <b-button  @click="goToProfileSearch"

@@ -30,15 +30,7 @@ const routes = [
             }
     }},
     {path: "/EditActivity/:", name:"editActivity", component:AddActivityComponent, props: true},
-    {path: "/Profile/:id", name: "profile", component:ProfileComponent, beforeEnter: (to, from, next) => {
-            if (store.getters.getAuthenticationStatus) {
-                next()
-            } else {
-                next({
-                    name: "login"
-                })
-            }
-        }},
+    {path: "/Profile/:id", name: "profile", component:ProfileComponent, props: true},
     {
         //This route is only accessible if the user is authenticated, else it sends them back to the main page
         path: "/EditProfile/:id", name: "editProfile", component: EditProfileComponent, beforeEnter: (to, from, next) => {
@@ -66,6 +58,7 @@ const routes = [
 ]
 
 const router = new VueRouter({
+    base: process.env.VUE_APP_BASE_URL,
     mode: 'history',
     scrollBehaviour(to, from, savedPosition) {
         if (savedPosition) {
