@@ -83,8 +83,13 @@
                     scroll: "clip"
                 })
             },
-            deleteProfile(){
-                this.$emit('deleteClicked', this.profile.id)
+            deleteProfile() {
+                this.$buefy.dialog.confirm({
+                    message: 'Are you sure you want to <b>delete</b> this profile? This will also delete all associated data.',
+                    type: "is-danger",
+                    confirmText: 'Delete Profile',
+                    onConfirm: () =>  this.$emit('deleteClicked', this.profile.id)
+                })
             },
             changeAdminRights(permissionLevel){
                 Api.editProfilePermissions(this.profile.id, permissionLevel, localStorage.getItem("authToken"))
