@@ -29,6 +29,10 @@
                             <div class="card-content">
                                 <h3 class="title is-4">{{activity.activity_name}}</h3>
                                 Role: CREATOR
+                                <b-button id="detailButton" @click="activityDetail()"
+                                          type="is-text">
+                                    View more
+                                </b-button>
                                 <div class="content">
                                     <table class="table-profile">
                                         <caption hidden>Displayed Activity Table</caption>
@@ -117,6 +121,8 @@
                 router.push({path: '/AddActivity'});
             }, editActivity(activity) {
                 router.push({name: 'editActivity', params: {activityProp: activity}})
+            }, activityDetail() {
+
             },
             deleteActivity(id) {
                 console.log(id);
@@ -168,7 +174,11 @@
     }
 
     #editButton {
-        margin-left: 1rem;
+        margin-left: 65rem;
+    }
+
+    #DetailButton {
+        margin-left: 60rem;
     }
 
     #activities-key-info{
