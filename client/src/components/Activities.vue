@@ -30,7 +30,7 @@
                                 <h3 class="title is-4">{{activity.activity_name}}</h3>
                                 Role: CREATOR
                                 <b-button id="detailButton" @click="activityDetail()"
-                                          type="is-text">
+                                          type="is-text" >
                                     View more
                                 </b-button>
                                 <div class="content">
