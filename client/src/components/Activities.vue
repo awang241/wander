@@ -29,7 +29,7 @@
                             <div class="card-content">
                                 <h3 class="title is-4">{{activity.activity_name}}</h3>
                                 Role: CREATOR
-                                <b-button id="detailButton" @click="activityDetail()"
+                                <b-button id="detailButton" @click="activityDetail(activity)"
                                           type="is-text" >
                                     View more
                                 </b-button>
@@ -121,8 +121,8 @@
                 router.push({path: '/AddActivity'});
             }, editActivity(activity) {
                 router.push({name: 'editActivity', params: {activityProp: activity}})
-            }, activityDetail() {
-
+            }, activityDetail(activity) {
+                router.push({path: 'Activities/' + activity.id})
             },
             deleteActivity(id) {
                 console.log(id);
