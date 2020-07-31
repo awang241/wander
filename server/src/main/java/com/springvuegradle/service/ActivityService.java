@@ -163,6 +163,19 @@ public class ActivityService {
         return userActivities;
     }
 
+    /**
+     * Return an activity by activity id.
+     * @param activityId The ID of the activity that is being retrieved
+     * @return An activity object. If it does not exist returns null.
+     */
+    public Optional<Activity> getActivityByActivityId(Long activityId) {
+        Optional<Activity> activity = activityRepo.findById(activityId);
+        if (activity.isPresent()) {
+            return activity;
+        }
+        return null;
+    }
+
     private void validateActivity(Activity activity) {
         if (activity.getActivityName() == null || activity.getActivityName().isBlank()) {
             throw new IllegalArgumentException(ActivityResponseMessage.MISSING_NAME.toString());
