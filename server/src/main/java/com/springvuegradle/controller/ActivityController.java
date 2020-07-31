@@ -1,6 +1,7 @@
 package com.springvuegradle.controller;
 
 
+import com.springvuegradle.enums.ActivityMessage;
 import com.springvuegradle.enums.ActivityResponseMessage;
 import com.springvuegradle.enums.AuthenticationErrorMessage;
 import com.springvuegradle.model.Activity;
@@ -218,23 +219,22 @@ public class ActivityController {
         if (token == null || token.isBlank()) {
             return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
                     HttpStatus.UNAUTHORIZED);
-        } else {
-            ArrayList<String> actualRoles = new ArrayList<>();
-            actualRoles.add("participant");
-            actualRoles.add("follower");
-            Boolean checkFollowerOrParticipant = securityService.checkEditPermission(token, profileId) && actualRoles.contains(activityRole);
-            actualRoles.add("organiser");
-            Boolean checkCreatorOrAdmin = activityService.checkActivityCreator(jwtUtil.extractId(token), activityId) && actualRoles.contains(activityRole);
+        }
+        ArrayList<String> actualRoles = new ArrayList<>();
+        actualRoles.add("participant");
+        actualRoles.add("follower");
+        Boolean checkFollowerOrParticipant = securityService.checkEditPermission(token, profileId) && actualRoles.contains(activityRole);
+        actualRoles.add("organiser");
+        Boolean checkCreatorOrAdmin = activityService.checkActivityCreator(jwtUtil.extractId(token), activityId) && actualRoles.contains(activityRole);
+        try {
             if (checkFollowerOrParticipant || checkCreatorOrAdmin) {
-                success = activityService.addActivityRole(activityId, profileId, activityRole);
+                activityService.addActivityRole(activityId, profileId, activityRole);
             } else {
-                return new ResponseEntity<>("Activity Role invalid.", HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(ActivityMessage.INVALID_ROLE.getMessage(), HttpStatus.BAD_REQUEST);
             }
+        } catch(IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        if (success) {
-            return new ResponseEntity<>("Added new role.", HttpStatus.CREATED);
-        } else {
-            return new ResponseEntity<>("Something weird happened.", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return new ResponseEntity<>(ActivityMessage.SUCCESSFUL.getMessage(), HttpStatus.CREATED);
     }
 }

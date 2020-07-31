@@ -1,5 +1,6 @@
 package com.springvuegradle.service;
 
+import com.springvuegradle.enums.ActivityMessage;
 import com.springvuegradle.enums.ActivityResponseMessage;
 import com.springvuegradle.model.Activity;
 import com.springvuegradle.model.ActivityMembership;
@@ -140,9 +141,9 @@ public class ActivityService {
     public boolean checkActivityCreator(Long userId, Long activityId) {
         Optional<Activity> activity = activityRepo.findById(activityId);
         if (activity.isPresent()) {
-            Optional<ActivityMembership> creator = membershipRepo.findActivityMembershipsByActivity_IdAndRole(activityId, ActivityMembership.Role.CREATOR);
-            if (creator.isPresent()) {
-                Long creatorId = creator.get().getProfile().getId();
+            List<ActivityMembership> creator = membershipRepo.findActivityMembershipsByActivity_IdAndRole(activityId, ActivityMembership.Role.CREATOR);
+            if (creator.size() > 0) {
+                Long creatorId = creator.get(0).getProfile().getId();
                 return creatorId.equals(userId);
             }
         }
@@ -187,5 +188,43 @@ public class ActivityService {
                 }
             }
         }
+    }
+
+    /**
+     * Assigns the given role to the user for an activity.
+     * @param activityId the id of the activity we want to assign the role for.
+     * @param profileId the id of the user we want to assign the role to.
+     * @param activityRole the role we want to assign to the user for the activity.
+     */
+    public void addActivityRole(Long activityId, Long profileId, String activityRole) throws IllegalArgumentException {
+        Optional<Profile> optionalProfile = profileRepo.findById(profileId);
+        Optional<Activity> optionalActivity = activityRepo.findById(activityId);
+        if (optionalProfile.isEmpty()) {
+            throw new IllegalArgumentException(ActivityMessage.PROFILE_NOT_FOUND.getMessage());
+        } else if (optionalActivity.isEmpty()) {
+            throw new IllegalArgumentException(ActivityMessage.ACTIVITY_NOT_FOUND.getMessage());
+        }
+        Profile profile = optionalProfile.get();
+        Activity activity = optionalActivity.get();
+        ActivityMembership.Role role;
+        switch(activityRole) {
+            case "follower":
+                role = ActivityMembership.Role.FOLLOWER;
+                break;
+            case "participant":
+                role = ActivityMembership.Role.PARTICIPANT;
+                break;
+            case "organiser":
+                role = ActivityMembership.Role.ORGANISER;
+                break;
+            default:
+                throw new IllegalArgumentException(ActivityMessage.INVALID_ROLE.getMessage());
+        }
+
+        ActivityMembership activityMembership = new ActivityMembership(activity, profile, role);
+        membershipRepo.save(activityMembership);
+        profile.addActivity(activityMembership);
+        activity.addMember(activityMembership);
+        profileRepo.save(profile);
     }
 }
