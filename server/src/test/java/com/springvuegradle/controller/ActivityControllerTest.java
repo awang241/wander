@@ -1,8 +1,7 @@
 package com.springvuegradle.controller;
-import com.springvuegradle.model.Activity;
-import com.springvuegradle.model.ActivityMembership;
-import com.springvuegradle.model.ActivityType;
-import com.springvuegradle.model.Profile;
+import com.springvuegradle.dto.LoginRequest;
+import com.springvuegradle.dto.LoginResponse;
+import com.springvuegradle.model.*;
 import com.springvuegradle.repositories.*;
 import com.springvuegradle.utilities.InitialDataHelper;
 import com.springvuegradle.service.ActivityService;
@@ -17,6 +16,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.*;
 
+import static com.springvuegradle.controller.Profile_Controller.hashPassword;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -40,6 +40,9 @@ public class ActivityControllerTest {
 
     @Autowired
     private ActivityController activityController;
+
+    @Autowired
+    private LoginController loginController;
 
     private ActivityService mockService;
 
@@ -310,7 +313,11 @@ public class ActivityControllerTest {
                 "Jacky loves to ride his bike on crazy mountains.", new GregorianCalendar(1985, Calendar.DECEMBER,
                 20), "male", 1, new String[]{}, new String[]{});
     }
-
+    static Profile createNormalProfileMauriceWithHashedPassword() {
+        return new Profile(null, "Maurice", "Benson", "Jack", "Jacky", "jacky@google.com", new String[]{"additionaldoda@email.com"}, hashPassword("jacky'sSecuredPwd"),
+                "Jacky loves to ride his bike on crazy mountains.", new GregorianCalendar(1985, Calendar.DECEMBER,
+                20), "male", 1, new String[]{}, new String[]{});
+    }
     static Profile createNormalProfileJohnny() {
         return new Profile(null, "Johnny", "Quick", "Jones", "Jim-Jam", "jimjam@hotmail.com", new String[]{"additional@email.com"}, "hushhush",
                 "The quick brown fox jumped over the lazy dog.", new GregorianCalendar(1999, Calendar.NOVEMBER,
