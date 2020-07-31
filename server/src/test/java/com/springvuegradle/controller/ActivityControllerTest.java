@@ -1,10 +1,12 @@
 package com.springvuegradle.controller;
 import com.springvuegradle.model.Activity;
+import com.springvuegradle.model.ActivityMembership;
 import com.springvuegradle.model.ActivityType;
 import com.springvuegradle.model.Profile;
 import com.springvuegradle.repositories.*;
 import com.springvuegradle.utilities.InitialDataHelper;
 import com.springvuegradle.service.ActivityService;
+import org.apache.coyote.Response;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -247,6 +249,38 @@ public class ActivityControllerTest {
         assertEquals(responseEntity.getBody().get(0).getActivityName(), "Kaikoura Coast Track race");
     }
 
+    /**
+     * Test to delete a profiles activity membership with an activity they HAVE participated in
+     */
+    @Test
+    void deleteActivityMembershipResponseSuccessTest() {
+        Profile maurice = createNormalProfileMaurice();
+        prepo.save(maurice);
+        Activity activity = createNormalActivity();
+        arepo.save(activity);
+        ActivityMembership testMembership = new ActivityMembership(activity, maurice, ActivityMembership.Role.PARTICIPANT);
+        amRepo.save(testMembership);
+        ResponseEntity<String> response = activityController.deleteActivityMembership(null, maurice.getId(), activity.getId(), true);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    /**
+     * Test to delete a profiles activity membership with an activity they have NOT participated in
+     */
+    @Test
+    void deleteActivityMembershipResponseFailTest() {
+        Profile maurice = createNormalProfileMaurice();
+        prepo.save(maurice);
+        Profile johnny = createNormalProfileJohnny();
+        prepo.save(johnny);
+        Activity activity = createNormalActivity();
+        arepo.save(activity);
+        ActivityMembership testMembership = new ActivityMembership(activity, maurice, ActivityMembership.Role.PARTICIPANT);
+        amRepo.save(testMembership);
+        ResponseEntity<String> response = activityController.deleteActivityMembership(null, johnny.getId(), activity.getId(), true);
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
     /* Below are a set of ready-made Activity objects which can be used for various tests. */
 
     /**
@@ -275,5 +309,11 @@ public class ActivityControllerTest {
         return new Profile(null, "Maurice", "Benson", "Jack", "Jacky", "jacky@google.com", new String[]{"additionaldoda@email.com"}, "jacky'sSecuredPwd",
                 "Jacky loves to ride his bike on crazy mountains.", new GregorianCalendar(1985, Calendar.DECEMBER,
                 20), "male", 1, new String[]{}, new String[]{});
+    }
+
+    static Profile createNormalProfileJohnny() {
+        return new Profile(null, "Johnny", "Quick", "Jones", "Jim-Jam", "jimjam@hotmail.com", new String[]{"additional@email.com"}, "hushhush",
+                "The quick brown fox jumped over the lazy dog.", new GregorianCalendar(1999, Calendar.NOVEMBER,
+                28), "male", 1, new String[]{}, new String[]{});
     }
 }

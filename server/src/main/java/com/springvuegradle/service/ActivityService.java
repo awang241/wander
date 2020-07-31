@@ -151,6 +151,30 @@ public class ActivityService {
     }
 
     /**
+     * Checks if the activity exists in the repository, checks if profile has membership,
+     * deletes the membership if profile has membership
+     *
+     * @param profileId the profile which membership needs to be removed
+     * @param activityId the specified activity
+     * @return true if membership was found and deleted, false otherwise
+     */
+    public boolean removeMembership(Long profileId, Long activityId) {
+        if (activityRepo.existsById(activityId)) {
+            for (ActivityMembership membership : membershipRepo.findAll()) {
+                if (membership.getActivity().getId() == activityId) {
+                    Profile profile = membership.getProfile();
+                    if (profile.getId().equals(profileId)) {
+                        membershipRepo.delete(membership);
+                        profile.removeActivity(membership);
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
      * Returns all activities associated with the given profile.
      * @param profileId The ID of the profile whose activities are being retrieved.
      * @return A list of the given profile's activities.
