@@ -151,7 +151,7 @@ public class ActivityController {
      * @return
      */
     @GetMapping("/activities/{activityId}")
-    public ResponseEntity<Activity> getActivity(@RequestHeader("authorization") String token,
+    protected ResponseEntity<Activity> getActivity(@RequestHeader("authorization") String token,
                                                 @PathVariable long activityId) {
         if (token == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
