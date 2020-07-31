@@ -12,18 +12,15 @@
                 <li><a v-on:click="changeToActivityTypes">Activity Types</a></li>
                 <li><a v-on:click="changeToEmail">Emails</a></li>
                 <li><a v-on:click="changeToLocation">Location</a></li>
-            </ul>
-            <div>
-                <a v-if="store.getters.getAuthenticationLevel === 0 || store.getters.getAuthenticationLevel === 1"
-                   @click="changeToDashboard">Back To Admin Dashboard</a>
-            </div>
-            <div>
-                <a v-if="store.getters.getAuthenticationLevel > 0"
+                <li v-if="(store.getters.getAuthenticationLevel === 0 || store.getters.getAuthenticationLevel === 1) && !editingThroughDashboard">
+                    <a @click="changeToDashboard">Back To Admin Dashboard</a>
+                </li>
+                <li>
+                    <a v-if="store.getters.getAuthenticationLevel > 0 && !editingThroughDashboard"
                    @click="changeToProfile">Back to Profile</a>
-            </div>
-
+                </li>
+            </ul>
         </div>
-
         <div>
             <component v-bind:is="component" v-bind:profile="profile"/>
         </div>
@@ -50,6 +47,13 @@
                 component: "editPersonal",
                 profile: {},
                 store: store
+            }
+        },
+        computed: {
+            editingThroughDashboard: function () {
+                console.log("BEANS")
+                console.log(this.$route.params.id)
+                return this.$route.params.id == null
             }
         },
         mounted() {
@@ -115,10 +119,10 @@
             updateLocation(location) {
                 this.profile.location = location
                 api.editProfileLocation(this.id, location, localStorage.getItem('authToken'))
-                .then(() => {
-                    this.successToast("Location updated!")
-                })
-                .catch(error => this.warningToast(error.response.data))
+                    .then(() => {
+                        this.successToast("Location updated!")
+                    })
+                    .catch(error => this.warningToast(error.response.data))
             },
             clearLocation() {
                 api.deleteLocation(this.id, localStorage.getItem('authToken'));
