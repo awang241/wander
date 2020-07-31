@@ -66,6 +66,9 @@ public class ProfileTestSteps{
     private ActivityTypeRepository aRepo;
     @Autowired
     private ActivityRepository activityRepo;
+
+    @Autowired
+    private ActivityMembershipRepository membershipRepo;
     @Autowired
     private ProfileLocationRepository profileLocationRepository;
     @Autowired
@@ -82,7 +85,9 @@ public class ProfileTestSteps{
         searchResponse = null;
         dbPassword = null;
         eRepo.deleteAll();
+        membershipRepo.deleteAll();
         activityRepo.deleteAll();
+
         aRepo.deleteAll();
         repo.deleteAll();
         Profile steve = createProfileSteve("steve@google.com", "12345678");
