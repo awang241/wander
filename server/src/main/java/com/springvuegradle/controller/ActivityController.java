@@ -192,7 +192,7 @@ public class ActivityController {
      * @param activityId the id of the specified activity
      * @return http response code and feedback message on the result of the delete operation
      */
-    @DeleteMapping("/profiles/{profileId}/activities/{activityId}")
+    @DeleteMapping("/profiles/{profileId}/activities/{activityId}/membership")
     public @ResponseBody
     ResponseEntity<String> deleteActivityMembership(@RequestHeader("authorization") String token,
                                           @PathVariable Long profileId,
