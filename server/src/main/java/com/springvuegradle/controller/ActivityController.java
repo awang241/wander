@@ -184,4 +184,37 @@ public class ActivityController {
         }
         return new ResponseEntity<>("The activity does not exist in the database.", HttpStatus.NOT_FOUND);
     }
+
+    /**
+     * Removes a profiles activity membership from a specified activity
+     *
+     * @param profileId  the id of the profile that has membership with the activity
+     * @param activityId the id of the specified activity
+     * @return http response code and feedback message on the result of the delete operation
+     */
+    @DeleteMapping("/profiles/{profileId}/activities/{activityId}")
+    public @ResponseBody
+    ResponseEntity<String> deleteActivityMembership(@RequestHeader("authorization") String token,
+                                          @PathVariable Long profileId,
+                                          @PathVariable Long activityId) {
+        return deleteActivityMembership(token, profileId, activityId, false);
+
+    }
+
+    public ResponseEntity<String> deleteActivityMembership(String token, Long profileId, Long activityId, Boolean testing) {
+        if (!testing) {
+            if (token == null || token.isBlank()) {
+                return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
+                        HttpStatus.UNAUTHORIZED);
+            } else if (!securityService.checkEditPermission(token, profileId)) {
+                return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(),
+                        HttpStatus.FORBIDDEN);
+            }
+        }
+
+        if (activityService.removeMembership(profileId, activityId)) {
+            return new ResponseEntity<>("The profiles membership has been removed from the activity", HttpStatus.OK);
+        }
+        return new ResponseEntity<>("The profiles membership was not found for this activity", HttpStatus.NOT_FOUND);
+    }
 }

@@ -1,6 +1,7 @@
 package com.springvuegradle.service;
 
 import com.springvuegradle.model.Activity;
+import com.springvuegradle.model.ActivityMembership;
 import com.springvuegradle.model.ActivityType;
 import com.springvuegradle.model.Profile;
 import com.springvuegradle.repositories.*;
@@ -230,6 +231,36 @@ class ActivityServiceTest {
         Activity activity = activityRepository.save(createNormalActivityKaikoura());
         service.delete(activity.getId());
         assertEquals(0, activityRepository.count());
+    }
+
+    /**
+     * Test to remove a profiles membership from an activity they have membership with
+     **/
+    @Test
+    void removeActivityMemberShipSuccessTest() {
+        Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        Profile bennyBoi = createNormalProfileBen();
+        profileRepository.save(bennyBoi);
+        ActivityMembership testMemberShip = new ActivityMembership(activity, bennyBoi, ActivityMembership.Role.PARTICIPANT);
+        activityMembershipRepository.save(testMemberShip);
+        service.removeMembership(bennyBoi.getId(), activity.getId());
+        assertEquals(0, activityMembershipRepository.count());
+    }
+
+    /**
+     * Test to remove a profiles membership from an activity which they are not a part of
+     */
+    @Test
+    void removeActivityMemberShipFailTest() {
+        Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        Profile bennyBoi = createNormalProfileBen();
+        profileRepository.save(bennyBoi);
+        Profile johnnyBoi = createNormalProfileJohnny();
+        profileRepository.save(johnnyBoi);
+        ActivityMembership testMemberShip = new ActivityMembership(activity, bennyBoi, ActivityMembership.Role.PARTICIPANT);
+        activityMembershipRepository.save(testMemberShip);
+        service.removeMembership(johnnyBoi.getId(), activity.getId());
+        assertEquals(1, activityMembershipRepository.count());
     }
 
     /**
