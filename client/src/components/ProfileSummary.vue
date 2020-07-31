@@ -37,6 +37,7 @@
     import Api from "../Api";
     import toastMixin from "../mixins/toastMixin";
     import store from "../store";
+    import router from "../router";
 
     export default {
         name: "ProfileSummary",
@@ -102,9 +103,18 @@
                                     this.successToast(`${this.profile.firstname} is now an admin`)
                                     this.profile.authLevel = 1
                                 } else {
-                                    this.successToast(`${this.profile.firstname} is no longer an admin`)
-                                    this.profile.authLevel = 5
+                                    if (this.profile.id == this.store.getters.getUserId) {
+                                        this.successToast(`You are no longer an admin`)
+                                        this.profile.authLevel = 5
+                                        this.store.commit("SET_AUTHENTICATION_LEVEL", 5)
+                                        router.push({path: '/Profile/' + store.getters.getUserId})
+                                    }
+                                    else {
+                                        this.successToast(`${this.profile.firstname} is no longer an admin`)
+                                        this.profile.authLevel = 5
+                                    }
                                 }
+
                             })
                             .catch(() => this.warningToast(`Chould not change user to ${permissionLevel}`))
                     }
