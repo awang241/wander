@@ -9,7 +9,7 @@ import ActivitiesComponent from "./components/Activities";
 import AdminDashboardComponent from "./components/AdminDashboard";
 import AddActivityComponent from "./components/AddActivity";
 import ProfileSearchComponent from "./components/ProfileSearch"
-import ViewActivityComponent from "./components/ViewActivity"
+import ViewActivityComponent from "./components/viewactivity/ViewActivity.vue"
 import store from "./store";
 
 
