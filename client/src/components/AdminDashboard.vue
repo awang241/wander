@@ -1,7 +1,7 @@
 <template>
     <ProfileSearch viewing-as-admin="true">
         <template #header>
-            <h1 class="title">Admin dashboard</h1>
+            <h1 class="title">Admin Dashboard</h1>
         </template>
     </ProfileSearch>
 </template>

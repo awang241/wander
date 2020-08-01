@@ -12,9 +12,6 @@
                 <li><a v-on:click="changeToActivityTypes">Activity Types</a></li>
                 <li><a v-on:click="changeToEmail">Emails</a></li>
                 <li><a v-on:click="changeToLocation">Location</a></li>
-                <li v-if="(store.getters.getAuthenticationLevel === 0 || store.getters.getAuthenticationLevel === 1) && !editingThroughDashboard">
-                    <a @click="changeToDashboard">Back To Admin Dashboard</a>
-                </li>
                 <li>
                     <a v-if="store.getters.getAuthenticationLevel > 0 && !editingThroughDashboard"
                    @click="changeToProfile">Back to Profile</a>

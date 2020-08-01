@@ -123,6 +123,7 @@
                 router.push({path: '/EditProfile/' + store.getters.getUserId});
             },
             getProfile() {
+                if (store.getters.getAuthenticationLevel === 0) { router.push({path: '/'}) }
                 api.getProfile(this.id, localStorage.getItem("authToken"))
                     .then((response) => {
                         this.profile = response.data;
