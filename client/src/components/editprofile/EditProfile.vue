@@ -51,8 +51,6 @@
         },
         computed: {
             editingThroughDashboard: function () {
-                console.log("BEANS")
-                console.log(this.$route.params.id)
                 return this.$route.params.id == null
             }
         },

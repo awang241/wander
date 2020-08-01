@@ -103,6 +103,8 @@
             this.getPossibleActivityTypes()
         },
         created() {
+            //Used to update the list of profiles when a profile on this list is changed
+            //This is done by watching for the profileWasEdited event on the global event bus
             eventBus.$on('profileWasEdited', (editedProfile) => {
                 for (let i = 0; i < this.profiles.length; i++) {
                     if(this.profiles[i].id === editedProfile.id){
