@@ -87,7 +87,7 @@
             },
 
             getProfile() {
-                if (!(this.id == store.getters.getUserId || store.getters.getAuthenticationLevel < 2)) {
+                if (!(this.id === store.getters.getUserId || store.getters.getAuthenticationLevel < 2)) {
                     router.push({path: '/EditProfile/' + store.getters.getUserId})
 
                 }
@@ -138,6 +138,9 @@
                 this.profile.fitness = personalDetails.fitness
                 eventBus.$emit('profileWasEdited', this.profile)
                 api.editProfile(this.id, this.profile, localStorage.getItem('authToken'))
+            },
+            getId() {
+                return this.id;
             }
         }
     }
