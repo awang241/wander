@@ -60,7 +60,9 @@
             <div
                     v-for="profile in profiles"
                     :key="profile.id">
-                <ProfileSummary :profile="profile"/>
+                <ProfileSummary :profile="profile">
+                    <b-button type="is-text" @click="gotoProfile(profile.id)">View profile</b-button>
+                </ProfileSummary>
             </div>
         </div>
 
@@ -76,6 +78,7 @@
     import Api from "../Api";
     import ProfileSummary from "./ProfileSummary";
     import Observer from "./Observer";
+    import Profile from "./Profile";
 
     const DEFAULT_RESULT_COUNT = 10
 
@@ -105,21 +108,30 @@
                     .then(response => this.possibleActivityTypes = response.data.allActivityTypes)
                     .catch(error => this.showMessage(error))
             },
+            gotoProfile(profileId) {
+                this.$buefy.modal.open({
+                    parent: this,
+                    props: {id:profileId},
+                    component: Profile,
+                    trapFocus: true,
+                    scroll: "clip"
+                })
+            },
             resetSearchFields() {
-                this.email = ""
-                this.name = ""
+                this.email = "";
+                this.name = "";
                 this.chosenActivityTypes = []
             },
             searchUser() {
-                this.startIndex = 0
-                const searchParameters = this.getSearchParameters()
+                this.startIndex = 0;
+                const searchParameters = this.getSearchParameters();
                 Api.getUserProfiles(localStorage.getItem('authToken'), searchParameters).then(response => {
-                    this.startIndex += DEFAULT_RESULT_COUNT
+                    this.startIndex += DEFAULT_RESULT_COUNT;
                     this.profiles = response.data.results
                 })
             },
             getSearchParameters() {
-                const searchParameters = {count: DEFAULT_RESULT_COUNT, startIndex: this.startIndex}
+                const searchParameters = {count: DEFAULT_RESULT_COUNT, startIndex: this.startIndex};
                 if (this.name.length !== 0) {
                     searchParameters.fullname = this.name
                 }
