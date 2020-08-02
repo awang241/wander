@@ -12,9 +12,6 @@
                 <li><a v-on:click="changeToActivityTypes">Activity Types</a></li>
                 <li><a v-on:click="changeToEmail">Emails</a></li>
                 <li><a v-on:click="changeToLocation">Location</a></li>
-                <li v-if="(store.getters.getAuthenticationLevel === 0 || store.getters.getAuthenticationLevel === 1) && !editingThroughDashboard">
-                    <a @click="changeToDashboard">Back To Admin Dashboard</a>
-                </li>
                 <li>
                     <a v-if="store.getters.getAuthenticationLevel > 0 && !editingThroughDashboard"
                    @click="changeToProfile">Back to Profile</a>
@@ -85,7 +82,7 @@
             },
 
             getProfile() {
-                if (!(this.id == store.getters.getUserId || store.getters.getAuthenticationLevel < 2)) {
+                if (!(this.id === store.getters.getUserId || store.getters.getAuthenticationLevel < 2)) {
                     router.push({path: '/EditProfile/' + store.getters.getUserId})
 
                 }
@@ -136,6 +133,9 @@
                 this.profile.fitness = personalDetails.fitness
                 eventBus.$emit('profileWasEdited', this.profile)
                 api.editProfile(this.id, this.profile, localStorage.getItem('authToken'))
+            },
+            getId() {
+                return this.id;
             }
         }
     }
