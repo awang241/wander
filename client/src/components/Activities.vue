@@ -33,11 +33,6 @@
                                           type="is-text" >
                                     View more
                                 </b-button>
-                                <b-button style="float:right" @click="shareActivity()"
-                                          type="is-success">
-                                    Share
-                                </b-button>
-
                                 <div class="content">
                                     <table class="table-profile">
                                         <caption hidden>Displayed Activity Table</caption>
@@ -128,8 +123,6 @@
                 router.push({name: 'editActivity', params: {activityProp: activity}})
             }, activityDetail(activity) {
                 router.push({path: 'Activities/' + activity.id})
-            }, shareActivity() {
-                router.push({path: 'ShareActivity/'})
             },
             deleteActivity(id) {
                 console.log(id);

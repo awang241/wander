@@ -24,8 +24,8 @@
                                 placeholder="Enter a friend's email">
                         </b-taginput>
                     </b-field>
-                    <br>
                 </div>
+                <br>
 
                 <b-button style="float: right" @click="shareActivity"
                               type="is-primary">

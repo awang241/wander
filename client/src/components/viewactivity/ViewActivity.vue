@@ -4,6 +4,10 @@
         <section>
             <div id="activity-key-info">
                 <div>
+                    <b-button style="float:right" @click="shareActivity"
+                              type="is-primary">
+                        Share Activity
+                    </b-button>
                     <h1 class="title is-1">
                         insert activity name here
                     </h1>
@@ -117,6 +121,7 @@
 
 <script>
     import ProfileSummary from "../ProfileSummary";
+    import router from "../../router";
 
     export default {
         name: "ViewActivity",
@@ -135,6 +140,9 @@
             },
             setProfileRole(profileId, role) {
                 profileId = role;
+            },
+            shareActivity() {
+                router.push({name:"shareActivity"})
             }
         },
         mounted() {
