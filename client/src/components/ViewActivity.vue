@@ -18,13 +18,6 @@
                         <h3 class="title is-5"> Privacy: privacy status</h3>
                     </div>
                 </div>
-                <div>
-<!--                    <b-button v-if="creator/organiser"-->
-<!--                              @click="editActivity"-->
-<!--                              type="is-primary">-->
-<!--                        Edit-->
-<!--                    </b-button>-->
-                </div>
             </div>
         </section>
 
@@ -120,8 +113,8 @@
 </template>
 
 <script>
-    import ProfileSummary from "../ProfileSummary";
-    import router from "../../router";
+    import ProfileSummary from "./ProfileSummary";
+    import router from "../router";
 
     export default {
         name: "ViewActivity",
