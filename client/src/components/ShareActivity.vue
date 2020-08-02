@@ -10,24 +10,22 @@
                              expanded >
                     <template slot="label">Privacy<span>*</span></template>
                     <b-select v-model="privacy" placeholder="Choose privacy setting" expanded>
-                        <option value="0">Private</option>
-                        <option value="1">Friends</option>
-                        <option value="2">Public</option>
+                        <option value="private">Private</option>
+                        <option value="friends">Friends</option>
+                        <option value="public">Public</option>
                     </b-select>
                     </b-field>
                 </ValidationProvider>
 
-                <b-field label="Emails">
-                    <b-taginput
-                            v-model="emails"
-                            :data="allEmails"
-                            autocomplete
-                            @typing="getFilteredEmails"
-                            :open-on-focus="false"
-                            placeholder="Enter a friend's email">
-                    </b-taginput>
-                </b-field>
-
+                <div v-if="privacy == 'friends'">
+                    <b-field label="Emails">
+                        <b-taginput
+                                v-model="emails"
+                                placeholder="Enter a friend's email">
+                        </b-taginput>
+                    </b-field>
+                    <br>
+                </div>
 
                 <b-button style="float: right" @click="shareActivity"
                               type="is-primary">
@@ -58,9 +56,12 @@
             ValidationProvider,
             ValidationObserver
         },
-        // data() {
-        //     privacy
-        // },
+        data() {
+            return {
+                privacy: 'private',
+                emails: {}
+            }
+        },
         mounted() {
             this.checkAuthenticationStatus()
             console.log(this.$props.activityProp)
