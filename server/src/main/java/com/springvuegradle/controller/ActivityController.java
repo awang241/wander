@@ -207,14 +207,14 @@ public class ActivityController {
      * @param token the user's authentication token.
      * @param profileId the id of the user we want to assign the role to.
      * @param activityId the id of the activity we want to add the user's role to.
-     * @param activityRole the role we want to give to the user for that specific activity.
+     * @param role the role we want to give to the user for that specific activity.
      * @return response entity with message detailing whether it was a success or not.
      */
-    @PostMapping("/profiles/{profileId}/activities/{activityId}/activityRole")
+    @PostMapping("/profiles/{profileId}/activities/{activityId}/role")
     public ResponseEntity<String> addActivityRole(@RequestHeader("authorization") String token,
                                                   @PathVariable Long profileId,
                                                   @PathVariable Long activityId,
-                                                  @RequestBody String activityRole) {
+                                                  @RequestBody String role) {
         boolean success;
         if (token == null || token.isBlank()) {
             return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
@@ -223,12 +223,12 @@ public class ActivityController {
         ArrayList<String> actualRoles = new ArrayList<>();
         actualRoles.add("participant");
         actualRoles.add("follower");
-        Boolean checkFollowerOrParticipant = securityService.checkEditPermission(token, profileId) && actualRoles.contains(activityRole);
+        Boolean checkFollowerOrParticipant = securityService.checkEditPermission(token, profileId) && actualRoles.contains(role);
         actualRoles.add("organiser");
-        Boolean checkCreatorOrAdmin = activityService.checkActivityCreator(jwtUtil.extractId(token), activityId) && actualRoles.contains(activityRole);
+        Boolean checkCreatorOrAdmin = activityService.checkActivityCreator(jwtUtil.extractId(token), activityId) && actualRoles.contains(role);
         try {
             if (checkFollowerOrParticipant || checkCreatorOrAdmin) {
-                activityService.addActivityRole(activityId, profileId, activityRole);
+                activityService.addActivityRole(activityId, profileId, role);
             } else {
                 return new ResponseEntity<>(ActivityMessage.INVALID_ROLE.getMessage(), HttpStatus.BAD_REQUEST);
             }
