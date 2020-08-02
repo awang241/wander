@@ -240,11 +240,23 @@ class ActivityServiceTest {
         assertFalse(service.delete((long) 1));
     }
 
+    @Test
+    void getActivityByIdServiceTest() {
+        Activity activity = activityRepository.save(createNormalActivity());
+        Activity activityResult = service.getActivityByActivityId(activity.getId());
+        assertEquals(activity, activityResult);
+    }
+
+    @Test
+    void getActivityByIdFailedTest() {
+        long activityId = 10;
+        Activity failedResult = service.getActivityByActivityId(activityId);
+        assertEquals(null, failedResult);
+    }
 
     /**
      * Example activities to use in tests
      **/
-
     static Activity createNormalActivity() {
         return new Activity("Kaikoura Coast Track race", "A big and nice race on a lovely peninsula",
                 new String[]{"Tramping", "Hiking"}, false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ");
