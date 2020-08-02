@@ -27,6 +27,7 @@ export default {
 
 
   // All get API requests
+  getActivity: (activityId) => localAxiosInstance.get('activities/' + activityId),
   getActivitiesList: () => localAxiosInstance.get('activities'),
   getActivityTypesList: () => localAxiosInstance.get('/activityTypes'),
   getAuthLevel: (token) => localAxiosInstance.get('authLevel/', {headers: {"authorization":token}}),

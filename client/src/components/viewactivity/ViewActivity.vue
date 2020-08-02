@@ -80,20 +80,103 @@
                 </div>
             </div>
         </div>
+
+        <div>
+            <b-tabs>
+                <b-tab-item label="Organisers">
+                    <div class="flex">
+                        <div class="table-profile"
+                               v-for="organiser in organisers"
+                                :key="organiser.id">
+                            <ProfileSummary class="flex-item" :profile="organiser">
+
+                            </ProfileSummary>
+                        </div>
+                    </div>
+                </b-tab-item>
+
+                <b-tab-item label="Participants">
+                    <div class="flex">
+                        <div class="table-profile"
+                             v-for="participant in participants"
+                             :key="participant.id">
+                            <ProfileSummary class="flex-item" :profile="participant">
+
+                            </ProfileSummary>
+                        </div>
+                    </div>
+                </b-tab-item>
+            </b-tabs>
+        </div>
     </div>
 </template>
 
 <script>
+    import ProfileSummary from "../ProfileSummary";
     export default {
         name: "ViewActivity",
+        components: {ProfileSummary},
+        data() {
+            return {
+                activity: {},
+                organisers: [],
+                participants: [],
+                numFollowers: 0
+          }
+        },
         methods: {
             getActivity() {
 
+            }
+        },
+        mounted() {
+            //Mock data for testing; replace with appropriate API calls when implemented.
+            this.activity = {
+                continuous: false
+            };
+            this.organisers = [
+                {
+                    id: 1,
+                    firstname: "Sample",
+                    lastname: "Org",
+                    activities: [],
+                    gender: "Gender",
+                    email: "email@cmail.dom"
+                },
+                {
+                    id: 2,
+                    firstname: "Sample",
+                    lastname: "Org2",
+                    activities: [],
+                    gender: "Gender",
+                    email: "email@cmail.dom"
+                }
+            ];
+            for (let i = 0; i < 50; i++) {
+                let participant = {
+                    id: i,
+                    firstname: "Tester",
+                    lastname: "Participant" + i,
+                    activities: [],
+                    gender: "Gender",
+                    email: "email@cmail.dom"
+                };
+                this.participants.push(participant)
             }
         }
     }
 </script>
 
 <style scoped>
+    .flex {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+    .flex-item {
+        margin: 20px 0;
+        width: 500px;
+    }
 
 </style>

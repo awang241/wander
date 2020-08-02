@@ -24,11 +24,7 @@
         name: "ProfileSummary",
         data() {
             return {
-                profileData: {}
             }
-        },
-        mounted() {
-            this.profileData = this.props.profile;
         },
         computed: {
             name() {
