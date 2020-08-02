@@ -1,9 +1,11 @@
 package com.springvuegradle.controller;
 
 
+import com.springvuegradle.dto.ActivityRoleUpdateRequest;
 import com.springvuegradle.enums.ActivityResponseMessage;
 import com.springvuegradle.enums.AuthenticationErrorMessage;
 import com.springvuegradle.model.Activity;
+import com.springvuegradle.model.ActivityMembership;
 import com.springvuegradle.repositories.ActivityRepository;
 import com.springvuegradle.utilities.FieldValidationHelper;
 import com.springvuegradle.utilities.JwtUtil;
@@ -143,6 +145,34 @@ public class ActivityController {
         return new ResponseEntity<>(allActivities, HttpStatus.OK);
     }
 
+
+    /**
+     * Allows the changing of a profiles role within an activity memebership
+     * @param role the role the user wants to change to
+     * @param token the users authentication token
+     * @param profileId the ID of the profile whose membership we are changing
+     * @param activityId the ID of the activity the profile is a part of
+     * @return an HTTP status code indicating the result of the operation
+     */
+    @PutMapping("/profiles/{profileId}/activities/{activityId}/role")
+    public ResponseEntity<String> changeProfilesActivityRole(@RequestBody ActivityRoleUpdateRequest role,
+                                                             @RequestHeader("authorization") String token,
+                                                             @PathVariable Long profileId,
+                                                             @PathVariable Long activityId){
+        if (token == null || token.isBlank()) {
+            return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
+                    HttpStatus.UNAUTHORIZED);
+        } else if (!securityService.checkEditPermission(token, profileId)) {
+            return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(),
+                    HttpStatus.FORBIDDEN);
+        }
+        try {
+            activityService.setProfileRole(profileId, activityId, ActivityMembership.Role.valueOf(role.getRole().toUpperCase()));
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch(IllegalArgumentException e){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
 
     /**
      * Queries the Database to find all the activities of a user with their profile id.
