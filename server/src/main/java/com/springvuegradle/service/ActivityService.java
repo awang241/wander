@@ -25,10 +25,10 @@ public class ActivityService {
 
     /**
      * Autowired constructor for Spring to create an ActivityService and inject the correct dependencies.
-     * @param profileRepo
-     * @param activityRepo
-     * @param activityTypeRepo
-     * @param activityMembershipRepository
+     * @param profileRepo the profile repository being injected.
+     * @param activityRepo the activity repository being injected.
+     * @param activityTypeRepo the activity type repository being injected.
+     * @param activityMembershipRepository the activity membership repository being injected.
      */
     @Autowired
     public ActivityService(ProfileRepository profileRepo, ActivityRepository activityRepo, ActivityTypeRepository activityTypeRepo,
@@ -90,14 +90,14 @@ public class ActivityService {
         validateActivity(activity);
         Optional<Activity> result = activityRepo.findById(activityId);
         if (result.isPresent()) {
-            Activity db_activity = result.get();
+            Activity dbActivity = result.get();
             Set<ActivityType> updatedActivityTypes = new HashSet<>();
             for (ActivityType activityType : activity.retrieveActivityTypes()) {
                 List<ActivityType> resultActivityTypes = typeRepo.findByActivityTypeName(activityType.getActivityTypeName());
                 updatedActivityTypes.add(resultActivityTypes.get(0));
             }
-            db_activity.setActivityTypes(updatedActivityTypes);
-            activityRepo.save(db_activity);
+            dbActivity.setActivityTypes(updatedActivityTypes);
+            activityRepo.save(dbActivity);
         } else {
             throw new IllegalArgumentException(ActivityResponseMessage.INVALID_ACTIVITY.toString());
         }
@@ -187,5 +187,33 @@ public class ActivityService {
                 }
             }
         }
+    }
+
+    /**
+     * Sets the role of an activity member to the given role. Profiles cannot be set as creators, and creators
+     * cannot have their role changed for that activity.
+     * @param profileId The ID of the profile whose role is being changed
+     * @param activityId the ID of the activity
+     * @param newRole The role the member is being changed to
+     * @throws IllegalArgumentException if the parameters do not match the database constraints (e.g. no profile with
+     * that id exists, or the given profile isn't a member of that activity), or if the profile is being set to or from
+     * the Creator role.
+     */
+    public void setProfileRole(long profileId, long activityId, ActivityMembership.Role newRole) {
+        if (newRole.equals(ActivityMembership.Role.CREATOR)) {
+            throw new IllegalArgumentException(ActivityResponseMessage.EDITING_CREATOR.toString());
+        }
+
+        Optional<ActivityMembership> optionalMembership = membershipRepo.findByActivity_IdAndProfile_Id(activityId, profileId);
+        if (optionalMembership.isEmpty()) {
+            throw new IllegalArgumentException(ActivityResponseMessage.INVALID_MEMBERSHIP.toString());
+        }
+
+        ActivityMembership membership = optionalMembership.get();
+        if (membership.getRole() == ActivityMembership.Role.CREATOR) {
+            throw new IllegalArgumentException(ActivityResponseMessage.EDITING_CREATOR.toString());
+        }
+        membership.setRole(newRole);
+        membershipRepo.save(membership);
     }
 }
