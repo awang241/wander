@@ -250,7 +250,12 @@ class ActivityServiceTest {
         activityMembershipRepository.save(followerMembership);
 
         service.setProfileRole(follower.getId(), activity.getId(), ActivityMembership.Role.ORGANISER);
-        assertEquals(ActivityMembership.Role.ORGANISER, followerMembership.getRole());
+        Optional<ActivityMembership> updatedMembership = activityMembershipRepository.findByActivity_IdAndProfile_Id(activity.getId(), follower.getId());
+        if (updatedMembership.isEmpty()) {
+            fail("Test membership could not be found");
+        } else {
+            assertEquals(ActivityMembership.Role.ORGANISER, updatedMembership.get().getRole());
+        }
     }
 
     @Test
@@ -263,9 +268,7 @@ class ActivityServiceTest {
         activityMembershipRepository.save(creatorMembership);
         activityMembershipRepository.save(followerMembership);
 
-        assertThrows(IllegalArgumentException.class, ()->{
-            service.setProfileRole(follower.getId(), activity.getId(), ActivityMembership.Role.CREATOR);
-        });
+        assertThrows(IllegalArgumentException.class, ()-> service.setProfileRole(follower.getId(), activity.getId(), ActivityMembership.Role.CREATOR));
     }
 
     @Test
