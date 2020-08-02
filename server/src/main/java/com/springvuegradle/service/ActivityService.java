@@ -168,12 +168,14 @@ public class ActivityService {
      * @param activityId The ID of the activity that is being retrieved
      * @return An activity object. If it does not exist returns null.
      */
-    public Optional<Activity> getActivityByActivityId(Long activityId) {
+    public Activity getActivityByActivityId(Long activityId) {
+        Activity nullActivity = new Activity(null, null, null,
+                null, null,null, null);
         Optional<Activity> activity = activityRepo.findById(activityId);
         if (activity.isPresent()) {
-            return activity;
+            return activity.get();
         }
-        return null;
+        return nullActivity;
     }
 
     private void validateActivity(Activity activity) {

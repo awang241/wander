@@ -159,11 +159,12 @@ public class ActivityController {
         else if (!jwtUtil.validateToken(token)) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
-        Optional<Activity> activity = activityService.getActivityByActivityId(activityId);
-        if (activity.isEmpty()) {
+        Activity activity = activityService.getActivityByActivityId(activityId);
+        System.out.println(activity.getActivityName());
+        if (activity.getActivityName().equals(null)) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(activity.get(), HttpStatus.OK);
+        return new ResponseEntity<>(activity, HttpStatus.OK);
     }
 
     /**

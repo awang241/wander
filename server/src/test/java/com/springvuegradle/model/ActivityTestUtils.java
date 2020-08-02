@@ -11,4 +11,9 @@ public class ActivityTestUtils {
                 new String[]{"Hiking"}, false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ");
     }
 
+    public static Activity createNullActivity() {
+        return new Activity(null, null, null,
+                null, null, null, null);
+    }
+
 }

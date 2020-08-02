@@ -2,7 +2,7 @@ package com.springvuegradle.controller;
 
 import com.springvuegradle.dto.EditAuthLevelRequest;
 import com.springvuegradle.enums.AuthLevel;
-import com.springvuegradle.enums.ProfileErrorMessage;
+import com.springvuegradle.enums.ActivityResponseMessage;
 import com.springvuegradle.model.*;
 import com.springvuegradle.repositories.*;
 import com.springvuegradle.service.ActivityService;
@@ -49,23 +49,55 @@ class ActivityControllerMockedTest {
     JwtUtil mockJwt;
     @Autowired
     ActivityController activityController;
+    @Autowired
+    ActivityRepository mockRepo;
 
     Profile jimmy;
     Activity kaikouraCoastTrackRace;
     @BeforeEach
     private void setUp(){
         kaikouraCoastTrackRace = ActivityTestUtils.createNormalActivity();
-        jimmy = ProfileTestUtils.createProfileJimmy();
     }
 
     @AfterEach
     private void tearDown() {
-        jimmy = null;
-        kaikouraCoastTrackRace = null;
+        mockRepo.deleteAll();;
     }
 
     @Test
-    void getActivityInvalidTokenTest(){
+    void getActivityByValidActivityIdTest() {
+        long mockActivityId = 10;
+        String mockToken = "token";
+        Activity mockActivity = ActivityTestUtils.createNormalActivity();
+
+        mockRepo.save(mockActivity);
+        ResponseEntity<String> expectedResponse = new ResponseEntity<>(HttpStatus.OK);
+        Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
+        Mockito.when(mockService.getActivityByActivityId(mockActivityId)).thenReturn(mockActivity);
+        ResponseEntity<Activity> actualResponse = activityController.getActivity(mockToken, mockActivityId);
+
+        assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
+    }
+
+    @Test
+    void getInvalidActivityIdTest() {
+        long mockActivityId = 10;
+        String mockToken = "token";
+        Activity mockActivity = ActivityTestUtils.createNormalActivity();
+//        Activity nullActivity = ActivityTestUtils.createNullActivity();
+        ResponseEntity<String> expectedResponse = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+        mockRepo.save(mockActivity);
+
+        Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
+//        Mockito.when(mockService.getActivityByActivityId(mockActivityId)).thenReturn(nullActivity);
+        ResponseEntity<Activity> actualResponse = activityController.getActivity(mockToken, mockActivityId);
+
+        assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
+    }
+
+    @Test
+    void getActivityByIdInvalidTokenTest(){
         long mockActivityId = 10;
         String mockToken = "invalid token";
         ResponseEntity<String> expectedResponse = new ResponseEntity<>(HttpStatus.FORBIDDEN);
@@ -74,15 +106,19 @@ class ActivityControllerMockedTest {
         assertEquals(expectedResponse, actualResponse);
     }
 
-    @Test
-    void getActivityTest() {
-        long mockActivityId = 10;
-        String mockToken = "token";
-        ResponseEntity<String> expectedResponse = new ResponseEntity<>(HttpStatus.OK);
-        Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
-        ResponseEntity<Activity> actualResponse = activityController.getActivity(mockToken, mockActivityId);
-        assertEquals(expectedResponse, actualResponse);
-    }
+
+
+//    @Test
+//    void getActivityByIdNoTokenTest() {
+//        long mockId = 10;
+//        EditAuthLevelRequest request = new EditAuthLevelRequest("admin");
+//        ResponseEntity<String> expectedResponse = new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
+//                HttpStatus.UNAUTHORIZED);
+//        ResponseEntity<String> actualResponse = profileController.editAuthLevel(request, mockId, null);
+//        assertEquals(expectedResponse, actualResponse);
+//    }
+
+
 
 //    @Test
 //    void editAuthLevelToUserTest() {
