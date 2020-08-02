@@ -1,39 +1,23 @@
 package com.springvuegradle.controller;
 
-import com.springvuegradle.dto.EditAuthLevelRequest;
-import com.springvuegradle.enums.AuthLevel;
-import com.springvuegradle.enums.ActivityResponseMessage;
 import com.springvuegradle.model.*;
 import com.springvuegradle.repositories.*;
 import com.springvuegradle.service.ActivityService;
 import com.springvuegradle.utilities.JwtUtil;
 import com.springvuegradle.config.MockServiceConfig;
-import com.springvuegradle.dto.ProfileSearchResponse;
-import com.springvuegradle.dto.ProfileSummary;
-import com.springvuegradle.enums.AuthenticationErrorMessage;
-import com.springvuegradle.service.ProfileService;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
-
 
 @ActiveProfiles("mock-service")
 @ExtendWith(SpringExtension.class)
@@ -51,13 +35,6 @@ class ActivityControllerMockedTest {
     ActivityController activityController;
     @Autowired
     ActivityRepository mockRepo;
-
-    Profile jimmy;
-    Activity kaikouraCoastTrackRace;
-    @BeforeEach
-    private void setUp(){
-        kaikouraCoastTrackRace = ActivityTestUtils.createNormalActivity();
-    }
 
     @AfterEach
     private void tearDown() {

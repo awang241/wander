@@ -166,7 +166,6 @@ public class ActivityService {
      * Checks all the fields in an Activity for errors. Throws an error if there are any
      * @param activity The activity object
      */
-
     private void validateActivity(Activity activity) {
         if (activity.getActivityName() == null || activity.getActivityName().isBlank()) {
             throw new IllegalArgumentException(ActivityResponseMessage.MISSING_NAME.toString());
