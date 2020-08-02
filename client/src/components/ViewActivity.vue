@@ -119,6 +119,9 @@
     export default {
         name: "ViewActivity",
         components: {ProfileSummary},
+        props: {
+            id: {type: Number, required:true}
+        },
         data() {
             return {
                 activity: {},
@@ -140,6 +143,7 @@
         },
         mounted() {
             //Mock data for testing; replace with appropriate API calls when implemented.
+
             this.activity = {
                 continuous: false
             };
