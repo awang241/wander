@@ -72,7 +72,7 @@
                                           <td>Followers:</td>
                                           <td>follower number</td>
                                       </tr>
-                                    </table>>
+                                    </table>
                                 </div>
                             </div>
                         </div>
@@ -89,7 +89,9 @@
                                v-for="organiser in organisers"
                                 :key="organiser.id">
                             <ProfileSummary class="flex-item" :profile="organiser">
-
+                                <b-button v-on:click="setProfileRole(organiser.id, 'PARTICIPANT')">
+                                    Make Participant
+                                </b-button>
                             </ProfileSummary>
                         </div>
                     </div>
@@ -101,7 +103,9 @@
                              v-for="participant in participants"
                              :key="participant.id">
                             <ProfileSummary class="flex-item" :profile="participant">
-
+                                <b-button v-on:click="setProfileRole(organiser.id, 'ORGANISER')">
+                                    Make Organiser
+                                </b-button>
                             </ProfileSummary>
                         </div>
                     </div>
@@ -113,6 +117,7 @@
 
 <script>
     import ProfileSummary from "../ProfileSummary";
+
     export default {
         name: "ViewActivity",
         components: {ProfileSummary},
@@ -127,6 +132,9 @@
         methods: {
             getActivity() {
 
+            },
+            setProfileRole(profileId, role) {
+                profileId = role;
             }
         },
         mounted() {

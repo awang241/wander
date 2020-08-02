@@ -12,14 +12,12 @@
                     <p> {{activity}}</p>
                 </div>
             </div>
-            <b-button type="is-text" @click="gotoProfile(profile.id)">View profile</b-button>
+            <slot/>
         </div>
     </div>
 </template>
 
 <script>
-    import Profile from "./Profile.vue";
-
     export default {
         name: "ProfileSummary",
         data() {
@@ -33,17 +31,6 @@
         },
         props: {
             profile: Object
-        },
-        methods: {
-            gotoProfile() {
-                this.$buefy.modal.open({
-                    parent: this,
-                    props: {id:this.profile.id},
-                    component: Profile,
-                    trapFocus: true,
-                    scroll: "clip"
-                })
-            }
         }
     }
 </script>
