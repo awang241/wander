@@ -97,6 +97,7 @@ public class ActivityService {
                 updatedActivityTypes.add(resultActivityTypes.get(0));
             }
             db_activity.setActivityTypes(updatedActivityTypes);
+            db_activity.update(activity);
             activityRepo.save(db_activity);
         } else {
             throw new IllegalArgumentException(ActivityResponseMessage.INVALID_ACTIVITY.toString());
