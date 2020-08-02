@@ -10,16 +10,14 @@ import com.springvuegradle.repositories.ProfileRepository;
 import com.springvuegradle.repositories.spec.ProfileSpecifications;
 import com.springvuegradle.utilities.FieldValidationHelper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-
 
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * Service-layer class containing all business logic handling profiles.
@@ -52,7 +50,6 @@ public class ProfileService {
 
     @Autowired
     private ActivityMembershipRepository actMemRepo;
-
 
     /**
      * Updates the location associated with a users profile
@@ -146,16 +143,19 @@ public class ProfileService {
         Optional<Profile> result = repo.findById(id);
         if (Boolean.TRUE.equals(result.isPresent())) {
             Profile profileToDelete = result.get();
+            deleteProfileLocation(id);
             if (profileToDelete.getAuthLevel() == 0) {
                 return new ResponseEntity<>("Cannot delete default admin.", HttpStatus.FORBIDDEN);
             }
+
             for (Email email: profileToDelete.retrieveEmails()) {
                 eRepo.delete(email);
             }
             for (ActivityMembership membership: profileToDelete.getActivities()) {
                 actMemRepo.delete(membership);
             }
-            deleteProfileLocation(id);
+            profileToDelete.setActivityTypes(null);
+
             repo.delete(profileToDelete);
             return new ResponseEntity<>("The Profile does exist in the database.", HttpStatus.OK);
         } else {

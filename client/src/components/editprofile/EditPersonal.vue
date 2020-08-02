@@ -185,7 +185,6 @@
 
         methods: {
             sendUpdatedData() {
-                //this.dateOfBirth.setHours(23)
                 const original =
                     {
                         "firstname": this.profile.firstname,
