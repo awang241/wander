@@ -1,5 +1,9 @@
 package com.springvuegradle.enums;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 public enum ActivityResponseMessage {
     EDIT_SUCCESS("Activity edited successfully"),
     EDITING_CREATOR("Profiles cannot be set to or from the creator role"),
@@ -16,6 +20,15 @@ public enum ActivityResponseMessage {
     ACTIVITY_EXISTS("Activity with given name already exists in the database");
 
     private String message;
+
+    public static final Set<String> SEMANTIC_ERRORS = new HashSet<>(Arrays.asList(INVALID_ACTIVITY.toString(),
+            INVALID_DATES.toString(),
+            INVALID_TYPE.toString(),
+            ACTIVITY_EXISTS.toString()));
+    public static final Set<String> SYNTAX_ERRORS  = new HashSet<>(Arrays.asList(MISSING_END_DATE.toString(),
+            MISSING_NAME.toString(),
+            MISSING_START_DATE.toString(),
+            MISSING_TYPES.toString()));
 
     private ActivityResponseMessage(String message) {
         this.message = message;
