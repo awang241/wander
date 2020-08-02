@@ -68,20 +68,6 @@ public class ActivityService {
     }
 
     /**
-     * Check if there is an activity with an associated activityId
-     *
-     * @param activityId the id of the activity we want to retrieve
-     * @return The activity if it exists, null otherwise
-     */
-    public Activity read(Long activityId) {
-        Optional<Activity> activity = activityRepo.findById(activityId);
-        if (activity.isPresent()) {
-            return activity.get();
-        }
-        return null;
-    }
-
-    /**
      * Updates the activity given the new activity object and the id of the activity you want to update.
      * @param activity the new activity object
      * @param activityId the id of the activity to update
@@ -169,14 +155,17 @@ public class ActivityService {
      * @return An activity object. If it does not exist returns null.
      */
     public Activity getActivityByActivityId(Long activityId) {
-        Activity nullActivity = new Activity(null, null, null,
-                null, null,null, null);
         Optional<Activity> activity = activityRepo.findById(activityId);
         if (activity.isPresent()) {
             return activity.get();
         }
-        return nullActivity;
+        return null;
     }
+
+    /**
+     * Checks all the fields in an Activity for errors. Throws an error if there are any
+     * @param activity The activity object
+     */
 
     private void validateActivity(Activity activity) {
         if (activity.getActivityName() == null || activity.getActivityName().isBlank()) {

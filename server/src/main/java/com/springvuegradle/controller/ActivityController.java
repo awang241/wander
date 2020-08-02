@@ -160,8 +160,7 @@ public class ActivityController {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         Activity activity = activityService.getActivityByActivityId(activityId);
-        System.out.println(activity.getActivityName());
-        if (activity.getActivityName().equals(null)) {
+        if (activity == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(activity, HttpStatus.OK);
