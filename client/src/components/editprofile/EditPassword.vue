@@ -6,7 +6,7 @@
 
         <ValidationObserver v-slot="{ handleSubmit }">
             <form @submit.prevent="handleSubmit(updatePassword)">
-                <ValidationProvider rules="required|minPassword" name="Current Password" v-slot="{ errors, valid }">
+                <ValidationProvider :rules="!checkLoggedInUserIsAdmin()" name="Current Password" v-slot="{ errors, valid }">
                     <b-field v-if="store.getters.getAuthenticationLevel > 1"
                              :type="{ 'is-danger': errors[0], 'is-success': valid }"
                              :message="errors"
@@ -50,6 +50,7 @@
     export default {
         name: "EditPassword",
         mixins: [toastMixin],
+        props: ["profile"],
         components: {
             ValidationProvider,
             ValidationObserver
@@ -65,13 +66,13 @@
 
         computed: {
             isDisabled() {
-                return (this.password != this.confPassword);
+                return (this.password !== this.confPassword);
             }
         },
         methods: {
             updatePassword() {
 
-                if (this.password == this.currentPassword) {
+                if (this.password === this.currentPassword) {
                     this.warningToast("No changes made")
                 } else if(this.password.length < 8) {
                     this.warningToast("Password must be at least 8 characters long")
@@ -83,7 +84,11 @@
                         "newPassword": this.password,
                         "confPassword": this.confPassword
                     }
-                    api.editPassword(passwordDetails, this.$route.params.id, localStorage.getItem('authToken'))
+                    let userId = this.$route.params.id;
+                    if (userId === undefined) {
+                        userId = this.profile.id;
+                    }
+                    api.editPassword(passwordDetails, userId, localStorage.getItem('authToken'))
                         .catch(error => this.warningToast(this.getErrorMessageFromStatusCode(error.response.status)))
                         .then(response => this.successToast(this.getErrorMessageFromStatusCode(response.status)))
                 }
@@ -96,6 +101,14 @@
                     message = "Incorrect details entered"
                 }
                 return message;
+            },
+            checkLoggedInUserIsAdmin() {
+                if (!store.getters.getAuthenticationLevel === 0 ||
+                    !store.getters.getAuthenticationLevel === 1) {
+                    return null;
+                } else {
+                    return "required|minPassword";
+                }
             }
         }
     }
