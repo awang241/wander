@@ -41,9 +41,25 @@ Feature: Creating modifying and deleting activities
     Then The activity was edited
 
   @U28F5-Editing-Participation
-  Scenario: I want to change my role in an activity
+  Scenario: I want to change my role in an activity from follower to participant
     Given I registered account with email "rick@gmail.com" and password "rick'sSecuredPwd"
     And I create a continuous activity with the title "Rick goes to space" and the location "Space"
     And I am a "FOLLOWER" of this activity
-    When I choose to change my role to "follower"
-    Then I am now a follower of the activity
+    When I choose to change my role to "PARTICIPANT"
+    Then I am now a "PARTICIPANT" of the activity
+
+  @U28F5-Editing-Participation
+  Scenario: I am unable to change my own role in an activity from participant to creator
+    Given I registered account with email "rick@gmail.com" and password "rick'sSecuredPwd"
+    And I create a continuous activity with the title "Rick goes to space" and the location "Space"
+    And I am a "PARTICIPANT" of this activity
+    When I choose to change my role to "CREATOR"
+    Then I am now a "PARTICIPANT" of the activity
+
+  @U28F5-Editing-Participation
+  Scenario: I am unable to change my own role in an activity to organizer
+    Given I registered account with email "rick@gmail.com" and password "rick'sSecuredPwd"
+    And I create a continuous activity with the title "Rick goes to space" and the location "Space"
+    And I am a "FOLLOWER" of this activity
+    When I choose to change my role to "ORAGNISER"
+    Then I am now a "FOLLOWER" of the activity

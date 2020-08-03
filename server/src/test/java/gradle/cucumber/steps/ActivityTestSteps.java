@@ -163,10 +163,11 @@ public class ActivityTestSteps {
         responseEntity = activityController.changeProfilesActivityRole(updateRequest, loginResponse.getToken(), jwtUtil.extractId(loginResponse.getToken()), activityRepository.getLastInsertedId());
     }
 
-    @Then("I am now a follower of the activity")
-    public void iAmNowAFollowerOfTheActivity() {
+    @Then("I am now a {string} of the activity")
+    public void iAmNowAOfTheActivity(String roleString) {
+        ActivityMembership.Role role = ActivityMembership.Role.valueOf(roleString);
         Optional<ActivityMembership> optionalActivityMembership = membershipRepository.findByActivity_IdAndProfile_Id(activity.getId(), profile.getId());
         ActivityMembership activityMembership = optionalActivityMembership.get();
-        assertEquals(ActivityMembership.Role.FOLLOWER, activityMembership.getRole());
+        assertEquals(role, activityMembership.getRole());
     }
 }
