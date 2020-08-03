@@ -1,12 +1,15 @@
 package com.springvuegradle.service;
 
 import com.springvuegradle.enums.ActivityResponseMessage;
-import com.springvuegradle.model.Activity;
-import com.springvuegradle.model.ActivityMembership;
-import com.springvuegradle.model.Profile;
-import com.springvuegradle.model.ActivityType;
+import com.springvuegradle.model.*;
 import com.springvuegradle.repositories.*;
+import com.springvuegradle.repositories.spec.ProfileSpecifications;
+import com.springvuegradle.utilities.FieldValidationHelper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
@@ -187,5 +190,16 @@ public class ActivityService {
                 }
             }
         }
+    }
+
+    /**
+     * Returns the specified page from the list of all profiles that match the search criteria.
+     *
+     * @param request A page request containing the index and size of the page to be returned.
+     * @return The specified page from the list of all profiles that match the search criteria.
+     */
+    public Page<Activity> getAllActivities(Pageable request) {
+
+        return activityRepo.findAll(request);
     }
 }

@@ -1,19 +1,30 @@
 package com.springvuegradle.controller;
 
 
+import com.springvuegradle.dto.ProfileSearchResponse;
+import com.springvuegradle.dto.ProfileSummary;
+import com.springvuegradle.dto.SimplifiedActivitiesResponse;
+import com.springvuegradle.dto.SimplifiedActivity;
 import com.springvuegradle.enums.ActivityResponseMessage;
 import com.springvuegradle.enums.AuthenticationErrorMessage;
+import com.springvuegradle.enums.ProfileErrorMessage;
 import com.springvuegradle.model.Activity;
+import com.springvuegradle.model.Profile;
+import com.springvuegradle.model.ProfileSearchCriteria;
 import com.springvuegradle.repositories.ActivityRepository;
 import com.springvuegradle.utilities.FieldValidationHelper;
 import com.springvuegradle.utilities.JwtUtil;
 import com.springvuegradle.service.ActivityService;
 import com.springvuegradle.service.SecurityService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -150,23 +161,50 @@ public class ActivityController {
      * @return a response with all the activities of the user in the database.
      */
     @GetMapping("/profiles/{profileId}/activities")
-    public ResponseEntity<List<Activity>> getAllUsersActivities(@RequestHeader("authorization") String token,
-                                                                @PathVariable Long profileId) {
+    public ResponseEntity<SimplifiedActivitiesResponse> getAllUsersActivities(@RequestHeader("authorization") String token,
+                                                                @PathVariable Long profileId,
+                                                                @RequestParam("count") int count,
+                                                                @RequestParam("startIndex") int startIndex) {
 
-        return getAllUsersActivities(token, profileId, false);
+        return getAllUsersActivities(token, profileId, count, startIndex, false);
     }
 
-    public ResponseEntity<List<Activity>> getAllUsersActivities(String token, Long profileId, Boolean testing) {
-        if (!testing && !jwtUtil.validateToken(token)) {
-            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
-        }
-        List<Activity> result;
-        if (!testing && (jwtUtil.extractPermission(token) == 0 || jwtUtil.extractPermission(token) == 1)) {
-            result = aRepo.findAll();
+
+    public ResponseEntity<SimplifiedActivitiesResponse> getAllUsersActivities(String token, Long profileId,
+            int count, int startIndex, Boolean testing) {
+        SimplifiedActivitiesResponse activitiesResponse = null;
+        HttpStatus status = null;
+        if (token == null) {
+            status = HttpStatus.UNAUTHORIZED;
+            activitiesResponse = new SimplifiedActivitiesResponse(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage());
+        } else if (Boolean.FALSE.equals(jwtUtil.validateToken(token))) {
+            status = HttpStatus.FORBIDDEN;
+            activitiesResponse = new SimplifiedActivitiesResponse(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage());
+        } else if (count <= 0) {
+            status = HttpStatus.BAD_REQUEST;
+            activitiesResponse = new SimplifiedActivitiesResponse(ProfileErrorMessage.INVALID_SEARCH_COUNT.getMessage());
         } else {
-            result = activityService.getActivitiesByProfileId(profileId);
+            int pageIndex = startIndex / count;
+            PageRequest request = PageRequest.of(pageIndex, count);
+            Page<Activity> activities = activityService.getAllActivities(request);
+            List<SimplifiedActivity> simplifiedActivities = createSimplifiedActivities(activities.getContent());
+            activitiesResponse = new SimplifiedActivitiesResponse(simplifiedActivities);
+            status = HttpStatus.OK;
         }
-        return new ResponseEntity<>(result, HttpStatus.OK);
+        return new ResponseEntity<>(activitiesResponse, status);
+    }
+
+    /**
+     * Converts a list of normal activities into a list of simplified activities
+     * @param activities a list of normal activity objects to be simplified
+     * @return a list of simplified activities
+     */
+    protected List<SimplifiedActivity> createSimplifiedActivities(List<Activity> activities) {
+        List<SimplifiedActivity> simplifiedActivities = new ArrayList<>();
+        for(Activity activity: activities) {
+            simplifiedActivities.add(new SimplifiedActivity(activity));
+        }
+        return simplifiedActivities;
     }
 
     /**
