@@ -208,25 +208,25 @@ public class ActivityController {
      * @param token the user's authentication token.
      * @param profileId the id of the user we want to assign the role to.
      * @param activityId the id of the activity we want to add the user's role to.
-     * @param activityRole the role we want to give to the user for that specific activity.
+     * @param role the role we want to give to the user for that specific activity.
      * @return response entity with message detailing whether it was a success or not.
      */
-    @PostMapping("/profiles/{profileId}/activities/{activityId}/activityRole")
+    @PostMapping("/profiles/{profileId}/activities/{activityId}/role")
     public ResponseEntity<String> addActivityRole(@RequestHeader("authorization") String token,
                                                   @PathVariable Long profileId,
                                                   @PathVariable Long activityId,
-                                                  @RequestBody String activityRole) {
+                                                  @RequestBody String role) {
         if (token == null || token.isBlank()) {
             return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
                     HttpStatus.UNAUTHORIZED);
         }
         ArrayList possibleRoles = new ArrayList<>(Arrays.asList("participant", "follower"));
-        Boolean checkFollowerOrParticipant = securityService.checkEditPermission(token, profileId) && possibleRoles.contains(activityRole);
+        Boolean checkFollowerOrParticipant = securityService.checkEditPermission(token, profileId) && possibleRoles.contains(role);
         possibleRoles.add("organiser");
-        Boolean checkCreatorOrAdmin = activityService.isProfileActivityCreator(jwtUtil.extractId(token), activityId) && possibleRoles.contains(activityRole);
+        Boolean checkCreatorOrAdmin = activityService.isProfileActivityCreator(jwtUtil.extractId(token), activityId) && possibleRoles.contains(role);
         try {
             if (checkFollowerOrParticipant || checkCreatorOrAdmin) {
-                activityService.addActivityRole(activityId, profileId, activityRole);
+                activityService.addActivityRole(activityId, profileId, role);
             } else {
                 return new ResponseEntity<>(ActivityMessage.INVALID_ROLE.getMessage(), HttpStatus.BAD_REQUEST);
             }
@@ -251,6 +251,7 @@ public class ActivityController {
         return deleteActivityMembership(token, profileId, activityId, false);
 
     }
+
     public ResponseEntity<String> deleteActivityMembership(String token, Long profileId, Long activityId, Boolean testing) {
         if (!testing) {
             if (token == null || token.isBlank()) {
