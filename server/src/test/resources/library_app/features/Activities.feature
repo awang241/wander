@@ -39,3 +39,11 @@ Feature: Creating modifying and deleting activities
     And An activity with the title "Rick goes to space" exists
     When I choose to edit the activity by changing the title to "Summer goes to space"
     Then The activity was edited
+
+  @U28F5-Editing-Participation
+  Scenario: I want to change my role in an activity
+    Given I registered account with email "rick@gmail.com" and password "rick'sSecuredPwd"
+    And I create a continuous activity with the title "Rick goes to space" and the location "Space"
+    And I am a "FOLLOWER" of this activity
+    When I choose to change my role to "follower"
+    Then I am now a follower of the activity
