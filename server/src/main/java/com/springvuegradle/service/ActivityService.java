@@ -138,7 +138,7 @@ public class ActivityService {
      * @param activityId id of the activity
      * @return true if userId matches the creatorId, false otherwise
      */
-    public boolean checkActivityCreator(Long userId, Long activityId) {
+    public boolean isProfileActivityCreator(Long userId, Long activityId) {
         Optional<Activity> activity = activityRepo.findById(activityId);
         if (activity.isPresent()) {
             List<ActivityMembership> creator = membershipRepo.findActivityMembershipsByActivity_IdAndRole(activityId, ActivityMembership.Role.CREATOR);

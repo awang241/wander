@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -127,7 +128,7 @@ public class ActivityController {
         if (token == null || token.isBlank()) {
             return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
                     HttpStatus.UNAUTHORIZED);
-        } else if (!securityService.checkEditPermission(token, profileId) || !activityService.checkActivityCreator(jwtUtil.extractId(token), activityId)) {
+        } else if (!securityService.checkEditPermission(token, profileId) || !activityService.isProfileActivityCreator(jwtUtil.extractId(token), activityId)) {
             return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(),
                     HttpStatus.FORBIDDEN);
         }
@@ -215,17 +216,14 @@ public class ActivityController {
                                                   @PathVariable Long profileId,
                                                   @PathVariable Long activityId,
                                                   @RequestBody String activityRole) {
-        boolean success;
         if (token == null || token.isBlank()) {
             return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
                     HttpStatus.UNAUTHORIZED);
         }
-        ArrayList<String> actualRoles = new ArrayList<>();
-        actualRoles.add("participant");
-        actualRoles.add("follower");
-        Boolean checkFollowerOrParticipant = securityService.checkEditPermission(token, profileId) && actualRoles.contains(activityRole);
-        actualRoles.add("organiser");
-        Boolean checkCreatorOrAdmin = activityService.checkActivityCreator(jwtUtil.extractId(token), activityId) && actualRoles.contains(activityRole);
+        ArrayList possibleRoles = new ArrayList<>(Arrays.asList("participant", "follower"));
+        Boolean checkFollowerOrParticipant = securityService.checkEditPermission(token, profileId) && possibleRoles.contains(activityRole);
+        possibleRoles.add("organiser");
+        Boolean checkCreatorOrAdmin = activityService.isProfileActivityCreator(jwtUtil.extractId(token), activityId) && possibleRoles.contains(activityRole);
         try {
             if (checkFollowerOrParticipant || checkCreatorOrAdmin) {
                 activityService.addActivityRole(activityId, profileId, activityRole);
@@ -235,7 +233,7 @@ public class ActivityController {
         } catch(IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<>(ActivityMessage.SUCCESSFUL.getMessage(), HttpStatus.CREATED);
+        return new ResponseEntity<>(ActivityMessage.SUCCESSFUL_CREATION.getMessage(), HttpStatus.CREATED);
     }
 
     /**
@@ -253,7 +251,6 @@ public class ActivityController {
         return deleteActivityMembership(token, profileId, activityId, false);
 
     }
-
     public ResponseEntity<String> deleteActivityMembership(String token, Long profileId, Long activityId, Boolean testing) {
         if (!testing) {
             if (token == null || token.isBlank()) {
@@ -264,10 +261,9 @@ public class ActivityController {
                         HttpStatus.FORBIDDEN);
             }
         }
-
         if (activityService.removeMembership(profileId, activityId)) {
-            return new ResponseEntity<>("The profiles membership has been removed from the activity", HttpStatus.OK);
+            return new ResponseEntity<>(ActivityMessage.SUCCESSFUL_DELETION.getMessage(), HttpStatus.OK);
         }
-        return new ResponseEntity<>("The profiles membership was not found for this activity", HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(ActivityMessage.MEMBERSHIP_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
     }
 }
