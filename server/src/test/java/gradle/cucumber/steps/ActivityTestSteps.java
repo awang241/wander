@@ -142,6 +142,20 @@ public class ActivityTestSteps {
         assertEquals(201, profileController.createProfile(profile).getStatusCodeValue());
     }
 
+    @When("I change the visibility of my activity to {string} as the creator with email {string}")
+    public void i_change_the_visibility_of_my_activity_to_as_the_creator_with_email(String privacy, String email) {
+        Long profileId = profileRepository.findByPrimaryEmail(email).get(0).getId();
+        ResponseEntity<String> response = activityController.editActivityPrivacy(privacy, loginResponse.getToken(), profileId, activityRepository.getLastInsertedId());
+        System.out.println(response.getBody());
+        assertEquals(200, response.getStatusCodeValue());
+    }
+
+    @Then("The activity is public")
+    public void the_activity_is_public() {
+        assertEquals(2, activityRepository.getOne(activityRepository.getLastInsertedId()).getPrivacyLevel());
+    }
+
+
     @When("I choose to add the account with the email {string} to the activity as a {string}")
     public void i_choose_to_add_the_account_with_the_email_to_the_activity_as_a(String email, String role) {
         Long profileId = profileRepository.findByPrimaryEmail(email).get(0).getId();
@@ -149,7 +163,6 @@ public class ActivityTestSteps {
         ResponseEntity<String> response = activityController.addActivityRole(loginResponse.getToken(), profileId, activityRepository.getLastInsertedId(), role);
         System.out.println(response.getBody());
         assertEquals(201, response.getStatusCodeValue());
-
     }
 
     @Then("The activity has an organiser")

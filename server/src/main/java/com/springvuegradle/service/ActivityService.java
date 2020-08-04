@@ -260,22 +260,22 @@ public class ActivityService {
         if (optionalActivity.isEmpty()) {
             throw new IllegalArgumentException(ActivityMessage.ACTIVITY_NOT_FOUND.getMessage());
         } else {
-            Integer authLevel;
+            Integer privacyLevel;
             Activity activity = optionalActivity.get();
             switch (privacy) {
                 case "private":
-                    authLevel = 0;
+                    privacyLevel = 0;
                     break;
                 case "friends":
-                    authLevel = 1;
+                    privacyLevel = 1;
                     break;
                 case "public":
-                    authLevel = 2;
+                    privacyLevel = 2;
                     break;
                 default:
                     throw new IllegalArgumentException(ActivityMessage.INVALID_PRIVACY.getMessage());
             }
-            activity.setPrivacyLevel(authLevel);
+            activity.setPrivacyLevel(privacyLevel);
             activityRepo.save(activity);
         }
     }

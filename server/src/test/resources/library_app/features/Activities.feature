@@ -58,3 +58,10 @@ Feature: Creating modifying and deleting activities
     And I login with the email "katana@waterbender.com" and password "katana'sSecuredPwd"
     When I choose to add the account with the email "katana@waterbender.com" to the activity as a "follower"
     Then The activity has a follower
+
+  @U17F1-ChangePrivacyOfActivity
+  Scenario: As the creator of an activity, I want to change the privacy of my activity.
+    Given I registered account with email "aang@airbender.com" and password "aang'sSecuredPwd"
+    And I create a continuous activity with the title "Airbending training session" and the location "Somewhere"
+    When I change the visibility of my activity to "public" as the creator with email "aang@airbender.com"
+    Then The activity is public
