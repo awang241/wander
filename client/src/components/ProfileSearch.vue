@@ -1,8 +1,10 @@
 <template>
     <div class="container">
-        <h1 class="title">User search</h1>
+        <!--slot for name allows this component to be reused with different names-->
+        <slot name="header">
+            <h1 class="title">User search</h1>
+        </slot>
         <form @submit.prevent="searchUser">
-
             <b-field label="Name" expanded>
                 <b-input type="text"
                          v-model="name"
@@ -57,10 +59,8 @@
         </form>
 
         <div id="results" class="column" v-if="profiles.length">
-            <div
-                    v-for="profile in profiles"
-                    :key="profile.id">
-                <ProfileSummary :profile="profile"/>
+            <div v-for="profile in profiles" :key="profile.id">
+                <ProfileSummary :profile="profile" @deleteClicked="deleteProfile"></ProfileSummary>
             </div>
         </div>
 
@@ -76,11 +76,16 @@
     import Api from "../Api";
     import ProfileSummary from "./ProfileSummary";
     import Observer from "./Observer";
+    import toastMixin from "../mixins/toastMixin";
+    import {eventBus} from "../main";
+    import NavBar from "./NavBar";
+    import store from "../store";
 
     const DEFAULT_RESULT_COUNT = 10
 
     export default {
         name: "ProfileSearch",
+        mixins: [toastMixin],
         components: {Observer, ProfileSummary},
         data() {
             return {
@@ -99,11 +104,37 @@
         mounted() {
             this.getPossibleActivityTypes()
         },
+        created() {
+            //Used to update the list of profiles when a profile on this list is changed
+            //This is done by watching for the profileWasEdited event on the global event bus
+            eventBus.$on('profileWasEdited', (editedProfile) => {
+                for (let i = 0; i < this.profiles.length; i++) {
+                    if(this.profiles[i].id === editedProfile.id){
+                        this.profiles[i].firstname = editedProfile.firstname
+                        this.profiles[i].lastname = editedProfile.lastname
+                        this.profiles[i].email = editedProfile.primary_email
+                        this.profiles[i].activities = editedProfile.activities
+                    }
+                }
+            })
+        },
         methods: {
             getPossibleActivityTypes() {
                 Api.getActivityTypesList()
                     .then(response => this.possibleActivityTypes = response.data.allActivityTypes)
-                    .catch(error => this.showMessage(error))
+                    .catch(() => this.warningToast("Could not get activity type list, please refresh"))
+            },
+            deleteProfile(id) {
+
+                Api.deleteProfile(id, localStorage.getItem('authToken'))
+                    .then(() => {
+                        this.profiles = this.profiles.filter((profile) => {
+                            return profile.id != id
+                        })
+                        if (id == store.getters.getUserId) { NavBar.methods.logout()}
+                        this.successToast("Deleted profile")
+                    })
+                    .catch(() => this.warningToast("Profile could not be deleted"))
             },
             resetSearchFields() {
                 this.email = ""
@@ -155,7 +186,7 @@
                         }
                     })
                 }
-            }
+            },
         }
     }
 </script>

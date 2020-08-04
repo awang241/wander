@@ -12,18 +12,12 @@
                 <li><a v-on:click="changeToActivityTypes">Activity Types</a></li>
                 <li><a v-on:click="changeToEmail">Emails</a></li>
                 <li><a v-on:click="changeToLocation">Location</a></li>
-            </ul>
-            <div>
-                <a v-if="store.getters.getAuthenticationLevel === 0 || store.getters.getAuthenticationLevel === 1"
-                   @click="changeToDashboard">Back To Admin Dashboard</a>
-            </div>
-            <div>
-                <a v-if="store.getters.getAuthenticationLevel > 0"
+                <li>
+                    <a v-if="store.getters.getAuthenticationLevel > 0 && !editingThroughDashboard"
                    @click="changeToProfile">Back to Profile</a>
-            </div>
-
+                </li>
+            </ul>
         </div>
-
         <div>
             <component v-bind:is="component" v-bind:profile="profile"/>
         </div>
@@ -40,20 +34,24 @@
     import api from '../../Api';
     import router from "../../router";
     import store from "../../store";
+    import {eventBus} from '../../main';
 
     export default {
         name: "EditProfile",
-
+        props: ['id'],
         data() {
             return {
                 component: "editPersonal",
-                profileId: this.$route.params.id,
                 profile: {},
                 store: store
             }
         },
+        computed: {
+            editingThroughDashboard: function () {
+                return this.$route.params.id == null
+            }
+        },
         mounted() {
-            // this.URLAuthorization(),
             this.getProfile()
         },
         // These methods are used to dynamically swap between components on click
@@ -84,11 +82,11 @@
             },
 
             getProfile() {
-                if (!(this.$route.params.id == store.getters.getUserId || store.getters.getAuthenticationLevel < 2)) {
+                if (!(this.id === store.getters.getUserId || store.getters.getAuthenticationLevel < 2)) {
                     router.push({path: '/EditProfile/' + store.getters.getUserId})
 
                 }
-                api.getProfile(this.$route.params.id, localStorage.getItem('authToken'))
+                api.getProfile(this.id, localStorage.getItem('authToken'))
                     .then(response => this.profile = response.data)
                     .catch((error) => {
                         console.log(error)
@@ -97,30 +95,32 @@
             },
             updateCountries(newCountries) {
                 this.profile.passports = newCountries
-                api.editProfile(this.$route.params.id, this.profile, localStorage.getItem('authToken'))
+                api.editProfile(this.id, this.profile, localStorage.getItem('authToken'))
             },
             updateActivityTypes(newActivities) {
                 this.profile.activities = newActivities
-                api.editProfile(this.$route.params.id, this.profile, localStorage.getItem('authToken'))
+                eventBus.$emit('profileWasEdited', this.profile)
+                api.editProfile(this.id, this.profile, localStorage.getItem('authToken'))
             },
             updateEmails(primaryEmail, optionalEmails) {
                 this.profile.primary_email = primaryEmail
                 this.profile.optional_email = optionalEmails
+                eventBus.$emit('profileWasEdited', this.profile)
                 api.editEmail({
                     "primary_email": primaryEmail,
                     "additional_email": optionalEmails
-                }, this.$route.params.id, localStorage.getItem('authToken'))
+                }, this.id, localStorage.getItem('authToken'))
             },
             updateLocation(location) {
                 this.profile.location = location
-                api.editProfileLocation(this.$route.params.id, location, localStorage.getItem('authToken'))
-                .then(() => {
-                    this.successToast("Location updated!")
-                })
-                .catch(error => this.warningToast(error.response.data))
+                api.editProfileLocation(this.id, location, localStorage.getItem('authToken'))
+                    .then(() => {
+                        this.successToast("Location updated!")
+                    })
+                    .catch(error => this.warningToast(error.response.data))
             },
             clearLocation() {
-                api.deleteLocation(this.$route.params.id, localStorage.getItem('authToken'));
+                api.deleteLocation(this.id, localStorage.getItem('authToken'));
             },
             updatePersonal(personalDetails) {
                 this.profile.firstname = personalDetails.firstname
@@ -131,7 +131,11 @@
                 this.profile.date_of_birth = personalDetails.date_of_birth
                 this.profile.gender = personalDetails.gender
                 this.profile.fitness = personalDetails.fitness
-                api.editProfile(this.$route.params.id, this.profile, localStorage.getItem('authToken'))
+                eventBus.$emit('profileWasEdited', this.profile)
+                api.editProfile(this.id, this.profile, localStorage.getItem('authToken'))
+            },
+            getId() {
+                return this.id;
             }
         }
     }

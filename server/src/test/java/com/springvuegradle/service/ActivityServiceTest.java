@@ -1,5 +1,6 @@
 package com.springvuegradle.service;
 
+import com.springvuegradle.controller.ActivityController;
 import com.springvuegradle.model.Activity;
 import com.springvuegradle.model.ActivityMembership;
 import com.springvuegradle.model.ActivityType;
@@ -23,6 +24,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @DataJpaTest
 class ActivityServiceTest {
 
+    @Autowired
+    ActivityController controller;
     @Autowired
     ActivityService service;
     @Autowired
@@ -269,6 +272,24 @@ class ActivityServiceTest {
     @Test
     void deleteActivityDoesNotExistTest() {
         assertFalse(service.delete((long) 1));
+    }
+
+    @Test
+    void addNormalUserRoleToActivityTest() {
+        Profile ben = createNormalProfileBen();
+        Profile profile = profileRepository.save(ben);
+        Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        service.addActivityRole(activity.getId(), profile.getId(), "participant");
+        assertEquals(1, activityMembershipRepository.findActivityMembershipsByActivity_IdAndRole(activity.getId(), ActivityMembership.Role.PARTICIPANT).size());
+    }
+
+    @Test
+    void creatorAddsOrganiserRoleToActivityTest() {
+        Profile ben = profileRepository.save(createNormalProfileBen());
+        Profile johnny = profileRepository.save(createNormalProfileJohnny());
+        controller.createActivity(ben.getId(), createNormalActivityKaikoura(), null, true);
+        service.addActivityRole(activityRepository.getLastInsertedId(), johnny.getId(), "organiser");
+        assertEquals(1, activityMembershipRepository.findActivityMembershipsByActivity_IdAndRole(activityRepository.getLastInsertedId(), ActivityMembership.Role.ORGANISER).size());
     }
 
 
