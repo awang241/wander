@@ -44,7 +44,7 @@ public class Activity {
      * Holds the privacy level of the activity.
      * level 0 - private - only the creator can view the activity.
      * level 1 - share with friends - only the friends it is shared with can view the activity.
-     * level 5 - public - anyone can view the activity.
+     * level 2 - public - anyone can view the activity.
      */
     @NotNull @Column(name = "privacyLevel") @Min(value = 0) @Max(value = 2)
     private Integer privacyLevel = 0;

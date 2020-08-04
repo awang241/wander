@@ -292,6 +292,25 @@ public class ActivityController {
         return new ResponseEntity<>(ActivityMessage.MEMBERSHIP_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
     }
 
+
+    /**
+     * Endpoint for getting all the activities with privacy level "public"
+     * @param token
+     * @return
+     */
+    @GetMapping("/activities/{privacyLevel}")
+    protected ResponseEntity<List<Activity>> getActivitiesWithPrivacyLevel(@RequestHeader("authorization") String token, @PathVariable String privacyLevel) {
+        if (token == null || token.isBlank()) {
+            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+        }
+        try {
+            List<Activity> publicActivityList= activityService.getActivitiesWithPrivacyLevel(privacyLevel);
+            return new ResponseEntity<>(publicActivityList, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+    }
+
     /**
      * REST endpoint for editing the privacy level of an existing activity. Given a HTTP request containing a correctly formatted JSON file,
      * updates the given database entry. For more information on the JSON format, see the @JsonCreator-tagged constructor

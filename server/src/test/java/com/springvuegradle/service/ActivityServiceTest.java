@@ -322,6 +322,39 @@ class ActivityServiceTest {
         assertEquals(1, list.size());
     }
 
+    @Test
+    void getPublicActivitiesSuccessTest() {
+        Activity activity = activityRepository.save(createNormalActivity());
+        service.editActivityPrivacy("public", activity.getId());
+        assertEquals(1, service.getActivitiesWithPrivacyLevel("public").size());
+    }
+
+    @Test
+    void getPrivateActivitiesSuccessTest() {
+        Activity activity = activityRepository.save(createNormalActivity());
+        service.editActivityPrivacy("private", activity.getId());
+        assertEquals(1, service.getActivitiesWithPrivacyLevel("private").size());
+    }
+
+    @Test
+    void getFriendsActivitiesSuccessTest() {
+        Activity activity = activityRepository.save(createNormalActivity());
+        service.editActivityPrivacy("friends", activity.getId());
+        assertEquals(1, service.getActivitiesWithPrivacyLevel("friends").size());
+    }
+
+    @Test
+    void getActivitiesDifferentPrivacyLevelTest() {
+        Activity activity = activityRepository.save(createNormalActivity());
+        service.editActivityPrivacy("friends", activity.getId());
+        assertEquals(0, service.getActivitiesWithPrivacyLevel("public").size());
+    }
+
+    @Test
+    void editInvalidPrivacyActivitiesTest() {
+        Activity activity = activityRepository.save(createNormalActivity());
+        assertThrows(IllegalArgumentException.class, ()->service.editActivityPrivacy("everyone", activity.getId()));
+    }
 
     /**
      * Example activities to use in tests

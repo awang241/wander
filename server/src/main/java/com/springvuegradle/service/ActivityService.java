@@ -205,6 +205,29 @@ public class ActivityService {
         return userActivities;
     }
 
+    /**
+     * Returns all the activities with the privacy level "public"
+     * @return A list of the activities with the privacy level "public"
+     */
+    public List<Activity> getActivitiesWithPrivacyLevel(String privacy) {
+        Integer privacyLevel;
+        switch (privacy) {
+            case "private":
+                privacyLevel = 0;
+                break;
+            case "friends":
+                privacyLevel = 1;
+                break;
+            case "public":
+                privacyLevel = 2;
+                break;
+            default:
+                throw new IllegalArgumentException(ActivityMessage.INVALID_PRIVACY.getMessage());
+        }
+        List<Activity> publicActivities = activityRepo.findAllPublic(privacyLevel);
+        return publicActivities;
+    }
+
     private void validateActivity(Activity activity) {
         if (activity.getActivityName() == null || activity.getActivityName().isBlank()) {
             throw new IllegalArgumentException(ActivityResponseMessage.MISSING_NAME.toString());
@@ -261,7 +284,6 @@ public class ActivityService {
             throw new IllegalArgumentException(ActivityMessage.ACTIVITY_NOT_FOUND.getMessage());
         } else {
             Integer privacyLevel;
-            Activity activity = optionalActivity.get();
             switch (privacy) {
                 case "private":
                     privacyLevel = 0;
@@ -275,6 +297,7 @@ public class ActivityService {
                 default:
                     throw new IllegalArgumentException(ActivityMessage.INVALID_PRIVACY.getMessage());
             }
+            Activity activity = optionalActivity.get();
             activity.setPrivacyLevel(privacyLevel);
             activityRepo.save(activity);
         }
