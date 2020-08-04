@@ -317,12 +317,13 @@ class ActivityServiceTest {
         ActivityMembership creatorMembership = new ActivityMembership(activity, creator, ActivityMembership.Role.CREATOR);
         activityMembershipRepository.save(creatorMembership);
 
-        assertThrows(IllegalArgumentException.class, ()-> service.setProfileRole(creator.getId(), 1, activity.getId(), ActivityMembership.Role.FOLLOWER));
+        assertThrows(IllegalArgumentException.class, ()-> service.setProfileRole(creator.getId(), creator.getId(), activity.getId(), ActivityMembership.Role.FOLLOWER));
     }
 
     @Test
     void setProfileRoleForNonexistentMembershipThrowsIllegalArgumentExceptionTest() {
-        assertThrows(IllegalArgumentException.class, ()-> service.setProfileRole(0, 1, 3, ActivityMembership.Role.FOLLOWER));
+        Profile editor = profileRepository.save(createNormalProfileBen());
+        assertThrows(IllegalArgumentException.class, ()-> service.setProfileRole(0, editor.getId(), 3, ActivityMembership.Role.FOLLOWER));
     }
 
     /**

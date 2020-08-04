@@ -205,7 +205,7 @@ public class ActivityService {
             throw new IllegalArgumentException(ActivityResponseMessage.EDITING_CREATOR.toString());
         }
 
-        if(newRole.equals(ActivityMembership.Role.ORGANISER) && !canChangeToOrganizer(profileDoingEditingId, activityId)){
+        if(!canChangeRole(profileDoingEditingId, profileBeingEditedId, activityId, newRole)){
             throw new IllegalArgumentException(ActivityResponseMessage.INVALID_PERMISSION.toString());
         }
 
@@ -223,22 +223,27 @@ public class ActivityService {
     }
 
     /**
-     * Checks whether someone has rights to change the role of a user in an activity to organizer
+     * Checks whether someone has rights to change the role of a user in an activity
      * Users should only have this right if they are admin or creator of the activity
      * @param profileDoingEditingId the ID of the profile who is editing the activities membership
      * @param activityId The ID of the activity we are editing
+     * @param newRole The role we are trying to change the user to
+     * @param profileBeingEditedId The ID of the user who is attempting to change the role
      * @return whether the user doing the editing can change the profiles membership to organizer
      */
-    private boolean canChangeToOrganizer(long profileDoingEditingId, long activityId){
+    private boolean canChangeRole(long profileDoingEditingId, long profileBeingEditedId, long activityId, ActivityMembership.Role newRole){
         boolean isCreatorOrOrganizer = false;
         boolean isAdmin = profileRepo.getOne(profileDoingEditingId).getAuthLevel() < 2;
         Optional<ActivityMembership> membership =membershipRepo.findByActivity_IdAndProfile_Id(activityId, profileDoingEditingId);
         if(membership.isPresent()){
-            ActivityMembership.Role role = membership.get().getRole();
-            if(role.equals(ActivityMembership.Role.CREATOR) || role.equals(ActivityMembership.Role.ORGANISER)){
+            ActivityMembership.Role editorRole = membership.get().getRole();
+            if(editorRole.equals(ActivityMembership.Role.CREATOR) || editorRole.equals(ActivityMembership.Role.ORGANISER)){
                 isCreatorOrOrganizer = true;
             }
         }
-        return isAdmin || isCreatorOrOrganizer;
+        if(newRole.equals(ActivityMembership.Role.ORGANISER)) {
+            return isAdmin || isCreatorOrOrganizer;
+        }
+        return isAdmin || isCreatorOrOrganizer || profileBeingEditedId == profileDoingEditingId;
     }
 }
