@@ -292,6 +292,27 @@ class ActivityServiceTest {
         assertEquals(1, activityMembershipRepository.findActivityMembershipsByActivity_IdAndRole(activityRepository.getLastInsertedId(), ActivityMembership.Role.ORGANISER).size());
     }
 
+    @Test
+    void editActivityPrivacyToPublicTest() {
+        Activity activity = activityRepository.save(createNormalActivity());
+        service.editActivityPrivacy("public", activity.getId());
+        assertEquals(2, activity.getPrivacyLevel());
+    }
+
+    @Test
+    void editActivityPrivacyToFriendsTest() {
+        Activity activity = activityRepository.save(createNormalActivity());
+        service.editActivityPrivacy("friends", activity.getId());
+        assertEquals(1, activity.getPrivacyLevel());
+    }
+
+    @Test
+    void editActivityPrivacyToPrivateTest() {
+        Activity activity = activityRepository.save(createNormalActivity());
+        service.editActivityPrivacy("private", activity.getId());
+        assertEquals(0, activity.getPrivacyLevel());
+    }
+
 
     /**
      * Example activities to use in tests
