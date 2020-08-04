@@ -2,6 +2,8 @@ package com.springvuegradle.service;
 
 import com.springvuegradle.enums.ActivityMessage;
 import com.springvuegradle.enums.ActivityResponseMessage;
+import com.springvuegradle.enums.AuthLevel;
+import com.springvuegradle.enums.ProfileErrorMessage;
 import com.springvuegradle.model.Activity;
 import com.springvuegradle.model.ActivityMembership;
 import com.springvuegradle.model.Profile;
@@ -233,5 +235,30 @@ public class ActivityService {
         profile.addActivity(activityMembership);
         activity.addMember(activityMembership);
         profileRepo.save(profile);
+    }
+
+    public void editActivityPrivacy(String privacy, Long activityId) {
+        Optional<Activity> optionalActivity = activityRepo.findById(activityId);
+        if (optionalActivity.isEmpty()) {
+            throw new IllegalArgumentException(ActivityMessage.ACTIVITY_NOT_FOUND.getMessage());
+        } else {
+            Integer authLevel;
+            Activity activity = optionalActivity.get();
+            switch (privacy) {
+                case "private":
+                    authLevel = 0;
+                    break;
+                case "friends":
+                    authLevel = 1;
+                    break;
+                case "public":
+                    authLevel = 2;
+                    break;
+                default:
+                    throw new IllegalArgumentException(ActivityMessage.INVALID_PRIVACY.getMessage());
+            }
+            activity.setPrivacyLevel(authLevel);
+            activityRepo.save(activity);
+        }
     }
 }

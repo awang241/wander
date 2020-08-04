@@ -267,4 +267,30 @@ public class ActivityController {
         }
         return new ResponseEntity<>(ActivityMessage.MEMBERSHIP_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
     }
+
+    /**
+     * REST endpoint for editing the privacy level of an existing activity. Given a HTTP request containing a correctly formatted JSON file,
+     * updates the given database entry. For more information on the JSON format, see the @JsonCreator-tagged constructor
+     * in the Activity class.
+     *
+     * @param privacy The contents of HTTP request body, automatically mapped from a JSON file to an activity.
+     * @return A HTTP response notifying the sender whether the edit was successful
+     */
+    @PutMapping("/profiles/{profileId}/activities/{activityId}/privacy")
+    public ResponseEntity<String> editActivityPrivacy(@RequestBody String privacy,
+                                                 @RequestHeader("authorization") String token,
+                                                 @PathVariable Long profileId,
+                                                 @PathVariable Long activityId) {
+
+        if (token == null || token.isBlank() || !activityService.isProfileActivityCreator(jwtUtil.extractId(token), activityId)) {
+            return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(), HttpStatus.UNAUTHORIZED);
+        }
+        try {
+            activityService.editActivityPrivacy(privacy, activityId);
+            return new ResponseEntity<>(ActivityResponseMessage.EDIT_SUCCESS.toString(), HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
 }
