@@ -230,21 +230,7 @@ public class ActivityService {
         }
         Profile profile = optionalProfile.get();
         Activity activity = optionalActivity.get();
-        ActivityMembership.Role role;
-        switch(activityRole) {
-            case "follower":
-                role = ActivityMembership.Role.FOLLOWER;
-                break;
-            case "participant":
-                role = ActivityMembership.Role.PARTICIPANT;
-                break;
-            case "organiser":
-                role = ActivityMembership.Role.ORGANISER;
-                break;
-            default:
-                throw new IllegalArgumentException(ActivityMessage.INVALID_ROLE.getMessage());
-        }
-
+        ActivityMembership.Role role = ActivityMembership.Role.valueOf(activityRole.toUpperCase());
         ActivityMembership activityMembership = new ActivityMembership(activity, profile, role);
         membershipRepo.save(activityMembership);
         profile.addActivity(activityMembership);
