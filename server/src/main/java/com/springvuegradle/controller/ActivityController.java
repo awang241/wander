@@ -1,6 +1,7 @@
 package com.springvuegradle.controller;
 
 
+import com.springvuegradle.enums.ActivityMessage;
 import com.springvuegradle.enums.ActivityResponseMessage;
 import com.springvuegradle.enums.AuthenticationErrorMessage;
 import com.springvuegradle.model.Activity;
@@ -14,6 +15,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -125,7 +128,7 @@ public class ActivityController {
         if (token == null || token.isBlank()) {
             return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
                     HttpStatus.UNAUTHORIZED);
-        } else if (!securityService.checkEditPermission(token, profileId) || !activityService.checkActivityCreator(jwtUtil.extractId(token), activityId)) {
+        } else if (!securityService.checkEditPermission(token, profileId) || !activityService.isProfileActivityCreator(jwtUtil.extractId(token), activityId)) {
             return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(),
                     HttpStatus.FORBIDDEN);
         }
@@ -197,5 +200,71 @@ public class ActivityController {
             return new ResponseEntity<>("The activity has been deleted from the database.", HttpStatus.OK);
         }
         return new ResponseEntity<>("The activity does not exist in the database.", HttpStatus.NOT_FOUND);
+    }
+
+    /**
+     * Assigns an activityRole to a user for a specific activity.
+     *
+     * @param token the user's authentication token.
+     * @param profileId the id of the user we want to assign the role to.
+     * @param activityId the id of the activity we want to add the user's role to.
+     * @param role the role we want to give to the user for that specific activity.
+     * @return response entity with message detailing whether it was a success or not.
+     */
+    @PostMapping("/profiles/{profileId}/activities/{activityId}/role")
+    public ResponseEntity<String> addActivityRole(@RequestHeader("authorization") String token,
+                                                  @PathVariable Long profileId,
+                                                  @PathVariable Long activityId,
+                                                  @RequestBody String role) {
+        if (token == null || token.isBlank()) {
+            return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
+                    HttpStatus.UNAUTHORIZED);
+        }
+        ArrayList possibleRoles = new ArrayList<>(Arrays.asList("participant", "follower"));
+        Boolean checkFollowerOrParticipant = securityService.checkEditPermission(token, profileId) && possibleRoles.contains(role);
+        possibleRoles.add("organiser");
+        Boolean checkCreatorOrAdmin = activityService.isProfileActivityCreator(jwtUtil.extractId(token), activityId) && possibleRoles.contains(role);
+        try {
+            if (checkFollowerOrParticipant || checkCreatorOrAdmin) {
+                activityService.addActivityRole(activityId, profileId, role);
+            } else {
+                return new ResponseEntity<>(ActivityMessage.INVALID_ROLE.getMessage(), HttpStatus.BAD_REQUEST);
+            }
+        } catch(IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<>(ActivityMessage.SUCCESSFUL_CREATION.getMessage(), HttpStatus.CREATED);
+    }
+
+    /**
+     * Removes a profiles activity membership from a specified activity
+     *
+     * @param profileId  the id of the profile that has membership with the activity
+     * @param activityId the id of the specified activity
+     * @return http response code and feedback message on the result of the delete operation
+     */
+    @DeleteMapping("/profiles/{profileId}/activities/{activityId}/membership")
+    public @ResponseBody
+    ResponseEntity<String> deleteActivityMembership(@RequestHeader("authorization") String token,
+                                          @PathVariable Long profileId,
+                                          @PathVariable Long activityId) {
+        return deleteActivityMembership(token, profileId, activityId, false);
+
+    }
+
+    public ResponseEntity<String> deleteActivityMembership(String token, Long profileId, Long activityId, Boolean testing) {
+        if (!testing) {
+            if (token == null || token.isBlank()) {
+                return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
+                        HttpStatus.UNAUTHORIZED);
+            } else if (!securityService.checkEditPermission(token, profileId)) {
+                return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(),
+                        HttpStatus.FORBIDDEN);
+            }
+        }
+        if (activityService.removeMembership(profileId, activityId)) {
+            return new ResponseEntity<>(ActivityMessage.SUCCESSFUL_DELETION.getMessage(), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(ActivityMessage.MEMBERSHIP_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
     }
 }
