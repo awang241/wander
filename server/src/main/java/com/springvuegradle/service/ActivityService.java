@@ -192,19 +192,24 @@ public class ActivityService {
     /**
      * Sets the role of an activity member to the given role. Profiles cannot be set as creators, and creators
      * cannot have their role changed for that activity.
-     * @param profileId The ID of the profile whose role is being changed
+     * @param profileBeingEditedId The ID of the profile whose role is being changed
+     * @param profileDoingEditingId The ID of the profile who is doing the editing
      * @param activityId the ID of the activity
      * @param newRole The role the member is being changed to
      * @throws IllegalArgumentException if the parameters do not match the database constraints (e.g. no profile with
      * that id exists, or the given profile isn't a member of that activity), or if the profile is being set to or from
      * the Creator role.
      */
-    public void setProfileRole(long profileId, long activityId, ActivityMembership.Role newRole) {
+    public void setProfileRole(long profileBeingEditedId, long profileDoingEditingId, long activityId, ActivityMembership.Role newRole) {
         if (newRole.equals(ActivityMembership.Role.CREATOR)) {
             throw new IllegalArgumentException(ActivityResponseMessage.EDITING_CREATOR.toString());
         }
 
-        Optional<ActivityMembership> optionalMembership = membershipRepo.findByActivity_IdAndProfile_Id(activityId, profileId);
+        if(newRole.equals(ActivityMembership.Role.ORGANISER) && !canChangeToOrganizer(profileDoingEditingId, activityId)){
+            throw new IllegalArgumentException(ActivityResponseMessage.INVALID_PERMISSION.toString());
+        }
+
+        Optional<ActivityMembership> optionalMembership = membershipRepo.findByActivity_IdAndProfile_Id(activityId, profileBeingEditedId);
         if (optionalMembership.isEmpty()) {
             throw new IllegalArgumentException(ActivityResponseMessage.INVALID_MEMBERSHIP.toString());
         }
@@ -215,5 +220,25 @@ public class ActivityService {
         }
         membership.setRole(newRole);
         membershipRepo.save(membership);
+    }
+
+    /**
+     * Checks whether someone has rights to change the role of a user in an activity to organizer
+     * Users should only have this right if they are admin or creator of the activity
+     * @param profileDoingEditingId the ID of the profile who is editing the activities membership
+     * @param activityId The ID of the activity we are editing
+     * @return whether the user doing the editing can change the profiles membership to organizer
+     */
+    private boolean canChangeToOrganizer(long profileDoingEditingId, long activityId){
+        boolean isCreatorOrOrganizer = false;
+        boolean isAdmin = profileRepo.getOne(profileDoingEditingId).getAuthLevel() < 2;
+        Optional<ActivityMembership> membership =membershipRepo.findByActivity_IdAndProfile_Id(activityId, profileDoingEditingId);
+        if(membership.isPresent()){
+            ActivityMembership.Role role = membership.get().getRole();
+            if(role.equals(ActivityMembership.Role.CREATOR) || role.equals(ActivityMembership.Role.ORGANISER)){
+                isCreatorOrOrganizer = true;
+            }
+        }
+        return isAdmin || isCreatorOrOrganizer;
     }
 }

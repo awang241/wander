@@ -249,13 +249,52 @@ class ActivityServiceTest {
         activityMembershipRepository.save(creatorMembership);
         activityMembershipRepository.save(followerMembership);
 
-        service.setProfileRole(follower.getId(), activity.getId(), ActivityMembership.Role.ORGANISER);
+        service.setProfileRole(follower.getId(), creator.getId(), activity.getId(), ActivityMembership.Role.ORGANISER);
         Optional<ActivityMembership> updatedMembership = activityMembershipRepository.findByActivity_IdAndProfile_Id(activity.getId(), follower.getId());
         if (updatedMembership.isEmpty()) {
             fail("Test membership could not be found");
         } else {
             assertEquals(ActivityMembership.Role.ORGANISER, updatedMembership.get().getRole());
         }
+    }
+
+    @Test
+    void setProfileRoleToOrganizerAsFollowerThrowsIllegalArgumentExceptionTest() {
+        Profile followerBen = profileRepository.save(createNormalProfileBen());
+        Profile followerJohnny = profileRepository.save(createNormalProfileJohnny());
+        Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        ActivityMembership creatorMembership = new ActivityMembership(activity, followerBen, ActivityMembership.Role.FOLLOWER);
+        ActivityMembership followerMembership = new ActivityMembership(activity, followerJohnny, ActivityMembership.Role.FOLLOWER);
+        activityMembershipRepository.save(creatorMembership);
+        activityMembershipRepository.save(followerMembership);
+        assertThrows(IllegalArgumentException.class, ()-> service.setProfileRole(followerBen.getId(), followerJohnny.getId(), activity.getId(), ActivityMembership.Role.ORGANISER));
+    }
+
+    @Test
+    void setProfileRoleToOrganizerAsAdmin() {
+        Profile admin = profileRepository.save(createNormalProfileBen());
+        admin.setAuthLevel(1);
+        Profile follower = profileRepository.save(createNormalProfileJohnny());
+        Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        ActivityMembership membership = new ActivityMembership(activity, follower, ActivityMembership.Role.FOLLOWER);
+        activityMembershipRepository.save(membership);
+        service.setProfileRole(follower.getId(), admin.getId(), activity.getId(), ActivityMembership.Role.ORGANISER);
+        assertEquals(ActivityMembership.Role.ORGANISER,
+                activityMembershipRepository.findByActivity_IdAndProfile_Id(activity.getId(), follower.getId()).get().getRole());
+    }
+
+    @Test
+    void setProfileRoleToOrganizerAsCreator() {
+        Profile creator = profileRepository.save(createNormalProfileBen());
+        Profile follower = profileRepository.save(createNormalProfileJohnny());
+        Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        ActivityMembership followerMembership = new ActivityMembership(activity, follower, ActivityMembership.Role.FOLLOWER);
+        ActivityMembership creatorMembership = new ActivityMembership(activity, creator, ActivityMembership.Role.CREATOR);
+        activityMembershipRepository.save(followerMembership);
+        activityMembershipRepository.save(creatorMembership);
+        service.setProfileRole(follower.getId(), creator.getId(), activity.getId(), ActivityMembership.Role.ORGANISER);
+        assertEquals(ActivityMembership.Role.ORGANISER,
+                activityMembershipRepository.findByActivity_IdAndProfile_Id(activity.getId(), follower.getId()).get().getRole());
     }
 
     @Test
@@ -268,7 +307,7 @@ class ActivityServiceTest {
         activityMembershipRepository.save(creatorMembership);
         activityMembershipRepository.save(followerMembership);
 
-        assertThrows(IllegalArgumentException.class, ()-> service.setProfileRole(follower.getId(), activity.getId(), ActivityMembership.Role.CREATOR));
+        assertThrows(IllegalArgumentException.class, ()-> service.setProfileRole(follower.getId(), 1, activity.getId(), ActivityMembership.Role.CREATOR));
     }
 
     @Test
@@ -278,12 +317,12 @@ class ActivityServiceTest {
         ActivityMembership creatorMembership = new ActivityMembership(activity, creator, ActivityMembership.Role.CREATOR);
         activityMembershipRepository.save(creatorMembership);
 
-        assertThrows(IllegalArgumentException.class, ()-> service.setProfileRole(creator.getId(), activity.getId(), ActivityMembership.Role.FOLLOWER));
+        assertThrows(IllegalArgumentException.class, ()-> service.setProfileRole(creator.getId(), 1, activity.getId(), ActivityMembership.Role.FOLLOWER));
     }
 
     @Test
     void setProfileRoleForNonexistentMembershipThrowsIllegalArgumentExceptionTest() {
-        assertThrows(IllegalArgumentException.class, ()-> service.setProfileRole(0, 0, ActivityMembership.Role.FOLLOWER));
+        assertThrows(IllegalArgumentException.class, ()-> service.setProfileRole(0, 1, 3, ActivityMembership.Role.FOLLOWER));
     }
 
     /**

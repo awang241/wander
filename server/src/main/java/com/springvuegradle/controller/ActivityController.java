@@ -99,7 +99,6 @@ public class ActivityController {
             return errorOccurred;
         }
 
-
         try {
             activityService.update(request, activityId);
             return new ResponseEntity<>(ActivityResponseMessage.EDIT_SUCCESS.toString(), HttpStatus.OK);
@@ -167,7 +166,7 @@ public class ActivityController {
                     HttpStatus.FORBIDDEN);
         }
         try {
-            activityService.setProfileRole(profileId, activityId, ActivityMembership.Role.valueOf(role.getRole().toUpperCase()));
+            activityService.setProfileRole(profileId, jwtUtil.extractId(token), activityId, ActivityMembership.Role.valueOf(role.getRole().toUpperCase()));
             return new ResponseEntity<>(HttpStatus.OK);
         } catch(IllegalArgumentException e){
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
