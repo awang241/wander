@@ -174,10 +174,10 @@ public class ActivityController {
             int count, int startIndex, Boolean testing) {
         SimplifiedActivitiesResponse activitiesResponse = null;
         HttpStatus status = null;
-        if (token == null) {
+        if (token == null && !testing) {
             status = HttpStatus.UNAUTHORIZED;
             activitiesResponse = new SimplifiedActivitiesResponse(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage());
-        } else if (Boolean.FALSE.equals(jwtUtil.validateToken(token))) {
+        } else if (!testing && Boolean.FALSE.equals(jwtUtil.validateToken(token))) {
             status = HttpStatus.FORBIDDEN;
             activitiesResponse = new SimplifiedActivitiesResponse(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage());
         } else if (count <= 0) {
