@@ -1,5 +1,6 @@
 package com.springvuegradle.service;
 
+import com.springvuegradle.enums.ActivityMessage;
 import com.springvuegradle.enums.ActivityResponseMessage;
 import com.springvuegradle.model.Activity;
 import com.springvuegradle.model.ActivityMembership;
@@ -68,20 +69,6 @@ public class ActivityService {
     }
 
     /**
-     * Check if there is an activity with an associated activityId
-     *
-     * @param activityId the id of the activity we want to retrieve
-     * @return The activity if it exists, null otherwise
-     */
-    public Activity read(Long activityId) {
-        Optional<Activity> activity = activityRepo.findById(activityId);
-        if (activity.isPresent()) {
-            return activity.get();
-        }
-        return null;
-    }
-
-    /**
      * Updates the activity given the new activity object and the id of the activity you want to update.
      * @param activity the new activity object
      * @param activityId the id of the activity to update
@@ -137,13 +124,34 @@ public class ActivityService {
      * @param activityId id of the activity
      * @return true if userId matches the creatorId, false otherwise
      */
-    public boolean checkActivityCreator(Long userId, Long activityId) {
+    public boolean isProfileActivityCreator(Long userId, Long activityId) {
         Optional<Activity> activity = activityRepo.findById(activityId);
         if (activity.isPresent()) {
-            Optional<ActivityMembership> creator = membershipRepo.findActivityMembershipsByActivity_IdAndRole(activityId, ActivityMembership.Role.CREATOR);
-            if (creator.isPresent()) {
-                Long creatorId = creator.get().getProfile().getId();
+            List<ActivityMembership> creator = membershipRepo.findActivityMembershipsByActivity_IdAndRole(activityId, ActivityMembership.Role.CREATOR);
+            if (creator.size() > 0) {
+                Long creatorId = creator.get(0).getProfile().getId();
                 return creatorId.equals(userId);
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Checks if the activity exists in the repository, checks if profile has membership,
+     * deletes the membership if profile has membership
+     *
+     * @param profileId the profile which membership needs to be removed
+     * @param activityId the specified activity
+     * @return true if membership was found and deleted, false otherwise
+     */
+    public boolean removeMembership(Long profileId, Long activityId) {
+        if (activityRepo.existsById(activityId)) {
+            for (ActivityMembership membership : membershipRepo.findAll()) {
+                if (membership.getActivity().getId() == activityId && membership.getProfile().getId().equals( profileId)) {
+                    membershipRepo.delete(membership);
+                    membership.getProfile().removeActivity(membership);
+                    return true;
+                }
             }
         }
         return false;
@@ -163,6 +171,23 @@ public class ActivityService {
         return userActivities;
     }
 
+    /**
+     * Return an activity by activity id.
+     * @param activityId The ID of the activity that is being retrieved
+     * @return An activity object. If it does not exist returns null.
+     */
+    public Activity getActivityByActivityId(Long activityId) {
+        Optional<Activity> activity = activityRepo.findById(activityId);
+        if (activity.isPresent()) {
+            return activity.get();
+        }
+        return null;
+    }
+
+    /**
+     * Checks all the fields in an Activity for errors. Throws an error if there are any
+     * @param activity The activity object
+     */
     private void validateActivity(Activity activity) {
         if (activity.getActivityName() == null || activity.getActivityName().isBlank()) {
             throw new IllegalArgumentException(ActivityResponseMessage.MISSING_NAME.toString());
@@ -187,6 +212,30 @@ public class ActivityService {
                 }
             }
         }
+    }
+
+    /**
+     * Assigns the given role to the user for an activity.
+     * @param activityId the id of the activity we want to assign the role for.
+     * @param profileId the id of the user we want to assign the role to.
+     * @param activityRole the role we want to assign to the user for the activity.
+     */
+    public void addActivityRole(Long activityId, Long profileId, String activityRole) throws IllegalArgumentException {
+        Optional<Profile> optionalProfile = profileRepo.findById(profileId);
+        Optional<Activity> optionalActivity = activityRepo.findById(activityId);
+        if (optionalProfile.isEmpty()) {
+            throw new IllegalArgumentException(ActivityMessage.PROFILE_NOT_FOUND.getMessage());
+        } else if (optionalActivity.isEmpty()) {
+            throw new IllegalArgumentException(ActivityMessage.ACTIVITY_NOT_FOUND.getMessage());
+        }
+        Profile profile = optionalProfile.get();
+        Activity activity = optionalActivity.get();
+        ActivityMembership.Role role = ActivityMembership.Role.valueOf(activityRole.toUpperCase());
+        ActivityMembership activityMembership = new ActivityMembership(activity, profile, role);
+        membershipRepo.save(activityMembership);
+        profile.addActivity(activityMembership);
+        activity.addMember(activityMembership);
+        profileRepo.save(profile);
     }
 
     /**

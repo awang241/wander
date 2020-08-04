@@ -59,8 +59,12 @@
         </form>
 
         <div id="results" class="column" v-if="profiles.length">
-            <div v-for="profile in profiles" :key="profile.id">
-                <ProfileSummary :profile="profile" @deleteClicked="deleteProfile"></ProfileSummary>
+            <div
+                    v-for="profile in profiles"
+                    :key="profile.id">
+                <ProfileSummary :profile="profile" @deleteClicked="deleteProfile">
+                    <b-button type="is-text" @click="gotoProfile(profile.id)" >View profile</b-button>
+                </ProfileSummary>
             </div>
         </div>
 
@@ -76,8 +80,11 @@
     import Api from "../Api";
     import ProfileSummary from "./ProfileSummary";
     import Observer from "./Observer";
+    import Profile from "./Profile";
     import toastMixin from "../mixins/toastMixin";
     import {eventBus} from "../main";
+    import NavBar from "./NavBar";
+    import store from "../store";
 
     const DEFAULT_RESULT_COUNT = 10
 
@@ -123,30 +130,41 @@
                     .catch(() => this.warningToast("Could not get activity type list, please refresh"))
             },
             deleteProfile(id) {
+
                 Api.deleteProfile(id, localStorage.getItem('authToken'))
                     .then(() => {
                         this.profiles = this.profiles.filter((profile) => {
                             return profile.id != id
                         })
+                        if (id == store.getters.getUserId) { NavBar.methods.logout()}
                         this.successToast("Deleted profile")
                     })
                     .catch(() => this.warningToast("Profile could not be deleted"))
             },
+            gotoProfile(profileId) {
+                this.$buefy.modal.open({
+                    parent: this,
+                    props: {id:profileId},
+                    component: Profile,
+                    trapFocus: true,
+                    scroll: "clip"
+                })
+            },
             resetSearchFields() {
-                this.email = ""
-                this.name = ""
+                this.email = "";
+                this.name = "";
                 this.chosenActivityTypes = []
             },
             searchUser() {
-                this.startIndex = 0
-                const searchParameters = this.getSearchParameters()
+                this.startIndex = 0;
+                const searchParameters = this.getSearchParameters();
                 Api.getUserProfiles(localStorage.getItem('authToken'), searchParameters).then(response => {
-                    this.startIndex += DEFAULT_RESULT_COUNT
+                    this.startIndex += DEFAULT_RESULT_COUNT;
                     this.profiles = response.data.results
                 })
             },
             getSearchParameters() {
-                const searchParameters = {count: DEFAULT_RESULT_COUNT, startIndex: this.startIndex}
+                const searchParameters = {count: DEFAULT_RESULT_COUNT, startIndex: this.startIndex};
                 if (this.name.length !== 0) {
                     searchParameters.fullname = this.name
                 }

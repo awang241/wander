@@ -29,6 +29,10 @@
                             <div class="card-content">
                                 <h3 class="title is-4">{{activity.activity_name}}</h3>
                                 Role: CREATOR
+                                <b-button style="float: right" @click="activityDetail(activity)"
+                                          type="is-text" >
+                                    View more
+                                </b-button>
                                 <div class="content">
                                     <table class="table-profile">
                                         <caption hidden>Displayed Activity Table</caption>
@@ -64,11 +68,11 @@
                                             <td>{{type}}</td>
                                         </tr>
                                     </table>
-                                    <b-button @click="deleteActivity(activity.id)"
+                                    <b-button style="float: left" @click="deleteActivity(activity.id)"
                                               type="is-danger">
                                         Delete
                                     </b-button>
-                                    <b-button class='px-3' id="editButton" @click="editActivity(activity)"
+                                    <b-button style="float: right" @click="editActivity(activity)"
                                               type="is-primary">
                                         Edit
                                     </b-button>
@@ -117,6 +121,8 @@
                 router.push({path: '/AddActivity'});
             }, editActivity(activity) {
                 router.push({name: 'editActivity', params: {activityProp: activity}})
+            }, activityDetail(activity) {
+                router.push({path: 'Activities/' + activity.id})
             },
             deleteActivity(id) {
                 console.log(id);
@@ -151,30 +157,15 @@
 </script>
 
 <style scoped>
-    .bannerColor {
-        background-color: #64C6E3
-    }
 
     .containerColor {
         background-color: #F7F8F9
     }
 
-    .center {
-        text-align: center;
-    }
-
-    .hrLine {
-        border: 2px solid #EDEEEE;
-    }
-
-    #editButton {
-        margin-left: 1rem;
-    }
-
     #activities-key-info{
         display: flex;
         justify-content: space-between;
-        padding: 0rem 1rem;
+        padding: 0 1rem;
     }
 
 </style>

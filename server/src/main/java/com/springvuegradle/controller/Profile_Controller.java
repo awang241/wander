@@ -169,7 +169,6 @@ public class Profile_Controller {
             return getProfile(id);
         } else {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-
         }
     }
 
@@ -414,7 +413,7 @@ public class Profile_Controller {
         String dbhashedPW = dbProfile.getPassword();
 
         if (!hashPassword(newPasswordRequest.getCurrentPassword()).equals(dbhashedPW) &&
-                (testing || jwtUtil.extractPermission(token) != 0)) {
+                (testing || jwtUtil.extractPermission(token) != 0 && jwtUtil.extractPermission(token) != 1)) {
             return new ResponseEntity<>("Entered incorrect password.", HttpStatus.BAD_REQUEST);
         }
 
@@ -472,11 +471,7 @@ public class Profile_Controller {
      */
     protected ResponseEntity<Profile> getProfile(Long id) {
         Optional<Profile> profileWithId = repo.findById(id);
-        if (profileWithId.isPresent()) {
-            return new ResponseEntity<>(profileWithId.get(), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        return profileWithId.map(profile -> new ResponseEntity<>(profile, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     /**
