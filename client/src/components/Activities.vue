@@ -33,19 +33,19 @@
             </div>
         </div>
         <div>
-            <component v-bind:is="component"/>
+            <component v-bind:is="component" v-bind:activities="activities"/>
         </div>
     </div>
 </template>
 
 <script>
-    // import api from '../Api';
     import discoverActivities from "./ActivityColumns/DiscoverActivities";
     import myActivities from "./ActivityColumns/MyActivities";
     import followingActivities from "./ActivityColumns/FollowingActivities";
     import participatingActivities from "./ActivityColumns/ParticipatingActivities";
     import store from "../store"
     import router from "../router";
+    import Api from "../Api";
 
     export default {
         name: "Activities",
@@ -69,9 +69,48 @@
             changeToParticipatingActivities() {
                 this.component = participatingActivities;
             },
+            getActivities() {
+                Api.getUserActivitiesList(store.getters.getUserId, localStorage.getItem('authToken'))
+                    .then((response) => {
+                        this.activities = response.data;
+                        this.activities.sort(function (a, b) {
+                                return a.continuous - b.continuous;
+                            }
+                        );
+                    })
+                    .catch(error => console.log(error));
+            },
             goToAddActivity() {
                 router.push({path: '/AddActivity'});
+            }, editActivity(activity) {
+                router.push({name: 'editActivity', params: {activityProp: activity}})
+            },
+            deleteActivity(id) {
+                Api.deleteActivity(store.getters.getUserId, localStorage.getItem('authToken'), id)
+                    .then((response) => {
+                        console.log(response);
+                        this.warningToast("Activity deleted")
+                        this.activities = this.activities.filter(activity => activity.id != id);
+                    })
+                    .catch(error => console.log(error));
+            },
+            dateFormat(date) {
+                let year = date.slice(0, 4);
+                let month = date.slice(5, 7);
+                let day = date.slice(8, 10);
+                let hour = date.slice(11, 13);
+                let min = date.slice(14, 16);
+                return hour + ":" + min + " " + day + "/" + month + "/" + year;
+            },
+            checkAuthenticationStatus() {
+                if (!store.getters.getAuthenticationStatus) {
+                    router.push({path: '/'})
+                }
             }
+        },
+        mounted() {
+            this.checkAuthenticationStatus();
+            this.getActivities();
         }
     }
 

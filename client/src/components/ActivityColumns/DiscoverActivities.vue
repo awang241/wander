@@ -4,7 +4,7 @@
         <div class="has-same-height is-gapless">
             <div v-if="activities.length">
 
-                <div v-for="activity in activities" v-bind:key="activity">
+                <div v-for="activity in publicActivities" v-bind:key="activity">
                     <div class="column">
                         <!-- Activities -->
                         <div class="card">
@@ -46,13 +46,10 @@
                                             <td>{{type}}</td>
                                         </tr>
                                     </table>
-                                    <b-button @click="deleteActivity(activity.id)"
-                                              type="is-danger">
-                                        Delete
-                                    </b-button>
-                                    <b-button class='px-3' id="editButton" @click="editActivity(activity)"
-                                              type="is-primary">
-                                        Edit
+                                    <!--Placeholder buttons :)     -->
+                                    <b-button class='px-3' id="followButton" @click="joinActivity(activity)"
+                                              type="is-warning">
+                                        Follow
                                     </b-button>
                                 </div>
                                 <br>
@@ -69,66 +66,18 @@
 </template>
 
 <script>
-
-    //METHODS AND HTML JUST COPY AND PASTED FOR THE MOST PART AT THE MOMENT
-
-    import Api from "../../Api";
-    import router from "../../router";
     import store from "../../store";
     import toastMixin from "../../mixins/toastMixin";
 
     export default {
         name: "DiscoverActivities",
+        props: ["activities"],
         mixins: [toastMixin],
         data() {
         return {
-            activities: null,
+            publicActivities: this.activities,
             store: store
         }
-    },
-    methods: {
-        getActivities() {
-            Api.getUserActivitiesList(store.getters.getUserId, localStorage.getItem('authToken'))
-                .then((response) => {
-                    this.activities = response.data;
-                    this.activities.sort(function (a, b) {
-                            return a.continuous - b.continuous;
-                        }
-                    );
-                })
-                .catch(error => console.log(error));
-        },
-        goToAddActivity() {
-            router.push({path: '/AddActivity'});
-        }, editActivity(activity) {
-            router.push({name: 'editActivity', params: {activityProp: activity}})
-        },
-        deleteActivity(id) {
-            Api.deleteActivity(store.getters.getUserId, localStorage.getItem('authToken'), id)
-                .then((response) => {
-                    console.log(response);
-                    this.warningToast("Activity deleted")
-                    this.activities = this.activities.filter(activity => activity.id != id);
-                })
-                .catch(error => console.log(error));
-        },
-        dateFormat(date) {
-            let year = date.slice(0, 4);
-            let month = date.slice(5, 7);
-            let day = date.slice(8, 10);
-            let hour = date.slice(11, 13);
-            let min = date.slice(14, 16);
-            return hour + ":" + min + " " + day + "/" + month + "/" + year;
-        },
-        checkAuthenticationStatus() {
-            if (!store.getters.getAuthenticationStatus) {
-                router.push({path: '/'})
-            }
-        }
-    },
-    mounted() {
-        this.checkAuthenticationStatus();
-        this.getActivities();
     }
     }
 
