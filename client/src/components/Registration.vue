@@ -11,6 +11,7 @@
                                  :type="{ 'is-danger': errors[0], 'is-success': valid }"
                                  :message="errors"
                                  expanded >
+                            <template slot="label">First Name <span>*</span></template>
                             <b-input v-model="firstName" placeholder="First Name"></b-input>
                         </b-field>
                     </ValidationProvider>
