@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Class containing REST endpoints for activities
@@ -146,6 +147,27 @@ public class ActivityController {
         return new ResponseEntity<>(allActivities, HttpStatus.OK);
     }
 
+    /**
+     * Quries the Database to find an activity
+     * @param token authentication token
+     * @param activityId the id of the activity
+     * @return
+     */
+    @GetMapping("/activities/{activityId}")
+    protected ResponseEntity<Activity> getActivity(@RequestHeader("authorization") String token,
+                                                @PathVariable long activityId) {
+        if (token == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        else if (!jwtUtil.validateToken(token)) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        Activity activity = activityService.getActivityByActivityId(activityId);
+        if (activity == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(activity, HttpStatus.OK);
+    }
 
     /**
      * Queries the Database to find all the activities of a user with their profile id.

@@ -28,6 +28,7 @@ export default {
   editProfilePermissions: (userId, role, token) => localAxiosInstance.put('/profiles/' + userId + '/role', {role: role}, {headers: {"authorization":token}}),
 
   // All get API requests
+  getActivity: (activityId, token) => localAxiosInstance.get('activities/' + activityId,{headers: {"authorization":token}}),
   getActivitiesList: () => localAxiosInstance.get('activities'),
   getActivityTypesList: () => localAxiosInstance.get('/activityTypes'),
   getAuthLevel: (token) => localAxiosInstance.get('authLevel/', {headers: {"authorization":token}}),
