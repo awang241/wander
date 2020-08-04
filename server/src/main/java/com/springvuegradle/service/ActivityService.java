@@ -194,10 +194,11 @@ public class ActivityService {
      * @return A list of the given profile's activities by role.
      */
     public List<Activity> getActivitiesByProfileIdByRole(Long profileId, String role) {
+
         Profile profile = profileRepo.findAllById(profileId).get(0);
         List<Activity> userActivities = new ArrayList<>();
         for (ActivityMembership activityMembership : profile.getActivities()) {
-            if(activityMembership.getRole().toString() == role.toUpperCase()) {
+            if (activityMembership.getRole().toString().equals(role.toUpperCase())) {
                 userActivities.add(activityMembership.getActivity());
             }
         }

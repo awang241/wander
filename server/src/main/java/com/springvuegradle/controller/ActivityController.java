@@ -176,8 +176,9 @@ public class ActivityController {
      * Gets all user's activities by role
      * @return a response with all the activities of the user in the database by role.
      */
-    @GetMapping("/profiles/{profileId}/activities")
-    public ResponseEntity<List<Activity>> getAllUsersActivitiesByRole(@RequestHeader("authprization") String token,
+    // fix mapping please
+    @GetMapping("/profiles/{profileId}/activities/role")
+    public ResponseEntity<List<Activity>> getAllUsersActivitiesByRole(@RequestHeader("authorization") String token,
                                                                       @PathVariable Long profileId, String role) {
         return getAllUsersActivitiesByRole(token, profileId, role, false);
     }

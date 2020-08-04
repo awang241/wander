@@ -292,6 +292,15 @@ class ActivityServiceTest {
         assertEquals(1, activityMembershipRepository.findActivityMembershipsByActivity_IdAndRole(activityRepository.getLastInsertedId(), ActivityMembership.Role.ORGANISER).size());
     }
 
+    @Test
+    void getActivitiesByProfileIdByRoleTest() {
+        Profile ben = profileRepository.save(createNormalProfileBen());
+        controller.createActivity(ben.getId(),createNormalActivity(), null, true);
+        long id = 0;
+        List<Activity> list = service.getActivitiesByProfileIdByRole(ben.getId(), "creator");
+        assertEquals(1, list.size());
+    }
+
 
     /**
      * Example activities to use in tests
