@@ -206,8 +206,9 @@ public class ActivityService {
     }
 
     /**
-     * Returns all the activities with the privacy level "public"
-     * @return A list of the activities with the privacy level "public"
+     * Returns all the activities with a given privacy level
+     * @param privacy A string from the front end that specifies a privacy level
+     * @return A list of the activities with a given privacy level
      */
     public List<Activity> getActivitiesWithPrivacyLevel(String privacy) {
         Integer privacyLevel;
@@ -228,6 +229,10 @@ public class ActivityService {
         return publicActivities;
     }
 
+    /**
+     * Checks if an activity is valid by checking all fields and throws an exception otherwise.
+     * @param activity the activity to check the fields of.
+     */
     private void validateActivity(Activity activity) {
         if (activity.getActivityName() == null || activity.getActivityName().isBlank()) {
             throw new IllegalArgumentException(ActivityResponseMessage.MISSING_NAME.toString());
@@ -278,6 +283,11 @@ public class ActivityService {
         profileRepo.save(profile);
     }
 
+    /**
+     * Edits the privacy of a given activity to the given privacy.
+     * @param privacy a string defining the privacy level.
+     * @param activityId the id of the activity to edit.
+     */
     public void editActivityPrivacy(String privacy, Long activityId) {
         Optional<Activity> optionalActivity = activityRepo.findById(activityId);
         if (optionalActivity.isEmpty()) {

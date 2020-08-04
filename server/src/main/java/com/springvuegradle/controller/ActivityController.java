@@ -294,12 +294,13 @@ public class ActivityController {
 
 
     /**
-     * Endpoint for getting all the activities with privacy level "public"
-     * @param token
-     * @return
+     * Endpoint for getting all the activities with a given privacy level
+     * @param token the user's authentication token.
+     * @param privacyLevel the specified privacy level from the front end
+     * @return a list of all activities with a given privacy level
      */
     @GetMapping("/activities/{privacyLevel}")
-    protected ResponseEntity<List<Activity>> getActivitiesWithPrivacyLevel(@RequestHeader("authorization") String token, @PathVariable String privacyLevel) {
+    public ResponseEntity<List<Activity>> getActivitiesWithPrivacyLevel(@RequestHeader("authorization") String token, @PathVariable String privacyLevel) {
         if (token == null || token.isBlank()) {
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }

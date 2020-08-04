@@ -65,3 +65,10 @@ Feature: Creating modifying and deleting activities
     And I create a continuous activity with the title "Airbending training session" and the location "Somewhere"
     When I change the visibility of my activity to "public" as the creator with email "aang@airbender.com"
     Then The activity is public
+
+  @U17F1-GetActivitiesWithPrivacyLevel
+  Scenario: As a logged in user, I want to get all activities with public privacy level.
+    Given I registered account with email "aang@airbender.com" and password "aang'sSecuredPwd"
+    And I create a continuous activity with the title "Airbending training session" and the location "Somewhere"
+    When I change the visibility of my activity to "public" as the creator with email "aang@airbender.com"
+    Then There is one activity with privacy "public"
