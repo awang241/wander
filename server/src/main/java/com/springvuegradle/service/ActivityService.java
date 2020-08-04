@@ -142,13 +142,10 @@ public class ActivityService {
     public boolean removeMembership(Long profileId, Long activityId) {
         if (activityRepo.existsById(activityId)) {
             for (ActivityMembership membership : membershipRepo.findAll()) {
-                if (membership.getActivity().getId() == activityId) {
-                    Profile profile = membership.getProfile();
-                    if (profile.getId().equals(profileId)) {
-                        membershipRepo.delete(membership);
-                        profile.removeActivity(membership);
-                        return true;
-                    }
+                if (membership.getActivity().getId() == activityId && membership.getProfile().getId().equals( profileId)) {
+                    membershipRepo.delete(membership);
+                    membership.getProfile().removeActivity(membership);
+                    return true;
                 }
             }
         }
