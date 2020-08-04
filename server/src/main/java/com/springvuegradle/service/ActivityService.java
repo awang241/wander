@@ -121,16 +121,15 @@ public class ActivityService {
     /**\
      * Checks if the userId corresponds to the creator of the activity associated with the activityId.
      * @param userId id of the user making the request
-     * @param activityId id of the activity
+     * @param activityId id of the activityi
      * @return true if userId matches the creatorId, false otherwise
      */
     public boolean isProfileActivityCreator(Long userId, Long activityId) {
         Optional<Activity> activity = activityRepo.findById(activityId);
         if (activity.isPresent()) {
-            List<ActivityMembership> creator = membershipRepo.findActivityMembershipsByActivity_IdAndRole(activityId, ActivityMembership.Role.CREATOR);
-            if (creator.size() > 0) {
-                Long creatorId = creator.get(0).getProfile().getId();
-                return creatorId.equals(userId);
+            Optional<ActivityMembership> membership = membershipRepo.findByActivity_IdAndProfile_Id(activityId, userId);
+            if (membership.isPresent()) {
+                return membership.get().getRole().equals(ActivityMembership.Role.CREATOR);
             }
         }
         return false;
@@ -273,7 +272,8 @@ public class ActivityService {
 
     /**
      * Checks whether someone has rights to change the role of a user in an activity
-     * Users should only have this right if they are admin or creator of the activity
+     * Users should only be able to change someone to an organizer if they are a creator/organizer or admin
+     * Users should be able to change someone else to a participant or follower if they are creator/organizer, admin, or it is themself
      * @param profileDoingEditingId the ID of the profile who is editing the activities membership
      * @param activityId The ID of the activity we are editing
      * @param newRole The role we are trying to change the user to
