@@ -186,7 +186,7 @@ public class ActivityController {
         } else {
             int pageIndex = startIndex / count;
             PageRequest request = PageRequest.of(pageIndex, count);
-            Page<Activity> activities = activityService.getAllActivities(request);
+            Page<Activity> activities = activityService.getUsersActivities(request, profileId);
             List<SimplifiedActivity> simplifiedActivities = createSimplifiedActivities(activities.getContent());
             activitiesResponse = new SimplifiedActivitiesResponse(simplifiedActivities);
             status = HttpStatus.OK;

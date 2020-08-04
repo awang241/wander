@@ -5,8 +5,8 @@ import java.util.Objects;
 
 public class SimplifiedActivitiesResponse {
 
-    private String message;
-    private List<SimplifiedActivity> results;
+    String message = null;
+    List<SimplifiedActivity> results = null;
 
     public SimplifiedActivitiesResponse(List<SimplifiedActivity> results) {
         this.results = results;

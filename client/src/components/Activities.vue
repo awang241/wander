@@ -27,7 +27,7 @@
                         <!-- Activities -->
                         <div class="card">
                             <div class="card-content">
-                                <h3 class="title is-4">{{activity.activity_name}}</h3>
+                                <h3 class="title is-4">{{activity.activityName}}</h3>
                                 Role: CREATOR
                                 <div class="content">
                                     <table class="table-profile">
@@ -83,36 +83,33 @@
                 <h1>No activities created</h1>
             </div>
         </div>
+        <observer v-on:intersect="loadMoreActivities"></observer>
     </div>
 </template>
 
 <script>
-    import api from '../Api';
-    import router from "../router";
-    import store from "../store"
-    import toastMixin from "../mixins/toastMixin";
+import api from '../Api';
+import router from "../router";
+import store from "../store"
+import toastMixin from "../mixins/toastMixin";
+import Observer from "./Observer";
+
+const DEFAULT_RESULT_COUNT = 3;
 
     export default {
         name: "Activities",
         mixins: [toastMixin],
+      components: {Observer},
         data() {
             return {
-                activities: null,
-                store: store
+                activities: [],
+                store: store,
+                startIndex: 0,
+                moreActivitiesExist: true,
+                observer: null
             }
         },
         methods: {
-            getActivities() {
-                api.getUserActivitiesList(store.getters.getUserId, localStorage.getItem('authToken'))
-                    .then((response) => {
-                        this.activities = response.data;
-                        this.activities.sort(function (a, b) {
-                                return a.continuous - b.continuous;
-                            }
-                        );
-                    })
-                    .catch(error => console.log(error));
-            },
             goToAddActivity() {
                 router.push({path: '/AddActivity'});
             }, editActivity(activity) {
@@ -140,11 +137,28 @@
                 if (!store.getters.getAuthenticationStatus) {
                     router.push({path: '/'})
                 }
+            },
+            getSearchParameters() {
+              return {count: DEFAULT_RESULT_COUNT, startIndex: this.startIndex};
+            },
+            loadMoreActivities() {
+              if (this.moreActivitiesExist) {
+                const searchParameters = this.getSearchParameters();
+                api.getNextActivities(store.getters.getUserId, localStorage.getItem("authToken"), searchParameters).then(response => {
+                  console.log(response.data)
+                  if (response.data.results.length == 0) {
+                    this.moreActivitiesExist = false;
+                  } else {
+                    this.startIndex += DEFAULT_RESULT_COUNT;
+                    const activities = response.data.results;
+                    this.activities = [...this.activities, ...activities];
+                  }
+                })
+              }
             }
         },
         mounted() {
             this.checkAuthenticationStatus();
-            this.getActivities();
         }
     }
 

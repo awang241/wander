@@ -193,13 +193,24 @@ public class ActivityService {
     }
 
     /**
-     * Returns the specified page from the list of all profiles that match the search criteria.
+     * Returns the specified page from the list of all activities.
      *
      * @param request A page request containing the index and size of the page to be returned.
-     * @return The specified page from the list of all profiles that match the search criteria.
+     * @return The specified page from the list of all activities.
      */
     public Page<Activity> getAllActivities(Pageable request) {
 
         return activityRepo.findAll(request);
+    }
+
+    /**
+     * Returns the specified page from the list of all activities.
+     *
+     * @param request A page request containing the index and size of the page to be returned.
+     * @param profileId The user's profile id
+     * @return The specified page from the list of all activities.
+     */
+    public Page<Activity> getUsersActivities(Pageable request, Long profileId) {
+        return activityRepo.findAllByProfileId(profileId, request);
     }
 }
