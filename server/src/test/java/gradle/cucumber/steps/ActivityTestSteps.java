@@ -6,6 +6,7 @@ import com.springvuegradle.controller.Profile_Controller;
 import com.springvuegradle.dto.LoginRequest;
 import com.springvuegradle.dto.LoginResponse;
 import com.springvuegradle.model.Activity;
+import com.springvuegradle.model.ActivityMembership;
 import com.springvuegradle.model.ActivityType;
 import com.springvuegradle.model.Profile;
 import com.springvuegradle.repositories.*;
@@ -133,6 +134,40 @@ public class ActivityTestSteps {
     @Then("The activity was edited")
     public void the_activity_was_edited() {
         assertEquals(200, responseEntity.getStatusCodeValue());
+    }
+
+    @And("I create another account with email {string} and password {string}")
+    public void i_create_another_account_with_email_and_password(String email, String password) {
+        profile = createNormalProfile(email, password);
+        assertEquals(201, profileController.createProfile(profile).getStatusCodeValue());
+    }
+
+    @When("I choose to add the account with the email {string} to the activity as a {string}")
+    public void i_choose_to_add_the_account_with_the_email_to_the_activity_as_a(String email, String role) {
+        Long profileId = profileRepository.findByPrimaryEmail(email).get(0).getId();
+        System.out.println(role);
+        ResponseEntity<String> response = activityController.addActivityRole(loginResponse.getToken(), profileId, activityRepository.getLastInsertedId(), role);
+        System.out.println(response.getBody());
+        assertEquals(201, response.getStatusCodeValue());
+
+    }
+
+    @Then("The activity has an organiser")
+    public void the_activity_has_an_organiser() {
+        assertEquals(1, membershipRepository.findActivityMembershipsByActivity_IdAndRole(activityRepository.getLastInsertedId(), ActivityMembership.Role.ORGANISER).size());
+    }
+
+    @Given("I login with the email {string} and password {string}")
+    public void i_login_with_the_email_and_password(String email, String password) {
+        LoginRequest loginRequest = new LoginRequest(email, password);
+        ResponseEntity<LoginResponse> loginResponseEntity = loginController.loginUser(loginRequest);
+        loginResponse = loginResponseEntity.getBody();
+        assertEquals(200, loginResponseEntity.getStatusCodeValue());
+    }
+
+    @Then("The activity has a follower")
+    public void the_activity_has_a_follower() {
+        assertEquals(1, membershipRepository.findActivityMembershipsByActivity_IdAndRole(activityRepository.getLastInsertedId(), ActivityMembership.Role.FOLLOWER).size());
     }
 
 

@@ -1,6 +1,8 @@
 package com.springvuegradle.service;
 
+import com.springvuegradle.controller.ActivityController;
 import com.springvuegradle.model.Activity;
+import com.springvuegradle.model.ActivityMembership;
 import com.springvuegradle.model.ActivityType;
 import com.springvuegradle.model.Profile;
 import com.springvuegradle.repositories.*;
@@ -22,6 +24,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @DataJpaTest
 class ActivityServiceTest {
 
+    @Autowired
+    ActivityController controller;
     @Autowired
     ActivityService service;
     @Autowired
@@ -233,6 +237,36 @@ class ActivityServiceTest {
     }
 
     /**
+     * Test to remove a profiles membership from an activity they have membership with
+     **/
+    @Test
+    void removeActivityMemberShipSuccessTest() {
+        Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        Profile bennyBoi = createNormalProfileBen();
+        profileRepository.save(bennyBoi);
+        ActivityMembership testMemberShip = new ActivityMembership(activity, bennyBoi, ActivityMembership.Role.PARTICIPANT);
+        activityMembershipRepository.save(testMemberShip);
+        service.removeMembership(bennyBoi.getId(), activity.getId());
+        assertEquals(0, activityMembershipRepository.count());
+    }
+
+    /**
+     * Test to remove a profiles membership from an activity which they are not a part of
+     */
+    @Test
+    void removeActivityMemberShipFailTest() {
+        Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        Profile bennyBoi = createNormalProfileBen();
+        profileRepository.save(bennyBoi);
+        Profile johnnyBoi = createNormalProfileJohnny();
+        profileRepository.save(johnnyBoi);
+        ActivityMembership testMemberShip = new ActivityMembership(activity, bennyBoi, ActivityMembership.Role.PARTICIPANT);
+        activityMembershipRepository.save(testMemberShip);
+        service.removeMembership(johnnyBoi.getId(), activity.getId());
+        assertEquals(1, activityMembershipRepository.count());
+    }
+
+    /**
      * Test to delete an activity that doesn't exist
      **/
     @Test
@@ -240,11 +274,41 @@ class ActivityServiceTest {
         assertFalse(service.delete((long) 1));
     }
 
+    @Test
+    void getActivityByIdServiceTest() {
+        Activity activity = activityRepository.save(createNormalActivity());
+        Activity activityResult = service.getActivityByActivityId(activity.getId());
+        assertEquals(activity, activityResult);
+    }
+
+    @Test
+    void getActivityByIdFailedTest() {
+        long activityId = 10;
+        Activity failedResult = service.getActivityByActivityId(activityId);
+        assertEquals(null, failedResult);
+    }
+
+    void addNormalUserRoleToActivityTest() {
+        Profile ben = createNormalProfileBen();
+        Profile profile = profileRepository.save(ben);
+        Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        service.addActivityRole(activity.getId(), profile.getId(), "participant");
+        assertEquals(1, activityMembershipRepository.findActivityMembershipsByActivity_IdAndRole(activity.getId(), ActivityMembership.Role.PARTICIPANT).size());
+    }
+
+    @Test
+    void creatorAddsOrganiserRoleToActivityTest() {
+        Profile ben = profileRepository.save(createNormalProfileBen());
+        Profile johnny = profileRepository.save(createNormalProfileJohnny());
+        controller.createActivity(ben.getId(), createNormalActivityKaikoura(), null, true);
+        service.addActivityRole(activityRepository.getLastInsertedId(), johnny.getId(), "organiser");
+        assertEquals(1, activityMembershipRepository.findActivityMembershipsByActivity_IdAndRole(activityRepository.getLastInsertedId(), ActivityMembership.Role.ORGANISER).size());
+    }
+
 
     /**
      * Example activities to use in tests
      **/
-
     static Activity createNormalActivity() {
         return new Activity("Kaikoura Coast Track race", "A big and nice race on a lovely peninsula",
                 new String[]{"Tramping", "Hiking"}, false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ");
