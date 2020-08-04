@@ -170,6 +170,29 @@ public class ActivityController {
     }
 
     /**
+     * Gets all user's activities by role
+     * @return a response with all the activities of the user in the database by role.
+     */
+    @GetMapping("/profiles/{profileId}/activities")
+    public ResponseEntity<List<Activity>> getAllUsersActivitiesByRole(@RequestHeader("authprization") String token,
+                                                                      @PathVariable Long profileId, String role) {
+        return getAllUsersActivitiesByRole(token, profileId, role, false);
+    }
+
+    public ResponseEntity<List<Activity>> getAllUsersActivitiesByRole(String token, Long profileId, String role, Boolean testing) {
+        if (!testing && !jwtUtil.validateToken(token)) {
+            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+        }
+        List<Activity> result;
+        if (!testing && (jwtUtil.extractPermission(token) == 0 || jwtUtil.extractPermission(token) == 1)) {
+            result = aRepo.findAll();
+        } else {
+            result = activityService.getActivitiesByProfileIdByRole(profileId, role);
+        }
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    /**
      * Deletes an activity from the repository given that it exists in the database.
      *
      * @param profileId  the id of the profile that created the activity

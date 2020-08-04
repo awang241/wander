@@ -163,6 +163,23 @@ public class ActivityService {
         return userActivities;
     }
 
+    /**
+     * Returns all activities associated with the given profile by role.
+     * @param profileId The ID of the profile whose activities are being retrieved.
+     * @param role The role of the user in the activity.
+     * @return A list of the given profile's activities by role.
+     */
+    public List<Activity> getActivitiesByProfileIdByRole(Long profileId, String role) {
+        Profile profile = profileRepo.findAllById(profileId).get(0);
+        List<Activity> userActivities = new ArrayList<>();
+        for (ActivityMembership activityMembership : profile.getActivities()) {
+            if(activityMembership.getRole().toString() == role.toUpperCase()) {
+                userActivities.add(activityMembership.getActivity());
+            }
+        }
+        return userActivities;
+    }
+
     private void validateActivity(Activity activity) {
         if (activity.getActivityName() == null || activity.getActivityName().isBlank()) {
             throw new IllegalArgumentException(ActivityResponseMessage.MISSING_NAME.toString());
