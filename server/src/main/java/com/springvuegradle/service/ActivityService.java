@@ -1,5 +1,6 @@
 package com.springvuegradle.service;
 
+import com.springvuegradle.dto.SimplifiedActivity;
 import com.springvuegradle.enums.ActivityMessage;
 import com.springvuegradle.enums.ActivityResponseMessage;
 import com.springvuegradle.model.*;
@@ -254,13 +255,29 @@ public class ActivityService {
     }
 
     /**
-     * Returns the specified page from the list of all activities.
+     * Returns a map of activities alongside the user's role in that activity.
      *
      * @param request A page request containing the index and size of the page to be returned.
      * @param profileId The user's profile id
-     * @return The specified page from the list of all activities.
+     * @return A map of the activities and the role that the user has with that activity.
      */
-    public Page<Activity> getUsersActivities(Pageable request, Long profileId) {
-        return activityRepo.findAllByProfileId(profileId, request);
+    public Map<Activity,ActivityMembership.Role> getUsersActivities(Pageable request, Long profileId) {
+        Page<ActivityMembership> memberships = membershipRepo.findAllByProfileId(profileId, request);
+        Map<Activity, ActivityMembership.Role> activityRoleMap = new HashMap<>();
+        for (ActivityMembership membership: memberships.getContent()) {
+            activityRoleMap.put(membership.getActivity(), membership.getRole());
+        }
+        return activityRoleMap;
+    }
+
+    /**
+     * Converts a list of normal activities into a list of simplified activities
+     * @param activities a list of normal activity objects to be simplified
+     * @return a list of simplified activities
+     */
+    public List<SimplifiedActivity> createSimplifiedActivities(Map<Activity, ActivityMembership.Role> activities) {
+        List<SimplifiedActivity> simplifiedActivities = new ArrayList<>();
+        activities.forEach((k,v) -> simplifiedActivities.add(new SimplifiedActivity(k, v.toString())));
+        return simplifiedActivities;
     }
 }

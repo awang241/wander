@@ -5,10 +5,12 @@ import com.springvuegradle.dto.ProfileSearchResponse;
 import com.springvuegradle.dto.ProfileSummary;
 import com.springvuegradle.dto.SimplifiedActivitiesResponse;
 import com.springvuegradle.dto.SimplifiedActivity;
+import com.springvuegradle.enums.ActivityMessage;
 import com.springvuegradle.enums.ActivityResponseMessage;
 import com.springvuegradle.enums.AuthenticationErrorMessage;
 import com.springvuegradle.enums.ProfileErrorMessage;
 import com.springvuegradle.model.Activity;
+import com.springvuegradle.model.ActivityMembership;
 import com.springvuegradle.model.Profile;
 import com.springvuegradle.model.ProfileSearchCriteria;
 import com.springvuegradle.repositories.ActivityRepository;
@@ -23,7 +25,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Class containing REST endpoints for activities
@@ -205,26 +210,15 @@ public class ActivityController {
         } else {
             int pageIndex = startIndex / count;
             PageRequest request = PageRequest.of(pageIndex, count);
-            Page<Activity> activities = activityService.getUsersActivities(request, profileId);
-            List<SimplifiedActivity> simplifiedActivities = createSimplifiedActivities(activities.getContent());
+            Map<Activity,ActivityMembership.Role> activityRoleMap = activityService.getUsersActivities(request, profileId);
+            List<SimplifiedActivity> simplifiedActivities = activityService.createSimplifiedActivities(activityRoleMap);
             activitiesResponse = new SimplifiedActivitiesResponse(simplifiedActivities);
             status = HttpStatus.OK;
         }
         return new ResponseEntity<>(activitiesResponse, status);
     }
 
-    /**
-     * Converts a list of normal activities into a list of simplified activities
-     * @param activities a list of normal activity objects to be simplified
-     * @return a list of simplified activities
-     */
-    protected List<SimplifiedActivity> createSimplifiedActivities(List<Activity> activities) {
-        List<SimplifiedActivity> simplifiedActivities = new ArrayList<>();
-        for(Activity activity: activities) {
-            simplifiedActivities.add(new SimplifiedActivity(activity));
-        }
-        return simplifiedActivities;
-    }
+
 
     /**
      * Deletes an activity from the repository given that it exists in the database.

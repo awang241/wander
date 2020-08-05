@@ -2,9 +2,9 @@
     <div class="card">
         <div class="columns">
             <div class="column">
-                <h4><strong>{{activity.activity_name}}</strong></h4>
+                <h4><strong>{{activity.activityName}}</strong></h4>
 
-                <p>{{activity.creator}}</p>
+                <p>{{activity.creatorName}}</p>
                 <p>{{activity.location}}</p>
             </div>
             <div v-if="activity.activityTypes.length > 0" class="column">
@@ -17,9 +17,9 @@
                 <template slot="label">
                     <b-dropdown aria-role="list" class="is-pulled-right" position="is-bottom-left">
                         <b-icon icon="ellipsis-v" slot="trigger"></b-icon>
-                        <b-dropdown-item aria-role="listitem" @click="goToActivity">View activity</b-dropdown-item>
-                        <b-dropdown-item v-if="store.getters.getAuthenticationLevel <= 1" aria-role="listitem" @click="editActivity">Edit activity </b-dropdown-item>
-                        <b-dropdown-item v-if="store.getters.getAuthenticationLevel <= 1" aria-role="listitem" @click="deleteActivity">Delete activity</b-dropdown-item>
+                        <b-dropdown-item aria-role="listitem" @click="goToActivity(activity)">View activity</b-dropdown-item>
+                        <b-dropdown-item v-if="store.getters.getAuthenticationLevel <= 1" aria-role="listitem" @click="editActivity(activity)">Edit activity </b-dropdown-item>
+                        <b-dropdown-item v-if="store.getters.getAuthenticationLevel <= 1" aria-role="listitem" @click="deleteActivity(activity.id)">Delete activity</b-dropdown-item>
                     </b-dropdown>
                 </template>
             </b-menu-item>
@@ -28,7 +28,6 @@
 </template>
 
 <script>
-    import Activity from "./Activity.vue";
     import Api from "../Api";
     import toastMixin from "../mixins/toastMixin";
     import store from "../store";
@@ -53,8 +52,12 @@
             }
         },
         methods: {
-            goToActivity(activity) {
+            editActivity(activity) {
                 router.push({name: 'editActivity', params: {activityProp: activity}})
+            },
+            goToActivity(activity) {
+                console.log("goes through the thing");
+                router.push({path: 'Activities/' + activity.id})
             },
             deleteActivity(id) {
                 Api.deleteActivity(store.getters.getUserId, localStorage.getItem('authToken'), id)
@@ -64,7 +67,7 @@
                         this.activities = this.activities.filter(activity => activity.id != id);
                     })
                     .catch(error => console.log(error));
-            }
+            },
         }
     }
 </script>
