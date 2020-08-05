@@ -14,4 +14,7 @@ import java.util.Optional;
 @RepositoryRestResource
 public interface ActivityMembershipRepository extends JpaRepository<ActivityMembership, Long> {
     Optional<ActivityMembership> findActivityMembershipsByActivity_IdAndRole(Long id, ActivityMembership.Role role);
+
+    @Query("SELECT COUNT(am) from ActivityMembership am where am.activity.id = :activityId")
+    Integer getRoleCount(@Param("activityId") long activityId);
 }

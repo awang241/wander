@@ -145,6 +145,22 @@ public class ActivityController {
 
 
     /**
+     * Gets the number of people who have a role in an activity
+     * @param token the authentication token of the user
+     * @param activityId the ID of the activity we are checking roles for
+     * @return the count of people who have a role in an activity
+     */
+    @GetMapping("/activities/{activityId}/rolecount")
+    public ResponseEntity<Integer> getActivityRoleCount(@RequestHeader("authorization") String token,
+                                                        @PathVariable long activityId){
+        if(!jwtUtil.validateToken(token)){
+            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+        }
+        return new ResponseEntity<>(activityService.getRoleCount(activityId), HttpStatus.OK);
+    }
+
+
+    /**
      * Queries the Database to find all the activities of a user with their profile id.
      *
      * @return a response with all the activities of the user in the database.

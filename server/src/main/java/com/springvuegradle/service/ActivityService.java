@@ -3,9 +3,12 @@ package com.springvuegradle.service;
 import com.springvuegradle.enums.ActivityResponseMessage;
 import com.springvuegradle.model.Activity;
 import com.springvuegradle.model.ActivityMembership;
-import com.springvuegradle.model.Profile;
 import com.springvuegradle.model.ActivityType;
-import com.springvuegradle.repositories.*;
+import com.springvuegradle.model.Profile;
+import com.springvuegradle.repositories.ActivityMembershipRepository;
+import com.springvuegradle.repositories.ActivityRepository;
+import com.springvuegradle.repositories.ActivityTypeRepository;
+import com.springvuegradle.repositories.ProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -129,6 +132,15 @@ public class ActivityService {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Gets the number of people who have a role in an activity
+     * @param activityId the ID of the activity we are counting the amount of roles for
+     * @return the number of people who have a role in an activity
+     */
+    public Integer getRoleCount(long activityId){
+        return membershipRepo.getRoleCount(activityId);
     }
 
     /**\

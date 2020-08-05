@@ -1,6 +1,7 @@
 package com.springvuegradle.service;
 
 import com.springvuegradle.model.Activity;
+import com.springvuegradle.model.ActivityMembership;
 import com.springvuegradle.model.ActivityType;
 import com.springvuegradle.model.Profile;
 import com.springvuegradle.repositories.*;
@@ -238,6 +239,41 @@ class ActivityServiceTest {
     @Test
     void deleteActivityDoesNotExistTest() {
         assertFalse(service.delete((long) 1));
+    }
+
+    /**
+     * Ensures an activity with no relationships returns the correct number
+     */
+    @Test
+    void getActivityRoleCountWithZeroRolesTest(){
+        Activity activity = activityRepository.save(createNormalActivity());
+        assertEquals(0, service.getRoleCount(activity.getId()));
+    }
+
+    /**
+     * Ensures an activity with a creator returns the correct number
+     */
+    @Test
+    void getActivityRoleCountWithCreatorTest(){
+        Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        Profile creator = profileRepository.save(createNormalProfileBen());
+        activityMembershipRepository.save(new ActivityMembership(activity, creator, ActivityMembership.Role.CREATOR));
+        assertEquals(1, service.getRoleCount(activity.getId()));
+    }
+
+    /**
+     * Ensures an activity with multiple roles returns the correct number
+     */
+    @Test
+    void getActivityRoleCountWithMultipleRolesTest(){
+        Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        Profile creator = profileRepository.save(createNormalProfileBen());
+        Profile follower = profileRepository.save(createNormalProfileBen());
+        Profile participant = profileRepository.save(createNormalProfileBen());
+        activityMembershipRepository.save(new ActivityMembership(activity, creator, ActivityMembership.Role.CREATOR));
+        activityMembershipRepository.save(new ActivityMembership(activity, participant, ActivityMembership.Role.PARTICIPANT));
+        activityMembershipRepository.save(new ActivityMembership(activity, follower, ActivityMembership.Role.FOLLOWER));
+        assertEquals(3, service.getRoleCount(activity.getId()));
     }
 
 
