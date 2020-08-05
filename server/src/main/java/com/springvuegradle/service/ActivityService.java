@@ -1,9 +1,8 @@
 package com.springvuegradle.service;
 
+import com.springvuegradle.dto.ActivityRoleCountResponse;
 import com.springvuegradle.enums.ActivityMessage;
 import com.springvuegradle.enums.ActivityResponseMessage;
-import com.springvuegradle.enums.AuthLevel;
-import com.springvuegradle.enums.ProfileErrorMessage;
 import com.springvuegradle.model.Activity;
 import com.springvuegradle.model.ActivityMembership;
 import com.springvuegradle.model.ActivityType;
@@ -140,10 +139,25 @@ public class ActivityService {
     /**
      * Gets the number of people who have a role in an activity
      * @param activityId the ID of the activity we are counting the amount of roles for
-     * @return the number of people who have a role in an activity
+     * @return the number of people who have different roles in an activity
      */
-    public Integer getRoleCount(long activityId){
-        return membershipRepo.getRoleCount(activityId);
+    public ActivityRoleCountResponse getRoleCounts(long activityId){
+        long organizers, followers, participants;
+        organizers = followers = participants = 0;
+        List<ActivityMembership> memberships = membershipRepo.findActivityMembershipsByActivity_Id(activityId);
+        if(memberships.isEmpty()){
+            throw new IllegalArgumentException(ActivityResponseMessage.INVALID_ACTIVITY.toString());
+        }
+        for(ActivityMembership membership: memberships){
+            if(membership.getRole().equals(ActivityMembership.Role.PARTICIPANT)){
+                participants++;
+            } else if(membership.getRole().equals(ActivityMembership.Role.FOLLOWER)){
+                followers++;
+            }  else if(membership.getRole().equals(ActivityMembership.Role.ORGANISER)){
+                organizers++;
+            }
+        }
+        return new ActivityRoleCountResponse(organizers, participants, followers);
     }
 
     /**\

@@ -1,6 +1,7 @@
 package com.springvuegradle.service;
 
 import com.springvuegradle.controller.ActivityController;
+import com.springvuegradle.dto.ActivityRoleCountResponse;
 import com.springvuegradle.model.Activity;
 import com.springvuegradle.model.ActivityMembership;
 import com.springvuegradle.model.ActivityType;
@@ -356,12 +357,19 @@ class ActivityServiceTest {
         assertThrows(IllegalArgumentException.class, ()->service.editActivityPrivacy("everyone", activity.getId()));
     }
     /**
-     * Ensures an activity with no relationships returns the correct number
+     * Ensures an activity with no relationships throws an exception
      */
     @Test
     void getActivityRoleCountWithZeroRolesTest(){
         Activity activity = activityRepository.save(createNormalActivity());
-        assertEquals(0, service.getRoleCount(activity.getId()));
+        assertThrows(IllegalArgumentException.class, ()->service.getRoleCounts(activity.getId()));
+    }
+    /**
+     * Ensures a non existent activity throws an exception
+     */
+    @Test
+    void getActivityRoleCountOfNonExistentActivityTest(){
+        assertThrows(IllegalArgumentException.class, ()->service.getRoleCounts(-1));
     }
 
     /**
@@ -372,7 +380,7 @@ class ActivityServiceTest {
         Activity activity = activityRepository.save(createNormalActivityKaikoura());
         Profile creator = profileRepository.save(createNormalProfileBen());
         activityMembershipRepository.save(new ActivityMembership(activity, creator, ActivityMembership.Role.CREATOR));
-        assertEquals(1, service.getRoleCount(activity.getId()));
+        assertEquals(new ActivityRoleCountResponse(0, 0 ,0), service.getRoleCounts(activity.getId()));
     }
 
     /**
@@ -384,10 +392,10 @@ class ActivityServiceTest {
         Profile creator = profileRepository.save(createNormalProfileBen());
         Profile follower = profileRepository.save(createNormalProfileBen());
         Profile participant = profileRepository.save(createNormalProfileBen());
-        activityMembershipRepository.save(new ActivityMembership(activity, creator, ActivityMembership.Role.CREATOR));
+        activityMembershipRepository.save(new ActivityMembership(activity, creator, ActivityMembership.Role.ORGANISER));
         activityMembershipRepository.save(new ActivityMembership(activity, participant, ActivityMembership.Role.PARTICIPANT));
         activityMembershipRepository.save(new ActivityMembership(activity, follower, ActivityMembership.Role.FOLLOWER));
-        assertEquals(3, service.getRoleCount(activity.getId()));
+        assertEquals(new ActivityRoleCountResponse(1, 1, 1), service.getRoleCounts(activity.getId()));
     }
 
 

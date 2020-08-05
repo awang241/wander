@@ -1,6 +1,7 @@
 package com.springvuegradle.controller;
 
 
+import com.springvuegradle.dto.ActivityRoleCountResponse;
 import com.springvuegradle.enums.ActivityMessage;
 import com.springvuegradle.enums.ActivityResponseMessage;
 import com.springvuegradle.enums.AuthenticationErrorMessage;
@@ -119,8 +120,9 @@ public class ActivityController {
 
     /**
      * Checks validity of token, as well as if the user can edit or delete the activity.
-     * @param token authentication token
-     * @param profileId The id of the user
+     *
+     * @param token      authentication token
+     * @param profileId  The id of the user
      * @param activityId The id the activity
      * @return response entity with error message if unauthorised or forbidden. Null otherwise.
      */
@@ -148,18 +150,23 @@ public class ActivityController {
 
 
     /**
-     * Gets the number of people who have a role in an activity
+     * Gets the number of people for each role in an activity
      * @param token the authentication token of the user
      * @param activityId the ID of the activity we are checking roles for
      * @return the count of people who have a role in an activity
      */
     @GetMapping("/activities/{activityId}/rolecount")
-    public ResponseEntity<Integer> getActivityRoleCount(@RequestHeader("authorization") String token,
-                                                        @PathVariable long activityId){
-        if(!jwtUtil.validateToken(token)){
+    public ResponseEntity<ActivityRoleCountResponse> getActivityRoleCount(@RequestHeader("authorization") String token,
+                                                        @PathVariable long activityId
+    ) {
+        if (!jwtUtil.validateToken(token)) {
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
-        return new ResponseEntity<>(activityService.getRoleCount(activityId), HttpStatus.OK);
+        try {
+            return new ResponseEntity<ActivityRoleCountResponse>(activityService.getRoleCounts(activityId), HttpStatus.OK);
+        } catch(IllegalArgumentException e){
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
     }
 
 
@@ -190,6 +197,7 @@ public class ActivityController {
 
     /**
      * Gets all user's activities by role
+     *
      * @return a response with all the activities of the user in the database by role.
      */
     // fix mapping please
@@ -245,10 +253,10 @@ public class ActivityController {
     /**
      * Assigns an activityRole to a user for a specific activity.
      *
-     * @param token the user's authentication token.
-     * @param profileId the id of the user we want to assign the role to.
+     * @param token      the user's authentication token.
+     * @param profileId  the id of the user we want to assign the role to.
      * @param activityId the id of the activity we want to add the user's role to.
-     * @param role the role we want to give to the user for that specific activity.
+     * @param role       the role we want to give to the user for that specific activity.
      * @return response entity with message detailing whether it was a success or not.
      */
     @PostMapping("/profiles/{profileId}/activities/{activityId}/role")
@@ -270,7 +278,7 @@ public class ActivityController {
             } else {
                 return new ResponseEntity<>(ActivityMessage.INVALID_ROLE.getMessage(), HttpStatus.BAD_REQUEST);
             }
-        } catch(IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<>(ActivityMessage.SUCCESSFUL_CREATION.getMessage(), HttpStatus.CREATED);
@@ -286,8 +294,8 @@ public class ActivityController {
     @DeleteMapping("/profiles/{profileId}/activities/{activityId}/membership")
     public @ResponseBody
     ResponseEntity<String> deleteActivityMembership(@RequestHeader("authorization") String token,
-                                          @PathVariable Long profileId,
-                                          @PathVariable Long activityId) {
+                                                    @PathVariable Long profileId,
+                                                    @PathVariable Long activityId) {
         return deleteActivityMembership(token, profileId, activityId, false);
 
     }
@@ -311,7 +319,8 @@ public class ActivityController {
 
     /**
      * Endpoint for getting all the activities with a given privacy level
-     * @param token the user's authentication token.
+     *
+     * @param token        the user's authentication token.
      * @param privacyLevel the specified privacy level from the front end
      * @return a list of all activities with a given privacy level
      */
@@ -321,7 +330,7 @@ public class ActivityController {
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
         try {
-            List<Activity> publicActivityList= activityService.getActivitiesWithPrivacyLevel(privacyLevel);
+            List<Activity> publicActivityList = activityService.getActivitiesWithPrivacyLevel(privacyLevel);
             return new ResponseEntity<>(publicActivityList, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
@@ -338,9 +347,9 @@ public class ActivityController {
      */
     @PutMapping("/profiles/{profileId}/activities/{activityId}/privacy")
     public ResponseEntity<String> editActivityPrivacy(@RequestBody String privacy,
-                                                 @RequestHeader("authorization") String token,
-                                                 @PathVariable Long profileId,
-                                                 @PathVariable Long activityId) {
+                                                      @RequestHeader("authorization") String token,
+                                                      @PathVariable Long profileId,
+                                                      @PathVariable Long activityId) {
 
         if (token == null || token.isBlank() || !activityService.isProfileActivityCreator(jwtUtil.extractId(token), activityId)) {
             return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(), HttpStatus.UNAUTHORIZED);
