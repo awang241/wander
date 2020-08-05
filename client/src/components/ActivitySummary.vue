@@ -53,7 +53,13 @@
         },
         methods: {
             editActivity(activity) {
-                router.push({name: 'editActivity', params: {activityProp: activity}})
+                Api.getActivity(activity.id, localStorage.getItem("authToken"))
+                    .then((response) => {
+                        let wholeActivity = response.data;
+                        router.push({name: 'editActivity', params: {activityProp: wholeActivity}});
+                    })
+                    .catch(error => console.log(error));
+
             },
             goToActivity(activity) {
                 console.log("goes through the thing");
