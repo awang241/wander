@@ -3,6 +3,7 @@ package gradle.cucumber.steps;
 import com.springvuegradle.controller.ActivityController;
 import com.springvuegradle.controller.LoginController;
 import com.springvuegradle.controller.Profile_Controller;
+import com.springvuegradle.dto.ActivityRoleUpdateRequest;
 import com.springvuegradle.dto.LoginRequest;
 import com.springvuegradle.dto.LoginResponse;
 import com.springvuegradle.model.Activity;
@@ -180,5 +181,27 @@ public class ActivityTestSteps {
     static Activity createNormalActivity(String title, String location) {
         return new Activity(title, "description doesn't matter atm",
                 new String[]{"Running"}, true, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", location);
+    }
+
+    @And("I am a {string} of this activity")
+    public void iAmAOfThisActivity(String roleString) {
+        ActivityMembership.Role role = ActivityMembership.Role.valueOf(roleString);
+        ActivityMembership membership = new ActivityMembership(activity, profile, role);
+        membershipRepository.save(membership);
+    }
+
+    @When("I choose to change my role to {string}")
+    public void iChooseToChangeMyRoleTo(String roleString) {
+        ActivityRoleUpdateRequest updateRequest = new ActivityRoleUpdateRequest();
+        updateRequest.setRole(roleString);
+        responseEntity = activityController.changeProfilesActivityRole(updateRequest, loginResponse.getToken(), jwtUtil.extractId(loginResponse.getToken()), activityRepository.getLastInsertedId());
+    }
+
+    @Then("I am now a {string} of the activity")
+    public void iAmNowAOfTheActivity(String roleString) {
+        ActivityMembership.Role role = ActivityMembership.Role.valueOf(roleString);
+        Optional<ActivityMembership> optionalActivityMembership = membershipRepository.findByActivity_IdAndProfile_Id(activity.getId(), profile.getId());
+        ActivityMembership activityMembership = optionalActivityMembership.get();
+        assertEquals(role, activityMembership.getRole());
     }
 }

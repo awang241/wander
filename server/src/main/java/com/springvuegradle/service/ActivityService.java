@@ -30,10 +30,10 @@ public class ActivityService {
 
     /**
      * Autowired constructor for Spring to create an ActivityService and inject the correct dependencies.
-     * @param profileRepo
-     * @param activityRepo
-     * @param activityTypeRepo
-     * @param activityMembershipRepository
+     * @param profileRepo the profile repository being injected.
+     * @param activityRepo the activity repository being injected.
+     * @param activityTypeRepo the activity type repository being injected.
+     * @param activityMembershipRepository the activity membership repository being injected.
      */
     @Autowired
     public ActivityService(ProfileRepository profileRepo, ActivityRepository activityRepo, ActivityTypeRepository activityTypeRepo,
@@ -81,15 +81,15 @@ public class ActivityService {
         validateActivity(activity);
         Optional<Activity> result = activityRepo.findById(activityId);
         if (result.isPresent()) {
-            Activity db_activity = result.get();
+            Activity dbActivity = result.get();
             Set<ActivityType> updatedActivityTypes = new HashSet<>();
             for (ActivityType activityType : activity.retrieveActivityTypes()) {
                 List<ActivityType> resultActivityTypes = typeRepo.findByActivityTypeName(activityType.getActivityTypeName());
                 updatedActivityTypes.add(resultActivityTypes.get(0));
             }
-            db_activity.setActivityTypes(updatedActivityTypes);
-            db_activity.update(activity);
-            activityRepo.save(db_activity);
+            dbActivity.setActivityTypes(updatedActivityTypes);
+            dbActivity.update(activity);
+            activityRepo.save(dbActivity);
         } else {
             throw new IllegalArgumentException(ActivityResponseMessage.INVALID_ACTIVITY.toString());
         }
@@ -132,10 +132,9 @@ public class ActivityService {
     public boolean isProfileActivityCreator(Long userId, Long activityId) {
         Optional<Activity> activity = activityRepo.findById(activityId);
         if (activity.isPresent()) {
-            List<ActivityMembership> creator = membershipRepo.findActivityMembershipsByActivity_IdAndRole(activityId, ActivityMembership.Role.CREATOR);
-            if (creator.size() > 0) {
-                Long creatorId = creator.get(0).getProfile().getId();
-                return creatorId.equals(userId);
+            Optional<ActivityMembership> membership = membershipRepo.findByActivity_IdAndProfile_Id(activityId, userId);
+            if (membership.isPresent()) {
+                return membership.get().getRole().equals(ActivityMembership.Role.CREATOR);
             }
         }
         return false;
@@ -279,5 +278,64 @@ public class ActivityService {
         List<SimplifiedActivity> simplifiedActivities = new ArrayList<>();
         activities.forEach((k,v) -> simplifiedActivities.add(new SimplifiedActivity(k, v.toString())));
         return simplifiedActivities;
+    }
+
+    /**
+     * Sets the role of an activity member to the given role. Profiles cannot be set as creators, and creators
+     * cannot have their role changed for that activity.
+     * @param profileBeingEditedId The ID of the profile whose role is being changed
+     * @param profileDoingEditingId The ID of the profile who is doing the editing
+     * @param activityId the ID of the activity
+     * @param newRole The role the member is being changed to
+     * @throws IllegalArgumentException if the parameters do not match the database constraints (e.g. no profile with
+     * that id exists, or the given profile isn't a member of that activity), or if the profile is being set to or from
+     * the Creator role.
+     */
+    public void setProfileRole(long profileBeingEditedId, long profileDoingEditingId, long activityId, ActivityMembership.Role newRole) {
+        if (newRole.equals(ActivityMembership.Role.CREATOR)) {
+            throw new IllegalArgumentException(ActivityResponseMessage.EDITING_CREATOR.toString());
+        }
+
+        if(!canChangeRole(profileDoingEditingId, profileBeingEditedId, activityId, newRole)){
+            throw new IllegalArgumentException(ActivityResponseMessage.INVALID_PERMISSION.toString());
+        }
+
+        Optional<ActivityMembership> optionalMembership = membershipRepo.findByActivity_IdAndProfile_Id(activityId, profileBeingEditedId);
+        if (optionalMembership.isEmpty()) {
+            throw new IllegalArgumentException(ActivityResponseMessage.INVALID_MEMBERSHIP.toString());
+        }
+
+        ActivityMembership membership = optionalMembership.get();
+        if (membership.getRole() == ActivityMembership.Role.CREATOR) {
+            throw new IllegalArgumentException(ActivityResponseMessage.EDITING_CREATOR.toString());
+        }
+        membership.setRole(newRole);
+        membershipRepo.save(membership);
+    }
+
+    /**
+     * Checks whether someone has rights to change the role of a user in an activity
+     * Users should only be able to change someone to an organizer if they are a creator/organizer or admin
+     * Users should be able to change someone else to a participant or follower if they are creator/organizer, admin, or it is themself
+     * @param profileDoingEditingId the ID of the profile who is editing the activities membership
+     * @param activityId The ID of the activity we are editing
+     * @param newRole The role we are trying to change the user to
+     * @param profileBeingEditedId The ID of the user who is attempting to change the role
+     * @return whether the user doing the editing can change the profiles membership to organizer
+     */
+    private boolean canChangeRole(long profileDoingEditingId, long profileBeingEditedId, long activityId, ActivityMembership.Role newRole){
+        boolean isCreatorOrOrganizer = false;
+        boolean isAdmin = profileRepo.getOne(profileDoingEditingId).getAuthLevel() < 2;
+        Optional<ActivityMembership> membership =membershipRepo.findByActivity_IdAndProfile_Id(activityId, profileDoingEditingId);
+        if(membership.isPresent()){
+            ActivityMembership.Role editorRole = membership.get().getRole();
+            if(editorRole.equals(ActivityMembership.Role.CREATOR) || editorRole.equals(ActivityMembership.Role.ORGANISER)){
+                isCreatorOrOrganizer = true;
+            }
+        }
+        if(newRole.equals(ActivityMembership.Role.ORGANISER)) {
+            return isAdmin || isCreatorOrOrganizer;
+        }
+        return isAdmin || isCreatorOrOrganizer || profileBeingEditedId == profileDoingEditingId;
     }
 }

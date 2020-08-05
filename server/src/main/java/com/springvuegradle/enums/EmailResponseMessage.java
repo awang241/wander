@@ -21,8 +21,6 @@ public enum EmailResponseMessage {
 
     @Override
     public String toString() {
-        return "EmailResponseMessage{" +
-                "message='" + message + '\'' +
-                '}';
+        return message;
     }
 }
