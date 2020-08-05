@@ -315,11 +315,67 @@ class ActivityServiceTest {
     }
 
     @Test
-    void getActivitiesByProfileIdByRoleTest() {
-        Profile ben = profileRepository.save(createNormalProfileBen());
-        controller.createActivity(ben.getId(),createNormalActivity(), null, true);
-        long id = 0;
-        List<Activity> list = service.getActivitiesByProfileIdByRole(ben.getId(), "creator");
+    void getActivitiesByProfileIdByRolePrivateParticipantTest() {
+        Profile benny = createNormalProfileBen();
+        profileRepository.save(benny);
+        Profile johnny = createNormalProfileJohnny();
+        profileRepository.save(johnny);
+        Activity activity = createNormalActivity();
+        activity.setPrivacyLevel(0);
+        controller.createActivity(benny.getId(), activity, null, true);
+        service.addActivityRole(activity.getId(), johnny.getId(), "participant");
+        List<Activity> list = service.getActivitiesByProfileIdByRole(johnny.getId(), "participant");
+        assertEquals(0, list.size());
+    }
+
+    @Test
+    void getActivitiesByIdByRolePublicParticipantTest() {
+        Profile benny = createNormalProfileBen();
+        profileRepository.save(benny);
+        Profile johnny = createNormalProfileJohnny();
+        profileRepository.save(johnny);
+        Activity activity = createNormalActivity();
+        activity.setPrivacyLevel(2);
+        controller.createActivity(johnny.getId(), activity, null, true);
+        service.addActivityRole(activity.getId(), johnny.getId(), "participant");
+        List<Activity> list = service.getActivitiesByProfileIdByRole(johnny.getId(), "participant");
+        assertEquals(1, list.size());
+    }
+
+    @Test
+    void getActivitiesByIdByRoleMemberOrganizerTest() {
+        Profile benny = createNormalProfileBen();
+        profileRepository.save(benny);
+        Profile johnny = createNormalProfileJohnny();
+        profileRepository.save(johnny);
+        Activity activity = createNormalActivity();
+        activity.setPrivacyLevel(1);
+        controller.createActivity(benny.getId(), activity, null, true);
+        service.addActivityRole(activity.getId(), johnny.getId(), "organiser");
+        List<Activity> list = service.getActivitiesByProfileIdByRole(johnny.getId(), "organiser");
+        assertEquals(1, list.size());
+    }
+
+    @Test
+    void getActivitiesByIdByRolePrivateCreatorTest() {
+        Profile benny = createNormalProfileBen();
+        profileRepository.save(benny);
+        Activity activity = createNormalActivity();
+        activity.setPrivacyLevel(0);
+        controller.createActivity(benny.getId(), activity, null, true);
+        List<Activity> list = service.getActivitiesByProfileIdByRole(benny.getId(), "creator");
+        assertEquals(1, list.size());
+    }
+
+
+    @Test
+    void getActivitiesByIdByRolePublicCreatorTest() {
+        Profile benny = createNormalProfileBen();
+        profileRepository.save(benny);
+        Activity activity = createNormalActivity();
+        activity.setPrivacyLevel(2);
+        controller.createActivity(benny.getId(), activity, null, true);
+        List<Activity> list = service.getActivitiesByProfileIdByRole(benny.getId(), "creator");
         assertEquals(1, list.size());
     }
 

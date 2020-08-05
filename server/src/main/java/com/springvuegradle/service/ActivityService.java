@@ -224,7 +224,9 @@ public class ActivityService {
         Profile profile = profileRepo.findAllById(profileId).get(0);
         List<Activity> userActivities = new ArrayList<>();
         for (ActivityMembership activityMembership : profile.getActivities()) {
-            if (activityMembership.getRole().toString().equals(role.toUpperCase())) {
+            if (role.toUpperCase().equals("CREATOR")) {
+                userActivities.add(activityMembership.getActivity());
+            } else if (activityMembership.getRole().toString().equals(role.toUpperCase()) && activityMembership.getActivity().getPrivacyLevel() > 0) {
                 userActivities.add(activityMembership.getActivity());
             }
         }
