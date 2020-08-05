@@ -12,10 +12,6 @@ import java.util.List;
 public interface ActivityMembershipRepository extends JpaRepository<ActivityMembership, Long> {
     List<ActivityMembership> findActivityMembershipsByActivity_IdAndRole(Long id, ActivityMembership.Role role);
 
-    @Query("UPDATE ActivityMembership  am SET am.role = :role WHERE am.activity = :activityId AND am.profile = :profileId")
-    void updateActivityRole(@Param("profileId") Long profileId, @Param("activityId") Long activityId, @Param("role") int role);
-    Optional<ActivityMembership> findActivityMembershipsByActivity_IdAndRole(Long id, ActivityMembership.Role role);
-
     @Query("SELECT COUNT(am) from ActivityMembership am where am.activity.id = :activityId")
     Integer getRoleCount(@Param("activityId") long activityId);
 }
