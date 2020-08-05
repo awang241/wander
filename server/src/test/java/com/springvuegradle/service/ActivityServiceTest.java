@@ -1,5 +1,6 @@
 package com.springvuegradle.service;
 
+import com.springvuegradle.controller.ActivityController;
 import com.springvuegradle.model.Activity;
 import com.springvuegradle.model.ActivityMembership;
 import com.springvuegradle.model.ActivityType;
@@ -23,6 +24,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @DataJpaTest
 class ActivityServiceTest {
 
+    @Autowired
+    ActivityController controller;
     @Autowired
     ActivityService service;
     @Autowired
@@ -234,6 +237,36 @@ class ActivityServiceTest {
     }
 
     /**
+     * Test to remove a profiles membership from an activity they have membership with
+     **/
+    @Test
+    void removeActivityMemberShipSuccessTest() {
+        Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        Profile bennyBoi = createNormalProfileBen();
+        profileRepository.save(bennyBoi);
+        ActivityMembership testMemberShip = new ActivityMembership(activity, bennyBoi, ActivityMembership.Role.PARTICIPANT);
+        activityMembershipRepository.save(testMemberShip);
+        service.removeMembership(bennyBoi.getId(), activity.getId());
+        assertEquals(0, activityMembershipRepository.count());
+    }
+
+    /**
+     * Test to remove a profiles membership from an activity which they are not a part of
+     */
+    @Test
+    void removeActivityMemberShipFailTest() {
+        Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        Profile bennyBoi = createNormalProfileBen();
+        profileRepository.save(bennyBoi);
+        Profile johnnyBoi = createNormalProfileJohnny();
+        profileRepository.save(johnnyBoi);
+        ActivityMembership testMemberShip = new ActivityMembership(activity, bennyBoi, ActivityMembership.Role.PARTICIPANT);
+        activityMembershipRepository.save(testMemberShip);
+        service.removeMembership(johnnyBoi.getId(), activity.getId());
+        assertEquals(1, activityMembershipRepository.count());
+    }
+
+    /**
      * Test to delete an activity that doesn't exist
      **/
     @Test
@@ -241,6 +274,87 @@ class ActivityServiceTest {
         assertFalse(service.delete((long) 1));
     }
 
+    @Test
+    void addNormalUserRoleToActivityTest() {
+        Profile ben = createNormalProfileBen();
+        Profile profile = profileRepository.save(ben);
+        Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        service.addActivityRole(activity.getId(), profile.getId(), "participant");
+        assertEquals(1, activityMembershipRepository.findActivityMembershipsByActivity_IdAndRole(activity.getId(), ActivityMembership.Role.PARTICIPANT).size());
+    }
+
+    @Test
+    void creatorAddsOrganiserRoleToActivityTest() {
+        Profile ben = profileRepository.save(createNormalProfileBen());
+        Profile johnny = profileRepository.save(createNormalProfileJohnny());
+        controller.createActivity(ben.getId(), createNormalActivityKaikoura(), null, true);
+        service.addActivityRole(activityRepository.getLastInsertedId(), johnny.getId(), "organiser");
+        assertEquals(1, activityMembershipRepository.findActivityMembershipsByActivity_IdAndRole(activityRepository.getLastInsertedId(), ActivityMembership.Role.ORGANISER).size());
+    }
+
+    @Test
+    void editActivityPrivacyToPublicTest() {
+        Activity activity = activityRepository.save(createNormalActivity());
+        service.editActivityPrivacy("public", activity.getId());
+        assertEquals(2, activity.getPrivacyLevel());
+    }
+
+    @Test
+    void editActivityPrivacyToFriendsTest() {
+        Activity activity = activityRepository.save(createNormalActivity());
+        service.editActivityPrivacy("friends", activity.getId());
+        assertEquals(1, activity.getPrivacyLevel());
+    }
+
+    @Test
+    void editActivityPrivacyToPrivateTest() {
+        Activity activity = activityRepository.save(createNormalActivity());
+        service.editActivityPrivacy("private", activity.getId());
+        assertEquals(0, activity.getPrivacyLevel());
+    }
+
+    @Test
+    void getActivitiesByProfileIdByRoleTest() {
+        Profile ben = profileRepository.save(createNormalProfileBen());
+        controller.createActivity(ben.getId(),createNormalActivity(), null, true);
+        long id = 0;
+        List<Activity> list = service.getActivitiesByProfileIdByRole(ben.getId(), "creator");
+        assertEquals(1, list.size());
+    }
+
+    @Test
+    void getPublicActivitiesSuccessTest() {
+        Activity activity = activityRepository.save(createNormalActivity());
+        service.editActivityPrivacy("public", activity.getId());
+        assertEquals(1, service.getActivitiesWithPrivacyLevel("public").size());
+    }
+
+    @Test
+    void getPrivateActivitiesSuccessTest() {
+        Activity activity = activityRepository.save(createNormalActivity());
+        service.editActivityPrivacy("private", activity.getId());
+        assertEquals(1, service.getActivitiesWithPrivacyLevel("private").size());
+    }
+
+    @Test
+    void getFriendsActivitiesSuccessTest() {
+        Activity activity = activityRepository.save(createNormalActivity());
+        service.editActivityPrivacy("friends", activity.getId());
+        assertEquals(1, service.getActivitiesWithPrivacyLevel("friends").size());
+    }
+
+    @Test
+    void getActivitiesDifferentPrivacyLevelTest() {
+        Activity activity = activityRepository.save(createNormalActivity());
+        service.editActivityPrivacy("friends", activity.getId());
+        assertEquals(0, service.getActivitiesWithPrivacyLevel("public").size());
+    }
+
+    @Test
+    void editInvalidPrivacyActivitiesTest() {
+        Activity activity = activityRepository.save(createNormalActivity());
+        assertThrows(IllegalArgumentException.class, ()->service.editActivityPrivacy("everyone", activity.getId()));
+    }
     /**
      * Ensures an activity with no relationships returns the correct number
      */

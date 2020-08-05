@@ -1,6 +1,9 @@
 package com.springvuegradle.service;
 
+import com.springvuegradle.enums.ActivityMessage;
 import com.springvuegradle.enums.ActivityResponseMessage;
+import com.springvuegradle.enums.AuthLevel;
+import com.springvuegradle.enums.ProfileErrorMessage;
 import com.springvuegradle.model.Activity;
 import com.springvuegradle.model.ActivityMembership;
 import com.springvuegradle.model.ActivityType;
@@ -149,13 +152,34 @@ public class ActivityService {
      * @param activityId id of the activity
      * @return true if userId matches the creatorId, false otherwise
      */
-    public boolean checkActivityCreator(Long userId, Long activityId) {
+    public boolean isProfileActivityCreator(Long userId, Long activityId) {
         Optional<Activity> activity = activityRepo.findById(activityId);
         if (activity.isPresent()) {
-            Optional<ActivityMembership> creator = membershipRepo.findActivityMembershipsByActivity_IdAndRole(activityId, ActivityMembership.Role.CREATOR);
-            if (creator.isPresent()) {
-                Long creatorId = creator.get().getProfile().getId();
+            List<ActivityMembership> creator = membershipRepo.findActivityMembershipsByActivity_IdAndRole(activityId, ActivityMembership.Role.CREATOR);
+            if (creator.size() > 0) {
+                Long creatorId = creator.get(0).getProfile().getId();
                 return creatorId.equals(userId);
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Checks if the activity exists in the repository, checks if profile has membership,
+     * deletes the membership if profile has membership
+     *
+     * @param profileId the profile which membership needs to be removed
+     * @param activityId the specified activity
+     * @return true if membership was found and deleted, false otherwise
+     */
+    public boolean removeMembership(Long profileId, Long activityId) {
+        if (activityRepo.existsById(activityId)) {
+            for (ActivityMembership membership : membershipRepo.findAll()) {
+                if (membership.getActivity().getId() == activityId && membership.getProfile().getId().equals( profileId)) {
+                    membershipRepo.delete(membership);
+                    membership.getProfile().removeActivity(membership);
+                    return true;
+                }
             }
         }
         return false;
@@ -175,6 +199,52 @@ public class ActivityService {
         return userActivities;
     }
 
+    /**
+     * Returns all activities associated with the given profile by role.
+     * @param profileId The ID of the profile whose activities are being retrieved.
+     * @param role The role of the user in the activity.
+     * @return A list of the given profile's activities by role.
+     */
+    public List<Activity> getActivitiesByProfileIdByRole(Long profileId, String role) {
+
+        Profile profile = profileRepo.findAllById(profileId).get(0);
+        List<Activity> userActivities = new ArrayList<>();
+        for (ActivityMembership activityMembership : profile.getActivities()) {
+            if (activityMembership.getRole().toString().equals(role.toUpperCase())) {
+                userActivities.add(activityMembership.getActivity());
+            }
+        }
+        return userActivities;
+    }
+
+    /**
+     * Returns all the activities with a given privacy level
+     * @param privacy A string from the front end that specifies a privacy level
+     * @return A list of the activities with a given privacy level
+     */
+    public List<Activity> getActivitiesWithPrivacyLevel(String privacy) {
+        Integer privacyLevel;
+        switch (privacy) {
+            case "private":
+                privacyLevel = 0;
+                break;
+            case "friends":
+                privacyLevel = 1;
+                break;
+            case "public":
+                privacyLevel = 2;
+                break;
+            default:
+                throw new IllegalArgumentException(ActivityMessage.INVALID_PRIVACY.getMessage());
+        }
+        List<Activity> publicActivities = activityRepo.findAllPublic(privacyLevel);
+        return publicActivities;
+    }
+
+    /**
+     * Checks if an activity is valid by checking all fields and throws an exception otherwise.
+     * @param activity the activity to check the fields of.
+     */
     private void validateActivity(Activity activity) {
         if (activity.getActivityName() == null || activity.getActivityName().isBlank()) {
             throw new IllegalArgumentException(ActivityResponseMessage.MISSING_NAME.toString());
@@ -198,6 +268,60 @@ public class ActivityService {
                     throw new IllegalArgumentException(ActivityResponseMessage.INVALID_TYPE.toString());
                 }
             }
+        }
+    }
+
+    /**
+     * Assigns the given role to the user for an activity.
+     * @param activityId the id of the activity we want to assign the role for.
+     * @param profileId the id of the user we want to assign the role to.
+     * @param activityRole the role we want to assign to the user for the activity.
+     */
+    public void addActivityRole(Long activityId, Long profileId, String activityRole) throws IllegalArgumentException {
+        Optional<Profile> optionalProfile = profileRepo.findById(profileId);
+        Optional<Activity> optionalActivity = activityRepo.findById(activityId);
+        if (optionalProfile.isEmpty()) {
+            throw new IllegalArgumentException(ActivityMessage.PROFILE_NOT_FOUND.getMessage());
+        } else if (optionalActivity.isEmpty()) {
+            throw new IllegalArgumentException(ActivityMessage.ACTIVITY_NOT_FOUND.getMessage());
+        }
+        Profile profile = optionalProfile.get();
+        Activity activity = optionalActivity.get();
+        ActivityMembership.Role role = ActivityMembership.Role.valueOf(activityRole.toUpperCase());
+        ActivityMembership activityMembership = new ActivityMembership(activity, profile, role);
+        membershipRepo.save(activityMembership);
+        profile.addActivity(activityMembership);
+        activity.addMember(activityMembership);
+        profileRepo.save(profile);
+    }
+
+    /**
+     * Edits the privacy of a given activity to the given privacy.
+     * @param privacy a string defining the privacy level.
+     * @param activityId the id of the activity to edit.
+     */
+    public void editActivityPrivacy(String privacy, Long activityId) {
+        Optional<Activity> optionalActivity = activityRepo.findById(activityId);
+        if (optionalActivity.isEmpty()) {
+            throw new IllegalArgumentException(ActivityMessage.ACTIVITY_NOT_FOUND.getMessage());
+        } else {
+            Integer privacyLevel;
+            switch (privacy) {
+                case "private":
+                    privacyLevel = 0;
+                    break;
+                case "friends":
+                    privacyLevel = 1;
+                    break;
+                case "public":
+                    privacyLevel = 2;
+                    break;
+                default:
+                    throw new IllegalArgumentException(ActivityMessage.INVALID_PRIVACY.getMessage());
+            }
+            Activity activity = optionalActivity.get();
+            activity.setPrivacyLevel(privacyLevel);
+            activityRepo.save(activity);
         }
     }
 }
