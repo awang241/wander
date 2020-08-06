@@ -1,6 +1,8 @@
 package com.springvuegradle.repositories;
 
 import com.springvuegradle.model.ActivityMembership;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,6 +15,9 @@ import java.util.Optional;
 public interface ActivityMembershipRepository extends JpaRepository<ActivityMembership, Long> {
 
     List<ActivityMembership> findActivityMembershipsByActivity_IdAndRole(Long id, ActivityMembership.Role role);
+
+    @Query("SELECT am FROM ActivityMembership am LEFT JOIN FETCH Activity a ON am.activity = a WHERE am.profile.id = :profileId")
+    Page<ActivityMembership> findAllByProfileId(@Param("profileId") Long profileId, Pageable pageable);
 
     Optional<ActivityMembership> findByActivity_IdAndProfile_Id(long activityId, long profileId);
 }

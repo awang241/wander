@@ -1,13 +1,17 @@
 package com.springvuegradle.service;
 
+import com.springvuegradle.dto.SimplifiedActivity;
 import com.springvuegradle.enums.ActivityMessage;
 import com.springvuegradle.enums.ActivityResponseMessage;
-import com.springvuegradle.model.Activity;
-import com.springvuegradle.model.ActivityMembership;
-import com.springvuegradle.model.Profile;
-import com.springvuegradle.model.ActivityType;
+import com.springvuegradle.model.*;
 import com.springvuegradle.repositories.*;
+import com.springvuegradle.repositories.spec.ProfileSpecifications;
+import com.springvuegradle.utilities.FieldValidationHelper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
@@ -84,6 +88,7 @@ public class ActivityService {
                 updatedActivityTypes.add(resultActivityTypes.get(0));
             }
             dbActivity.setActivityTypes(updatedActivityTypes);
+            dbActivity.update(activity);
             activityRepo.save(dbActivity);
         } else {
             throw new IllegalArgumentException(ActivityResponseMessage.INVALID_ACTIVITY.toString());
@@ -121,7 +126,7 @@ public class ActivityService {
     /**\
      * Checks if the userId corresponds to the creator of the activity associated with the activityId.
      * @param userId id of the user making the request
-     * @param activityId id of the activityi
+     * @param activityId id of the activity
      * @return true if userId matches the creatorId, false otherwise
      */
     public boolean isProfileActivityCreator(Long userId, Long activityId) {
@@ -235,6 +240,44 @@ public class ActivityService {
         profile.addActivity(activityMembership);
         activity.addMember(activityMembership);
         profileRepo.save(profile);
+    }
+
+    /**
+     * Returns the specified page from the list of all activities.
+     *
+     * @param request A page request containing the index and size of the page to be returned.
+     * @return The specified page from the list of all activities.
+     */
+    public Page<Activity> getAllActivities(Pageable request) {
+
+        return activityRepo.findAll(request);
+    }
+
+    /**
+     * Returns a map of activities alongside the user's role in that activity.
+     *
+     * @param request A page request containing the index and size of the page to be returned.
+     * @param profileId The user's profile id
+     * @return A map of the activities and the role that the user has with that activity.
+     */
+    public Map<Activity,ActivityMembership.Role> getUsersActivities(Pageable request, Long profileId) {
+        Page<ActivityMembership> memberships = membershipRepo.findAllByProfileId(profileId, request);
+        Map<Activity, ActivityMembership.Role> activityRoleMap = new HashMap<>();
+        for (ActivityMembership membership: memberships.getContent()) {
+            activityRoleMap.put(membership.getActivity(), membership.getRole());
+        }
+        return activityRoleMap;
+    }
+
+    /**
+     * Converts a list of normal activities into a list of simplified activities
+     * @param activities a list of normal activity objects to be simplified
+     * @return a list of simplified activities
+     */
+    public List<SimplifiedActivity> createSimplifiedActivities(Map<Activity, ActivityMembership.Role> activities) {
+        List<SimplifiedActivity> simplifiedActivities = new ArrayList<>();
+        activities.forEach((k,v) -> simplifiedActivities.add(new SimplifiedActivity(k, v.toString())));
+        return simplifiedActivities;
     }
 
     /**

@@ -1,4 +1,8 @@
 package com.springvuegradle.controller;
+import com.springvuegradle.dto.SimplifiedActivitiesResponse;
+import com.springvuegradle.model.Activity;
+import com.springvuegradle.model.ActivityType;
+import com.springvuegradle.model.Profile;
 import com.springvuegradle.dto.LoginRequest;
 import com.springvuegradle.dto.LoginResponse;
 import com.springvuegradle.model.*;
@@ -229,8 +233,8 @@ public class ActivityControllerTest {
         activityTypeRepo.save(hiking);
 
         activityController.createActivity(profile.getId(), trackRace, null, true);
-        ResponseEntity<List<Activity>> responseEntity = activityController.getAllUsersActivities(null,
-                profile.getId(), true);
+        ResponseEntity<SimplifiedActivitiesResponse> responseEntity = activityController.getAllUsersActivities(null,
+                profile.getId(), 5, 0, true);
         assertEquals(responseEntity.getStatusCode(), HttpStatus.OK);
     }
 
@@ -247,9 +251,9 @@ public class ActivityControllerTest {
         activityTypeRepo.save(hiking);
 
         activityController.createActivity(profile.getId(), trackRace, null, true);
-        ResponseEntity<List<Activity>> responseEntity = activityController.getAllUsersActivities(null,
-                profile.getId(), true);
-        assertEquals(responseEntity.getBody().get(0).getActivityName(), "Kaikoura Coast Track race");
+        ResponseEntity<SimplifiedActivitiesResponse> responseEntity = activityController.getAllUsersActivities(null,
+                profile.getId(), 5, 0, true);
+        assertEquals(responseEntity.getBody().getResults().get(0).getActivityName(), "Kaikoura Coast Track race");
     }
 
     /**
