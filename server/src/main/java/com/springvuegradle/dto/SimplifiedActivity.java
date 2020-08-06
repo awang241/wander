@@ -40,6 +40,7 @@ public class SimplifiedActivity {
     /**
      * Creates a SimplifiedActivity based on the given Activity.
      * @param activity The activity being simplified.
+     * @param creatorName The name of the activity creator
      */
     public SimplifiedActivity(Activity activity, String creatorName) {
         this.id = activity.getId();
@@ -101,6 +102,9 @@ public class SimplifiedActivity {
     }
 
     @Override
+    /**
+     * Checking that the Id, name, creator name, continuous status, location and all activityTypes are identical
+     */
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
