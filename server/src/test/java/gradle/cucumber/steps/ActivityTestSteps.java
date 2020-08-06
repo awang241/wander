@@ -5,6 +5,7 @@ import com.springvuegradle.controller.LoginController;
 import com.springvuegradle.controller.Profile_Controller;
 import com.springvuegradle.dto.requests.ActivityRoleUpdateRequest;
 import com.springvuegradle.dto.requests.LoginRequest;
+import com.springvuegradle.dto.responses.ActivityMemberProfileResponse;
 import com.springvuegradle.dto.responses.LoginResponse;
 import com.springvuegradle.model.Activity;
 import com.springvuegradle.model.ActivityMembership;
@@ -19,6 +20,7 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.junit.jupiter.api.AfterEach;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,6 +64,10 @@ public class ActivityTestSteps {
     private Profile profile;
 
     private LoginResponse loginResponse;
+
+    private ResponseEntity<List<ActivityMemberProfileResponse>> expectedMemberProfileResponse;
+
+    private ResponseEntity<List<ActivityMemberProfileResponse>> actualMemberProfileResponse;
 
     private ResponseEntity<String> responseEntity;
 
@@ -203,5 +209,34 @@ public class ActivityTestSteps {
         Optional<ActivityMembership> optionalActivityMembership = membershipRepository.findByActivity_IdAndProfile_Id(activity.getId(), profile.getId());
         ActivityMembership activityMembership = optionalActivityMembership.get();
         assertEquals(role, activityMembership.getRole());
+    }
+
+
+    @When("I want to see who is following my activity")
+    public void iWantToSeeWhoIsFollowingMyActivity() {
+        actualMemberProfileResponse = activityController.getAllUsersWithRoleInActivity(loginResponse.getToken(), activity.getId());
+    }
+
+    @Then("The ID first name last name and role of All people with roles in the activity is returned")
+    public void theIDFirstNameLastNameAndRoleOfAllPeopleWithRolesInTheActivityIsReturned() {
+        assertEquals(expectedMemberProfileResponse, activityController.getAllUsersWithRoleInActivity(loginResponse.getToken(), activity.getId()));
+    }
+
+    @And("an activity exists in the database with {int} participants, {int} followers and {int} organizers")
+    public void anActivityExistsInTheDatabaseWithParticipantsFollowersAndOrganizers(int numParticipants, int numFollowers, int numOrganizers) {
+        List<ActivityMembership.Role> roles = Arrays.asList(ActivityMembership.Role.PARTICIPANT, ActivityMembership.Role.FOLLOWER, ActivityMembership.Role.ORGANISER);
+        int[] numRoles = {numParticipants, numFollowers, numOrganizers};
+        activity = createNormalActivity("Cool activity", "Christchurch");
+        activityRepository.save(activity);
+        List<ActivityMemberProfileResponse> activityMemberProfileResponseList = new ArrayList<>();
+        for(int i = 0; i < roles.size(); i++){
+            for(int j = 0; j < numRoles[i]; j++){
+                Profile newProfile = createNormalProfile("email", "password");
+                profileRepository.save(newProfile);
+                membershipRepository.save(new ActivityMembership(activity, newProfile, roles.get(i)));
+                activityMemberProfileResponseList.add(new ActivityMemberProfileResponse(newProfile.getId(), newProfile.getFirstname(), newProfile.getLastname(), roles.get(i)));
+            }
+        }
+        expectedMemberProfileResponse = new ResponseEntity<>(activityMemberProfileResponseList, HttpStatus.OK);
     }
 }

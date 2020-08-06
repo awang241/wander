@@ -1,29 +1,22 @@
 package com.springvuegradle.controller;
 
 
-import com.springvuegradle.dto.requests.ActivityRoleUpdateRequest;
-import com.springvuegradle.dto.responses.ActivityMemberProfileResponse;
-import com.springvuegradle.dto.ProfileSearchResponse;
-import com.springvuegradle.dto.ProfileSummary;
 import com.springvuegradle.dto.SimplifiedActivitiesResponse;
 import com.springvuegradle.dto.SimplifiedActivity;
-import com.springvuegradle.dto.ActivityRoleUpdateRequest;
+import com.springvuegradle.dto.requests.ActivityRoleUpdateRequest;
+import com.springvuegradle.dto.responses.ActivityMemberProfileResponse;
 import com.springvuegradle.enums.ActivityMessage;
 import com.springvuegradle.enums.ActivityResponseMessage;
 import com.springvuegradle.enums.AuthenticationErrorMessage;
 import com.springvuegradle.enums.ProfileErrorMessage;
 import com.springvuegradle.model.Activity;
 import com.springvuegradle.model.ActivityMembership;
-import com.springvuegradle.model.Profile;
-import com.springvuegradle.model.ProfileSearchCriteria;
-import com.springvuegradle.model.ActivityMembership;
 import com.springvuegradle.repositories.ActivityRepository;
-import com.springvuegradle.utilities.FieldValidationHelper;
-import com.springvuegradle.utilities.JwtUtil;
 import com.springvuegradle.service.ActivityService;
 import com.springvuegradle.service.SecurityService;
+import com.springvuegradle.utilities.FieldValidationHelper;
+import com.springvuegradle.utilities.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

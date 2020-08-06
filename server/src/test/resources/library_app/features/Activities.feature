@@ -82,3 +82,10 @@ Feature: Creating modifying and deleting activities
     And I am a "FOLLOWER" of this activity
     When I choose to change my role to "ORAGNISER"
     Then I am now a "FOLLOWER" of the activity
+
+  @U17F2-Getting-Users-With-Roles
+  Scenario: I want to find users with a role in an activity
+    Given I registered account with email "rick@gmail.com" and password "rick'sSecuredPwd"
+    And an activity exists in the database with 2 participants, 3 followers and 1 organizers
+    When I want to see who is following my activity
+    Then The ID first name last name and role of All people with roles in the activity is returned
