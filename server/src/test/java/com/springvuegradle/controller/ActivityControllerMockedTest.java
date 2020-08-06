@@ -1,5 +1,7 @@
 package com.springvuegradle.controller;
 
+import com.springvuegradle.dto.ActivitiesResponse;
+import com.springvuegradle.dto.ActivityRoleRequest;
 import com.springvuegradle.model.*;
 import com.springvuegradle.repositories.*;
 import com.springvuegradle.service.ActivityService;
@@ -137,6 +139,17 @@ class ActivityControllerMockedTest {
         ResponseEntity<String> expectedResponse = new ResponseEntity<>((HttpStatus.UNAUTHORIZED));
         ResponseEntity<Activity> actualResponse = activityController.getActivity(null, mockActivityId);
 
+        assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
+    }
+
+    @Test
+    void getAllUsersActivitiesByRoleSuccessTest() {
+        ActivityRoleRequest activityRoleRequest = new ActivityRoleRequest("participant");
+        String mockToken = "bob";
+        long mockProfileId = 10;
+        Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
+        ResponseEntity<String> expectedResponse = new ResponseEntity<>((HttpStatus.OK));
+        ResponseEntity<ActivitiesResponse> actualResponse = activityController.getAllUsersActivitiesByRole(activityRoleRequest, mockToken, mockProfileId);
         assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
     }
 }
