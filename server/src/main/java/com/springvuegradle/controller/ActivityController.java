@@ -1,7 +1,10 @@
 package com.springvuegradle.controller;
 
 
+import com.springvuegradle.dto.ActivitiesResponse;
 import com.springvuegradle.dto.ActivityRoleCountResponse;
+import com.springvuegradle.dto.ActivityRoleRequest;
+import com.springvuegradle.dto.ProfileSearchResponse;
 import com.springvuegradle.enums.ActivityMessage;
 import com.springvuegradle.enums.ActivityResponseMessage;
 import com.springvuegradle.enums.AuthenticationErrorMessage;
@@ -202,22 +205,23 @@ public class ActivityController {
      */
     // fix mapping please
     @GetMapping("/profiles/{profileId}/activities/role")
-    public ResponseEntity<List<Activity>> getAllUsersActivitiesByRole(@RequestHeader("authorization") String token,
-                                                                      @PathVariable Long profileId, String role) {
-        return getAllUsersActivitiesByRole(token, profileId, role, false);
-    }
-
-    public ResponseEntity<List<Activity>> getAllUsersActivitiesByRole(String token, Long profileId, String role, Boolean testing) {
-        if (!testing && !jwtUtil.validateToken(token)) {
-            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
-        }
-        List<Activity> result;
-        if (!testing && (jwtUtil.extractPermission(token) == 0 || jwtUtil.extractPermission(token) == 1)) {
-            result = aRepo.findAll();
+    public ResponseEntity<ActivitiesResponse> getAllUsersActivitiesByRole(@RequestBody ActivityRoleRequest activityRoleRequest,
+                                                                          @RequestHeader("authorization") String token,
+                                                                          @PathVariable Long profileId) {
+        ActivitiesResponse activitiesResponse;
+        HttpStatus status;
+        if (token == null) {
+            status = HttpStatus.UNAUTHORIZED;
+            activitiesResponse = new ActivitiesResponse(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage());
+        } else if (!jwtUtil.validateToken(token)) {
+            status = HttpStatus.FORBIDDEN;
+            activitiesResponse = new ActivitiesResponse(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage());
         } else {
-            result = activityService.getActivitiesByProfileIdByRole(profileId, role);
+            List<Activity> result = activityService.getActivitiesByProfileIdByRole(profileId, activityRoleRequest.getActivityRole());
+            status = HttpStatus.OK;
+            activitiesResponse = new ActivitiesResponse(result);
         }
-        return new ResponseEntity<>(result, HttpStatus.OK);
+        return new ResponseEntity<>(activitiesResponse, status);
     }
 
     /**
