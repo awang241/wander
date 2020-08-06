@@ -235,10 +235,23 @@ public class ActivityService {
 
     /**
      * Returns all the activities with a given privacy level
+     *
      * @param privacy A string from the front end that specifies a privacy level
      * @return A list of the activities with a given privacy level
      */
     public List<Activity> getActivitiesWithPrivacyLevel(String privacy) {
+        int privacyLevel = determinePrivacyLevel(privacy);
+        List<Activity> publicActivities = activityRepo.findAllPublic(privacyLevel);
+        return publicActivities;
+    }
+
+    /**
+     * Switch that returns a privacy level based on an input string
+     *
+     * @param privacy A string from the front end
+     * @return an integer for the backend, an exception otherwise
+     */
+    private int determinePrivacyLevel(String privacy) {
         Integer privacyLevel;
         switch (privacy) {
             case "private":
@@ -253,12 +266,12 @@ public class ActivityService {
             default:
                 throw new IllegalArgumentException(ActivityMessage.INVALID_PRIVACY.getMessage());
         }
-        List<Activity> publicActivities = activityRepo.findAllPublic(privacyLevel);
-        return publicActivities;
+        return privacyLevel;
     }
 
     /**
      * Checks if an activity is valid by checking all fields and throws an exception otherwise.
+     *
      * @param activity the activity to check the fields of.
      */
     private void validateActivity(Activity activity) {
@@ -321,20 +334,7 @@ public class ActivityService {
         if (optionalActivity.isEmpty()) {
             throw new IllegalArgumentException(ActivityMessage.ACTIVITY_NOT_FOUND.getMessage());
         } else {
-            Integer privacyLevel;
-            switch (privacy) {
-                case "private":
-                    privacyLevel = 0;
-                    break;
-                case "friends":
-                    privacyLevel = 1;
-                    break;
-                case "public":
-                    privacyLevel = 2;
-                    break;
-                default:
-                    throw new IllegalArgumentException(ActivityMessage.INVALID_PRIVACY.getMessage());
-            }
+            int privacyLevel = determinePrivacyLevel(privacy);
             Activity activity = optionalActivity.get();
             activity.setPrivacyLevel(privacyLevel);
             activityRepo.save(activity);
