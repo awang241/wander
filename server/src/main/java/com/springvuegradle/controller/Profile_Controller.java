@@ -169,7 +169,6 @@ public class Profile_Controller {
             return getProfile(id);
         } else {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-
         }
     }
 

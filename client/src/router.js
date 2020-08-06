@@ -9,6 +9,8 @@ import ActivitiesComponent from "./components/Activities";
 import AdminDashboardComponent from "./components/AdminDashboard";
 import AddActivityComponent from "./components/AddActivity";
 import ProfileSearchComponent from "./components/ProfileSearch"
+import ViewActivityComponent from "./components/ViewActivity.vue"
+import ShareActivityComponent from "./components/ShareActivity";
 import store from "./store";
 
 
@@ -20,6 +22,7 @@ const routes = [
 
     {path: "/AddActivity", name: "addActivity", component: AddActivityComponent},
     {path: "/Activities", name: "activities", component:ActivitiesComponent},
+    {path: '/ShareActivity', name:"shareActivity", component: ShareActivityComponent},
     {path: "/ProfileSearch", name: "profileSearch", component:ProfileSearchComponent, beforeEnter: (to, from, next) => {
             if (store.getters.getAuthenticationStatus) {
                 next()
@@ -30,6 +33,7 @@ const routes = [
             }
     }},
     {path: "/EditActivity/:", name:"editActivity", component:AddActivityComponent, props: true},
+    {path: "/Activities/:id", name:"viewActivity", component:ViewActivityComponent, props: true},
     {path: "/Profile/:id", name: "profile", component:ProfileComponent, props: true},
     {
         //This route is only accessible if the user is authenticated, else it sends them back to the main page

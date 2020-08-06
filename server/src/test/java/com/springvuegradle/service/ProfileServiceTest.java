@@ -288,7 +288,7 @@ class ProfileServiceTest {
         profileRepository.save(profile);
         ProfileLocation newLocation = new ProfileLocation("Australia", "Sydney", "NSW");
         profileService.updateProfileLocation(newLocation, profile.getId());
-        assertTrue(profile.getProfileLocation().equals(newLocation));
+        assertEquals(profile.getProfileLocation(), newLocation);
     }
 
     /**
@@ -338,21 +338,6 @@ class ProfileServiceTest {
             fail("Error: Updated profile does not exist in repository");
         } else {
             assertEquals(5, updated.get().getAuthLevel());
-        }
-    }
-
-    @Disabled
-    @Test
-    void setUserAuthLevelWithTooHighAuthLevelTest(){
-        steven.setAuthLevel(1);
-        steven = profileRepository.save(steven);
-        long id = steven.getId();
-        try {
-            fail("Should have thrown an IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            assertEquals(ProfileErrorMessage.INVALID_AUTH_LEVEL.getMessage(), e.getMessage());
-        } catch (Exception e) {
-            fail("Should have thrown an IllegalArgumentException");
         }
     }
 

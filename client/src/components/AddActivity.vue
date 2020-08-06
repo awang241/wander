@@ -61,7 +61,6 @@
                     <br>
                 </div>
                 <ValidationProvider rules="required|minName" name="Activity Location" v-slot="{ errors, valid }" slim>
-
                     <b-field label="Activity location"
                              :type="{ 'is-danger': errors[0], 'is-success': valid }"
                              :message="errors"
@@ -84,9 +83,7 @@
                     <b-button type="is-primary" @click="addActivityType">Add</b-button>
                 </b-field>
                 <List v-bind:chosenItems="activity.chosenActivityTypes" v-on:deleteListItem="deleteActivityType"></List>
-
                 <br>
-
                 <div class="column">
                     <div class="is-pulled-left">
                         <b-button type="is-danger" @click="goBack">Cancel</b-button>
@@ -98,8 +95,6 @@
                     </div>
                     <br>
                 </div>
-
-
             </form>
         </ValidationObserver>
     </div>

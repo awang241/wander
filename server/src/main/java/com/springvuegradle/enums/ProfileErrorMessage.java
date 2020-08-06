@@ -17,8 +17,6 @@ public enum ProfileErrorMessage {
 
     @Override
     public String toString() {
-        return "ProfileErrorMessage{" +
-                "message='" + message + '\'' +
-                '}';
+        return message;
     }
 }
