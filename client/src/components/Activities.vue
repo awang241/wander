@@ -21,76 +21,25 @@
         <br>
         <br>
         <div class="has-same-height is-gapless">
-            <div v-if="activities.length">
-                <div v-for="activity in activities" v-bind:key="activity">
-                    <div class="column">
-                        <!-- Activities -->
-                        <div class="card">
-                            <div class="card-content">
-                                <h3 class="title is-4">{{activity.activity_name}}</h3>
-                                Role: CREATOR
-                                <b-button style="float: right" @click="activityDetail(activity)"
-                                          type="is-text" >
-                                    View more
-                                </b-button>
-                                <div class="content">
-                                    <table class="table-profile">
-                                        <caption hidden>Displayed Activity Table</caption>
-                                        <tr>
-                                            <th colspan="1" scope="col"></th>
-                                            <th colspan="2" scope="col"></th>
-                                        </tr>
-                                        <tr>
-                                            <td>Description:</td>
-                                            <td>{{activity.description}}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Continous/Duration:</td>
-                                            <td v-if="activity.continuous">continuous</td>
-                                            <td v-else>duration</td>
-                                        </tr>
+            <div class="tabs is-centered">
 
-                                        <tr v-if="!activity.continuous">
-                                            <td>Start Time:</td>
-                                            <td>UTC {{dateFormat(activity.start_time)}}</td>
-                                        </tr>
-                                        <tr v-if="!activity.continuous">
-                                            <td>End Time:</td>
-                                            <td>UTC {{dateFormat(activity.end_time)}}</td>
-                                        </tr>
+                <ul>
+                    <li><a v-on:click="changeToMyActivities">My Activities</a></li>
+                    <li><a v-on:click="changeToParticipatingActivities">Participating</a></li>
+                    <li><a v-on:click="changeToFollowingActivities">Following</a></li>
+                    <li><a v-on:click="changeToDiscoverActivities">Discover Activities</a></li>
 
-                                        <tr>
-                                            <td>Location:</td>
-                                            <td>{{activity.location}}</td>
-                                        </tr>
-                                        <tr v-for="type in activity.activity_type" :key="type">
-                                            <td>Activity Type:</td>
-                                            <td>{{type}}</td>
-                                        </tr>
-                                    </table>
-                                    <b-button style="float: left" @click="deleteActivity(activity.id)"
-                                              type="is-danger">
-                                        Delete
-                                    </b-button>
-                                    <b-button style="float: right" @click="editActivity(activity)"
-                                              type="is-primary">
-                                        Edit
-                                    </b-button>
-                                </div>
-                                <br>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                </ul>
             </div>
-            <div v-else class="box">
-                <h1>No activities created</h1>
-            </div>
+        </div>
+        <div>
+            <component v-bind:is="component" v-bind:activities="activities"/>
         </div>
     </div>
 </template>
 
 <script>
+    import activityList from "./ActivityList";
     import Api from '../Api';
     import router from "../router";
     import store from "../store"
@@ -102,10 +51,25 @@
         data() {
             return {
                 activities: null,
-                store: store
+                store: store,
+                component: "",
             }
         },
         methods: {
+            //once we can get different privacy levels
+            //just set the prop before method call to change component?
+            changeToDiscoverActivities() {
+                this.component = activityList;
+            },
+            changeToMyActivities() {
+                this.component = activityList;
+            },
+            changeToFollowingActivities() {
+                this.component = activityList;
+            },
+            changeToParticipatingActivities() {
+                this.component = activityList;
+            },
             getActivities() {
                 Api.getUserActivitiesList(store.getters.getUserId, localStorage.getItem('authToken'))
                     .then((response) => {
