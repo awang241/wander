@@ -4,10 +4,17 @@
         <section>
             <div id="activity-key-info">
                 <div>
-                    <b-button style="float:right" @click="shareActivity"
-                              type="is-primary">
-                        Share Activity
-                    </b-button>
+                    <div class="buttons" style="float:right">
+                        <b-button style="float:right" @click="shareActivity"
+                                  type="is-primary">
+                            Share Activity
+                        </b-button>
+                        <b-button style="float:right" @click="editActivity"
+                                  type="is-primary">
+                            Edit Activity
+                        </b-button>
+                    </div>
+
                     <h1 class="title is-1">
                         {{activity.activity_name}}
                     </h1>
@@ -121,13 +128,16 @@
         data() {
             return {
                 activityId: this.$route.params.id,
-                activity: {},
+                activity: null,
                 organisers: [],
                 participants: [],
                 numFollowers: 0
           }
         },
         methods: {
+            editActivity() {
+                router.push({name: 'editActivity', params: {activityProp: this.activity}});
+            },
             getActivity() {
                 api.getActivity(this.$route.params.id, localStorage.getItem('authToken'))
                     .then(response => this.activity = response.data)
