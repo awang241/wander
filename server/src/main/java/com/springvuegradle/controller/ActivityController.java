@@ -352,24 +352,18 @@ public class ActivityController {
     ResponseEntity<String> deleteActivityMembership(@RequestHeader("authorization") String token,
                                                     @PathVariable Long profileId,
                                                     @PathVariable Long activityId) {
-        return deleteActivityMembership(token, profileId, activityId, false);
-
-    }
-
-    public ResponseEntity<String> deleteActivityMembership(String token, Long profileId, Long activityId, Boolean testing) {
-        if (!testing) {
-            if (token == null || token.isBlank()) {
-                return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
-                        HttpStatus.UNAUTHORIZED);
-            } else if (!securityService.checkEditPermission(token, profileId)) {
-                return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(),
-                        HttpStatus.FORBIDDEN);
-            }
+        if (token == null || token.isBlank()) {
+            return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
+                    HttpStatus.UNAUTHORIZED);
+        } else if (!securityService.checkEditPermission(token, profileId)) {
+            return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(),
+                    HttpStatus.FORBIDDEN);
         }
         if (activityService.removeMembership(profileId, activityId)) {
             return new ResponseEntity<>(ActivityMessage.SUCCESSFUL_DELETION.getMessage(), HttpStatus.OK);
         }
         return new ResponseEntity<>(ActivityMessage.MEMBERSHIP_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
+
     }
 
 
@@ -385,12 +379,11 @@ public class ActivityController {
         if (token == null || token.isBlank()) {
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
-        try {
+        if (privacyLevel.equals("private") || privacyLevel.equals("friends") || privacyLevel.equals("public")) {
             List<Activity> publicActivityList = activityService.getActivitiesWithPrivacyLevel(privacyLevel);
             return new ResponseEntity<>(publicActivityList, HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
     /**

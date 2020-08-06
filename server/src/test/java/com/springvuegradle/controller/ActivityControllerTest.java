@@ -252,38 +252,6 @@ public class ActivityControllerTest {
         assertEquals(responseEntity.getBody().get(0).getActivityName(), "Kaikoura Coast Track race");
     }
 
-    /**
-     * Test to delete a profiles activity membership with an activity they HAVE participated in
-     */
-    @Test
-    void deleteActivityMembershipResponseSuccessTest() {
-        Profile maurice = createNormalProfileMaurice();
-        prepo.save(maurice);
-        Activity activity = createNormalActivity();
-        arepo.save(activity);
-        ActivityMembership testMembership = new ActivityMembership(activity, maurice, ActivityMembership.Role.PARTICIPANT);
-        amRepo.save(testMembership);
-        ResponseEntity<String> response = activityController.deleteActivityMembership(null, maurice.getId(), activity.getId(), true);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-    }
-
-    /**
-     * Test to delete a profiles activity membership with an activity they have NOT participated in
-     */
-    @Test
-    void deleteActivityMembershipResponseFailTest() {
-        Profile maurice = createNormalProfileMaurice();
-        prepo.save(maurice);
-        Profile johnny = createNormalProfileJohnny();
-        prepo.save(johnny);
-        Activity activity = createNormalActivity();
-        arepo.save(activity);
-        ActivityMembership testMembership = new ActivityMembership(activity, maurice, ActivityMembership.Role.PARTICIPANT);
-        amRepo.save(testMembership);
-        ResponseEntity<String> response = activityController.deleteActivityMembership(null, johnny.getId(), activity.getId(), true);
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-    }
-
     /* Below are a set of ready-made Activity objects which can be used for various tests. */
 
     /**

@@ -17,6 +17,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @ActiveProfiles("mock-service")
@@ -38,7 +41,54 @@ class ActivityControllerMockedTest {
 
     @AfterEach
     private void tearDown() {
-        mockRepo.deleteAll();;
+        mockRepo.deleteAll();
+        ;
+    }
+
+    @Test
+    void removeMembershipFromActivitySuccessTest() {
+        long mockActivityId = 10;
+        long mockProfileId = 11;
+        String mockToken = "token";
+        ResponseEntity<String> expectedResponse = new ResponseEntity<>(HttpStatus.OK);
+        Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
+        Mockito.when(mockService.removeMembership(mockProfileId, mockActivityId)).thenReturn(true);
+        ResponseEntity<String> actualResponse = activityController.deleteActivityMembership(mockToken, mockProfileId, mockActivityId);
+        assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
+    }
+
+    @Test
+    void removeMembershipFromActivityFailTest() {
+        long mockActivityId = 10;
+        long mockProfileId = 11;
+        String mockToken = "token";
+        ResponseEntity<String> expectedResponse = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
+        Mockito.when(mockService.removeMembership(mockProfileId, mockActivityId)).thenReturn(false);
+        ResponseEntity<String> actualResponse = activityController.deleteActivityMembership(mockToken, mockProfileId, mockActivityId);
+        assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
+    }
+
+    @Test
+    void getActivityWithPrivacyLevelSuccessTest() {
+        String mockToken = "token";
+        Activity mockActivity = ActivityTestUtils.createNormalActivity();
+        List<Activity> activityList = new ArrayList<>();
+        activityList.add(mockActivity);
+        ResponseEntity<String> expectedResponse = new ResponseEntity<>(HttpStatus.OK);
+        Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
+        Mockito.when(mockService.getActivitiesWithPrivacyLevel("public")).thenReturn(activityList);
+        ResponseEntity<List<Activity>> actualResponse = activityController.getActivitiesWithPrivacyLevel(mockToken, "public");
+        assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
+    }
+
+    @Test
+    void getActivityWithPrivacyLevelFailTest() {
+        String mockToken = "token";
+        ResponseEntity<String> expectedResponse = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
+        ResponseEntity<List<Activity>> actualResponse = activityController.getActivitiesWithPrivacyLevel(mockToken, "fail");
+        assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
     }
 
     @Test
