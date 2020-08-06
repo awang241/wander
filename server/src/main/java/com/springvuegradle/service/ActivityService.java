@@ -2,6 +2,7 @@ package com.springvuegradle.service;
 
 import com.springvuegradle.dto.ActivityRoleCountResponse;
 import com.springvuegradle.enums.ActivityMessage;
+import com.springvuegradle.enums.ActivityPrivacy;
 import com.springvuegradle.enums.ActivityResponseMessage;
 import com.springvuegradle.model.Activity;
 import com.springvuegradle.model.ActivityMembership;
@@ -218,15 +219,14 @@ public class ActivityService {
     }
 
     /**
-     * Returns all the activities with a given privacy level
+     * Returns all activities with the given privacy level.
      *
-     * @param privacy A string from the front end that specifies a privacy level
-     * @return A list of the activities with a given privacy level
+     * @param privacy The given privacy level
+     * @return A list of the activities with the given privacy level.
      */
-    public List<Activity> getActivitiesWithPrivacyLevel(String privacy) {
-        int privacyLevel = determinePrivacyLevel(privacy);
-        List<Activity> publicActivities = activityRepo.findAllPublic(privacyLevel);
-        return publicActivities;
+    public List<Activity> getActivitiesWithPrivacyLevel(ActivityPrivacy privacy) {
+        int privacyLevel = privacy.ordinal();
+        return activityRepo.findAllPublic(privacyLevel);
     }
 
     /**
@@ -236,7 +236,7 @@ public class ActivityService {
      * @return an integer for the backend, an exception otherwise
      */
     private int determinePrivacyLevel(String privacy) {
-        Integer privacyLevel;
+        int privacyLevel;
         switch (privacy) {
             case "private":
                 privacyLevel = 0;
@@ -264,6 +264,14 @@ public class ActivityService {
             return activity.get();
         }
         return null;
+    }
+
+    /**
+     * Returns a list of all activities in the repository
+     * @return a list of all activities in the repository
+     */
+    public List<Activity> getAllActivities() {
+        return activityRepo.findAll();
     }
 
     /**

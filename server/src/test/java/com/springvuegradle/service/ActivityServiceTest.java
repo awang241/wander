@@ -2,6 +2,7 @@ package com.springvuegradle.service;
 
 import com.springvuegradle.controller.ActivityController;
 import com.springvuegradle.dto.ActivityRoleCountResponse;
+import com.springvuegradle.enums.ActivityPrivacy;
 import com.springvuegradle.model.Activity;
 import com.springvuegradle.model.ActivityMembership;
 import com.springvuegradle.model.ActivityType;
@@ -394,28 +395,28 @@ class ActivityServiceTest {
     void getPublicActivitiesSuccessTest() {
         Activity activity = activityRepository.save(createNormalActivity());
         service.editActivityPrivacy("public", activity.getId());
-        assertEquals(1, service.getActivitiesWithPrivacyLevel("public").size());
+        assertEquals(1, service.getActivitiesWithPrivacyLevel(ActivityPrivacy.PUBLIC).size());
     }
 
     @Test
     void getPrivateActivitiesSuccessTest() {
         Activity activity = activityRepository.save(createNormalActivity());
         service.editActivityPrivacy("private", activity.getId());
-        assertEquals(1, service.getActivitiesWithPrivacyLevel("private").size());
+        assertEquals(1, service.getActivitiesWithPrivacyLevel(ActivityPrivacy.PRIVATE).size());
     }
 
     @Test
     void getFriendsActivitiesSuccessTest() {
         Activity activity = activityRepository.save(createNormalActivity());
         service.editActivityPrivacy("friends", activity.getId());
-        assertEquals(1, service.getActivitiesWithPrivacyLevel("friends").size());
+        assertEquals(1, service.getActivitiesWithPrivacyLevel(ActivityPrivacy.FRIENDS).size());
     }
 
     @Test
     void getActivitiesDifferentPrivacyLevelTest() {
         Activity activity = activityRepository.save(createNormalActivity());
         service.editActivityPrivacy("friends", activity.getId());
-        assertEquals(0, service.getActivitiesWithPrivacyLevel("public").size());
+        assertTrue(service.getActivitiesWithPrivacyLevel(ActivityPrivacy.PUBLIC).isEmpty());
     }
 
     @Test

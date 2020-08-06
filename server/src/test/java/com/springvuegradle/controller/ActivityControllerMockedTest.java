@@ -1,5 +1,6 @@
 package com.springvuegradle.controller;
 
+import com.springvuegradle.enums.ActivityPrivacy;
 import com.springvuegradle.model.*;
 import com.springvuegradle.repositories.*;
 import com.springvuegradle.service.ActivityService;
@@ -70,15 +71,15 @@ class ActivityControllerMockedTest {
     }
 
     @Test
-    void getActivityWithPrivacyLevelSuccessTest() {
+    void getActivitiesWithPrivacyLevelSuccessTest() {
         String mockToken = "token";
         Activity mockActivity = ActivityTestUtils.createNormalActivity();
         List<Activity> activityList = new ArrayList<>();
         activityList.add(mockActivity);
         ResponseEntity<String> expectedResponse = new ResponseEntity<>(HttpStatus.OK);
         Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
-        Mockito.when(mockService.getActivitiesWithPrivacyLevel("public")).thenReturn(activityList);
-        ResponseEntity<List<Activity>> actualResponse = activityController.getActivitiesWithPrivacyLevel(mockToken, "public");
+        Mockito.when(mockService.getActivitiesWithPrivacyLevel(ActivityPrivacy.PUBLIC)).thenReturn(activityList);
+        ResponseEntity<List<Activity>> actualResponse = activityController.getActivities("public", mockToken);
         assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
     }
 
@@ -87,7 +88,7 @@ class ActivityControllerMockedTest {
         String mockToken = "token";
         ResponseEntity<String> expectedResponse = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
-        ResponseEntity<List<Activity>> actualResponse = activityController.getActivitiesWithPrivacyLevel(mockToken, "fail");
+        ResponseEntity<List<Activity>> actualResponse = activityController.getActivities(mockToken, "fail");
         assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
     }
 
