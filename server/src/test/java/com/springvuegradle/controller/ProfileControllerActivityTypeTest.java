@@ -2,7 +2,7 @@ package com.springvuegradle.controller;
 
 import com.springvuegradle.model.ActivityType;
 import com.springvuegradle.repositories.ActivityTypeRepository;
-import com.springvuegradle.dto.ActivityTypesResponse;
+import com.springvuegradle.dto.responses.ActivityTypesResponse;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

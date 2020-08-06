@@ -1,11 +1,8 @@
 package com.springvuegradle.controller;
-import com.springvuegradle.dto.LoginRequest;
-import com.springvuegradle.dto.LoginResponse;
 import com.springvuegradle.model.*;
 import com.springvuegradle.repositories.*;
 import com.springvuegradle.utilities.InitialDataHelper;
 import com.springvuegradle.service.ActivityService;
-import org.apache.coyote.Response;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;

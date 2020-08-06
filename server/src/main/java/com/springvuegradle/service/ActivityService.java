@@ -1,12 +1,16 @@
 package com.springvuegradle.service;
 
+import com.springvuegradle.dto.responses.ActivityMemberProfileResponse;
 import com.springvuegradle.enums.ActivityMessage;
 import com.springvuegradle.enums.ActivityResponseMessage;
 import com.springvuegradle.model.Activity;
 import com.springvuegradle.model.ActivityMembership;
-import com.springvuegradle.model.Profile;
 import com.springvuegradle.model.ActivityType;
-import com.springvuegradle.repositories.*;
+import com.springvuegradle.model.Profile;
+import com.springvuegradle.repositories.ActivityMembershipRepository;
+import com.springvuegradle.repositories.ActivityRepository;
+import com.springvuegradle.repositories.ActivityTypeRepository;
+import com.springvuegradle.repositories.ProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -235,6 +239,18 @@ public class ActivityService {
         profile.addActivity(activityMembership);
         activity.addMember(activityMembership);
         profileRepo.save(profile);
+    }
+
+    /**
+     * Returns a simplified list of users with roles in an activity
+     * @param activityId the ID of the activity we are getting members of
+     * @return a list of simplified profiles with names and roles
+     */
+    public List<ActivityMemberProfileResponse> getActivityMembers(long activityId){
+        if(!activityRepo.existsById(activityId)){
+            throw new IllegalArgumentException();
+        }
+        return membershipRepo.findActivityMembershipsByActivityId(activityId);
     }
 
     /**

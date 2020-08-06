@@ -1,6 +1,7 @@
 package com.springvuegradle.service;
 
 import com.springvuegradle.controller.ActivityController;
+import com.springvuegradle.dto.responses.ActivityMemberProfileResponse;
 import com.springvuegradle.model.Activity;
 import com.springvuegradle.model.ActivityMembership;
 import com.springvuegradle.model.ActivityType;
@@ -389,6 +390,47 @@ class ActivityServiceTest {
         Profile editor = profileRepository.save(createNormalProfileBen());
         assertThrows(IllegalArgumentException.class, ()-> service.setProfileRole(0, editor.getId(), 3, ActivityMembership.Role.FOLLOWER));
     }
+
+    @Test
+    void getProfilesFromActivityWithOnlyCreatorTest() {
+        Profile creator = profileRepository.save(createNormalProfileBen());
+        Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        ActivityMembership creatorMembership = new ActivityMembership(activity, creator, ActivityMembership.Role.CREATOR);
+        activityMembershipRepository.save(creatorMembership);
+        List<ActivityMemberProfileResponse> response = Arrays.asList(new ActivityMemberProfileResponse(creator.getId(), creator.getFirstname(), creator.getLastname(), ActivityMembership.Role.CREATOR));
+        assertEquals(response, service.getActivityMembers(activity.getId()));
+    }
+
+    @Test
+    /**
+     * Ensures getting multiple profiles linked to an activity works as expected
+     */
+    void getProfilesWithRolesFromActivityWithMultipleRolesTest() {
+        Profile creator = profileRepository.save(createNormalProfileBen());
+        Profile followerOne = profileRepository.save(createNormalProfileBen());
+        Profile followerTwo = profileRepository.save(createNormalProfileBen());
+        Profile organizer = profileRepository.save(createNormalProfileBen());
+        Profile participant = profileRepository.save(createNormalProfileBen());
+        Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        ActivityMembership creatorMembership = new ActivityMembership(activity, creator, ActivityMembership.Role.CREATOR);
+        ActivityMembership followerOneMembership = new ActivityMembership(activity, followerOne, ActivityMembership.Role.FOLLOWER);
+        ActivityMembership followerTwoMembership = new ActivityMembership(activity, followerTwo, ActivityMembership.Role.FOLLOWER);
+        ActivityMembership organizerMembership = new ActivityMembership(activity, organizer, ActivityMembership.Role.ORGANISER);
+        ActivityMembership participantMembership = new ActivityMembership(activity, participant, ActivityMembership.Role.PARTICIPANT);
+        List<ActivityMembership> memberships = Arrays.asList(creatorMembership, followerOneMembership, followerTwoMembership, organizerMembership, participantMembership);
+        activityMembershipRepository.saveAll(memberships);
+        List<ActivityMemberProfileResponse> response = new ArrayList<>();
+        for(ActivityMembership membership: memberships){
+            response.add(new ActivityMemberProfileResponse(membership.getProfile().getId(), membership.getProfile().getFirstname(), membership.getProfile().getLastname(), membership.getRole()));
+        }
+        assertEquals(response, service.getActivityMembers(activity.getId()));
+    }
+
+    @Test
+    void getProfilesFromNonExistentActivityTest() {
+        assertThrows(IllegalArgumentException.class, () -> service.getActivityMembers(-1));
+    }
+
 
     /**
      * Example activities to use in tests

@@ -1,4 +1,4 @@
-package com.springvuegradle.dto;
+package com.springvuegradle.dto.responses;
 
 import java.util.List;
 

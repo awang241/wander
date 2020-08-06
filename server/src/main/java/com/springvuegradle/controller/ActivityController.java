@@ -1,7 +1,8 @@
 package com.springvuegradle.controller;
 
 
-import com.springvuegradle.dto.ActivityRoleUpdateRequest;
+import com.springvuegradle.dto.requests.ActivityRoleUpdateRequest;
+import com.springvuegradle.dto.responses.ActivityMemberProfileResponse;
 import com.springvuegradle.enums.ActivityMessage;
 import com.springvuegradle.enums.ActivityResponseMessage;
 import com.springvuegradle.enums.AuthenticationErrorMessage;
@@ -20,7 +21,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Class containing REST endpoints for activities
@@ -122,8 +122,9 @@ public class ActivityController {
 
     /**
      * Checks validity of token, as well as if the user can edit or delete the activity.
-     * @param token authentication token
-     * @param profileId The id of the user
+     *
+     * @param token      authentication token
+     * @param profileId  The id of the user
      * @param activityId The id the activity
      * @return response entity with error message if unauthorised or forbidden. Null otherwise.
      */
@@ -139,173 +140,72 @@ public class ActivityController {
     }
 
     /**
-     * Queries the Database to find all the activities.
-     *
-     * @return a response with all the activities in the database.
+     * Gets a simplified list of users including their basic info and role in the activity
+     * @param token the authorization token of the user
+     * @param activityId the ID of the activity we are getting users with roles from
+     * @return a simplified list of users including basic info and their role in the activity
      */
-    @GetMapping("/activities")
-    public ResponseEntity<List<Activity>> getActivitiesList() {
-        List<Activity> allActivities = aRepo.findAll();
-        return new ResponseEntity<>(allActivities, HttpStatus.OK);
-    }
-
-    /**
-     * Quries the Database to find an activity
-     * @param token authentication token
-     * @param activityId the id of the activity
-     * @return
-     */
-    @GetMapping("/activities/{activityId}")
-    protected ResponseEntity<Activity> getActivity(@RequestHeader("authorization") String token,
-                                                @PathVariable long activityId) {
-        if (token == null) {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        }
-        else if (!jwtUtil.validateToken(token)) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        }
-        Activity activity = activityService.getActivityByActivityId(activityId);
-        if (activity == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(activity, HttpStatus.OK);
-    }
-
-    /**
-     * Allows the changing of a profiles role within an activity memebership
-     * @param role the role the user wants to change to
-     * @param token the users authentication token
-     * @param profileId the ID of the profile whose membership we are changing
-     * @param activityId the ID of the activity the profile is a part of
-     * @return an HTTP status code indicating the result of the operation
-     */
-    @PutMapping("/profiles/{profileId}/activities/{activityId}/role")
-    public ResponseEntity<String> changeProfilesActivityRole(@RequestBody ActivityRoleUpdateRequest role,
-                                                             @RequestHeader("authorization") String token,
-                                                             @PathVariable Long profileId,
-                                                             @PathVariable Long activityId){
-        if (token == null || token.isBlank()) {
-            return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
-                    HttpStatus.UNAUTHORIZED);
-        } else if (!securityService.checkEditPermission(token, profileId)) {
-            return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(),
-                    HttpStatus.FORBIDDEN);
-        }
-        try {
-            activityService.setProfileRole(profileId, jwtUtil.extractId(token), activityId, ActivityMembership.Role.valueOf(role.getRole().toUpperCase()));
-            return new ResponseEntity<>(HttpStatus.OK);
-        } catch(IllegalArgumentException e){
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    /**
-     * Queries the Database to find all the activities of a user with their profile id.
-     *
-     * @return a response with all the activities of the user in the database.
-     */
-    @GetMapping("/profiles/{profileId}/activities")
-    public ResponseEntity<List<Activity>> getAllUsersActivities(@RequestHeader("authorization") String token,
-                                                                @PathVariable Long profileId) {
-
-        return getAllUsersActivities(token, profileId, false);
-    }
-
-    public ResponseEntity<List<Activity>> getAllUsersActivities(String token, Long profileId, Boolean testing) {
-        if (!testing && !jwtUtil.validateToken(token)) {
+    @GetMapping("/activities/{activityId}/members")
+    public ResponseEntity<List<ActivityMemberProfileResponse>> getAllUsersWithRoleInActivity(@RequestHeader("authorization") String token,
+                                                                                             @PathVariable long activityId) {
+        if (!jwtUtil.validateToken(token)) {
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
-        List<Activity> result;
-        if (!testing && (jwtUtil.extractPermission(token) == 0 || jwtUtil.extractPermission(token) == 1)) {
-            result = aRepo.findAll();
-        } else {
-            result = activityService.getActivitiesByProfileId(profileId);
-        }
-        return new ResponseEntity<>(result, HttpStatus.OK);
-    }
-
-    /**
-     * Deletes an activity from the repository given that it exists in the database.
-     *
-     * @param profileId  the id of the profile that created the activity
-     * @param activityId the id of the activity to be deleted
-     * @return http response code and feedback message on the result of the delete operation
-     */
-    @DeleteMapping("/profiles/{profileId}/activities/{activityId}")
-    public @ResponseBody
-    ResponseEntity<String> deleteActivity(@RequestHeader("authorization") String token,
-                                          @PathVariable Long profileId,
-                                          @PathVariable Long activityId) {
-        return deleteActivity(token, profileId, activityId, false);
-
-    }
-
-    public ResponseEntity<String> deleteActivity(String token, Long profileId, Long activityId, Boolean testing) {
-        if (!testing) {
-            ResponseEntity<String> errorOccurred = checkActivityModifyPermissions(token, profileId, activityId);
-            if (errorOccurred != null) {
-                return errorOccurred;
-            }
-        }
-
-        if (activityService.delete(activityId)) {
-            return new ResponseEntity<>("The activity has been deleted from the database.", HttpStatus.OK);
-        }
-        return new ResponseEntity<>("The activity does not exist in the database.", HttpStatus.NOT_FOUND);
-    }
-
-    /**
-     * Assigns an activityRole to a user for a specific activity.
-     *
-     * @param token the user's authentication token.
-     * @param profileId the id of the user we want to assign the role to.
-     * @param activityId the id of the activity we want to add the user's role to.
-     * @param role the role we want to give to the user for that specific activity.
-     * @return response entity with message detailing whether it was a success or not.
-     */
-    @PostMapping("/profiles/{profileId}/activities/{activityId}/role")
-    public ResponseEntity<String> addActivityRole(@RequestHeader("authorization") String token,
-                                                  @PathVariable Long profileId,
-                                                  @PathVariable Long activityId,
-                                                  @RequestBody String role) {
-        if (token == null || token.isBlank()) {
-            return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
-                    HttpStatus.UNAUTHORIZED);
-        }
-        ArrayList possibleRoles = new ArrayList<>(Arrays.asList("participant", "follower"));
-        Boolean checkFollowerOrParticipant = securityService.checkEditPermission(token, profileId) && possibleRoles.contains(role);
-        possibleRoles.add("organiser");
-        Boolean checkCreatorOrAdmin = activityService.isProfileActivityCreator(jwtUtil.extractId(token), activityId) && possibleRoles.contains(role);
         try {
-            if (checkFollowerOrParticipant || checkCreatorOrAdmin) {
-                activityService.addActivityRole(activityId, profileId, role);
-            } else {
-                return new ResponseEntity<>(ActivityMessage.INVALID_ROLE.getMessage(), HttpStatus.BAD_REQUEST);
-            }
-        } catch(IllegalArgumentException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(activityService.getActivityMembers(activityId), HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(ActivityMessage.SUCCESSFUL_CREATION.getMessage(), HttpStatus.CREATED);
     }
 
-    /**
-     * Removes a profiles activity membership from a specified activity
-     *
-     * @param profileId  the id of the profile that has membership with the activity
-     * @param activityId the id of the specified activity
-     * @return http response code and feedback message on the result of the delete operation
-     */
-    @DeleteMapping("/profiles/{profileId}/activities/{activityId}/membership")
-    public @ResponseBody
-    ResponseEntity<String> deleteActivityMembership(@RequestHeader("authorization") String token,
-                                          @PathVariable Long profileId,
-                                          @PathVariable Long activityId) {
-        return deleteActivityMembership(token, profileId, activityId, false);
 
-    }
+        /**
+         * Queries the Database to find all the activities.
+         *
+         * @return a response with all the activities in the database.
+         */
+        @GetMapping("/activities")
+        public ResponseEntity<List<Activity>> getActivitiesList () {
+            List<Activity> allActivities = aRepo.findAll();
+            return new ResponseEntity<>(allActivities, HttpStatus.OK);
+        }
 
-    public ResponseEntity<String> deleteActivityMembership(String token, Long profileId, Long activityId, Boolean testing) {
-        if (!testing) {
+        /**
+         * Quries the Database to find an activity
+         *
+         * @param token      authentication token
+         * @param activityId the id of the activity
+         * @return
+         */
+        @GetMapping("/activities/{activityId}")
+        protected ResponseEntity<Activity> getActivity (@RequestHeader("authorization") String token,
+        @PathVariable long activityId){
+            if (token == null) {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            } else if (!jwtUtil.validateToken(token)) {
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            }
+            Activity activity = activityService.getActivityByActivityId(activityId);
+            if (activity == null) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+            return new ResponseEntity<>(activity, HttpStatus.OK);
+        }
+
+        /**
+         * Allows the changing of a profiles role within an activity memebership
+         *
+         * @param role       the role the user wants to change to
+         * @param token      the users authentication token
+         * @param profileId  the ID of the profile whose membership we are changing
+         * @param activityId the ID of the activity the profile is a part of
+         * @return an HTTP status code indicating the result of the operation
+         */
+        @PutMapping("/profiles/{profileId}/activities/{activityId}/role")
+        public ResponseEntity<String> changeProfilesActivityRole (@RequestBody ActivityRoleUpdateRequest role,
+                @RequestHeader("authorization") String token,
+                @PathVariable Long profileId,
+                @PathVariable Long activityId){
             if (token == null || token.isBlank()) {
                 return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
                         HttpStatus.UNAUTHORIZED);
@@ -313,10 +213,133 @@ public class ActivityController {
                 return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(),
                         HttpStatus.FORBIDDEN);
             }
+            try {
+                activityService.setProfileRole(profileId, jwtUtil.extractId(token), activityId, ActivityMembership.Role.valueOf(role.getRole().toUpperCase()));
+                return new ResponseEntity<>(HttpStatus.OK);
+            } catch (IllegalArgumentException e) {
+                return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            }
         }
-        if (activityService.removeMembership(profileId, activityId)) {
-            return new ResponseEntity<>(ActivityMessage.SUCCESSFUL_DELETION.getMessage(), HttpStatus.OK);
+
+        /**
+         * Queries the Database to find all the activities of a user with their profile id.
+         *
+         * @return a response with all the activities of the user in the database.
+         */
+        @GetMapping("/profiles/{profileId}/activities")
+        public ResponseEntity<List<Activity>> getAllUsersActivities (@RequestHeader("authorization") String token,
+                @PathVariable Long profileId){
+
+            return getAllUsersActivities(token, profileId, false);
         }
-        return new ResponseEntity<>(ActivityMessage.MEMBERSHIP_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
+
+        public ResponseEntity<List<Activity>> getAllUsersActivities (String token, Long profileId, Boolean testing){
+            if (!testing && !jwtUtil.validateToken(token)) {
+                return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+            }
+            List<Activity> result;
+            if (!testing && (jwtUtil.extractPermission(token) == 0 || jwtUtil.extractPermission(token) == 1)) {
+                result = aRepo.findAll();
+            } else {
+                result = activityService.getActivitiesByProfileId(profileId);
+            }
+            return new ResponseEntity<>(result, HttpStatus.OK);
+        }
+
+        /**
+         * Deletes an activity from the repository given that it exists in the database.
+         *
+         * @param profileId  the id of the profile that created the activity
+         * @param activityId the id of the activity to be deleted
+         * @return http response code and feedback message on the result of the delete operation
+         */
+        @DeleteMapping("/profiles/{profileId}/activities/{activityId}")
+        public @ResponseBody
+        ResponseEntity<String> deleteActivity (@RequestHeader("authorization") String token,
+                @PathVariable Long profileId,
+                @PathVariable Long activityId){
+            return deleteActivity(token, profileId, activityId, false);
+
+        }
+
+        public ResponseEntity<String> deleteActivity (String token, Long profileId, Long activityId, Boolean testing){
+            if (!testing) {
+                ResponseEntity<String> errorOccurred = checkActivityModifyPermissions(token, profileId, activityId);
+                if (errorOccurred != null) {
+                    return errorOccurred;
+                }
+            }
+
+            if (activityService.delete(activityId)) {
+                return new ResponseEntity<>("The activity has been deleted from the database.", HttpStatus.OK);
+            }
+            return new ResponseEntity<>("The activity does not exist in the database.", HttpStatus.NOT_FOUND);
+        }
+
+        /**
+         * Assigns an activityRole to a user for a specific activity.
+         *
+         * @param token      the user's authentication token.
+         * @param profileId  the id of the user we want to assign the role to.
+         * @param activityId the id of the activity we want to add the user's role to.
+         * @param role       the role we want to give to the user for that specific activity.
+         * @return response entity with message detailing whether it was a success or not.
+         */
+        @PostMapping("/profiles/{profileId}/activities/{activityId}/role")
+        public ResponseEntity<String> addActivityRole (@RequestHeader("authorization") String token,
+                @PathVariable Long profileId,
+                @PathVariable Long activityId,
+                @RequestBody String role){
+            if (token == null || token.isBlank()) {
+                return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
+                        HttpStatus.UNAUTHORIZED);
+            }
+            ArrayList possibleRoles = new ArrayList<>(Arrays.asList("participant", "follower"));
+            Boolean checkFollowerOrParticipant = securityService.checkEditPermission(token, profileId) && possibleRoles.contains(role);
+            possibleRoles.add("organiser");
+            Boolean checkCreatorOrAdmin = activityService.isProfileActivityCreator(jwtUtil.extractId(token), activityId) && possibleRoles.contains(role);
+            try {
+                if (checkFollowerOrParticipant || checkCreatorOrAdmin) {
+                    activityService.addActivityRole(activityId, profileId, role);
+                } else {
+                    return new ResponseEntity<>(ActivityMessage.INVALID_ROLE.getMessage(), HttpStatus.BAD_REQUEST);
+                }
+            } catch (IllegalArgumentException e) {
+                return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+            return new ResponseEntity<>(ActivityMessage.SUCCESSFUL_CREATION.getMessage(), HttpStatus.CREATED);
+        }
+
+        /**
+         * Removes a profiles activity membership from a specified activity
+         *
+         * @param profileId  the id of the profile that has membership with the activity
+         * @param activityId the id of the specified activity
+         * @return http response code and feedback message on the result of the delete operation
+         */
+        @DeleteMapping("/profiles/{profileId}/activities/{activityId}/membership")
+        public @ResponseBody
+        ResponseEntity<String> deleteActivityMembership (@RequestHeader("authorization") String token,
+                @PathVariable Long profileId,
+                @PathVariable Long activityId){
+            return deleteActivityMembership(token, profileId, activityId, false);
+
+        }
+
+        public ResponseEntity<String> deleteActivityMembership (String token, Long profileId, Long activityId, Boolean
+        testing){
+            if (!testing) {
+                if (token == null || token.isBlank()) {
+                    return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
+                            HttpStatus.UNAUTHORIZED);
+                } else if (!securityService.checkEditPermission(token, profileId)) {
+                    return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(),
+                            HttpStatus.FORBIDDEN);
+                }
+            }
+            if (activityService.removeMembership(profileId, activityId)) {
+                return new ResponseEntity<>(ActivityMessage.SUCCESSFUL_DELETION.getMessage(), HttpStatus.OK);
+            }
+            return new ResponseEntity<>(ActivityMessage.MEMBERSHIP_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
+        }
     }
-}
