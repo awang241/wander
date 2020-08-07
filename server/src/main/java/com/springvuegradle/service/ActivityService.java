@@ -13,15 +13,10 @@ import com.springvuegradle.repositories.ActivityMembershipRepository;
 import com.springvuegradle.repositories.ActivityRepository;
 import com.springvuegradle.repositories.ActivityTypeRepository;
 import com.springvuegradle.repositories.ProfileRepository;
-import com.springvuegradle.model.*;
-import com.springvuegradle.repositories.*;
-import com.springvuegradle.repositories.spec.ProfileSpecifications;
-import com.springvuegradle.utilities.FieldValidationHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
@@ -215,14 +210,14 @@ public class ActivityService {
      * @param role The role of the user in the activity.
      * @return A list of the given profile's activities by role.
      */
-    public List<Activity> getActivitiesByProfileIdByRole(Long profileId, String role) {
-        Profile profile = profileRepo.findAllById(profileId).get(0);
+    public List<Activity> getActivitiesByProfileIdByRole(PageRequest request, Long profileId, ActivityMembership.Role role) {
         List<Activity> userActivities = new ArrayList<>();
-        for (ActivityMembership activityMembership : profile.getActivities()) {
-            if (role.toUpperCase().equals("CREATOR")) {
-                userActivities.add(activityMembership.getActivity());
-            } else if (activityMembership.getRole().toString().equals(role.toUpperCase()) && activityMembership.getActivity().getPrivacyLevel() > 0) {
-                userActivities.add(activityMembership.getActivity());
+        Page<ActivityMembership> memberships = membershipRepo.findAllByProfileId(profileId, request);
+        for (ActivityMembership membership : memberships) {
+            if (role.equals(ActivityMembership.Role.CREATOR)) {
+                userActivities.add(membership.getActivity());
+            } else if (membership.getRole().equals(role) && membership.getActivity().getPrivacyLevel() > 0) {
+                userActivities.add(membership.getActivity());
             }
         }
         return userActivities;
@@ -261,19 +256,6 @@ public class ActivityService {
                 throw new IllegalArgumentException(ActivityMessage.INVALID_PRIVACY.getMessage());
         }
         return privacyLevel;
-    }
-
-    /**
-     * Return an activity by activity id.
-     * @param activityId The ID of the activity that is being retrieved
-     * @return An activity object. If it does not exist returns null.
-     */
-    public Activity getActivityByActivityId(Long activityId) {
-        Optional<Activity> activity = activityRepo.findById(activityId);
-        if (activity.isPresent()) {
-            return activity.get();
-        }
-        return null;
     }
 
     /**
@@ -406,31 +388,7 @@ public class ActivityService {
         membershipRepo.save(membership);
     }
 
-    /**
-     * Checks whether someone has rights to change the role of a user in an activity
-     * Users should only be able to change someone to an organizer if they are a creator/organizer or admin
-     * Users should be able to change someone else to a participant or follower if they are creator/organizer, admin, or it is themself
-     * @param profileDoingEditingId the ID of the profile who is editing the activities membership
-     * @param activityId The ID of the activity we are editing
-     * @param newRole The role we are trying to change the user to
-     * @param profileBeingEditedId The ID of the user who is attempting to change the role
-     * @return whether the user doing the editing can change the profiles membership to organizer
-     */
-    private boolean canChangeRole(long profileDoingEditingId, long profileBeingEditedId, long activityId, ActivityMembership.Role newRole){
-        boolean isCreatorOrOrganizer = false;
-        boolean isAdmin = profileRepo.getOne(profileDoingEditingId).getAuthLevel() < 2;
-        Optional<ActivityMembership> membership =membershipRepo.findByActivity_IdAndProfile_Id(activityId, profileDoingEditingId);
-        if(membership.isPresent()){
-            ActivityMembership.Role editorRole = membership.get().getRole();
-            if(editorRole.equals(ActivityMembership.Role.CREATOR) || editorRole.equals(ActivityMembership.Role.ORGANISER)){
-                isCreatorOrOrganizer = true;
-            }
-        }
-        if(newRole.equals(ActivityMembership.Role.ORGANISER)) {
-            return isAdmin || isCreatorOrOrganizer;
-        }
-        return isAdmin || isCreatorOrOrganizer || profileBeingEditedId == profileDoingEditingId;
-    }
+
 
     /**
      * Returns the specified page from the list of all activities.
@@ -464,44 +422,13 @@ public class ActivityService {
      * @param activities a list of normal activity objects to be simplified
      * @return a list of simplified activities
      */
-    public List<SimplifiedActivity> createSimplifiedActivities(Map<Activity, ActivityMembership.Role> activities) {
+    public List<SimplifiedActivity> createSimplifiedActivities(List<Activity> activities) {
         List<SimplifiedActivity> simplifiedActivities = new ArrayList<>();
-        activities.forEach((k,v) -> simplifiedActivities.add(new SimplifiedActivity(k, v.toString())));
+        activities.forEach((k) -> simplifiedActivities.add(new SimplifiedActivity(k)));
         return simplifiedActivities;
     }
 
-    /**
-     * Sets the role of an activity member to the given role. Profiles cannot be set as creators, and creators
-     * cannot have their role changed for that activity.
-     * @param profileBeingEditedId The ID of the profile whose role is being changed
-     * @param profileDoingEditingId The ID of the profile who is doing the editing
-     * @param activityId the ID of the activity
-     * @param newRole The role the member is being changed to
-     * @throws IllegalArgumentException if the parameters do not match the database constraints (e.g. no profile with
-     * that id exists, or the given profile isn't a member of that activity), or if the profile is being set to or from
-     * the Creator role.
-     */
-    public void setProfileRole(long profileBeingEditedId, long profileDoingEditingId, long activityId, ActivityMembership.Role newRole) {
-        if (newRole.equals(ActivityMembership.Role.CREATOR)) {
-            throw new IllegalArgumentException(ActivityResponseMessage.EDITING_CREATOR.toString());
-        }
 
-        if(!canChangeRole(profileDoingEditingId, profileBeingEditedId, activityId, newRole)){
-            throw new IllegalArgumentException(ActivityResponseMessage.INVALID_PERMISSION.toString());
-        }
-
-        Optional<ActivityMembership> optionalMembership = membershipRepo.findByActivity_IdAndProfile_Id(activityId, profileBeingEditedId);
-        if (optionalMembership.isEmpty()) {
-            throw new IllegalArgumentException(ActivityResponseMessage.INVALID_MEMBERSHIP.toString());
-        }
-
-        ActivityMembership membership = optionalMembership.get();
-        if (membership.getRole() == ActivityMembership.Role.CREATOR) {
-            throw new IllegalArgumentException(ActivityResponseMessage.EDITING_CREATOR.toString());
-        }
-        membership.setRole(newRole);
-        membershipRepo.save(membership);
-    }
 
     /**
      * Checks whether someone has rights to change the role of a user in an activity

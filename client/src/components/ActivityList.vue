@@ -1,35 +1,39 @@
 <template>
     <div v-if="store.getters.getAuthenticationStatus" class="container containerColor">
-        <br>
-        <br>
-        <div class="has-same-height is-gapless">
-            <div v-if="activities.length">
-                <div v-for="activity in activities" v-bind:key="activity">
-                    <SingleActivity v-bind:activity="activity"></SingleActivity>
-                </div>
-            </div>
-            <div v-else class="box">
-                <h1>No activities created</h1>
+        <div id="results" class="column" v-if="activities.length">
+            <div
+                    v-for="activity in activities"
+                    :key="activity.id">
+                <ActivitySummary :activity="activity">
+                </ActivitySummary>
+                <br>
             </div>
         </div>
+        <observer v-on:intersect="loadMoreActivities"></observer>
     </div>
 </template>
 
 <script>
     import store from "../store";
     import toastMixin from "../mixins/toastMixin";
-    import SingleActivity from "./SingleActivity";
+    import ActivitySummary from "./ActivitySummary";
+    import Activities from "./Activities";
 
     export default {
         name: "ActivityList",
-        props: ["activities"],
+        props: ["activities", "role"],
         components: {
-            SingleActivity
+            ActivitySummary
         },
         mixins: [toastMixin],
         data() {
             return {
                 store: store
+            }
+        },
+        methods: {
+            loadMoreActivities() {
+                Activities.methods.loadMoreActivities(this.role);
             }
         }
     }

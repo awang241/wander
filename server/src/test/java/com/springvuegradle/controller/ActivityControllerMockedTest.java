@@ -13,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
@@ -140,17 +141,6 @@ class ActivityControllerMockedTest {
         ResponseEntity<String> expectedResponse = new ResponseEntity<>((HttpStatus.UNAUTHORIZED));
         ResponseEntity<Activity> actualResponse = activityController.getActivity(null, mockActivityId);
 
-        assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
-    }
-
-    @Test
-    void getAllUsersActivitiesByRoleSuccessTest() {
-        ActivityRoleRequest activityRoleRequest = new ActivityRoleRequest("participant");
-        String mockToken = "bob";
-        long mockProfileId = 10;
-        Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
-        ResponseEntity<String> expectedResponse = new ResponseEntity<>((HttpStatus.OK));
-        ResponseEntity<ActivitiesResponse> actualResponse = activityController.getAllUsersActivitiesByRole(activityRoleRequest, mockToken, mockProfileId);
         assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
     }
 }

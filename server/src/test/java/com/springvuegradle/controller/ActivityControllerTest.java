@@ -233,7 +233,7 @@ public class ActivityControllerTest {
 
         activityController.createActivity(profile.getId(), trackRace, null, true);
         ResponseEntity<SimplifiedActivitiesResponse> responseEntity = activityController.getAllUsersActivities(null,
-                profile.getId(), 5, 0, true);
+                profile.getId(), 5, 0,"creator", true);
         assertEquals(responseEntity.getStatusCode(), HttpStatus.OK);
     }
 
@@ -251,7 +251,7 @@ public class ActivityControllerTest {
 
         activityController.createActivity(profile.getId(), trackRace, null, true);
         ResponseEntity<SimplifiedActivitiesResponse> responseEntity = activityController.getAllUsersActivities(null,
-                profile.getId(), 5, 0, true);
+                profile.getId(), 5, 0, "creator", true);
         assertEquals(responseEntity.getBody().getResults().get(0).getActivityName(), "Kaikoura Coast Track race");
     }
 
