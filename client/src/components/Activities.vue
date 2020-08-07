@@ -30,30 +30,69 @@
                     <li><a v-on:click="changeToDiscoverActivities">Discover Activities</a></li>
 
                 </ul>
+        <div id="results" class="column" v-if="activities.length">
+            <div
+                    v-for="activity in activities"
+                    :key="activity.id">
+                <ActivitySummary :activity="activity" @deleteClicked="deleteActivity">
+                </ActivitySummary>
+                <br>
             </div>
+        </div>
+
+
+        <div v-else id="noMatches">
+            <h1>No activities loaded!</h1>
         </div>
         <div>
             <component v-bind:is="component" v-bind:activities="activities"/>
         </div>
+
+        <observer v-on:intersect="loadMoreActivities"></observer>
     </div>
 </template>
 
 <script>
-    import activityList from "./ActivityList";
-    import Api from '../Api';
-    import router from "../router";
-    import store from "../store"
-    import toastMixin from "../mixins/toastMixin";
+import api from '../Api';
+import router from "../router";
+import store from "../store"
+import toastMixin from "../mixins/toastMixin";
+import Observer from "./Observer";
+import {eventBus} from "../main";
+import ActivitySummary from "./ActivitySummary";
+import activityList from "./ActivityList";
+
+const DEFAULT_RESULT_COUNT = 10;
+
 
     export default {
         name: "Activities",
         mixins: [toastMixin],
+      components: {Observer, ActivitySummary},
         data() {
             return {
-                activities: null,
                 store: store,
+                startIndex: 0,
+                moreActivitiesExist: true,
+                observer: null,
+                activities: null,
                 component: "",
             }
+        },
+        created() {
+            //Used to update the list of profiles when a profile on this list is changed
+            //This is done by watching for the profileWasEdited event on the global event bus
+            eventBus.$on('activityWasEdited', (editedActivity) => {
+                for (let i = 0; i < this.activities.length; i++) {
+                    if(this.activities[i].id === editedActivity.id){
+                        this.activities[i].activityName = editedActivity.activityName
+                        this.activities[i].location = editedActivity.location
+                        this.activities[i].activityTypes = editedActivity.activityTypes
+                        this.activities[i].continuous = editedActivity.continuous
+                        this.activities[i].creatorName = editedActivity.creatorName
+                    }
+                }
+            })
         },
         methods: {
             //once we can get different privacy levels
@@ -71,7 +110,7 @@
                 this.component = activityList;
             },
             getActivities() {
-                Api.getUserActivitiesList(store.getters.getUserId, localStorage.getItem('authToken'))
+                api.getUserActivitiesList(store.getters.getUserId, localStorage.getItem('authToken'))
                     .then((response) => {
                         this.activities = response.data;
                         this.activities.sort(function (a, b) {
@@ -89,7 +128,7 @@
                 router.push({path: 'Activities/' + activity.id})
             },
             deleteActivity(id) {
-                Api.deleteActivity(store.getters.getUserId, localStorage.getItem('authToken'), id)
+                api.deleteActivity(store.getters.getUserId, localStorage.getItem('authToken'), id)
                     .then((response) => {
                         console.log(response);
                         this.warningToast("Activity deleted")
@@ -109,6 +148,24 @@
                 if (!store.getters.getAuthenticationStatus) {
                     router.push({path: '/'})
                 }
+            },
+            getSearchParameters() {
+              return {count: DEFAULT_RESULT_COUNT, startIndex: this.startIndex};
+            },
+            loadMoreActivities() {
+              if (this.moreActivitiesExist) {
+                const searchParameters = this.getSearchParameters();
+                api.getNextActivities(store.getters.getUserId, localStorage.getItem("authToken"), searchParameters).then(response => {
+                  console.log(response.data)
+                  if (response.data.results.length == 0) {
+                    this.moreActivitiesExist = false;
+                  } else {
+                    this.startIndex += DEFAULT_RESULT_COUNT;
+                    const activities = response.data.results;
+                    this.activities = [...this.activities, ...activities];
+                  }
+                })
+              }
             }
         },
         mounted() {
@@ -120,9 +177,24 @@
 </script>
 
 <style scoped>
+    .bannerColor {
+        background-color: #64C6E3
+    }
 
     .containerColor {
         background-color: #F7F8F9
+    }
+
+    .center {
+        text-align: center;
+    }
+
+    .hrLine {
+        border: 2px solid #EDEEEE;
+    }
+
+    #editButton {
+        margin-left: 1rem;
     }
 
     #activities-key-info{
