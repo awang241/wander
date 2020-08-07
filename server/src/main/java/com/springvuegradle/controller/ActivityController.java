@@ -151,14 +151,25 @@ public class ActivityController {
      */
     @GetMapping("/activities/{activityId}/members")
     public ResponseEntity<List<ActivityMemberProfileResponse>> getAllUsersWithRoleInActivity(@RequestHeader("authorization") String token,
-                                                                                             @PathVariable long activityId) {
+                                                                                             @PathVariable long activityId,
+                                                                                             @RequestParam(name = "role", required = false) String role,
+                                                                                             @RequestParam(name = "count", required = false) int count,
+                                                                                             @RequestParam(name = "index", required = false) int index) {
+        //TODO Update to use search/pagination parameters
         if (!jwtUtil.validateToken(token)) {
-            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
+        /**
+        if (index < 0 || count <= 0) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } else {
+            PageRequest request = PageRequest.of(index / count, count);
+        }*/
+
         try {
             return new ResponseEntity<>(activityService.getActivityMembers(activityId), HttpStatus.OK);
         } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -181,7 +192,7 @@ public class ActivityController {
      * @return
      */
     @GetMapping("/activities/{activityId}")
-    protected ResponseEntity<Activity> getActivity(@RequestHeader("authorization") String token,
+    public ResponseEntity<Activity> getActivity(@RequestHeader("authorization") String token,
                                                 @PathVariable long activityId) {
         if (token == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);

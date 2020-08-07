@@ -15,6 +15,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.*;
@@ -39,8 +43,6 @@ class ActivityServiceTest {
     ActivityMembershipRepository activityMembershipRepository;
     @Autowired
     EmailRepository emailRepository;
-
-    private static final String MISSING_EXCEPTION = "Exception should have been thrown.";
 
     /**
      * Needs to be run before each test to create new test profiles and repositories.
@@ -429,6 +431,70 @@ class ActivityServiceTest {
     @Test
     void getProfilesFromNonExistentActivityTest() {
         assertThrows(IllegalArgumentException.class, () -> service.getActivityMembers(-1));
+    }
+
+    @Test
+    void getActivityMembersByRoleNormalTest() {
+        Profile creator = profileRepository.save(createNormalProfileBen());
+        Profile followerOne = profileRepository.save(createNormalProfileBen());
+        Profile followerTwo = profileRepository.save(createNormalProfileBen());
+        Profile organizer = profileRepository.save(createNormalProfileBen());
+        Profile participant = profileRepository.save(createNormalProfileBen());
+        Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        ActivityMembership creatorMembership = new ActivityMembership(activity, creator, ActivityMembership.Role.CREATOR);
+        ActivityMembership followerOneMembership = new ActivityMembership(activity, followerOne, ActivityMembership.Role.FOLLOWER);
+        ActivityMembership followerTwoMembership = new ActivityMembership(activity, followerTwo, ActivityMembership.Role.FOLLOWER);
+        ActivityMembership organizerMembership = new ActivityMembership(activity, organizer, ActivityMembership.Role.ORGANISER);
+        ActivityMembership participantMembership = new ActivityMembership(activity, participant, ActivityMembership.Role.PARTICIPANT);
+        List<ActivityMembership> memberships = Arrays.asList(creatorMembership, followerOneMembership, followerTwoMembership, organizerMembership, participantMembership);
+        activityMembershipRepository.saveAll(memberships);
+
+        Pageable pageable = PageRequest.of(0, 2);
+        List<ActivityMembership> expectedMemberships = Arrays.asList(followerOneMembership, followerTwoMembership);
+        Page<ActivityMembership> expectedPage = new PageImpl<>(expectedMemberships, pageable, expectedMemberships.size());
+        Page<ActivityMembership> actual = service.getActivityMembersByRole(activity.getId(), ActivityMembership.Role.FOLLOWER, pageable);
+        assertEquals(expectedPage, actual);
+    }
+
+    @Test
+    void getActivityMembersByRoleWithPaginationNormalTest() {
+        Profile creator = profileRepository.save(createNormalProfileBen());
+        Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        ActivityMembership creatorMembership = new ActivityMembership(activity, creator, ActivityMembership.Role.CREATOR);
+
+        Map<Long, Profile> followers = new HashMap<Long, Profile>();
+        for (int i = 0; i < 10; i++) {
+            Profile follower = profileRepository.save(createNormalProfileBen());
+            ActivityMembership membership = new ActivityMembership(activity, follower, ActivityMembership.Role.FOLLOWER);
+            activityMembershipRepository.save(membership);
+            followers.put(follower.getId(), follower);
+        }
+        int pageSize = 2;
+        int index = 3;
+        Pageable pageable = PageRequest.of(index, pageSize);
+        Page<ActivityMembership> actual = service.getActivityMembersByRole(activity.getId(), ActivityMembership.Role.FOLLOWER, pageable);
+        assertEquals(pageSize, actual.getNumberOfElements());
+    }
+
+    @Test
+    void getActivityMembersByRoleWithNoMembersOfThatRoleTest() {
+        Profile creator = profileRepository.save(createNormalProfileBen());
+        Profile participant = profileRepository.save(createNormalProfileBen());
+        Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        ActivityMembership creatorMembership = new ActivityMembership(activity, creator, ActivityMembership.Role.CREATOR);
+        ActivityMembership participantMembership = new ActivityMembership(activity, participant, ActivityMembership.Role.PARTICIPANT);
+        List<ActivityMembership> memberships = Arrays.asList(creatorMembership, participantMembership);
+        activityMembershipRepository.saveAll(memberships);
+
+        Pageable pageable = PageRequest.of(0, 2);
+        Page<ActivityMembership> actual = service.getActivityMembersByRole(activity.getId(), ActivityMembership.Role.FOLLOWER, pageable);
+        assertTrue(actual.isEmpty());
+    }
+
+    @Test
+    void getActivityMembersWithRoleWithNonExistentActivityTest() {
+        assertThrows(IllegalArgumentException.class, () ->
+                service.getActivityMembersByRole(-1, ActivityMembership.Role.CREATOR, null));
     }
 
 

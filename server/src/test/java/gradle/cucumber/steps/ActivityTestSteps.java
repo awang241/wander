@@ -214,12 +214,12 @@ public class ActivityTestSteps {
 
     @When("I want to see who is following my activity")
     public void iWantToSeeWhoIsFollowingMyActivity() {
-        actualMemberProfileResponse = activityController.getAllUsersWithRoleInActivity(loginResponse.getToken(), activity.getId());
+        actualMemberProfileResponse = activityController.getAllUsersWithRoleInActivity(loginResponse.getToken(), activity.getId(), null, 1, 0);
     }
 
     @Then("The ID first name last name and role of All people with roles in the activity is returned")
     public void theIDFirstNameLastNameAndRoleOfAllPeopleWithRolesInTheActivityIsReturned() {
-        assertEquals(expectedMemberProfileResponse, activityController.getAllUsersWithRoleInActivity(loginResponse.getToken(), activity.getId()));
+        assertEquals(expectedMemberProfileResponse, activityController.getAllUsersWithRoleInActivity(loginResponse.getToken(), activity.getId(), null, 1, 0));
     }
 
     @And("an activity exists in the database with {int} participants, {int} followers and {int} organizers")

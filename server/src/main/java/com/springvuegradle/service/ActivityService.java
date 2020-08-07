@@ -264,13 +264,27 @@ public class ActivityService {
     }
 
     /**
+     * Returns a page of members of an activity that have the given role. Pagination information (count, index, etc.) is
+     * provided in parameters.
+     * @param activityId the ID of the activity the members belong to.
+     * @param role      the role members are matched against.
+     * @param pageable  the pageable object providing pagination information.
+     * @return a list of all activity members with the given role.
+     */
+    public Page<ActivityMembership> getActivityMembersByRole(long activityId, ActivityMembership.Role role, Pageable pageable) {
+        if(!activityRepo.existsById(activityId)){
+            throw new IllegalArgumentException(ActivityResponseMessage.INVALID_ACTIVITY.toString());
+        }
+        return membershipRepo.findByActivityAndRole(activityId, role, pageable);
+    }
+
+    /**
      * Returns the specified page from the list of all activities.
      *
      * @param request A page request containing the index and size of the page to be returned.
      * @return The specified page from the list of all activities.
      */
     public Page<Activity> getAllActivities(Pageable request) {
-
         return activityRepo.findAll(request);
     }
 
@@ -281,7 +295,7 @@ public class ActivityService {
      * @param profileId The user's profile id
      * @return A map of the activities and the role that the user has with that activity.
      */
-    public Map<Activity,ActivityMembership.Role> getUsersActivities(Pageable request, Long profileId) {
+    public Map<Activity, ActivityMembership.Role> getUsersActivities(Pageable request, Long profileId) {
         Page<ActivityMembership> memberships = membershipRepo.findAllByProfileId(profileId, request);
         Map<Activity, ActivityMembership.Role> activityRoleMap = new HashMap<>();
         for (ActivityMembership membership: memberships.getContent()) {
@@ -295,7 +309,7 @@ public class ActivityService {
      * @param activities a list of normal activity objects to be simplified
      * @return a list of simplified activities
      */
-    public List<SimplifiedActivity> createSimplifiedActivities(Map<Activity, ActivityMembership.Role> activities) {
+    public static List<SimplifiedActivity> createSimplifiedActivities(Map<Activity, ActivityMembership.Role> activities) {
         List<SimplifiedActivity> simplifiedActivities = new ArrayList<>();
         activities.forEach((k,v) -> simplifiedActivities.add(new SimplifiedActivity(k, v.toString())));
         return simplifiedActivities;

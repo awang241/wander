@@ -142,9 +142,12 @@
                 api.getActivity(this.$route.params.id, localStorage.getItem('authToken'))
                     .then(response => this.activity = response.data)
                     .catch((error) => {
-                        console.log(error)
+                        console.log(error);
                         router.go(-1)
                     })
+            },
+            getActivityMembers() {
+
             },
             setProfileRole(profileId, role) {
                 profileId = role;
@@ -163,11 +166,8 @@
         },
         mounted() {
             //Mock data for testing; replace with appropriate API calls when implemented.
-            this.getActivity()
+            this.getActivity();
 
-            this.activity = {
-                continuous: false
-            };
             this.organisers = [
                 {
                     id: 1,

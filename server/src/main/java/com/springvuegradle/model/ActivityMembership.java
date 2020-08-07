@@ -89,4 +89,20 @@ public class ActivityMembership {
     public void setRole(Role role) {
         this.role = role;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ActivityMembership that = (ActivityMembership) o;
+        return Objects.equals(id, that.id) &&
+                Objects.equals(profile, that.profile) &&
+                Objects.equals(activity, that.activity) &&
+                role == that.role;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, profile, activity, role);
+    }
 }
