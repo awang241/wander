@@ -186,7 +186,7 @@ public class ActivityTestSteps {
 
     @Then("There is one activity with privacy {string}")
     public void there_is_one_activity_with_privacy_level(String privacy) {
-        ResponseEntity<List<Activity>> response = activityController.getActivitiesWithPrivacyLevel(loginResponse.getToken(), privacy);
+        ResponseEntity<List<Activity>> response = activityController.getActivities(privacy, loginResponse.getToken());
         System.out.println(response.getBody());
         assertEquals(1, response.getBody().size());
     }

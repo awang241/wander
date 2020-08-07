@@ -9,7 +9,6 @@ import com.springvuegradle.model.*;
 import com.springvuegradle.repositories.*;
 import com.springvuegradle.utilities.InitialDataHelper;
 import com.springvuegradle.service.ActivityService;
-import org.apache.coyote.Response;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -143,8 +142,8 @@ public class ActivityControllerTest {
         int i = 0;
         arepo.save(createNormalActivity());
         arepo.save(createNormalActivity1());
-        ResponseEntity<List<Activity>> response_entity = activityController.getActivitiesList();
-        for (Activity activity: response_entity.getBody()) {
+        ResponseEntity<List<Activity>> responseEntity = activityController.getActivities(null, null);
+        for (Activity activity: responseEntity.getBody()) {
             assertEquals(testActivities.get(i++), activity.getActivityName());
         }
     }
@@ -205,8 +204,8 @@ public class ActivityControllerTest {
     void getActivitiesResponseTest() {
         arepo.save(createNormalActivity());
         arepo.save(createNormalActivity1());
-        ResponseEntity<List<Activity>> responseEntity = activityController.getActivitiesList();
-        assertEquals(responseEntity.getStatusCode(), HttpStatus.OK);
+        ResponseEntity<List<Activity>> responseEntity = activityController.getActivities(null, null);
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
     }
 
     /**
@@ -216,8 +215,8 @@ public class ActivityControllerTest {
     void getActivitiesTest() {
         arepo.save(createNormalActivity());
         arepo.save(createNormalActivity1());
-        ResponseEntity<List<Activity>> responseEntity = activityController.getActivitiesList();
-        assertEquals(responseEntity.getBody().size(), 2);
+        ResponseEntity<List<Activity>> responseEntity = activityController.getActivities(null, null);
+        assertEquals(2, responseEntity.getBody().size());
     }
 
     /**

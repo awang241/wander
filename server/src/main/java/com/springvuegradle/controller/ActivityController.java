@@ -10,8 +10,8 @@ import com.springvuegradle.dto.ActivityRoleUpdateRequest;
 import com.springvuegradle.dto.ActivitiesResponse;
 import com.springvuegradle.dto.ActivityRoleCountResponse;
 import com.springvuegradle.dto.ActivityRoleRequest;
-import com.springvuegradle.dto.ProfileSearchResponse;
 import com.springvuegradle.enums.ActivityMessage;
+import com.springvuegradle.enums.ActivityPrivacy;
 import com.springvuegradle.enums.ActivityResponseMessage;
 import com.springvuegradle.enums.AuthenticationErrorMessage;
 import com.springvuegradle.enums.ProfileErrorMessage;
@@ -125,7 +125,7 @@ public class ActivityController {
             activityService.update(request, activityId);
             return new ResponseEntity<>(ActivityResponseMessage.EDIT_SUCCESS.toString(), HttpStatus.OK);
         } catch (IllegalArgumentException e) {
-            HttpStatus status = HttpStatus.BAD_REQUEST;
+            HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
             if (ActivityResponseMessage.SEMANTIC_ERRORS.contains(e.getMessage())) {
                 status = HttpStatus.FORBIDDEN;
             } else if (ActivityResponseMessage.SYNTAX_ERRORS.contains(e.getMessage())) {
@@ -162,19 +162,36 @@ public class ActivityController {
      * @return a response with all the activities in the database.
      */
     @GetMapping("/activities")
-    public ResponseEntity<List<Activity>> getActivitiesList() {
-        List<Activity> allActivities = aRepo.findAll();
-        return new ResponseEntity<>(allActivities, HttpStatus.OK);
+    public ResponseEntity<List<Activity>> getActivities(@RequestParam String privacyString,
+                                                        @RequestHeader("authorization") String token ) {
+        if (Boolean.TRUE.equals(FieldValidationHelper.isNullOrEmpty(privacyString))) {
+            return new ResponseEntity<>(activityService.getAllActivities(), HttpStatus.OK);
+        } else {
+            if ((token == null || token.isBlank())) {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+
+            ActivityPrivacy privacy;
+            try {
+                privacy = ActivityPrivacy.valueOf(privacyString.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+
+            List<Activity> publicActivityList = activityService.getActivitiesWithPrivacyLevel(privacy);
+            return new ResponseEntity<>(publicActivityList, HttpStatus.OK);
+        }
     }
 
     /**
-     * Quries the Database to find an activity
+     * REST endpoint to return the activity with the given ID
      * @param token authentication token
      * @param activityId the id of the activity
-     * @return
+     * @return A response containing the requested activity if successful, or a empty response with the appropriate
+     * error code otherwise.
      */
     @GetMapping("/activities/{activityId}")
-    protected ResponseEntity<Activity> getActivity(@RequestHeader("authorization") String token,
+    public ResponseEntity<Activity> getActivity(@RequestHeader("authorization") String token,
                                                 @PathVariable long activityId) {
         if (token == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
@@ -228,12 +245,12 @@ public class ActivityController {
                                                         @PathVariable long activityId
     ) {
         if (!jwtUtil.validateToken(token)) {
-            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
         try {
-            return new ResponseEntity<ActivityRoleCountResponse>(activityService.getRoleCounts(activityId), HttpStatus.OK);
+            return new ResponseEntity<>(activityService.getRoleCounts(activityId), HttpStatus.OK);
         } catch(IllegalArgumentException e){
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -401,7 +418,7 @@ public class ActivityController {
             return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
                     HttpStatus.UNAUTHORIZED);
         }
-        ArrayList possibleRoles = new ArrayList<>(Arrays.asList("participant", "follower"));
+        List<String> possibleRoles = new ArrayList<>(Arrays.asList("participant", "follower"));
         Boolean checkFollowerOrParticipant = securityService.checkEditPermission(token, profileId) && possibleRoles.contains(role);
         possibleRoles.add("organiser");
         Boolean checkCreatorOrAdmin = activityService.isProfileActivityCreator(jwtUtil.extractId(token), activityId) && possibleRoles.contains(role);
@@ -442,31 +459,10 @@ public class ActivityController {
         return new ResponseEntity<>(ActivityMessage.MEMBERSHIP_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
     }
 
-
-    /**
-     * Endpoint for getting all the activities with a given privacy level
-     *
-     * @param token        the user's authentication token.
-     * @param privacyLevel the specified privacy level from the front end
-     * @return a list of all activities with a given privacy level
-     */
-    @GetMapping("/activities/{privacyLevel}")
-    public ResponseEntity<List<Activity>> getActivitiesWithPrivacyLevel(@RequestHeader("authorization") String token, @PathVariable String privacyLevel) {
-        if (token == null || token.isBlank()) {
-            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
-        }
-        if (privacyLevel.equals("private") || privacyLevel.equals("friends") || privacyLevel.equals("public")) {
-            List<Activity> publicActivityList = activityService.getActivitiesWithPrivacyLevel(privacyLevel);
-            return new ResponseEntity<>(publicActivityList, HttpStatus.OK);
-        }
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-    }
-
     /**
      * REST endpoint for editing the privacy level of an existing activity. Given a HTTP request containing a correctly formatted JSON file,
      * updates the given database entry. For more information on the JSON format, see the @JsonCreator-tagged constructor
      * in the Activity class.
-     *
      * @param privacy The contents of HTTP request body, automatically mapped from a JSON file to an activity.
      * @return A HTTP response notifying the sender whether the edit was successful
      */
