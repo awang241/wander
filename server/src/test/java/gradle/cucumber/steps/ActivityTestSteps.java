@@ -6,6 +6,7 @@ import com.springvuegradle.controller.Profile_Controller;
 import com.springvuegradle.dto.ActivityRoleUpdateRequest;
 import com.springvuegradle.dto.LoginRequest;
 import com.springvuegradle.dto.LoginResponse;
+import com.springvuegradle.dto.PrivacyRequest;
 import com.springvuegradle.model.Activity;
 import com.springvuegradle.model.ActivityMembership;
 import com.springvuegradle.model.ActivityType;
@@ -146,7 +147,8 @@ public class ActivityTestSteps {
     @When("I change the visibility of my activity to {string} as the creator with email {string}")
     public void i_change_the_visibility_of_my_activity_to_as_the_creator_with_email(String privacy, String email) {
         Long profileId = profileRepository.findByPrimaryEmail(email).get(0).getId();
-        ResponseEntity<String> response = activityController.editActivityPrivacy(privacy, loginResponse.getToken(), profileId, activityRepository.getLastInsertedId());
+        PrivacyRequest privacyRequest = new PrivacyRequest(privacy);
+        ResponseEntity<String> response = activityController.editActivityPrivacy(privacyRequest, loginResponse.getToken(), profileId, activityRepository.getLastInsertedId());
         System.out.println(response.getBody());
         assertEquals(200, response.getStatusCodeValue());
     }
