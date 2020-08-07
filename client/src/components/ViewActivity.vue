@@ -22,7 +22,7 @@
                         Created by: creator name
                     </h2>
                     <div>
-                        <h3 class="title is-5"> Privacy: privacy status</h3>
+                        <h3 class="title is-5"> Privacy: {{privacy}}</h3>
                     </div>
                 </div>
             </div>
@@ -150,7 +150,7 @@
                 profileId = role;
             },
             shareActivity() {
-                router.push({name:"shareActivity"})
+                router.push({name: 'shareActivity', path:"ShareActivity/" + this.activity.id})
             },
             dateFormat(date) {
                 let year = date.slice(0, 4);
@@ -159,6 +159,20 @@
                 let hour = date.slice(11, 13);
                 let min = date.slice(14, 16);
                 return hour + ":" + min + " " + day + "/" + month + "/" + year;
+            }
+        },
+        computed: {
+            privacy: function () {
+                switch (this.activity.privacyLevel) {
+                    case 0 :
+                        return "Private";
+                    case 1 :
+                        return "Friends";
+                    case 2 :
+                        return "Public";
+                    default:
+                        return "Private";
+                }
             }
         },
         mounted() {

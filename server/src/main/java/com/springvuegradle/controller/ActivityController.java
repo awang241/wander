@@ -1,12 +1,7 @@
 package com.springvuegradle.controller;
 
 
-import com.springvuegradle.dto.SimplifiedActivitiesResponse;
-import com.springvuegradle.dto.SimplifiedActivity;
-import com.springvuegradle.dto.ActivityRoleUpdateRequest;
-import com.springvuegradle.dto.ActivitiesResponse;
-import com.springvuegradle.dto.ActivityRoleCountResponse;
-import com.springvuegradle.dto.ActivityRoleRequest;
+import com.springvuegradle.dto.*;
 import com.springvuegradle.enums.ActivityMessage;
 import com.springvuegradle.enums.ActivityPrivacy;
 import com.springvuegradle.enums.ActivityResponseMessage;
@@ -392,7 +387,7 @@ public class ActivityController {
      * @return A HTTP response notifying the sender whether the edit was successful
      */
     @PutMapping("/profiles/{profileId}/activities/{activityId}/privacy")
-    public ResponseEntity<String> editActivityPrivacy(@RequestBody String privacy,
+    public ResponseEntity<String> editActivityPrivacy(@RequestBody PrivacyRequest privacyRequest,
                                                       @RequestHeader("authorization") String token,
                                                       @PathVariable Long profileId,
                                                       @PathVariable Long activityId) {
@@ -401,7 +396,7 @@ public class ActivityController {
             return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(), HttpStatus.UNAUTHORIZED);
         }
         try {
-            activityService.editActivityPrivacy(privacy, activityId);
+            activityService.editActivityPrivacy(privacyRequest.getPrivacy(), activityId);
             return new ResponseEntity<>(ActivityResponseMessage.EDIT_SUCCESS.toString(), HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
