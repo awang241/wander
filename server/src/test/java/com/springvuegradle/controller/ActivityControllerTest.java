@@ -219,42 +219,6 @@ public class ActivityControllerTest {
         assertEquals(2, responseEntity.getBody().size());
     }
 
-    /**
-     * Tests response of the getUsersActivities endpoint
-     */
-    @Test
-    void getUsersActivitiesResponseTest() {
-        Activity trackRace = createNormalActivity();
-        ActivityType hiking = createActivityType();
-        Profile maurice = createNormalProfileMaurice();
-        Profile profile = prepo.save(maurice);
-        arepo.save(createNormalActivity1());
-        activityTypeRepo.save(hiking);
-
-        activityController.createActivity(profile.getId(), trackRace, null, true);
-        ResponseEntity<SimplifiedActivitiesResponse> responseEntity = activityController.getAllUsersActivities(null,
-                profile.getId(), 5, 0,"creator", true);
-        assertEquals(responseEntity.getStatusCode(), HttpStatus.OK);
-    }
-
-    /**
-     * Tests that the getUsersActivities endpoint retrieves the activities associated with a specific profile
-     */
-    @Test
-    void getUsersActivitiesTest() {
-        Activity trackRace = createNormalActivity();
-        ActivityType hiking = createActivityType();
-        Profile maurice = createNormalProfileMaurice();
-        Profile profile = prepo.save(maurice);
-        arepo.save(createNormalActivity1());
-        activityTypeRepo.save(hiking);
-
-        activityController.createActivity(profile.getId(), trackRace, null, true);
-        ResponseEntity<SimplifiedActivitiesResponse> responseEntity = activityController.getAllUsersActivities(null,
-                profile.getId(), 5, 0, "creator", true);
-        assertEquals(responseEntity.getBody().getResults().get(0).getActivityName(), "Kaikoura Coast Track race");
-    }
-
     /* Below are a set of ready-made Activity objects which can be used for various tests. */
 
     /**

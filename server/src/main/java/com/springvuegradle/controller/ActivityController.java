@@ -246,28 +246,25 @@ public class ActivityController {
 
     /**
      * Queries the Database to find all the activities of a user with their profile id.
-     *
+     * @param token      the users authentication token
+     * @param profileId  the users ID
+     * @param count      an integer for the amount of activities to be returned by the database
+     * @param startIndex an integer for the starting index of activities to search from
+     * @param role       the role of the user. Used to filter the activities
      * @return a response with all the activities of the user in the database.
      */
     @GetMapping("/profiles/{profileId}/activities")
     public ResponseEntity<SimplifiedActivitiesResponse> getAllUsersActivities(@RequestHeader("authorization") String token,
-                                                                @PathVariable Long profileId,
-                                                                @RequestParam("count") int count,
-                                                                @RequestParam("startIndex") int startIndex,
-                                                                @RequestParam("role") String role) {
-
-        return getAllUsersActivities(token, profileId, count, startIndex, role, false);
-    }
-
-
-    public ResponseEntity<SimplifiedActivitiesResponse> getAllUsersActivities(String token, Long profileId,
-            int count, int startIndex, String role, Boolean testing) {
+                                                                              @PathVariable Long profileId,
+                                                                              @RequestParam("count") int count,
+                                                                              @RequestParam("startIndex") int startIndex,
+                                                                              @RequestParam("role") String role) {
         SimplifiedActivitiesResponse activitiesResponse = null;
         HttpStatus status = null;
-        if (token == null && !testing) {
+        if (token == null) {
             status = HttpStatus.UNAUTHORIZED;
             activitiesResponse = new SimplifiedActivitiesResponse(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage());
-        } else if (!testing && Boolean.FALSE.equals(jwtUtil.validateToken(token))) {
+        } else if (Boolean.FALSE.equals(jwtUtil.validateToken(token))) {
             status = HttpStatus.FORBIDDEN;
             activitiesResponse = new SimplifiedActivitiesResponse(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage());
         } else if (count <= 0) {
@@ -288,6 +285,51 @@ public class ActivityController {
         }
         return new ResponseEntity<>(activitiesResponse, status);
     }
+
+//    /**
+//     * Queries the Database to find all the activities of a user with their profile id.
+//     *
+//     * @return a response with all the activities of the user in the database.
+//     */
+//    @GetMapping("/profiles/{profileId}/activities")
+//    public ResponseEntity<SimplifiedActivitiesResponse> getAllUsersActivities(@RequestHeader("authorization") String token,
+//                                                                @PathVariable Long profileId,
+//                                                                @RequestParam("count") int count,
+//                                                                @RequestParam("startIndex") int startIndex,
+//                                                                @RequestParam("role") String role) {
+//
+//        return getAllUsersActivities(token, profileId, count, startIndex, role, false);
+//    }
+//
+//
+//    public ResponseEntity<SimplifiedActivitiesResponse> getAllUsersActivities(String token, Long profileId,
+//            int count, int startIndex, String role, Boolean testing) {
+//        SimplifiedActivitiesResponse activitiesResponse = null;
+//        HttpStatus status = null;
+//        if (token == null && !testing) {
+//            status = HttpStatus.UNAUTHORIZED;
+//            activitiesResponse = new SimplifiedActivitiesResponse(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage());
+//        } else if (!testing && Boolean.FALSE.equals(jwtUtil.validateToken(token))) {
+//            status = HttpStatus.FORBIDDEN;
+//            activitiesResponse = new SimplifiedActivitiesResponse(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage());
+//        } else if (count <= 0) {
+//            status = HttpStatus.BAD_REQUEST;
+//            activitiesResponse = new SimplifiedActivitiesResponse(ProfileErrorMessage.INVALID_SEARCH_COUNT.getMessage());
+//        } else {
+//            int pageIndex = startIndex / count;
+//            PageRequest request = PageRequest.of(pageIndex, count);
+//            try {
+//                List<Activity> activityRoleMap = activityService.getActivitiesByProfileIdByRole(request, profileId, ActivityMembership.Role.valueOf(role.toUpperCase()));
+//                List<SimplifiedActivity> simplifiedActivities = activityService.createSimplifiedActivities(activityRoleMap);
+//                activitiesResponse = new SimplifiedActivitiesResponse(simplifiedActivities);
+//                status = HttpStatus.OK;
+//            } catch (IllegalArgumentException e) {
+//
+//            }
+//
+//        }
+//        return new ResponseEntity<>(activitiesResponse, status);
+//    }
 
 
     /**

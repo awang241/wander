@@ -1,5 +1,6 @@
 package com.springvuegradle.controller;
 
+import com.springvuegradle.dto.SimplifiedActivitiesResponse;
 import com.springvuegradle.enums.ActivityPrivacy;
 import com.springvuegradle.dto.ActivitiesResponse;
 import com.springvuegradle.dto.ActivityRoleRequest;
@@ -143,4 +144,26 @@ class ActivityControllerMockedTest {
 
         assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
     }
+
+    @Test
+    void getUsersActivitiesSuccessTest() {
+        ResponseEntity<String> expectedResponse = new ResponseEntity<>(HttpStatus.OK);
+        String mockToken = "bob";
+        long mockProfileId = 420;
+        Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
+        ResponseEntity<SimplifiedActivitiesResponse> actualResponse = activityController.getAllUsersActivities(mockToken, mockProfileId, 5, 0, "creator");
+        assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
+    }
+
+    @Test
+    void getUsersActivitiesInvalidCountTest() {
+        ResponseEntity<String> expectedResponse = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        String mockToken = "bob";
+        long mockProfileId = 420;
+        Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
+        ResponseEntity<SimplifiedActivitiesResponse> actualResponse = activityController.getAllUsersActivities(mockToken, mockProfileId, 0, 0, "creator");
+        assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
+    }
+
+    //Need test for invalid roles
 }
