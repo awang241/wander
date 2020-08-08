@@ -18,11 +18,8 @@
                     <h1 class="title is-1">
                         {{activity.activity_name}}
                     </h1>
-                    <h2 class="subtitle is-5">
-                        Created by: creator name
-                    </h2>
                     <div>
-                        <h3 class="title is-5"> Privacy: {{privacy}}</h3>
+                        <h3 class="title is-5">{{privacy}}</h3>
                     </div>
                 </div>
             </div>
@@ -72,7 +69,7 @@
                                         </tr>
                                       <tr>
                                           <td>Followers:</td>
-                                          <td>follower number</td>
+                                          <td>{{numFollowers}}</td>
                                       </tr>
                                     </table>
                                 </div>
@@ -135,6 +132,10 @@
           }
         },
         methods: {
+            getRoleCounts(){
+                api.getRoleCountsForActivity(this.$route.params.id, localStorage.getItem('authToken'))
+                .then(response => this.numFollowers = response.data.followers)
+            },
             editActivity() {
                 router.push({name: 'editActivity', params: {activityProp: this.activity}});
             },
@@ -178,6 +179,7 @@
         mounted() {
             //Mock data for testing; replace with appropriate API calls when implemented.
             this.getActivity()
+            this.getRoleCounts()
 
             this.activity = {
                 continuous: false
