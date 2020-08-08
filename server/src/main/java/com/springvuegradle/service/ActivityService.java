@@ -12,15 +12,9 @@ import com.springvuegradle.repositories.ActivityMembershipRepository;
 import com.springvuegradle.repositories.ActivityRepository;
 import com.springvuegradle.repositories.ActivityTypeRepository;
 import com.springvuegradle.repositories.ProfileRepository;
-import com.springvuegradle.model.*;
-import com.springvuegradle.repositories.*;
-import com.springvuegradle.repositories.spec.ProfileSpecifications;
-import com.springvuegradle.utilities.FieldValidationHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
@@ -233,7 +227,7 @@ public class ActivityService {
      * @param profileId the id of the user we want to assign the role to.
      * @param activityRole the role we want to assign to the user for the activity.
      */
-    public void addActivityRole(Long activityId, Long profileId, String activityRole) throws IllegalArgumentException {
+    public void addActivityRole(Long activityId, Long profileId, String activityRole) {
         Optional<Profile> optionalProfile = profileRepo.findById(profileId);
         Optional<Activity> optionalActivity = activityRepo.findById(activityId);
         if (optionalProfile.isEmpty()) {
@@ -271,16 +265,14 @@ public class ActivityService {
      * @param pageable  the pageable object providing pagination information.
      * @return a list of all activity members with the given role.
      */
-    public Page<ActivityMembership> getActivityMembersByRole(long activityId, ActivityMembership.Role role, Pageable pageable) {
-        if(!activityRepo.existsById(activityId)){
+    public Page<Profile> getActivityMembersByRole(long activityId, ActivityMembership.Role role, Pageable pageable) {
+        if (!activityRepo.existsById(activityId)){
             throw new IllegalArgumentException(ActivityResponseMessage.INVALID_ACTIVITY.toString());
         }
-        return membershipRepo.findByActivityAndRole(activityId, role, pageable);
+        return profileRepo.findByActivityAndRole(activityId, role, pageable);
     }
-
     /**
      * Returns the specified page from the list of all activities.
-     *
      * @param request A page request containing the index and size of the page to be returned.
      * @return The specified page from the list of all activities.
      */

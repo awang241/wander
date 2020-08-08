@@ -286,7 +286,7 @@ class ActivityServiceTest {
     void getActivityByIdFailedTest() {
         long activityId = 10;
         Activity failedResult = service.getActivityByActivityId(activityId);
-        assertEquals(null, failedResult);
+        assertNull(failedResult);
     }
 
     void addNormalUserRoleToActivityTest() {
@@ -399,14 +399,15 @@ class ActivityServiceTest {
         Activity activity = activityRepository.save(createNormalActivityKaikoura());
         ActivityMembership creatorMembership = new ActivityMembership(activity, creator, ActivityMembership.Role.CREATOR);
         activityMembershipRepository.save(creatorMembership);
-        List<ActivityMemberProfileResponse> response = Arrays.asList(new ActivityMemberProfileResponse(creator.getId(), creator.getFirstname(), creator.getLastname(), ActivityMembership.Role.CREATOR));
+        List<ActivityMemberProfileResponse> response = Collections.singletonList(new ActivityMemberProfileResponse(creator.getId(), creator.getFirstname(), creator.getLastname(), ActivityMembership.Role.CREATOR));
         assertEquals(response, service.getActivityMembers(activity.getId()));
     }
 
-    @Test
+
     /**
      * Ensures getting multiple profiles linked to an activity works as expected
      */
+    @Test
     void getProfilesWithRolesFromActivityWithMultipleRolesTest() {
         Profile creator = profileRepository.save(createNormalProfileBen());
         Profile followerOne = profileRepository.save(createNormalProfileBen());
@@ -450,10 +451,12 @@ class ActivityServiceTest {
         activityMembershipRepository.saveAll(memberships);
 
         Pageable pageable = PageRequest.of(0, 2);
-        List<ActivityMembership> expectedMemberships = Arrays.asList(followerOneMembership, followerTwoMembership);
-        Page<ActivityMembership> expectedPage = new PageImpl<>(expectedMemberships, pageable, expectedMemberships.size());
-        Page<ActivityMembership> actual = service.getActivityMembersByRole(activity.getId(), ActivityMembership.Role.FOLLOWER, pageable);
-        assertEquals(expectedPage, actual);
+        List<Profile> expectedProfiles = new ArrayList<>();
+        expectedProfiles.add(followerOne);
+        expectedProfiles.add(followerTwo);
+        Page<Profile> actualProfiles = service.getActivityMembersByRole(activity.getId(), ActivityMembership.Role.FOLLOWER, pageable);
+        assertTrue(expectedProfiles.containsAll(actualProfiles.getContent()));
+        assertEquals(expectedProfiles.size(),actualProfiles.getSize());
     }
 
     @Test
@@ -462,7 +465,7 @@ class ActivityServiceTest {
         Activity activity = activityRepository.save(createNormalActivityKaikoura());
         ActivityMembership creatorMembership = new ActivityMembership(activity, creator, ActivityMembership.Role.CREATOR);
 
-        Map<Long, Profile> followers = new HashMap<Long, Profile>();
+        Map<Long, Profile> followers = new HashMap<>();
         for (int i = 0; i < 10; i++) {
             Profile follower = profileRepository.save(createNormalProfileBen());
             ActivityMembership membership = new ActivityMembership(activity, follower, ActivityMembership.Role.FOLLOWER);
@@ -472,7 +475,7 @@ class ActivityServiceTest {
         int pageSize = 2;
         int index = 3;
         Pageable pageable = PageRequest.of(index, pageSize);
-        Page<ActivityMembership> actual = service.getActivityMembersByRole(activity.getId(), ActivityMembership.Role.FOLLOWER, pageable);
+        Page<Profile> actual = service.getActivityMembersByRole(activity.getId(), ActivityMembership.Role.FOLLOWER, pageable);
         assertEquals(pageSize, actual.getNumberOfElements());
     }
 
@@ -487,7 +490,7 @@ class ActivityServiceTest {
         activityMembershipRepository.saveAll(memberships);
 
         Pageable pageable = PageRequest.of(0, 2);
-        Page<ActivityMembership> actual = service.getActivityMembersByRole(activity.getId(), ActivityMembership.Role.FOLLOWER, pageable);
+        Page<Profile> actual = service.getActivityMembersByRole(activity.getId(), ActivityMembership.Role.FOLLOWER, pageable);
         assertTrue(actual.isEmpty());
     }
 

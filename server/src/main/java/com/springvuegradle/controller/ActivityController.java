@@ -5,19 +5,25 @@ import com.springvuegradle.dto.SimplifiedActivitiesResponse;
 import com.springvuegradle.dto.SimplifiedActivity;
 import com.springvuegradle.dto.requests.ActivityRoleUpdateRequest;
 import com.springvuegradle.dto.responses.ActivityMemberProfileResponse;
+import com.springvuegradle.dto.responses.ProfileSummary;
 import com.springvuegradle.enums.ActivityMessage;
 import com.springvuegradle.enums.ActivityResponseMessage;
 import com.springvuegradle.enums.AuthenticationErrorMessage;
 import com.springvuegradle.enums.ProfileErrorMessage;
 import com.springvuegradle.model.Activity;
 import com.springvuegradle.model.ActivityMembership;
+import com.springvuegradle.model.ActivityMembership.Role;
+import com.springvuegradle.model.Profile;
 import com.springvuegradle.repositories.ActivityRepository;
 import com.springvuegradle.service.ActivityService;
 import com.springvuegradle.service.SecurityService;
 import com.springvuegradle.utilities.FieldValidationHelper;
+import com.springvuegradle.utilities.FormatHelper;
 import com.springvuegradle.utilities.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -116,8 +122,6 @@ public class ActivityController {
             HttpStatus status = HttpStatus.BAD_REQUEST;
             if (ActivityResponseMessage.SEMANTIC_ERRORS.contains(e.getMessage())) {
                 status = HttpStatus.FORBIDDEN;
-            } else if (ActivityResponseMessage.SYNTAX_ERRORS.contains(e.getMessage())) {
-                status = HttpStatus.BAD_REQUEST;
             }
             return new ResponseEntity<>(e.getMessage(), status);
         } catch (Exception e) {
@@ -150,26 +154,55 @@ public class ActivityController {
      * @return a simplified list of users including basic info and their role in the activity
      */
     @GetMapping("/activities/{activityId}/members")
-    public ResponseEntity<List<ActivityMemberProfileResponse>> getAllUsersWithRoleInActivity(@RequestHeader("authorization") String token,
-                                                                                             @PathVariable long activityId,
-                                                                                             @RequestParam(name = "role", required = false) String role,
-                                                                                             @RequestParam(name = "count", required = false) int count,
-                                                                                             @RequestParam(name = "index", required = false) int index) {
-        //TODO Update to use search/pagination parameters
+    public ResponseEntity<List<ActivityMemberProfileResponse>> getActivityMembers(@RequestHeader("authorization") String token,
+                                                                                  @PathVariable long activityId) {
         if (!jwtUtil.validateToken(token)) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
-        /**
-        if (index < 0 || count <= 0) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        } else {
-            PageRequest request = PageRequest.of(index / count, count);
-        }*/
 
         try {
             return new ResponseEntity<>(activityService.getActivityMembers(activityId), HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    /**
+     * Given an activity ID, returns an HTTP response containing a list of summaries of all members of that activity
+     * with the given role. If count and index are supplied in the query string, the result is paginated instead
+     * @param token the authorization token of the user
+     * @param activityId the ID of the activity we are getting users with roles from
+     * @return a simplified list of users including basic info and their role in the activity
+     */
+    @GetMapping("/activities/{activityId}/members/{role}")
+    public ResponseEntity<List<ProfileSummary>> getActivityMembers(@RequestHeader("authorization") String token,
+                                                                   @PathVariable long activityId,
+                                                                   @PathVariable(name = "role") String roleName,
+                                                                   @RequestParam(name = "count", required = false) Integer count,
+                                                                   @RequestParam(name = "index", required = false) Integer index) {
+        if (!jwtUtil.validateToken(token)) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        Pageable pageable;
+        if (count == null && index == null) {
+            pageable = PageRequest.of(0, 10000);
+        } else if (count == null || index == null) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } else if (count < 0 || index < 1) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } else {
+            pageable =  PageRequest.of(count / index, index);
+        }
+
+        try {
+            ActivityMembership.Role role = ActivityMembership.Role.valueOf(roleName.toUpperCase());
+            Page<Profile> profiles = activityService.getActivityMembersByRole(activityId, role, pageable);
+            return new ResponseEntity<>(FormatHelper.createProfileSummaries(profiles.getContent()), HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -252,8 +285,8 @@ public class ActivityController {
 
     public ResponseEntity<SimplifiedActivitiesResponse> getAllUsersActivities(String token, Long profileId,
             int count, int startIndex, Boolean testing) {
-        SimplifiedActivitiesResponse activitiesResponse = null;
-        HttpStatus status = null;
+        SimplifiedActivitiesResponse activitiesResponse;
+        HttpStatus status;
         if (token == null && !testing) {
             status = HttpStatus.UNAUTHORIZED;
             activitiesResponse = new SimplifiedActivitiesResponse(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage());
@@ -267,7 +300,7 @@ public class ActivityController {
             int pageIndex = startIndex / count;
             PageRequest request = PageRequest.of(pageIndex, count);
             Map<Activity,ActivityMembership.Role> activityRoleMap = activityService.getUsersActivities(request, profileId);
-            List<SimplifiedActivity> simplifiedActivities = activityService.createSimplifiedActivities(activityRoleMap);
+            List<SimplifiedActivity> simplifiedActivities = ActivityService.createSimplifiedActivities(activityRoleMap);
             activitiesResponse = new SimplifiedActivitiesResponse(simplifiedActivities);
             status = HttpStatus.OK;
         }

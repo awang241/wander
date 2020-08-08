@@ -7,7 +7,7 @@ import java.util.Objects;
 @Entity
 public class ActivityMembership {
     public enum Role {
-        CREATOR, ORGANISER, PARTICIPANT, FOLLOWER;
+        CREATOR, ORGANISER, PARTICIPANT, FOLLOWER
     }
 
     @Embeddable
@@ -44,11 +44,11 @@ public class ActivityMembership {
     @EmbeddedId
     private ActivityMembershipId id;
 
-    @ManyToOne//(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "profile_fk", insertable = false, updatable = false)
     private Profile profile;
 
-    @ManyToOne//(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "activity_fk", insertable = false, updatable = false)
     private Activity activity;
 
@@ -88,21 +88,5 @@ public class ActivityMembership {
 
     public void setRole(Role role) {
         this.role = role;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ActivityMembership that = (ActivityMembership) o;
-        return Objects.equals(id, that.id) &&
-                Objects.equals(profile, that.profile) &&
-                Objects.equals(activity, that.activity) &&
-                role == that.role;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, profile, activity, role);
     }
 }
