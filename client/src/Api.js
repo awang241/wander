@@ -34,6 +34,7 @@ export default {
   getActivityTypesList: () => localAxiosInstance.get('/activityTypes'),
   getAuthLevel: (token) => localAxiosInstance.get('authLevel/', {headers: {"authorization":token}}),
   getProfile: (userId, token) => localAxiosInstance.get('profiles/'+userId, {headers: {"authorization":token}}),
+  getRoleCountsForActivity: (activityId, token) => localAxiosInstance.get('activities/'+activityId +'/rolecount', {headers: {"authorization":token}}),
   getUserActivitiesList: (userId, token) => localAxiosInstance.get('/profiles/' + userId + '/activities', {headers: {"authorization":token}}),
   getUserProfiles: (token, parameters = {}) => localAxiosInstance.get('profiles/', {headers: {"authorization":token}, params: parameters}),
   getNextActivities: (userId, token, parameters = {}) => localAxiosInstance.get('/profiles/' + userId + '/activities', {headers: {"authorization":token}, params: parameters}),
