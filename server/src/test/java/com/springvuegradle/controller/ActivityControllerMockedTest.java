@@ -151,7 +151,7 @@ class ActivityControllerMockedTest {
         String mockToken = "bob";
         long mockProfileId = 420;
         Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
-        ResponseEntity<SimplifiedActivitiesResponse> actualResponse = activityController.getAllUsersActivities(mockToken, mockProfileId, 5, 0, "creator");
+        ResponseEntity<SimplifiedActivitiesResponse> actualResponse = activityController.getUsersActivitiesByRole(mockToken, mockProfileId, 5, 0, "creator");
         assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
     }
 
@@ -161,7 +161,7 @@ class ActivityControllerMockedTest {
         String mockToken = "bob";
         long mockProfileId = 420;
         Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
-        ResponseEntity<SimplifiedActivitiesResponse> actualResponse = activityController.getAllUsersActivities(mockToken, mockProfileId, 0, 0, "creator");
+        ResponseEntity<SimplifiedActivitiesResponse> actualResponse = activityController.getUsersActivitiesByRole(mockToken, mockProfileId, 0, 0, "creator");
         assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
     }
 
