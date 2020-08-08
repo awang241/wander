@@ -254,6 +254,8 @@ public class ActivityController {
      *                   "public" can also come through as a role to get all the public activities.
      *                   "creatorOrOrganiser" can also come through as a role to get all the activities the user created
      *                   and activities the organiser created.
+     *                   "discover" can also come through as a role to get all the activities that a public and the user
+     *                   does not have an associated role with.
      * @return a response with all the activities of the user in the database.
      */
     @GetMapping("/profiles/{profileId}/activities")
@@ -281,6 +283,8 @@ public class ActivityController {
                 activities = activityService.getPublicActivities(request);
             } else if (role.equals("creatorOrOrganiser")) {
                 activities = activityService.getActivitiesUserCanModify(request, profileId);
+            } else if (role.equals("discover")) {
+                activities = activityService.getNewActivities(request, profileId);
             } else {
                 try {
                     activities = activityService.getActivitiesByProfileIdByRole(request, profileId, ActivityMembership.Role.valueOf(role.toUpperCase()));

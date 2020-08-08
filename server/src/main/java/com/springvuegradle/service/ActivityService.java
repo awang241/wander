@@ -233,17 +233,50 @@ public class ActivityService {
         return activities.getContent();
     }
 
+    /**
+     * Returns all the activities that the user is a creator or organiser of.
+     * @param request contains the count and start index for pagination
+     * @param profileId the id of the user we want to check is the creator or organiser of an activity
+     * @return list of activities
+     */
     public List<Activity> getActivitiesUserCanModify(PageRequest request, Long profileId) {
         List<Activity> userActivities = new ArrayList<>();
         Page<ActivityMembership> memberships = membershipRepo.findAllByProfileId(profileId, request);
         for (ActivityMembership membership : memberships) {
             if (membership.getRole().equals(ActivityMembership.Role.CREATOR) ||
-               (membership.getRole().equals(ActivityMembership.Role.ORGANISER) && membership.getActivity().getPrivacyLevel() > 0)) {
+                    (membership.getRole().equals(ActivityMembership.Role.ORGANISER) && membership.getActivity().getPrivacyLevel() > 0)) {
                 userActivities.add(membership.getActivity());
             }
         }
         return userActivities;
     }
+
+
+    /**
+     * Returns all the new activities for the user to discover.
+     * @param request contains the count and start index for pagination
+     * @param profileId refers to id of the user we want to check
+     * @return list of activities the user has no current association with and
+     */
+    public List<Activity> getNewActivities(PageRequest request, Long profileId) {
+        List<Activity> activities = new ArrayList<>();
+        List<Activity> results = activityRepo.findAllByPrivacyLevel(2);
+        if (results!= null) {
+            for (Activity activity: results) {
+                boolean profileAssociated = false;
+                for (ActivityMembership am: activity.getMembers()) {
+                    if (am.getProfile().getId().equals(profileId)) {
+                        profileAssociated=true;
+                    }
+                }
+                if (!profileAssociated) {
+                    activities.add(activity);
+                }
+            }
+        }
+        return activities.subList(Math.min(activities.size(), request.getPageNumber()), Math.min(activities.size(), request.getPageSize()));
+    }
+
 
     /**
      * Returns all activities with the given privacy level.

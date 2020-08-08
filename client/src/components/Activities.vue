@@ -176,7 +176,7 @@ const DEFAULT_RESULT_COUNT = 10;
                             });
                         }
                         break;
-                    case "public":
+                    case "discover":
                         if (this.moreDiscoverActivitiesExist) {
                             const searchParameters = this.getParameters(this.discoverActivitiesStartIndex, role);
                             api.getNextActivities(store.getters.getUserId, localStorage.getItem("authToken"), searchParameters).then(response => {
@@ -198,7 +198,7 @@ const DEFAULT_RESULT_COUNT = 10;
             this.loadMoreActivities("creator");
             this.loadMoreActivities("participant");
             this.loadMoreActivities("follower");
-            this.loadMoreActivities("public");
+            this.loadMoreActivities("discover");
         }
     }
 

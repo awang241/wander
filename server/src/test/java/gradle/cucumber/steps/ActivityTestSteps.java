@@ -3,10 +3,7 @@ package gradle.cucumber.steps;
 import com.springvuegradle.controller.ActivityController;
 import com.springvuegradle.controller.LoginController;
 import com.springvuegradle.controller.Profile_Controller;
-import com.springvuegradle.dto.ActivityRoleUpdateRequest;
-import com.springvuegradle.dto.LoginRequest;
-import com.springvuegradle.dto.LoginResponse;
-import com.springvuegradle.dto.PrivacyRequest;
+import com.springvuegradle.dto.*;
 import com.springvuegradle.model.Activity;
 import com.springvuegradle.model.ActivityMembership;
 import com.springvuegradle.model.ActivityType;
@@ -67,6 +64,8 @@ public class ActivityTestSteps {
     private ResponseEntity<String> responseEntity;
 
     private Activity activity;
+
+    private SimplifiedActivitiesResponse simplifiedActivitiesResponse;
 
     @AfterEach()
     private void tearDown() {
@@ -228,4 +227,36 @@ public class ActivityTestSteps {
         ActivityMembership activityMembership = optionalActivityMembership.get();
         assertEquals(role, activityMembership.getRole());
     }
+
+    @Given("I create the following activities, making them public")
+    public void i_create_the_following_activities_making_them_public(io.cucumber.datatable.DataTable activityNames) {
+        typeRepository.save(new ActivityType("Running"));
+        for (String activityName: activityNames.asList()) {
+            assertEquals(201, activityController.createActivity(jwtUtil.extractId(loginResponse.getToken()), activity = createNormalActivity(activityName, "Christchurch"), loginResponse.getToken()).getStatusCodeValue());
+            assertEquals(200, activityController.editActivityPrivacy(new PrivacyRequest("public"), loginResponse.getToken(), loginResponse.getUserId(), activityRepository.getLastInsertedId()).getStatusCodeValue());
+        }
+    }
+
+    @Given("I create the following activities, making them public and the account with email {string} an organiser of each")
+    public void i_create_the_following_activities_making_them_public_and_the_account_with_email_an_organiser_of_each(String email, io.cucumber.datatable.DataTable activityNames) {
+        Long profileId = profileRepository.findByEmail(email).get(0).getId();
+        for (String activityName: activityNames.asList()) {
+            assertEquals(201, activityController.createActivity(jwtUtil.extractId(loginResponse.getToken()), activity = createNormalActivity(activityName, "Christchurch"), loginResponse.getToken()).getStatusCodeValue());
+            assertEquals(200, activityController.editActivityPrivacy(new PrivacyRequest("public"), loginResponse.getToken(), loginResponse.getUserId(), activityRepository.getLastInsertedId()).getStatusCodeValue());
+            assertEquals(201, activityController.addActivityRole(loginResponse.getToken(), profileId, activityRepository.getLastInsertedId(), "organiser").getStatusCodeValue());
+        }
+    }
+
+    @When("I go to view the activities that I am a creator or organiser of.")
+    public void i_go_to_view_the_activities_that_I_am_a_creator_or_organiser_of() {
+        ResponseEntity<SimplifiedActivitiesResponse> response = activityController.getUsersActivitiesByRole(loginResponse.getToken(), loginResponse.getUserId(), 5, 0, "creatorOrOrganiser");
+        assertEquals(200, response.getStatusCodeValue());
+        simplifiedActivitiesResponse = response.getBody();
+    }
+
+    @Then("Four activities are returned.")
+    public void four_activities_are_returned() {
+        assertEquals(4, simplifiedActivitiesResponse.getResults().size());
+    }
+
 }
