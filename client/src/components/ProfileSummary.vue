@@ -14,19 +14,21 @@
                     <p> {{activity}}</p>
                 </div>
             </div>
-            <b-menu-item v-if="store.getters.getAuthenticationLevel <= 1" class="is-vertical-center">
-                <template slot="label">
-                    <b-dropdown aria-role="list" class="is-pulled-right" position="is-bottom-left">
-                        <b-icon icon="ellipsis-v" slot="trigger"></b-icon>
-                        <b-dropdown-item aria-role="listitem" @click="gotoProfile">View profile</b-dropdown-item>
-                        <b-dropdown-item aria-role="listitem" @click="editProfile">Edit profile </b-dropdown-item>
-                        <b-dropdown-item aria-role="listitem" @click="deleteProfile">Delete profile</b-dropdown-item>
-                        <b-dropdown-item v-if="this.profileIsAdmin" aria-role="listitem" @click="changeAdminRights('user')">Remove admin rights</b-dropdown-item>
-                        <b-dropdown-item v-else aria-role="listitem" @click="changeAdminRights('admin')">Make admin</b-dropdown-item>
-                    </b-dropdown>
-                </template>
-            </b-menu-item>
-            <b-button v-else type="is-text" @click="gotoProfile(profile.id)">View profile</b-button>
+            <slot name="options">
+                <b-menu-item v-if="store.getters.getAuthenticationLevel <= 1" class="is-vertical-center">
+                    <template slot="label">
+                        <b-dropdown aria-role="list" class="is-pulled-right" position="is-bottom-left">
+                            <b-icon icon="ellipsis-v" slot="trigger"></b-icon>
+                            <b-dropdown-item aria-role="listitem" @click="gotoProfile">View profile</b-dropdown-item>
+                            <b-dropdown-item aria-role="listitem" @click="editProfile">Edit profile </b-dropdown-item>
+                            <b-dropdown-item aria-role="listitem" @click="deleteProfile">Delete profile</b-dropdown-item>
+                            <b-dropdown-item v-if="this.profileIsAdmin" aria-role="listitem" @click="changeAdminRights('user')">Remove admin rights</b-dropdown-item>
+                            <b-dropdown-item v-else aria-role="listitem" @click="changeAdminRights('admin')">Make admin</b-dropdown-item>
+                        </b-dropdown>
+                    </template>
+                </b-menu-item>
+                <b-button v-else type="is-text" @click="gotoProfile(profile.id)">View profile</b-button>
+            </slot>
         </div>
     </div>
 </template>

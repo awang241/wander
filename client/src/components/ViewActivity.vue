@@ -91,9 +91,12 @@
                                v-for="organiser in organisers"
                                 :key="organiser.id">
                             <ProfileSummary class="flex-item" :profile="organiser">
-                                <b-button v-on:click="setProfileRole(organiser.id, 'PARTICIPANT')">
-                                    Make Participant
-                                </b-button>
+                                <template #options>
+                                    <b-button v-if="isCreatorOrOrganizer" v-on:click="setProfileRole(organiser.id, 'ORGANISER')">
+                                        Make Participant
+                                    </b-button>
+                                    <p v-else></p>
+                                </template>
                             </ProfileSummary>
                         </div>
                     </div>
@@ -105,9 +108,11 @@
                              v-for="participant in participants"
                              :key="participant.id">
                             <ProfileSummary class="flex-item" :profile="participant">
-                                <b-button v-on:click="setProfileRole(organiser.id, 'ORGANISER')">
-                                    Make Organiser
-                                </b-button>
+                                <template #options>
+                                    <b-button  v-if="isCreatorOrOrganizer" v-on:click="setProfileRole(organiser.id, 'ORGANISER')">
+                                        Make Organiser
+                                    </b-button>
+                                </template>
                             </ProfileSummary>
                         </div>
                     </div>
@@ -131,6 +136,7 @@
                 activity: null,
                 organisers: [],
                 participants: [],
+                isCreatorOrOrganizer: false,
                 numFollowers: 0
           }
         },
