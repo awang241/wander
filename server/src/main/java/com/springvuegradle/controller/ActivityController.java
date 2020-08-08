@@ -5,6 +5,7 @@ import com.springvuegradle.dto.SimplifiedActivitiesResponse;
 import com.springvuegradle.dto.SimplifiedActivity;
 import com.springvuegradle.dto.requests.ActivityRoleUpdateRequest;
 import com.springvuegradle.dto.responses.ActivityMemberProfileResponse;
+import com.springvuegradle.dto.responses.ActivityMemberRoleResponse;
 import com.springvuegradle.dto.responses.ProfileSummary;
 import com.springvuegradle.enums.ActivityMessage;
 import com.springvuegradle.enums.ActivityResponseMessage;
@@ -169,41 +170,59 @@ public class ActivityController {
 
     /**
      * Given an activity ID, returns an HTTP response containing a list of summaries of all members of that activity
-     * with the given role. If count and index are supplied in the query string, the result is paginated instead
-     * @param token the authorization token of the user
-     * @param activityId the ID of the activity we are getting users with roles from
-     * @return a simplified list of users including basic info and their role in the activity
+     * with the given role. If count and index are supplied in the query string, the result is paginated.
+     * @param token         The provided authorisation token
+     * @param activityId    The ID of the activity the members belong to
+     * @param roleName      The name of the role being searched for. This must match one of the roles specified in
+     *                      ActivityMemberships.
+     * @param count         Optional parameter for specifying page size. This parameter must either be included with index
+     *                      or not at all.
+     * @param index         Optional parameter for specifying a member index; the server will return the page that contains
+     *                      that item. This parameter must either be included with count or not at all.
+     * @return An HTTP response containing the list of members with that role if the request was successful. Otherwise,
+     *          an error message is returned instead.
      */
     @GetMapping("/activities/{activityId}/members/{role}")
-    public ResponseEntity<List<ProfileSummary>> getActivityMembers(@RequestHeader("authorization") String token,
-                                                                   @PathVariable long activityId,
-                                                                   @PathVariable(name = "role") String roleName,
-                                                                   @RequestParam(name = "count", required = false) Integer count,
-                                                                   @RequestParam(name = "index", required = false) Integer index) {
+    public ResponseEntity<ActivityMemberRoleResponse> getActivityMembers(@RequestHeader("authorization") String token,
+                                                                         @PathVariable long activityId,
+                                                                         @PathVariable(name = "role") String roleName,
+                                                                         @RequestParam(name = "count", required = false) Integer count,
+                                                                         @RequestParam(name = "index", required = false) Integer index) {
+        ActivityMemberRoleResponse body;
+        HttpStatus status;
         if (!jwtUtil.validateToken(token)) {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            body = new ActivityMemberRoleResponse(AuthenticationErrorMessage.INVALID_CREDENTIALS);
+            return new ResponseEntity<>(body, HttpStatus.UNAUTHORIZED);
         }
 
         Pageable pageable;
         if (count == null && index == null) {
             pageable = PageRequest.of(0, 10000);
-        } else if (count == null || index == null) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        } else if (count < 0 || index < 1) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } else if (count == null || index == null || count < 1 || index < 0) {
+            body = new ActivityMemberRoleResponse(ProfileErrorMessage.INVALID_SEARCH_COUNT);
+            return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
         } else {
-            pageable =  PageRequest.of(count / index, index);
+            pageable =  PageRequest.of(index / count, count);
         }
 
         try {
             ActivityMembership.Role role = ActivityMembership.Role.valueOf(roleName.toUpperCase());
             Page<Profile> profiles = activityService.getActivityMembersByRole(activityId, role, pageable);
-            return new ResponseEntity<>(FormatHelper.createProfileSummaries(profiles.getContent()), HttpStatus.OK);
+            List<ProfileSummary> summaries = FormatHelper.createProfileSummaries(profiles.getContent());
+            body = new ActivityMemberRoleResponse(summaries);
+            status = HttpStatus.OK;
         } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            body = new ActivityMemberRoleResponse(e.getMessage());
+            if (e.getMessage().equals(ActivityResponseMessage.INVALID_ACTIVITY.toString())) {
+                status = HttpStatus.NOT_FOUND;
+            } else {
+                status = HttpStatus.BAD_REQUEST;
+            }
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            body = new ActivityMemberRoleResponse(e.getMessage());
+            status = HttpStatus.INTERNAL_SERVER_ERROR;
         }
+        return new ResponseEntity<>(body, status);
     }
 
 
