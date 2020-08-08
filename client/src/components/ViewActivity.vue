@@ -151,7 +151,7 @@
                 profileId = role;
             },
             shareActivity() {
-                router.push({name: 'shareActivity', path:"ShareActivity/" + this.activity.id})
+                router.push("/ShareActivity/" + this.activity.id + "/" + this.privacy.toLowerCase())
             },
             dateFormat(date) {
                 let year = date.slice(0, 4);
