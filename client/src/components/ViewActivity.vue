@@ -92,10 +92,7 @@
                                 :key="organiser.id">
                             <ProfileSummary class="flex-item" :profile="organiser">
                                 <template #options>
-                                    <b-button v-if="isCreatorOrOrganizer" v-on:click="setProfileRole(organiser.id, 'ORGANISER')">
-                                        Make Participant
-                                    </b-button>
-                                    <p v-else></p>
+                                    <b-button @click="changeRole(organiser, 'participant')">Change to participant</b-button>
                                 </template>
                             </ProfileSummary>
                         </div>
@@ -109,9 +106,7 @@
                              :key="participant.id">
                             <ProfileSummary class="flex-item" :profile="participant">
                                 <template #options>
-                                    <b-button  v-if="isCreatorOrOrganizer" v-on:click="setProfileRole(organiser.id, 'ORGANISER')">
-                                        Make Organiser
-                                    </b-button>
+                                    <b-button @click="changeRole(participant, 'organizer')">Change to organizer</b-button>
                                 </template>
                             </ProfileSummary>
                         </div>
