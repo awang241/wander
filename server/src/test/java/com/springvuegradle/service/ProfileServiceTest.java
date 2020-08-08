@@ -370,6 +370,19 @@ class ProfileServiceTest {
         }
     }
 
+    @Test
+    void checkValidEmailExistsInDatabaseTest(){
+        saveWithEmails(steven);
+        String email = steven.getPrimary_email();
+        assertTrue(testService.checkEmailExistsInDB(email));
+    }
+
+    @Test
+    void checkInvalidEmailExistsInDatabaseTest(){
+        String email = "doesNotExistInDatabase@gmail.com";
+        assertFalse(testService.checkEmailExistsInDB(email));
+    }
+
     /**
      * Example test profile to use in tests
      **/

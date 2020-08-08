@@ -190,11 +190,11 @@ public class ProfileService {
 
     /**
      * Checks if an email address exists in the database.
-     * @param email The email that is being checked if it exists in the database
+     * @param email The email in string that is being checked if it exists in the database
      * @return a boolean based on whether the email exists in the database or not.
      */
-    public boolean checkEmailExistsInDB(Email email) {
-        Optional<Email> result = emailRepository.findByAddress(email.getAddress());
+    public boolean checkEmailExistsInDB(String email) {
+        Optional<Email> result = emailRepository.findByAddress(email);
         if (result.isEmpty()) {
            return false;
         }
