@@ -53,7 +53,7 @@
     export default {
         name: "ShareActivity",
         props: {
-            activityId: {
+            id: {
                 type: Number
             },
             activityPrivacy: {
@@ -78,7 +78,7 @@
         methods: {
 
             shareActivity() {
-                Api.editActivityPrivacy(store.getters.getUserId, this.activityId, this.privacy, localStorage.getItem('authToken'))
+                Api.editActivityPrivacy(store.getters.getUserId, this.id, this.privacy, localStorage.getItem('authToken'))
                     .then((response) => {
                         console.log(response);
                         this.successToast("Activity privacy updated")

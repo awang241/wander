@@ -233,6 +233,18 @@ public class ActivityService {
         return activities.getContent();
     }
 
+    public List<Activity> getActivitiesUserCanModify(PageRequest request, Long profileId) {
+        List<Activity> userActivities = new ArrayList<>();
+        Page<ActivityMembership> memberships = membershipRepo.findAllByProfileId(profileId, request);
+        for (ActivityMembership membership : memberships) {
+            if (membership.getRole().equals(ActivityMembership.Role.CREATOR) ||
+               (membership.getRole().equals(ActivityMembership.Role.ORGANISER) && membership.getActivity().getPrivacyLevel() > 0)) {
+                userActivities.add(membership.getActivity());
+            }
+        }
+        return userActivities;
+    }
+
     /**
      * Returns all activities with the given privacy level.
      *

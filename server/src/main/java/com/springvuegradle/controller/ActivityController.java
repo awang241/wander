@@ -252,6 +252,8 @@ public class ActivityController {
      * @param startIndex an integer for the starting index of activities to search from
      * @param role       the role of the user. Used to filter the activities. In this case, to prevent more duplication,
      *                   "public" can also come through as a role to get all the public activities.
+     *                   "creatorOrOrganiser" can also come through as a role to get all the activities the user created
+     *                   and activities the organiser created.
      * @return a response with all the activities of the user in the database.
      */
     @GetMapping("/profiles/{profileId}/activities")
@@ -277,6 +279,8 @@ public class ActivityController {
             List<Activity> activities;
             if (role.equals("public")) {
                 activities = activityService.getPublicActivities(request);
+            } else if (role.equals("creatorOrOrganiser")) {
+                activities = activityService.getActivitiesUserCanModify(request, profileId);
             } else {
                 try {
                     activities = activityService.getActivitiesByProfileIdByRole(request, profileId, ActivityMembership.Role.valueOf(role.toUpperCase()));
@@ -315,7 +319,6 @@ public class ActivityController {
                 return errorOccurred;
             }
         }
-
         if (activityService.delete(activityId)) {
             return new ResponseEntity<>("The activity has been deleted from the database.", HttpStatus.OK);
         }
