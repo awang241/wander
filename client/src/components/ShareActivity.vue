@@ -29,7 +29,7 @@
 
                 <b-button style="float: right" @click="shareActivity"
                               type="is-primary">
-                        Share
+                        Save
                     </b-button>
                     <b-button style="float: left" @click="goBack"
                               type="is-danger">
@@ -47,10 +47,12 @@
     import router from "../router";
     import toastMixin from "../mixins/toastMixin";
     import {ValidationObserver, ValidationProvider} from "vee-validate";
+    import Api from "../Api";
 
 
     export default {
-        name: "AddActivity",
+        name: "ShareActivity",
+        prop: ['activityPrivacy'],
         mixins: [toastMixin],
         components: {
             ValidationProvider,
@@ -59,17 +61,24 @@
         data() {
             return {
                 privacy: 'private',
-                emails: {}
+                emails: {},
+                activityId: this.$route.params.id,
+
             }
         },
         mounted() {
             this.checkAuthenticationStatus()
-            console.log(this.$props.activityProp)
         },
         methods: {
 
             shareActivity() {
-
+                Api.editActivityPrivacy(store.getters.getUserId, this.$route.params.id, this.privacy, localStorage.getItem('authToken'))
+                    .then((response) => {
+                        console.log(response);
+                        this.successToast("Activity privacy updated")
+                        router.go(-1)
+                    })
+                    .catch(error => console.log(error));
             },
 
             goBack() {

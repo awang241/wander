@@ -16,12 +16,12 @@ import java.util.Optional;
 public interface ActivityMembershipRepository extends JpaRepository<ActivityMembership, Long> {
 
     List<ActivityMembership> findActivityMembershipsByActivity_IdAndRole(Long id, ActivityMembership.Role role);
+    List<ActivityMembership> findActivityMembershipsByActivity_Id(Long id);
+    Optional<ActivityMembership> findByActivity_IdAndProfile_Id(long activityId, long profileId);
 
     @Query("SELECT new com.springvuegradle.dto.responses.ActivityMemberProfileResponse(p.id, p.firstname, p.lastname, am.role) FROM Profile p JOIN ActivityMembership am on am.profile.id = p.id AND am.activity.id = :activityId")
     List<ActivityMemberProfileResponse> findActivityMembershipsByActivityId(long activityId);
 
     @Query("SELECT am FROM ActivityMembership am LEFT JOIN FETCH Activity a ON am.activity = a WHERE am.profile.id = :profileId")
     Page<ActivityMembership> findAllByProfileId(@Param("profileId") Long profileId, Pageable pageable);
-
-    Optional<ActivityMembership> findByActivity_IdAndProfile_Id(long activityId, long profileId);
 }
