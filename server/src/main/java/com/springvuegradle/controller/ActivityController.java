@@ -425,7 +425,7 @@ public class ActivityController {
      * REST endpoint for editing the privacy level of an existing activity. Given a HTTP request containing a correctly formatted JSON file,
      * updates the given database entry. For more information on the JSON format, see the @JsonCreator-tagged constructor
      * in the Activity class.
-     * @param privacy The contents of HTTP request body, automatically mapped from a JSON file to an activity.
+     * @param privacyRequest The contents of HTTP request body, mapped to a privacy request.
      * @return A HTTP response notifying the sender whether the edit was successful
      */
     @PutMapping("/profiles/{profileId}/activities/{activityId}/privacy")

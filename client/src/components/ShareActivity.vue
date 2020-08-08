@@ -7,35 +7,58 @@
                     <b-field label="Activity Privacy"
                              :type="{ 'is-danger': errors[0], 'is-success': valid }"
                              :message="errors"
-                             expanded >
-                    <template slot="label">Privacy<span>*</span></template>
-                    <b-select v-model="privacy" placeholder="Choose privacy setting" expanded>
-                        <option value="private">Private</option>
-                        <option value="friends">Friends</option>
-                        <option value="public">Public</option>
-                    </b-select>
+                             expanded>
+                        <template slot="label">Privacy<span>*</span></template>
+                        <b-select v-model="privacy" placeholder="Choose privacy setting" expanded>
+                            <option value="private">Private</option>
+                            <option value="friends">Restricted</option>
+                            <option value="public">Public</option>
+                        </b-select>
                     </b-field>
                 </ValidationProvider>
 
                 <div v-if="privacy == 'friends'">
-                    <b-field label="Emails">
-                        <b-taginput
-                                v-model="emails"
-                                placeholder="Enter a friend's email">
-                        </b-taginput>
-                    </b-field>
-                </div>
-                <br>
-
-                <b-button style="float: right" @click="shareActivity"
-                              type="is-primary">
-                        Save
-                    </b-button>
-                    <b-button style="float: left" @click="goBack"
-                              type="is-danger">
-                        Cancel
-                    </b-button>
+                    <ValidationProvider rules="email" name="Email" v-slot="{ errors, valid }" slim>
+                        <b-field label="Add friend's emails"
+                                 :type="{'is-danger': errors[0], 'is-success': valid}"
+                                 :message="errors"
+                                 expanded>
+                            <b-input type="email" v-model="newEmail" placeholder="Enter a friend's email" maxlength="30"
+                                     expanded></b-input>
+                        </b-field>
+                    </ValidationProvider>
+                    <b-button class="addButton" type="is-primary" @click="addEmail()">Add</b-button>
                     <br>
+                    <br>
+
+                    <div v-for="email in emails" v-bind:key="email">
+                        <div id="profile-container">
+                            <b-button type="is-danger" size="is-small" @click="deleteEmail(email)">X</b-button>
+
+                            <p>{{email}}</p>
+
+                            <span>
+                                <b-select v-model="role">
+                                    <option value="follower">Follower</option>
+                                    <option value="participant">Participant</option>
+                                    <option value="organiser">Organiser</option>
+                                </b-select>
+                            </span>
+
+                        </div>
+                        <br>
+                    </div>
+                    <br>
+                </div>
+                <b-button style="float: right" @click="shareActivity"
+                          type="is-primary">
+                    Save
+                </b-button>
+                <b-button style="float: left" @click="goBack"
+                          type="is-danger">
+                    Cancel
+                </b-button>
+                <br>
             </form>
         </ValidationObserver>
     </div>
@@ -49,10 +72,8 @@
     import {ValidationObserver, ValidationProvider} from "vee-validate";
     import Api from "../Api";
 
-
     export default {
         name: "ShareActivity",
-        prop: ['activityPrivacy'],
         mixins: [toastMixin],
         components: {
             ValidationProvider,
@@ -60,17 +81,28 @@
         },
         data() {
             return {
-                privacy: 'private',
-                emails: {},
+                privacy: null,
+                emails: [],
                 activityId: this.$route.params.id,
-
+                newEmail: "",
+                role: ""
             }
         },
         mounted() {
             this.checkAuthenticationStatus()
         },
         methods: {
-
+            addEmail() {
+                if (this.emails.includes(this.newEmail)) {
+                    this.warningToast("Email address has already been added")
+                } else if (this.newEmail === "" || this.newEmail.trim().length === 0 || !this.newEmail.includes('@', 0)) {
+                    this.warningToast("Please enter a valid email address")
+                } else {
+                    console.log(this.emails);
+                    this.emails.push(this.newEmail);
+                    this.newEmail = "";
+                }
+            },
             shareActivity() {
                 Api.editActivityPrivacy(store.getters.getUserId, this.$route.params.id, this.privacy, localStorage.getItem('authToken'))
                     .then((response) => {
@@ -79,6 +111,10 @@
                         router.go(-1)
                     })
                     .catch(error => console.log(error));
+            },
+
+            deleteEmail(emailToDelete) {
+                this.emails = this.emails.filter(email => email != emailToDelete)
             },
 
             goBack() {
@@ -110,4 +146,13 @@
         color: red;
     }
 
+    #profile-container{
+        display: flex;
+        width: 100%;
+        justify-content: space-between;
+    }
+
+
 </style>
+
+
