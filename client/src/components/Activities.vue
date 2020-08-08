@@ -48,7 +48,6 @@ import router from "../router";
 import store from "../store"
 import toastMixin from "../mixins/toastMixin";
 import Observer from "./Observer";
-//import {eventBus} from "../main";
 import ActivitySummary from "./ActivitySummary";
 import activityList from "./ActivityList";
 
@@ -80,21 +79,6 @@ const DEFAULT_RESULT_COUNT = 10;
                 role: ""
             }
         },
-        // created() {
-        //     //Used to update the list of profiles when a profile on this list is changed
-        //     //This is done by watching for the profileWasEdited event on the global event bus
-        //     eventBus.$on('activityWasEdited', (editedActivity) => {
-        //         for (let i = 0; i < this.activities.length; i++) {
-        //             if(this.activities[i].id === editedActivity.id){
-        //                 this.activities[i].activityName = editedActivity.activityName
-        //                 this.activities[i].location = editedActivity.location
-        //                 this.activities[i].activityTypes = editedActivity.activityTypes
-        //                 this.activities[i].continuous = editedActivity.continuous
-        //                 this.activities[i].creatorName = editedActivity.creatorName
-        //             }
-        //         }
-        //     })
-        // },
         methods: {
             //once we can get different privacy levels
             //just set the prop before method call to change component?
@@ -131,19 +115,6 @@ const DEFAULT_RESULT_COUNT = 10;
             },
             goToAddActivity() {
                 router.push({path: '/AddActivity'});
-            }, editActivity(activity) {
-                router.push({name: 'editActivity', params: {activityProp: activity}})
-            }, activityDetail(activity) {
-                router.push({path: 'Activities/' + activity.id})
-            },
-            deleteActivity(id) {
-                api.deleteActivity(store.getters.getUserId, localStorage.getItem('authToken'), id)
-                    .then((response) => {
-                        console.log(response);
-                        this.warningToast("Activity deleted")
-                        this.activities = this.activities.filter(activity => activity.id != id);
-                    })
-                    .catch(error => console.log(error));
             },
             dateFormat(date) {
                 let year = date.slice(0, 4);
@@ -167,7 +138,6 @@ const DEFAULT_RESULT_COUNT = 10;
                         if (this.moreMyActivitiesExist) {
                             const searchParameters = this.getParameters(this.myActivitiesStartIndex, role);
                             api.getNextActivities(store.getters.getUserId, localStorage.getItem("authToken"), searchParameters).then(response => {
-                                console.log(response.data)
                                 if (response.data.results.length == 0) {
                                     this.moreMyActivitiesExist = false;
                                 } else {
@@ -182,7 +152,6 @@ const DEFAULT_RESULT_COUNT = 10;
                         if (this.moreParticipatingActivitiesExist) {
                             const searchParameters = this.getParameters(this.participatingActivitiesStartIndex, role);
                             api.getNextActivities(store.getters.getUserId, localStorage.getItem("authToken"), searchParameters).then(response => {
-                                console.log(response.data)
                                 if (response.data.results.length == 0) {
                                     this.moreParticipatingActivitiesExist = false;
                                 } else {
@@ -197,7 +166,6 @@ const DEFAULT_RESULT_COUNT = 10;
                         if (this.moreFollowingActivitiesExist) {
                             const searchParameters = this.getParameters(this.followingActivitiesStartIndex, role);
                             api.getNextActivities(store.getters.getUserId, localStorage.getItem("authToken"), searchParameters).then(response => {
-                                console.log(response.data)
                                 if (response.data.results.length == 0) {
                                     this.moreFollowingActivitiesExist = false;
                                 } else {
@@ -209,7 +177,18 @@ const DEFAULT_RESULT_COUNT = 10;
                         }
                         break;
                     case "public":
-                        console.log("backend not implemented yet")
+                        if (this.moreDiscoverActivitiesExist) {
+                            const searchParameters = this.getParameters(this.discoverActivitiesStartIndex, role);
+                            api.getNextActivities(store.getters.getUserId, localStorage.getItem("authToken"), searchParameters).then(response => {
+                                if (response.data.results.length == 0) {
+                                    this.moreDiscoverActivitiesExist = false;
+                                } else {
+                                    this.discoverActivitiesStartIndex += DEFAULT_RESULT_COUNT;
+                                    const activities = response.data.results;
+                                    this.discoverActivities = [...this.discoverActivities, ...activities];
+                                }
+                            });
+                        }
                         break;
                 }
             }

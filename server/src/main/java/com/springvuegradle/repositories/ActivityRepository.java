@@ -26,7 +26,10 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
     List<String> findAllActivityNames();
 
     @Query("SELECT a FROM Activity a WHERE a.privacyLevel = :privacyLevel")
-    List<Activity> findAllPublic(@Param("privacyLevel") int privacyLevel);
+    List<Activity> findAllByPrivacyLevel(@Param("privacyLevel") int privacyLevel);
+
+    @Query("SELECT a FROM Activity a WHERE a.privacyLevel = :privacyLevel")
+    Page<Activity> findAllByPrivacyLevelWithPagination(@Param("privacyLevel") int privacyLevel, Pageable pageable);
 
     boolean existsById(Long id);
 

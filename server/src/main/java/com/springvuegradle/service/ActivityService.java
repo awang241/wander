@@ -224,6 +224,16 @@ public class ActivityService {
     }
 
     /**
+     * Returns all the activities with privacy level of 2. Aka returns all public activities.
+     * @param request contains the count and start index for pagination
+     * @return list of activities
+     */
+    public List<Activity> getPublicActivities(PageRequest request) {
+        Page<Activity> activities = activityRepo.findAllByPrivacyLevelWithPagination(2, request);
+        return activities.getContent();
+    }
+
+    /**
      * Returns all activities with the given privacy level.
      *
      * @param privacy The given privacy level
@@ -231,7 +241,7 @@ public class ActivityService {
      */
     public List<Activity> getActivitiesWithPrivacyLevel(ActivityPrivacy privacy) {
         int privacyLevel = privacy.ordinal();
-        return activityRepo.findAllPublic(privacyLevel);
+        return activityRepo.findAllByPrivacyLevel(privacyLevel);
     }
 
     /**
