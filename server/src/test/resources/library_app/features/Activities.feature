@@ -59,6 +59,45 @@ Feature: Creating modifying and deleting activities
     When I choose to add the account with the email "katana@waterbender.com" to the activity as a "follower"
     Then The activity has a follower
 
+  @U17F1-ChangePrivacyOfActivity
+  Scenario: As the creator of an activity, I want to change the privacy of my activity.
+    Given I registered account with email "aang@airbender.com" and password "aang'sSecuredPwd"
+    And I create a continuous activity with the title "Airbending training session" and the location "Somewhere"
+    When I change the visibility of my activity to "public" as the creator with email "aang@airbender.com"
+    Then The activity is public
+
+  @U17F1-GetActivitiesWithPrivacyLevel
+  Scenario: As a logged in user, I want to get all activities with public privacy level.
+    Given I registered account with email "aang@airbender.com" and password "aang'sSecuredPwd"
+    And I create a continuous activity with the title "Airbending training session" and the location "Somewhere"
+    When I change the visibility of my activity to "public" as the creator with email "aang@airbender.com"
+    Then There is one activity with privacy "public"
+
+
+  @U28F5-Editing-Participation
+  Scenario: I want to change my role in an activity from follower to participant
+    Given I registered account with email "rick@gmail.com" and password "rick'sSecuredPwd"
+    And I create a continuous activity with the title "Rick goes to space" and the location "Space"
+    And I am a "FOLLOWER" of this activity
+    When I choose to change my role to "PARTICIPANT"
+    Then I am now a "PARTICIPANT" of the activity
+
+  @U28F5-Editing-Participation
+  Scenario: I am unable to change my own role in an activity from participant to creator
+    Given I registered account with email "rick@gmail.com" and password "rick'sSecuredPwd"
+    And I create a continuous activity with the title "Rick goes to space" and the location "Space"
+    And I am a "PARTICIPANT" of this activity
+    When I choose to change my role to "CREATOR"
+    Then I am now a "PARTICIPANT" of the activity
+
+  @U28F5-Editing-Participation
+  Scenario: I am unable to change my own role in an activity to organizer
+    Given I registered account with email "rick@gmail.com" and password "rick'sSecuredPwd"
+    And I create a continuous activity with the title "Rick goes to space" and the location "Space"
+    And I am a "FOLLOWER" of this activity
+    When I choose to change my role to "ORAGNISER"
+    Then I am now a "FOLLOWER" of the activity
+
   @U28F5-Editing-Participation
   Scenario: I want to change my role in an activity from follower to participant
     Given I registered account with email "rick@gmail.com" and password "rick'sSecuredPwd"

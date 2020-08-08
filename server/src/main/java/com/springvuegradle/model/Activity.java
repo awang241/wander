@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.springvuegradle.utilities.FormatHelper;
 
 import javax.persistence.*;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
 import java.util.*;
@@ -37,6 +39,16 @@ public class Activity {
     private OffsetDateTime endTime;
 
     private String location;
+
+    /**
+     * Holds the privacy level of the activity.
+     * level 0 - private - only the creator can view the activity.
+     * level 1 - share with friends - only the friends it is shared with can view the activity.
+     * level 2 - public - anyone can view the activity.
+     */
+    @NotNull @Column(name = "privacyLevel") @Min(value = 0) @Max(value = 2)
+    private Integer privacyLevel = 0;
+
 
 
     /**
@@ -206,4 +218,9 @@ public class Activity {
     public void setActivityTypes(Set<ActivityType> updatedActivityType) {
         this.activityTypes = updatedActivityType;
     }
+
+    public Integer getPrivacyLevel() { return privacyLevel; }
+
+    public void setPrivacyLevel(Integer privacyLevel) { this.privacyLevel = privacyLevel; }
+
 }

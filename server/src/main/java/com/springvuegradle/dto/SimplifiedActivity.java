@@ -18,11 +18,6 @@ public class SimplifiedActivity {
     private String activityName;
 
     /**
-     * contains the creator of the activity
-     */
-    private String creatorName;
-
-    /**
      * contains a boolean determining whether the activity is continuous or duration based
      */
     private boolean continuous;
@@ -40,12 +35,10 @@ public class SimplifiedActivity {
     /**
      * Creates a SimplifiedActivity based on the given Activity.
      * @param activity The activity being simplified.
-     * @param creatorName The name of the activity creator
      */
-    public SimplifiedActivity(Activity activity, String creatorName) {
+    public SimplifiedActivity(Activity activity) {
         this.id = activity.getId();
         this.activityName = activity.getActivityName();
-        this.creatorName = creatorName;
         this.continuous = activity.getContinuous();
         this.location = activity.getLocation();
         this.activityTypes = activity.getActivityTypes();
@@ -67,14 +60,6 @@ public class SimplifiedActivity {
 
     public void setActivityName(String activityName) {
         this.activityName = activityName;
-    }
-
-    public String getCreatorName() {
-        return creatorName;
-    }
-
-    public void setCreatorName(String creator) {
-        this.creatorName = creator;
     }
 
     public boolean getContinuous() {
@@ -111,7 +96,6 @@ public class SimplifiedActivity {
         SimplifiedActivity that = (SimplifiedActivity) o;
         boolean returnVal =  Objects.equals(id, that.id) &&
                 Objects.equals(activityName, that.activityName) &&
-                Objects.equals(creatorName, that.creatorName) &&
                 Objects.equals(continuous, that.continuous) &&
                 Objects.equals(location, that.location);
         if (Objects.equals(activityTypes.size(), that.activityTypes.size())) {
@@ -126,6 +110,6 @@ public class SimplifiedActivity {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, activityName, creatorName, continuous, location);
+        return Objects.hash(id, activityName, continuous, location);
     }
 }

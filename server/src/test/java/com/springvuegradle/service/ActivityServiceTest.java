@@ -1,6 +1,8 @@
 package com.springvuegradle.service;
 
 import com.springvuegradle.controller.ActivityController;
+import com.springvuegradle.dto.ActivityRoleCountResponse;
+import com.springvuegradle.enums.ActivityPrivacy;
 import com.springvuegradle.model.Activity;
 import com.springvuegradle.model.ActivityMembership;
 import com.springvuegradle.model.ActivityType;
@@ -14,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.*;
@@ -304,6 +307,190 @@ class ActivityServiceTest {
     }
 
     @Test
+    void editActivityPrivacyToPublicTest() {
+        Activity activity = activityRepository.save(createNormalActivity());
+        service.editActivityPrivacy("public", activity.getId());
+        assertEquals(2, activity.getPrivacyLevel());
+    }
+
+    @Test
+    void editActivityPrivacyToFriendsTest() {
+        Activity activity = activityRepository.save(createNormalActivity());
+        service.editActivityPrivacy("friends", activity.getId());
+        assertEquals(1, activity.getPrivacyLevel());
+    }
+
+    @Test
+    void editActivityPrivacyToPrivateTest() {
+        Activity activity = activityRepository.save(createNormalActivity());
+        service.editActivityPrivacy("private", activity.getId());
+        assertEquals(0, activity.getPrivacyLevel());
+    }
+
+    @Test
+    void getActivitiesByProfileIdByRolePrivateParticipantTest() {
+        Profile benny = createNormalProfileBen();
+        profileRepository.save(benny);
+        Profile johnny = createNormalProfileJohnny();
+        profileRepository.save(johnny);
+        Activity activity = createNormalActivity();
+        activity.setPrivacyLevel(0);
+        controller.createActivity(benny.getId(), activity, null, true);
+        service.addActivityRole(activity.getId(), johnny.getId(), "participant");
+        PageRequest request = PageRequest.of(0, 5);
+        List<Activity> list = service.getActivitiesByProfileIdByRole(request, johnny.getId(), ActivityMembership.Role.PARTICIPANT);
+        assertEquals(0, list.size());
+    }
+
+    @Test
+    void getActivitiesByIdByRolePublicParticipantTest() {
+        Profile benny = createNormalProfileBen();
+        profileRepository.save(benny);
+        Profile johnny = createNormalProfileJohnny();
+        profileRepository.save(johnny);
+        Activity activity = createNormalActivity();
+        activity.setPrivacyLevel(2);
+        controller.createActivity(johnny.getId(), activity, null, true);
+        service.addActivityRole(activity.getId(), johnny.getId(), "participant");
+        PageRequest request = PageRequest.of(0, 5);
+        List<Activity> list = service.getActivitiesByProfileIdByRole(request, johnny.getId(), ActivityMembership.Role.PARTICIPANT);
+        assertEquals(1, list.size());
+    }
+
+    @Test
+    void getActivitiesByIdByRoleMemberOrganizerTest() {
+        Profile benny = createNormalProfileBen();
+        profileRepository.save(benny);
+        Profile johnny = createNormalProfileJohnny();
+        profileRepository.save(johnny);
+        Activity activity = createNormalActivity();
+        activity.setPrivacyLevel(1);
+        controller.createActivity(benny.getId(), activity, null, true);
+        service.addActivityRole(activity.getId(), johnny.getId(), "organiser");
+        PageRequest request = PageRequest.of(0, 5);
+        List<Activity> list = service.getActivitiesByProfileIdByRole(request, johnny.getId(), ActivityMembership.Role.ORGANISER);
+        assertEquals(1, list.size());
+    }
+
+    @Test
+    void getActivitiesByIdByRolePrivateCreatorTest() {
+        Profile benny = createNormalProfileBen();
+        profileRepository.save(benny);
+        Activity activity = createNormalActivity();
+        activity.setPrivacyLevel(0);
+        controller.createActivity(benny.getId(), activity, null, true);
+        PageRequest request = PageRequest.of(0, 5);
+        List<Activity> list = service.getActivitiesByProfileIdByRole(request, benny.getId(), ActivityMembership.Role.CREATOR);
+        assertEquals(1, list.size());
+    }
+
+
+    @Test
+    void getActivitiesByIdByRolePublicCreatorTest() {
+        Profile benny = createNormalProfileBen();
+        profileRepository.save(benny);
+        Activity activity = createNormalActivity();
+        activity.setPrivacyLevel(2);
+        controller.createActivity(benny.getId(), activity, null, true);
+        PageRequest request = PageRequest.of(0, 5);
+        List<Activity> list = service.getActivitiesByProfileIdByRole(request, benny.getId(), ActivityMembership.Role.CREATOR);
+        assertEquals(1, list.size());
+    }
+
+    @Test
+    void getPublicActivitiesSuccessTest() {
+        Activity activity = activityRepository.save(createNormalActivity());
+        service.editActivityPrivacy("public", activity.getId());
+        assertEquals(1, service.getActivitiesWithPrivacyLevel(ActivityPrivacy.PUBLIC).size());
+    }
+
+    @Test
+    void getPrivateActivitiesSuccessTest() {
+        Activity activity = activityRepository.save(createNormalActivity());
+        service.editActivityPrivacy("private", activity.getId());
+        assertEquals(1, service.getActivitiesWithPrivacyLevel(ActivityPrivacy.PRIVATE).size());
+    }
+
+    @Test
+    void getFriendsActivitiesSuccessTest() {
+        Activity activity = activityRepository.save(createNormalActivity());
+        service.editActivityPrivacy("friends", activity.getId());
+        assertEquals(1, service.getActivitiesWithPrivacyLevel(ActivityPrivacy.FRIENDS).size());
+    }
+
+    @Test
+    void getActivitiesDifferentPrivacyLevelTest() {
+        Activity activity = activityRepository.save(createNormalActivity());
+        service.editActivityPrivacy("friends", activity.getId());
+        assertTrue(service.getActivitiesWithPrivacyLevel(ActivityPrivacy.PUBLIC).isEmpty());
+    }
+
+    @Test
+    void editInvalidPrivacyActivitiesTest() {
+        Activity activity = activityRepository.save(createNormalActivity());
+        assertThrows(IllegalArgumentException.class, ()->service.editActivityPrivacy("everyone", activity.getId()));
+    }
+    /**
+     * Ensures an activity with no relationships throws an exception
+     */
+    @Test
+    void getActivityRoleCountWithZeroRolesTest(){
+        Activity activity = activityRepository.save(createNormalActivity());
+        assertThrows(IllegalArgumentException.class, ()->service.getRoleCounts(activity.getId()));
+    }
+    /**
+     * Ensures a non existent activity throws an exception
+     */
+    @Test
+    void getActivityRoleCountOfNonExistentActivityTest(){
+        assertThrows(IllegalArgumentException.class, ()->service.getRoleCounts(-1));
+    }
+
+    /**
+     * Ensures an activity with a creator returns the correct number
+     */
+    @Test
+    void getActivityRoleCountWithCreatorTest(){
+        Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        Profile creator = profileRepository.save(createNormalProfileBen());
+        activityMembershipRepository.save(new ActivityMembership(activity, creator, ActivityMembership.Role.CREATOR));
+        assertEquals(new ActivityRoleCountResponse(0, 0 ,0), service.getRoleCounts(activity.getId()));
+    }
+
+    /**
+     * Ensures an activity with multiple roles returns the correct number
+     */
+    @Test
+    void getActivityRoleCountWithMultipleRolesTest(){
+        Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        Profile creator = profileRepository.save(createNormalProfileBen());
+        Profile follower = profileRepository.save(createNormalProfileBen());
+        Profile participant = profileRepository.save(createNormalProfileBen());
+        activityMembershipRepository.save(new ActivityMembership(activity, creator, ActivityMembership.Role.ORGANISER));
+        activityMembershipRepository.save(new ActivityMembership(activity, participant, ActivityMembership.Role.PARTICIPANT));
+        activityMembershipRepository.save(new ActivityMembership(activity, follower, ActivityMembership.Role.FOLLOWER));
+        assertEquals(new ActivityRoleCountResponse(1, 1, 1), service.getRoleCounts(activity.getId()));
+    }
+
+    @Test
+    void setProfileRoleToOrganizerAsFollowerThrowsIllegalArgumentExceptionTest() {
+        Profile followerBen = profileRepository.save(createNormalProfileBen());
+        Profile followerJohnny = profileRepository.save(createNormalProfileJohnny());
+        Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        ActivityMembership creatorMembership = new ActivityMembership(activity, followerBen, ActivityMembership.Role.FOLLOWER);
+        ActivityMembership followerMembership = new ActivityMembership(activity, followerJohnny, ActivityMembership.Role.FOLLOWER);
+        activityMembershipRepository.save(creatorMembership);
+        activityMembershipRepository.save(followerMembership);
+        assertThrows(IllegalArgumentException.class, ()-> service.setProfileRole(followerBen.getId(), followerJohnny.getId(), activity.getId(), ActivityMembership.Role.ORGANISER));
+    }
+
+
+    @Test
+    void setProfileRoleForNonexistentMembershipThrowsIllegalArgumentExceptionTest() {
+        Profile editor = profileRepository.save(createNormalProfileBen());
+        assertThrows(IllegalArgumentException.class, ()-> service.setProfileRole(0, editor.getId(), 3, ActivityMembership.Role.FOLLOWER));
+    }
+    @Test
     void setProfileRoleToOrganiserTest() {
         Profile creator = profileRepository.save(createNormalProfileBen());
         Profile follower = profileRepository.save(createNormalProfileJohnny());
@@ -320,18 +507,6 @@ class ActivityServiceTest {
         } else {
             assertEquals(ActivityMembership.Role.ORGANISER, updatedMembership.get().getRole());
         }
-    }
-
-    @Test
-    void setProfileRoleToOrganizerAsFollowerThrowsIllegalArgumentExceptionTest() {
-        Profile followerBen = profileRepository.save(createNormalProfileBen());
-        Profile followerJohnny = profileRepository.save(createNormalProfileJohnny());
-        Activity activity = activityRepository.save(createNormalActivityKaikoura());
-        ActivityMembership creatorMembership = new ActivityMembership(activity, followerBen, ActivityMembership.Role.FOLLOWER);
-        ActivityMembership followerMembership = new ActivityMembership(activity, followerJohnny, ActivityMembership.Role.FOLLOWER);
-        activityMembershipRepository.save(creatorMembership);
-        activityMembershipRepository.save(followerMembership);
-        assertThrows(IllegalArgumentException.class, ()-> service.setProfileRole(followerBen.getId(), followerJohnny.getId(), activity.getId(), ActivityMembership.Role.ORGANISER));
     }
 
     @Test
@@ -384,11 +559,7 @@ class ActivityServiceTest {
         assertThrows(IllegalArgumentException.class, ()-> service.setProfileRole(creator.getId(), creator.getId(), activity.getId(), ActivityMembership.Role.FOLLOWER));
     }
 
-    @Test
-    void setProfileRoleForNonexistentMembershipThrowsIllegalArgumentExceptionTest() {
-        Profile editor = profileRepository.save(createNormalProfileBen());
-        assertThrows(IllegalArgumentException.class, ()-> service.setProfileRole(0, editor.getId(), 3, ActivityMembership.Role.FOLLOWER));
-    }
+
 
     /**
      * Example activities to use in tests
@@ -503,5 +674,16 @@ class ActivityServiceTest {
         return new Profile(null, "Mim", "Benson", "Jack", "Jacky", "jacky@google.com", new String[]{"additionaldoda@email.com"}, "jacky'sSecuredPwd",
                 "Jacky loves to ride his bike on crazy mountains.", new GregorianCalendar(1985, Calendar.DECEMBER,
                 20), "male", 1, new String[]{}, new String[]{});
+    }
+
+    private Map<Long, Profile> populateProfiles() {
+        Profile johnny = createNormalProfileJohnny(),
+                mim = createNormalProfileMim();
+        Map<Long, Profile> map = new HashMap<>();
+        profileRepository.save(johnny);
+        map.put(profileRepository.getLastInsertedId(), johnny);
+        profileRepository.save(mim);
+        map.put(profileRepository.getLastInsertedId(), mim);
+        return map;
     }
 }
