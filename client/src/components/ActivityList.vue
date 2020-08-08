@@ -9,6 +9,9 @@
                 <br>
             </div>
         </div>
+        <div v-else id="noMatches">
+            <h1>No activities fetched!</h1>
+        </div>
         <observer v-on:intersect="loadMoreActivities"></observer>
     </div>
 </template>
@@ -17,23 +20,25 @@
     import store from "../store";
     import toastMixin from "../mixins/toastMixin";
     import ActivitySummary from "./ActivitySummary";
-    import Activities from "./Activities";
+    import Observer from "./Observer";
 
     export default {
         name: "ActivityList",
         props: ["activities", "role"],
         components: {
+            Observer,
             ActivitySummary
         },
         mixins: [toastMixin],
         data() {
             return {
-                store: store
+                store: store,
+                observer: null
             }
         },
         methods: {
             loadMoreActivities() {
-                Activities.methods.loadMoreActivities(this.role);
+                this.$parent.loadMoreActivities(this.role)
             }
         }
     }
