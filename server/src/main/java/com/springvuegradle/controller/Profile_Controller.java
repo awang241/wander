@@ -704,8 +704,8 @@ public class Profile_Controller {
      * @param email object that contains the string email address
      * @return boolean whether email exists in the database or not
      */
-    private boolean verifyEmailExists(Email email) {
-        return profileService.checkEmailExistsInDB(email.getAddress());
+    public boolean verifyEmailExists(String email) {
+        return profileService.checkEmailExistsInDB(email);
     }
 
     /**

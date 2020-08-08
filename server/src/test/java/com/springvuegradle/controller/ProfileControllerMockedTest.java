@@ -183,4 +183,20 @@ class ProfileControllerMockedTest {
         ResponseEntity<String> actualResponse = profileController.editAuthLevel(request, mockId, mockToken);
         assertEquals(expectedResponse, actualResponse);
     }
+
+    @Test
+    void checkValidEmailExistsTest() {
+        String mockEmail = "validEmail@gmail.com";
+        Mockito.when(mockService.checkEmailExistsInDB(mockEmail)).thenReturn(true);
+        boolean actualResponse = profileController.verifyEmailExists(mockEmail);
+        assertEquals(true, actualResponse);
+    }
+
+    @Test
+    void checkInvalidEmailExistsTest() {
+        String mockEmail = "invalidEmail@gmail.com";
+        Mockito.when(mockService.checkEmailExistsInDB(mockEmail)).thenReturn(false);
+        boolean actualResponse = profileController.verifyEmailExists(mockEmail);
+        assertEquals(false, actualResponse);
+    }
 }
