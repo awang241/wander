@@ -1,5 +1,7 @@
 package com.springvuegradle.dto.responses;
 
+import com.springvuegradle.model.Activity;
+
 import java.util.List;
 
 /**
@@ -7,21 +9,35 @@ import java.util.List;
  */
 public class ActivitiesResponse {
 
-    private List<String> allActivities;
+    private List<Activity> results;
+    String message;
 
     /**
      * Constructor for a ActivitiesResponse with parameters. for JSON parsing with spring requestmapping methods.
-     * @param activities list containing strings of all the activities listed in the database
+     * @param results list containing strings of all the activities listed in the database
      */
-    public ActivitiesResponse(List<String> activities) {
-        this.allActivities = activities;
+    public ActivitiesResponse(List<Activity> results) {
+        this.results = results;
+        this.message = null;
     }
+
+    public ActivitiesResponse(String errorMessage) {
+        this.results = null;
+        this.message = errorMessage;
+    }
+
+    public String getMessage() { return message; }
+
+    public void setMessage(String message) { this.message = message; }
+
+    public List<Activity> getResults() { return results; }
+
 
     /**
      * Returns all
      * @return
      */
-    public List<String> getAllActivities() {
-        return allActivities;
+    public List<Activity> getAllActivities() {
+        return results;
     }
 }

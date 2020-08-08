@@ -1,9 +1,19 @@
 package com.springvuegradle.service;
 
+import com.springvuegradle.dto.ActivityRoleCountResponse;
 import com.springvuegradle.dto.responses.ActivityMemberProfileResponse;
 import com.springvuegradle.dto.SimplifiedActivity;
 import com.springvuegradle.enums.ActivityMessage;
+import com.springvuegradle.enums.ActivityPrivacy;
 import com.springvuegradle.enums.ActivityResponseMessage;
+import com.springvuegradle.model.Activity;
+import com.springvuegradle.model.ActivityMembership;
+import com.springvuegradle.model.ActivityType;
+import com.springvuegradle.model.Profile;
+import com.springvuegradle.repositories.ActivityMembershipRepository;
+import com.springvuegradle.repositories.ActivityRepository;
+import com.springvuegradle.repositories.ActivityTypeRepository;
+import com.springvuegradle.repositories.ProfileRepository;
 import com.springvuegradle.model.Activity;
 import com.springvuegradle.model.ActivityMembership;
 import com.springvuegradle.model.ActivityType;
@@ -126,6 +136,30 @@ public class ActivityService {
         return false;
     }
 
+    /**
+     * Gets the number of people who have a role in an activity
+     * @param activityId the ID of the activity we are counting the amount of roles for
+     * @return the number of people who have different roles in an activity
+     */
+    public ActivityRoleCountResponse getRoleCounts(long activityId){
+        long organizers, followers, participants;
+        organizers = followers = participants = 0;
+        List<ActivityMembership> memberships = membershipRepo.findActivityMembershipsByActivity_Id(activityId);
+        if(memberships.isEmpty()){
+            throw new IllegalArgumentException(ActivityResponseMessage.INVALID_ACTIVITY.toString());
+        }
+        for(ActivityMembership membership: memberships){
+            if(membership.getRole().equals(ActivityMembership.Role.PARTICIPANT)){
+                participants++;
+            } else if(membership.getRole().equals(ActivityMembership.Role.FOLLOWER)){
+                followers++;
+            }  else if(membership.getRole().equals(ActivityMembership.Role.ORGANISER)){
+                organizers++;
+            }
+        }
+        return new ActivityRoleCountResponse(organizers, participants, followers);
+    }
+
     /**\
      * Checks if the userId corresponds to the creator of the activity associated with the activityId.
      * @param userId id of the user making the request
@@ -178,6 +212,73 @@ public class ActivityService {
         return userActivities;
     }
 
+    /**
+     * Returns all activities associated with the given profile by role.
+     * @param profileId The ID of the profile whose activities are being retrieved.
+     * @param role The role of the user in the activity.
+     * @return A list of the given profile's activities by role.
+     */
+    public List<Activity> getActivitiesByProfileIdByRole(PageRequest request, Long profileId, ActivityMembership.Role role) {
+        List<Activity> userActivities = new ArrayList<>();
+        Page<ActivityMembership> memberships = membershipRepo.findAllByProfileId(profileId, request);
+        for (ActivityMembership membership : memberships) {
+            if (role.equals(ActivityMembership.Role.CREATOR)) {
+                userActivities.add(membership.getActivity());
+            } else if (membership.getRole().equals(role) && membership.getActivity().getPrivacyLevel() > 0) {
+                userActivities.add(membership.getActivity());
+            }
+        }
+        return userActivities;
+    }
+
+    /**
+     * Returns all activities with the given privacy level.
+     *
+     * @param privacy The given privacy level
+     * @return A list of the activities with the given privacy level.
+     */
+    public List<Activity> getActivitiesWithPrivacyLevel(ActivityPrivacy privacy) {
+        int privacyLevel = privacy.ordinal();
+        return activityRepo.findAllPublic(privacyLevel);
+    }
+
+    /**
+     * Switch that returns a privacy level based on an input string
+     *
+     * @param privacy A string from the front end
+     * @return an integer for the backend, an exception otherwise
+     */
+    private int determinePrivacyLevel(String privacy) {
+        int privacyLevel;
+        switch (privacy) {
+            case "private":
+                privacyLevel = 0;
+                break;
+            case "friends":
+                privacyLevel = 1;
+                break;
+            case "public":
+                privacyLevel = 2;
+                break;
+            default:
+                throw new IllegalArgumentException(ActivityMessage.INVALID_PRIVACY.getMessage());
+        }
+        return privacyLevel;
+    }
+
+    /**
+     * Returns a list of all activities in the repository
+     * @return a list of all activities in the repository
+     */
+    public List<Activity> getAllActivities() {
+        return activityRepo.findAll();
+    }
+
+    /**
+     * Checks if an activity is valid by checking all fields and throws an exception otherwise.
+     *
+     * @param activity the activity to check the fields of.
+     */
     /**
      * Return an activity by activity id.
      * @param activityId The ID of the activity that is being retrieved
@@ -293,7 +394,23 @@ public class ActivityService {
         for (ActivityMembership membership: memberships.getContent()) {
             activityRoleMap.put(membership.getActivity(), membership.getRole());
         }
-        return activityRoleMap;
+    }
+
+    /**
+     * Edits the privacy of a given activity to the given privacy.
+     * @param privacy a string defining the privacy level.
+     * @param activityId the id of the activity to edit.
+     */
+    public void editActivityPrivacy(String privacy, Long activityId) {
+        Optional<Activity> optionalActivity = activityRepo.findById(activityId);
+        if (optionalActivity.isEmpty()) {
+            throw new IllegalArgumentException(ActivityMessage.ACTIVITY_NOT_FOUND.getMessage());
+        } else {
+            int privacyLevel = determinePrivacyLevel(privacy);
+            Activity activity = optionalActivity.get();
+            activity.setPrivacyLevel(privacyLevel);
+            activityRepo.save(activity);
+        }
     }
 
     /**
@@ -339,6 +456,48 @@ public class ActivityService {
         membership.setRole(newRole);
         membershipRepo.save(membership);
     }
+
+
+
+    /**
+     * Returns the specified page from the list of all activities.
+     *
+     * @param request A page request containing the index and size of the page to be returned.
+     * @return The specified page from the list of all activities.
+     */
+    public Page<Activity> getAllActivities(Pageable request) {
+
+        return activityRepo.findAll(request);
+    }
+
+    /**
+     * Returns a map of activities alongside the user's role in that activity.
+     *
+     * @param request A page request containing the index and size of the page to be returned.
+     * @param profileId The user's profile id
+     * @return A map of the activities and the role that the user has with that activity.
+     */
+    public Map<Activity,ActivityMembership.Role> getUsersActivities(Pageable request, Long profileId) {
+        Page<ActivityMembership> memberships = membershipRepo.findAllByProfileId(profileId, request);
+        Map<Activity, ActivityMembership.Role> activityRoleMap = new HashMap<>();
+        for (ActivityMembership membership: memberships.getContent()) {
+            activityRoleMap.put(membership.getActivity(), membership.getRole());
+        }
+        return activityRoleMap;
+    }
+
+    /**
+     * Converts a list of normal activities into a list of simplified activities
+     * @param activities a list of normal activity objects to be simplified
+     * @return a list of simplified activities
+     */
+    public List<SimplifiedActivity> createSimplifiedActivities(List<Activity> activities) {
+        List<SimplifiedActivity> simplifiedActivities = new ArrayList<>();
+        activities.forEach((k) -> simplifiedActivities.add(new SimplifiedActivity(k)));
+        return simplifiedActivities;
+    }
+
+
 
     /**
      * Checks whether someone has rights to change the role of a user in an activity

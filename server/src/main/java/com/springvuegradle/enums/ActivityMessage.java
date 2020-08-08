@@ -7,7 +7,9 @@ public enum ActivityMessage {
     PROFILE_NOT_FOUND("No profile with that ID exists"),
     MEMBERSHIP_NOT_FOUND("The profiles membership was not found for this activity"),
     INVALID_ROLE("Role type is invalid"),
-    UNSUCCESSFUL("Unknown error occurred.");
+    UNSUCCESSFUL("Unknown error occurred."),
+    INVALID_PRIVACY("Invalid privacy level");
+
 
     private final String message;
     ActivityMessage(String message) {

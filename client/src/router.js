@@ -10,7 +10,7 @@ import AdminDashboardComponent from "./components/AdminDashboard";
 import AddActivityComponent from "./components/AddActivity";
 import ProfileSearchComponent from "./components/ProfileSearch"
 import ViewActivityComponent from "./components/ViewActivity.vue"
-import ShareActivityComponent from "./components/ShareActivity";
+import ShareActivityComponent from "./components/ShareActivity.vue";
 import store from "./store";
 
 
@@ -22,7 +22,7 @@ const routes = [
 
     {path: "/AddActivity", name: "addActivity", component: AddActivityComponent},
     {path: "/Activities", name: "activities", component:ActivitiesComponent},
-    {path: '/ShareActivity', name:"shareActivity", component: ShareActivityComponent},
+    {path: '/ShareActivity/:id', name:"shareActivity", component: ShareActivityComponent},
     {path: "/ProfileSearch", name: "profileSearch", component:ProfileSearchComponent, beforeEnter: (to, from, next) => {
             if (store.getters.getAuthenticationStatus) {
                 next()

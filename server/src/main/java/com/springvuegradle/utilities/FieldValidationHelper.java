@@ -137,7 +137,7 @@ public class FieldValidationHelper {
      * @param string The string being checked.
      * @return True if the string is null or an empty string, false otherwise.
      */
-    public static Boolean isNullOrEmpty(String string) {
+    public static boolean isNullOrEmpty(String string) {
         if (string == null) {
             return true;
         } else return string.isEmpty();

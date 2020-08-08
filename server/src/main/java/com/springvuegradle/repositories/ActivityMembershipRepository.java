@@ -17,6 +17,8 @@ public interface ActivityMembershipRepository extends JpaRepository<ActivityMemb
 
 
     List<ActivityMembership> findActivityMembershipsByActivity_IdAndRole(Long id, ActivityMembership.Role role);
+    List<ActivityMembership> findActivityMembershipsByActivity_Id(Long id);
+    Optional<ActivityMembership> findByActivity_IdAndProfile_Id(long activityId, long profileId);
 
     /**
      * Returns a page of memberships that match the given activity and role. The size and index of the page returned
@@ -34,6 +36,4 @@ public interface ActivityMembershipRepository extends JpaRepository<ActivityMemb
 
     @Query("SELECT am FROM ActivityMembership am LEFT JOIN FETCH Activity a ON am.activity = a WHERE am.profile.id = :profileId")
     Page<ActivityMembership> findAllByProfileId(@Param("profileId") Long profileId, Pageable pageable);
-
-    Optional<ActivityMembership> findByActivity_IdAndProfile_Id(long activityId, long profileId);
 }

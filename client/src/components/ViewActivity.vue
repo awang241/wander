@@ -22,7 +22,7 @@
                         Created by: creator name
                     </h2>
                     <div>
-                        <h3 class="title is-5"> Privacy: privacy status</h3>
+                        <h3 class="title is-5"> Privacy: {{privacy}}</h3>
                     </div>
                 </div>
             </div>
@@ -91,9 +91,9 @@
                                v-for="organiser in organisers"
                                 :key="organiser.id">
                             <ProfileSummary class="flex-item" :profile="organiser">
-                                <b-button v-on:click="setProfileRole(organiser.id, 'PARTICIPANT')">
-                                    Make Participant
-                                </b-button>
+                                <template #options>
+                                    <b-button @click="changeRole(organiser, 'participant')">Change to participant</b-button>
+                                </template>
                             </ProfileSummary>
                         </div>
                     </div>
@@ -105,9 +105,9 @@
                              v-for="participant in participants"
                              :key="participant.id">
                             <ProfileSummary class="flex-item" :profile="participant">
-                                <b-button v-on:click="setProfileRole(organiser.id, 'ORGANISER')">
-                                    Make Organiser
-                                </b-button>
+                                <template #options>
+                                    <b-button @click="changeRole(participant, 'organizer')">Change to organizer</b-button>
+                                </template>
                             </ProfileSummary>
                         </div>
                     </div>
@@ -131,6 +131,7 @@
                 activity: null,
                 organisers: [],
                 participants: [],
+                isCreatorOrOrganizer: false,
                 numFollowers: 0
           }
         },
@@ -153,7 +154,7 @@
                 profileId = role;
             },
             shareActivity() {
-                router.push({name:"shareActivity"})
+                router.push({name: 'shareActivity', path:"ShareActivity/" + this.activity.id})
             },
             dateFormat(date) {
                 let year = date.slice(0, 4);
@@ -162,6 +163,20 @@
                 let hour = date.slice(11, 13);
                 let min = date.slice(14, 16);
                 return hour + ":" + min + " " + day + "/" + month + "/" + year;
+            }
+        },
+        computed: {
+            privacy: function () {
+                switch (this.activity.privacyLevel) {
+                    case 0 :
+                        return "Private";
+                    case 1 :
+                        return "Friends";
+                    case 2 :
+                        return "Public";
+                    default:
+                        return "Private";
+                }
             }
         },
         mounted() {

@@ -7,6 +7,7 @@ import com.springvuegradle.dto.requests.ActivityRoleUpdateRequest;
 import com.springvuegradle.dto.requests.LoginRequest;
 import com.springvuegradle.dto.responses.ActivityMemberProfileResponse;
 import com.springvuegradle.dto.responses.LoginResponse;
+import com.springvuegradle.dto.PrivacyRequest;
 import com.springvuegradle.model.Activity;
 import com.springvuegradle.model.ActivityMembership;
 import com.springvuegradle.model.ActivityType;
@@ -149,6 +150,21 @@ public class ActivityTestSteps {
         assertEquals(201, profileController.createProfile(profile).getStatusCodeValue());
     }
 
+    @When("I change the visibility of my activity to {string} as the creator with email {string}")
+    public void i_change_the_visibility_of_my_activity_to_as_the_creator_with_email(String privacy, String email) {
+        Long profileId = profileRepository.findByPrimaryEmail(email).get(0).getId();
+        PrivacyRequest privacyRequest = new PrivacyRequest(privacy);
+        ResponseEntity<String> response = activityController.editActivityPrivacy(privacyRequest, loginResponse.getToken(), profileId, activityRepository.getLastInsertedId());
+        System.out.println(response.getBody());
+        assertEquals(200, response.getStatusCodeValue());
+    }
+
+    @Then("The activity is public")
+    public void the_activity_is_public() {
+        assertEquals(2, activityRepository.getOne(activityRepository.getLastInsertedId()).getPrivacyLevel());
+    }
+
+
     @When("I choose to add the account with the email {string} to the activity as a {string}")
     public void i_choose_to_add_the_account_with_the_email_to_the_activity_as_a(String email, String role) {
         Long profileId = profileRepository.findByPrimaryEmail(email).get(0).getId();
@@ -156,7 +172,6 @@ public class ActivityTestSteps {
         ResponseEntity<String> response = activityController.addActivityRole(loginResponse.getToken(), profileId, activityRepository.getLastInsertedId(), role);
         System.out.println(response.getBody());
         assertEquals(201, response.getStatusCodeValue());
-
     }
 
     @Then("The activity has an organiser")
@@ -176,6 +191,15 @@ public class ActivityTestSteps {
     public void the_activity_has_a_follower() {
         assertEquals(1, membershipRepository.findActivityMembershipsByActivity_IdAndRole(activityRepository.getLastInsertedId(), ActivityMembership.Role.FOLLOWER).size());
     }
+
+    @Then("There is one activity with privacy {string}")
+    public void there_is_one_activity_with_privacy_level(String privacy) {
+        ResponseEntity<List<Activity>> response = activityController.getActivities(privacy, loginResponse.getToken());
+        System.out.println(response.getBody());
+        assertEquals(1, response.getBody().size());
+    }
+
+
 
 
     private Profile createNormalProfile(String email, String password) {

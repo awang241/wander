@@ -63,7 +63,21 @@
                     v-for="profile in profiles"
                     :key="profile.id">
                 <ProfileSummary :profile="profile" @deleteClicked="deleteProfile">
-                    <b-button type="is-text" @click="gotoProfile(profile.id)" >View profile</b-button>
+                    <template #options v-on:viewProfileClicked="openProfileModal">
+                        <b-menu-item>
+                            <template slot="label">
+                                <b-dropdown aria-role="list" class="is-pulled-right" position="is-bottom-left" v-if="store.getters.getAuthenticationLevel <= 1">
+                                    <b-icon icon="ellipsis-v" slot="trigger"></b-icon>
+                                    <b-dropdown-item aria-role="listitem" @click="openProfileModal(profile)">View profile</b-dropdown-item>
+                                    <b-dropdown-item aria-role="listitem" @click="editProfile(profile)">Edit profile </b-dropdown-item>
+                                    <b-dropdown-item aria-role="listitem" @click="deleteProfile(profile)">Delete profile</b-dropdown-item>
+                                    <b-dropdown-item v-if="profile.authLevel < 2" aria-role="listitem" @click="changeAdminRights(profile,'user')">Remove admin rights</b-dropdown-item>
+                                    <b-dropdown-item v-else aria-role="listitem" @click="changeAdminRights(profile,'admin')">Make admin</b-dropdown-item>
+                                </b-dropdown>
+                                <b-button v-else type="is-text" @click="openProfileModal(profile.id)">View profile</b-button>
+                            </template>
+                        </b-menu-item>
+                    </template>
                 </ProfileSummary>
             </div>
         </div>
@@ -80,11 +94,13 @@
     import Api from "../Api";
     import ProfileSummary from "./ProfileSummary";
     import Observer from "./Observer";
-    import Profile from "./Profile";
     import toastMixin from "../mixins/toastMixin";
     import {eventBus} from "../main";
     import NavBar from "./NavBar";
     import store from "../store";
+    import Profile from "./Profile";
+    import EditProfile from "./editprofile/EditProfile";
+    import router from "../router";
 
     const DEFAULT_RESULT_COUNT = 10
 
@@ -94,6 +110,7 @@
         components: {Observer, ProfileSummary},
         data() {
             return {
+                store: store,
                 activitySearchType: "all",
                 chosenActivityTypes: [],
                 email: "",
@@ -124,30 +141,71 @@
             })
         },
         methods: {
+            openProfileModal(profile) {
+                this.$buefy.modal.open({
+                    parent: this,
+                    props: {id: profile.id},
+                    component: Profile,
+                    trapFocus: true,
+                    scroll: "clip"
+                })
+            },
+            editProfile(profile){
+                this.$buefy.modal.open({
+                    parent: this,
+                    props: {id: profile.id},
+                    component: EditProfile,
+                    trapFocus: true,
+                    scroll: "clip"
+                })
+            },
+            changeAdminRights(profile, permissionLevel){
+                this.$buefy.dialog.confirm({
+                    message: `Are you sure you want to change ${profile.firstname}'s role to ${permissionLevel}?`,
+                    confirmText: 'Yes',
+                    onConfirm: () =>  {
+                        Api.editProfilePermissions(profile.id, permissionLevel, localStorage.getItem("authToken"))
+                            .then(() => {
+                                if(permissionLevel === "admin"){
+                                    this.successToast(`${this.profile.firstname} is now an admin`)
+                                    profile.authLevel = 1
+                                } else {
+                                    if (profile.id == this.store.getters.getUserId) {
+                                        this.successToast(`You are no longer an admin`)
+                                        profile.authLevel = 5
+                                        this.store.commit("SET_AUTHENTICATION_LEVEL", 5)
+                                        router.push({path: '/Profile/' + store.getters.getUserId})
+                                    }
+                                    else {
+                                        this.successToast(`${this.profile.firstname} is no longer an admin`)
+                                        profile.authLevel = 5
+                                    }
+                                }
+
+                            })
+                            .catch(() => this.warningToast(`Chould not change user to ${permissionLevel}`))
+                    }
+                })
+            },
             getPossibleActivityTypes() {
                 Api.getActivityTypesList()
                     .then(response => this.possibleActivityTypes = response.data.allActivityTypes)
                     .catch(() => this.warningToast("Could not get activity type list, please refresh"))
             },
-            deleteProfile(id) {
-
-                Api.deleteProfile(id, localStorage.getItem('authToken'))
-                    .then(() => {
-                        this.profiles = this.profiles.filter((profile) => {
-                            return profile.id != id
+            deleteProfile(profileToDelete) {
+                this.$buefy.dialog.confirm({
+                    message: `Are you sure you want to <b>delete</b> ${profileToDelete.firstname}'s profile? This will also delete all associated data.`,
+                    type: "is-danger",
+                    confirmText: 'Delete Profile',
+                    onConfirm: () =>  {  Api.deleteProfile(profileToDelete.id, localStorage.getItem('authToken'))
+                        .then(() => {
+                            this.profiles = this.profiles.filter((profile) => {
+                                return profile.id != profileToDelete.id
+                            })
+                            if (profileToDelete.id == store.getters.getUserId) { NavBar.methods.logout()}
+                            this.successToast("Deleted profile")
                         })
-                        if (id == store.getters.getUserId) { NavBar.methods.logout()}
-                        this.successToast("Deleted profile")
-                    })
-                    .catch(() => this.warningToast("Profile could not be deleted"))
-            },
-            gotoProfile(profileId) {
-                this.$buefy.modal.open({
-                    parent: this,
-                    props: {id:profileId},
-                    component: Profile,
-                    trapFocus: true,
-                    scroll: "clip"
+                        .catch(() => this.warningToast("Profile could not be deleted"))}
                 })
             },
             resetSearchFields() {
