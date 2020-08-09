@@ -328,13 +328,29 @@ public class ActivityService {
      */
     /**
      * Return an activity by activity id.
+     * @param profileId The ID of the profile that is requesting the Activity
      * @param activityId The ID of the activity that is being retrieved
      * @return An activity object. If it does not exist returns null.
      */
-    public Activity getActivityByActivityId(Long activityId) {
+    public Activity getActivityByActivityId(Long profileId, Long activityId) {
         Optional<Activity> activity = activityRepo.findById(activityId);
         if (activity.isPresent()) {
-            return activity.get();
+            Set<ActivityMembership> activityMemberships = activity.get().getMembers();
+            if (activity.get().getPrivacyLevel().equals(2)){
+                return activity.get();
+            }
+            else if (activity.get().getPrivacyLevel().equals(1) && activityMemberships.contains(profileId)) {
+                return activity.get();
+            }
+            else if (activity.get().getPrivacyLevel().equals(0) && activityMemberships.contains(profileId));
+            {
+                for (ActivityMembership activityMembership:activityMemberships) {
+                    if (activityMembership.getProfile().getId().equals(profileId)) {
+                        return activity.get();
+                    }
+                }
+            }
+            return null;
         }
         return null;
     }
