@@ -335,19 +335,22 @@ public class ActivityService {
     public Activity getActivityByActivityId(Long profileId, Long activityId) {
         Optional<Activity> activity = activityRepo.findById(activityId);
         if (activity.isPresent()) {
-            Set<ActivityMembership> activityMemberships = activity.get().getMembers();
+            ActivityMembership membership = membershipRepo.findByActivity_IdAndProfile_Id(activityId, profileId).get();
+            System.out.println("================");
+            System.out.println(membership.toString());
+            System.out.println("================");
             if (activity.get().getPrivacyLevel().equals(2)){
                 return activity.get();
             }
-            else if (activity.get().getPrivacyLevel().equals(1) && activityMemberships.contains(profileId)) {
-                return activity.get();
-            }
-            else if (activity.get().getPrivacyLevel().equals(0) && activityMemberships.contains(profileId));
-            {
-                for (ActivityMembership activityMembership:activityMemberships) {
-                    if (activityMembership.getProfile().getId().equals(profileId) && activityMembership.getRole().equals(0)) {
-                        return activity.get();
-                    }
+            else if (membership != null) {
+                System.out.println("LOOP");
+                System.out.println(membership.getRole());
+                System.out.println("looooop");
+                if (activity.get().getPrivacyLevel().equals(1)) {
+                    return activity.get();
+                }
+                else if (membership.getProfile().getId().equals(profileId) && membership.getRole().equals(ActivityMembership.Role.CREATOR)) {
+                    return activity.get();
                 }
             }
             return null;

@@ -376,6 +376,90 @@ class ActivityServiceTest {
         assertEquals(activity, activityResult);
     }
 
+    /**
+     * Tests that a public activity can still be be viewed by an organiser
+     */
+    @Test
+    void getPublicActivityByIdAsOrganiserServiceTest() {
+        Profile ben = createNormalProfileBen();
+        Profile profile = profileRepository.save(ben);
+        Activity activity = activityRepository.save(createNormalActivity());
+        activity.setPrivacyLevel(2);
+        service.addActivityRole(activity.getId(), profile.getId(), "ORGANISER");
+        Activity activityResult = service.getActivityByActivityId(profile.getId(), activity.getId());
+        assertEquals(activity, activityResult);
+    }
+
+    /**
+     * Tests that a public activity can still be be viewed by a participant
+     */
+    @Test
+    void getPublicActivityByIdAsParticipantServiceTest() {
+        Profile ben = createNormalProfileBen();
+        Profile profile = profileRepository.save(ben);
+        Activity activity = activityRepository.save(createNormalActivity());
+        activity.setPrivacyLevel(2);
+        service.addActivityRole(activity.getId(), profile.getId(), "PARTICIPANT");
+        Activity activityResult = service.getActivityByActivityId(profile.getId(), activity.getId());
+        assertEquals(activity, activityResult);
+    }
+
+    /**
+     * Tests that a public activity can still be be viewed by a follower
+     */
+    @Test
+    void getPublicActivityByIdAsFollowerServiceTest() {
+        Profile ben = createNormalProfileBen();
+        Profile profile = profileRepository.save(ben);
+        Activity activity = activityRepository.save(createNormalActivity());
+        activity.setPrivacyLevel(2);
+        service.addActivityRole(activity.getId(), profile.getId(), "FOLLOWER");
+        Activity activityResult = service.getActivityByActivityId(profile.getId(), activity.getId());
+        assertEquals(activity, activityResult);
+    }
+
+    /**
+     * Tests that a activity set to friends only cannot be viewed by a user without a role in the activity.
+     */
+    @Test
+    void getFriendsOnlyActivityByIdAsUserServiceTest() {
+        Profile ben = createNormalProfileBen();
+        Profile profile = profileRepository.save(ben);
+        Activity activity = activityRepository.save(createNormalActivity());
+        activity.setPrivacyLevel(1);
+        service.addActivityRole(activity.getId(), profile.getId(), "CREATOR");
+        Activity activityResult = service.getActivityByActivityId(profile.getId(), activity.getId());
+        assertEquals(null, activityResult);
+    }
+
+    /**
+     * Tests that an activity set to friends only can be viewed by the creator.
+     */
+    @Test
+    void getFriendsOnlyActivityByIdAsCreatorServiceTest() {
+        Profile ben = createNormalProfileBen();
+        Profile profile = profileRepository.save(ben);
+        Activity activity = activityRepository.save(createNormalActivity());
+        activity.setPrivacyLevel(1);
+        service.addActivityRole(activity.getId(), profile.getId(), "CREATOR");
+        Activity activityResult = service.getActivityByActivityId(profile.getId(), activity.getId());
+        assertEquals(activity, activityResult);
+    }
+
+    /**
+     * Tests that an activity set to friends only can be viewed by organisers.
+     */
+    @Test
+    void getFriendsOnlyActivityByIdAsOrganiserServiceTest() {
+        Profile ben = createNormalProfileBen();
+        Profile profile = profileRepository.save(ben);
+        Activity activity = activityRepository.save(createNormalActivity());
+        activity.setPrivacyLevel(1);
+        service.addActivityRole(activity.getId(), profile.getId(), "CREATOR");
+        Activity activityResult = service.getActivityByActivityId(profile.getId(), activity.getId());
+        assertEquals(activity, activityResult);
+    }
+
 //    @Test
 //    void getFriendsOnlyActivityByIdAsCreatorTest() {
 //        Profile ben = createNormalProfileBen();
