@@ -345,7 +345,7 @@ public class ActivityService {
             else if (activity.get().getPrivacyLevel().equals(0) && activityMemberships.contains(profileId));
             {
                 for (ActivityMembership activityMembership:activityMemberships) {
-                    if (activityMembership.getProfile().getId().equals(profileId)) {
+                    if (activityMembership.getProfile().getId().equals(profileId) && activityMembership.getRole().equals(0)) {
                         return activity.get();
                     }
                 }
