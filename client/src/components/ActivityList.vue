@@ -39,6 +39,9 @@
         methods: {
             loadMoreActivities() {
                 this.$parent.loadMoreActivities(this.role)
+            },
+            removeActivityFromList(activityId) {
+                this.$parent.removeActivityFromList(activityId);
             }
         }
     }

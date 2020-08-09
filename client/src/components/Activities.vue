@@ -83,12 +83,12 @@ const DEFAULT_RESULT_COUNT = 10;
             //once we can get different privacy levels
             //just set the prop before method call to change component?
             changeToDiscoverActivities() {
-                this.role = "public";
+                this.role = "discover";
                 this.activities = this.discoverActivities;
                 this.component = activityList;
             },
             changeToMyActivities() {
-                this.role = "creator";
+                this.role = "creatorOrOrganiser";
                 this.activities = this.myActivities;
                 this.component = activityList;
             },
@@ -113,6 +113,35 @@ const DEFAULT_RESULT_COUNT = 10;
                     })
                     .catch(error => console.log(error));
             },
+            removeActivityFromList(activityId) {
+                console.log("goes through the remove bracket")
+                switch (this.role) {
+                    case "follower":
+                        this.followingActivities = this.followingActivities.filter((activity) => {
+                            return activity.id !== activityId;
+                        })
+                        this.activities = this.followingActivities;
+                        break;
+                    case "participant":
+                        this.participatingActivities = this.participatingActivities.filter((activity) => {
+                            return activity.id !== activityId;
+                        })
+                        this.activities = this.participatingActivities;
+                        break;
+                    case "discover":
+                        this.discoverActivities = this.discoverActivities.filter((activity) => {
+                            return activity.id !== activityId;
+                        })
+                        this.activities = this.discoverActivities;
+                        break;
+                    case "creatorOrOrganiser":
+                        this.myActivities = this.myActivities.filter((activity) => {
+                            return activity.id !== activityId;
+                        })
+                        this.activities = this.myActivities;
+                        break;
+                }
+            },
             goToAddActivity() {
                 router.push({path: '/AddActivity'});
             },
@@ -134,7 +163,7 @@ const DEFAULT_RESULT_COUNT = 10;
             },
             loadMoreActivities(role) {
                 switch(role) {
-                    case "creator":
+                    case "creatorOrOrganiser":
                         if (this.moreMyActivitiesExist) {
                             const searchParameters = this.getParameters(this.myActivitiesStartIndex, role);
                             api.getNextActivities(store.getters.getUserId, localStorage.getItem("authToken"), searchParameters).then(response => {
@@ -195,7 +224,7 @@ const DEFAULT_RESULT_COUNT = 10;
         },
         mounted() {
             this.checkAuthenticationStatus();
-            this.loadMoreActivities("creator");
+            this.loadMoreActivities("creatorOrOrganiser");
             this.loadMoreActivities("participant");
             this.loadMoreActivities("follower");
             this.loadMoreActivities("discover");

@@ -254,6 +254,13 @@ public class ActivityTestSteps {
         simplifiedActivitiesResponse = response.getBody();
     }
 
+    @And("I go to discover new public activities.")
+    public void i_go_to_discover_new_public_activities() {
+        ResponseEntity<SimplifiedActivitiesResponse> response = activityController.getUsersActivitiesByRole(loginResponse.getToken(), loginResponse.getUserId(), 5, 0, "discover");
+        assertEquals(200, response.getStatusCodeValue());
+        simplifiedActivitiesResponse = response.getBody();
+    }
+
     @Then("Four activities are returned.")
     public void four_activities_are_returned() {
         assertEquals(4, simplifiedActivitiesResponse.getResults().size());

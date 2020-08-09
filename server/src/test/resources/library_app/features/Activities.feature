@@ -82,6 +82,19 @@ Feature: Creating modifying and deleting activities
     And I go to view the activities that I am a creator or organiser of.
     Then Four activities are returned.
 
+  @U17F5-GetActivitiesToDisplayOnActivitiesPage
+  Scenario: As a logged in user, I want to discover new public activities that I can follow / participate in.
+    Given I registered account with email "aang@airbender.com" and password "aang'sSecuredPwd"
+    And I create the following activities, making them public
+      | Hockey Game        |
+      | Bowling            |
+      | Fun Run            |
+      | Triathlon          |
+    And I create another account with email "katana@waterbender.com" and password "katana'sSecuredPwd"
+    When I login with the email "katana@waterbender.com" and password "katana'sSecuredPwd"
+    And I go to discover new public activities.
+    Then Four activities are returned.
+
 
   @U28F5-Editing-Participation
   Scenario: I want to change my role in an activity from follower to participant

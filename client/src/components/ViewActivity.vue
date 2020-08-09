@@ -1,5 +1,5 @@
 <template>
-    <div class="container containerColor">
+    <div v-if="activity" class="container containerColor">
         <!-- Header -->
         <section>
             <div id="activity-key-info">
