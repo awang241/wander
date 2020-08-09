@@ -6,7 +6,6 @@ import com.springvuegradle.enums.ActivityResponseMessage;
 import com.springvuegradle.enums.AuthenticationErrorMessage;
 import com.springvuegradle.enums.ProfileErrorMessage;
 import com.springvuegradle.model.*;
-import com.springvuegradle.repositories.*;
 import com.springvuegradle.config.MockServiceConfig;
 import com.springvuegradle.dto.SimplifiedActivitiesResponse;
 import com.springvuegradle.enums.ActivityPrivacy;

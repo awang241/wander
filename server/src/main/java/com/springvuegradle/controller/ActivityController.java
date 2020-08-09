@@ -6,6 +6,8 @@ import com.springvuegradle.dto.SimplifiedActivity;
 import com.springvuegradle.dto.requests.ActivityRoleUpdateRequest;
 import com.springvuegradle.dto.responses.ActivityMemberProfileResponse;
 import com.springvuegradle.dto.*;
+import com.springvuegradle.dto.responses.ActivityMemberRoleResponse;
+import com.springvuegradle.dto.responses.ProfileSummary;
 import com.springvuegradle.enums.ActivityMessage;
 import com.springvuegradle.enums.ActivityPrivacy;
 import com.springvuegradle.enums.ActivityResponseMessage;
@@ -13,9 +15,7 @@ import com.springvuegradle.enums.AuthenticationErrorMessage;
 import com.springvuegradle.enums.ProfileErrorMessage;
 import com.springvuegradle.model.Activity;
 import com.springvuegradle.model.ActivityMembership;
-import com.springvuegradle.model.ActivityMembership.Role;
 import com.springvuegradle.model.Profile;
-import com.springvuegradle.repositories.ActivityRepository;
 import com.springvuegradle.service.ActivityService;
 import com.springvuegradle.service.SecurityService;
 import com.springvuegradle.utilities.FieldValidationHelper;
@@ -32,7 +32,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Class containing REST endpoints for activities
@@ -48,12 +47,6 @@ public class ActivityController {
 
     @Autowired
     private ActivityService activityService;
-
-    /**
-     * Way to access Activity Repository (Activity table in db).
-     */
-    @Autowired
-    private ActivityRepository aRepo;
 
     @Autowired
     public ActivityController(ActivityService activityService, JwtUtil jwtUtil) {
@@ -346,8 +339,8 @@ public class ActivityController {
                                                                               @RequestParam("count") int count,
                                                                               @RequestParam("startIndex") int startIndex,
                                                                               @RequestParam("role") String role) {
-        SimplifiedActivitiesResponse activitiesResponse = null;
-        HttpStatus status = null;
+        SimplifiedActivitiesResponse activitiesResponse;
+        HttpStatus status;
         if (token == null) {
             status = HttpStatus.UNAUTHORIZED;
             activitiesResponse = new SimplifiedActivitiesResponse(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage());
@@ -366,57 +359,13 @@ public class ActivityController {
                 activitiesResponse = new SimplifiedActivitiesResponse(simplifiedActivities);
                 status = HttpStatus.OK;
             } catch (IllegalArgumentException e) {
-
+                status = HttpStatus.BAD_REQUEST;
+                activitiesResponse = new SimplifiedActivitiesResponse(e.getMessage());
             }
 
         }
         return new ResponseEntity<>(activitiesResponse, status);
     }
-
-//    /**
-//     * Queries the Database to find all the activities of a user with their profile id.
-//     *
-//     * @return a response with all the activities of the user in the database.
-//     */
-//    @GetMapping("/profiles/{profileId}/activities")
-//    public ResponseEntity<SimplifiedActivitiesResponse> getAllUsersActivities(@RequestHeader("authorization") String token,
-//                                                                @PathVariable Long profileId,
-//                                                                @RequestParam("count") int count,
-//                                                                @RequestParam("startIndex") int startIndex,
-//                                                                @RequestParam("role") String role) {
-//
-//        return getAllUsersActivities(token, profileId, count, startIndex, role, false);
-//    }
-//
-//
-//    public ResponseEntity<SimplifiedActivitiesResponse> getAllUsersActivities(String token, Long profileId,
-//            int count, int startIndex, String role, Boolean testing) {
-//        SimplifiedActivitiesResponse activitiesResponse = null;
-//        HttpStatus status = null;
-//        if (token == null && !testing) {
-//            status = HttpStatus.UNAUTHORIZED;
-//            activitiesResponse = new SimplifiedActivitiesResponse(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage());
-//        } else if (!testing && Boolean.FALSE.equals(jwtUtil.validateToken(token))) {
-//            status = HttpStatus.FORBIDDEN;
-//            activitiesResponse = new SimplifiedActivitiesResponse(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage());
-//        } else if (count <= 0) {
-//            status = HttpStatus.BAD_REQUEST;
-//            activitiesResponse = new SimplifiedActivitiesResponse(ProfileErrorMessage.INVALID_SEARCH_COUNT.getMessage());
-//        } else {
-//            int pageIndex = startIndex / count;
-//            PageRequest request = PageRequest.of(pageIndex, count);
-//            try {
-//                List<Activity> activityRoleMap = activityService.getActivitiesByProfileIdByRole(request, profileId, ActivityMembership.Role.valueOf(role.toUpperCase()));
-//                List<SimplifiedActivity> simplifiedActivities = activityService.createSimplifiedActivities(activityRoleMap);
-//                activitiesResponse = new SimplifiedActivitiesResponse(simplifiedActivities);
-//                status = HttpStatus.OK;
-//            } catch (IllegalArgumentException e) {
-//
-//            }
-//
-//        }
-//        return new ResponseEntity<>(activitiesResponse, status);
-//    }
 
 
     /**
@@ -512,7 +461,7 @@ public class ActivityController {
      * REST endpoint for editing the privacy level of an existing activity. Given a HTTP request containing a correctly formatted JSON file,
      * updates the given database entry. For more information on the JSON format, see the @JsonCreator-tagged constructor
      * in the Activity class.
-     * @param privacy The contents of HTTP request body, automatically mapped from a JSON file to an activity.
+     * @param privacyRequest The contents of HTTP request body, automatically mapped from a JSON file to an activity.
      * @return A HTTP response notifying the sender whether the edit was successful
      */
     @PutMapping("/profiles/{profileId}/activities/{activityId}/privacy")

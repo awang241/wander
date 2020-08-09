@@ -14,16 +14,9 @@ import com.springvuegradle.repositories.ActivityMembershipRepository;
 import com.springvuegradle.repositories.ActivityRepository;
 import com.springvuegradle.repositories.ActivityTypeRepository;
 import com.springvuegradle.repositories.ProfileRepository;
-import com.springvuegradle.model.Activity;
-import com.springvuegradle.model.ActivityMembership;
-import com.springvuegradle.model.ActivityType;
-import com.springvuegradle.model.Profile;
-import com.springvuegradle.repositories.ActivityMembershipRepository;
-import com.springvuegradle.repositories.ActivityRepository;
-import com.springvuegradle.repositories.ActivityTypeRepository;
-import com.springvuegradle.repositories.ProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -142,8 +135,9 @@ public class ActivityService {
      * @return the number of people who have different roles in an activity
      */
     public ActivityRoleCountResponse getRoleCounts(long activityId){
-        long organizers, followers, participants;
-        organizers = followers = participants = 0;
+        long organizers = 0;
+        long followers = 0;
+        long participants = 0;
         List<ActivityMembership> memberships = membershipRepo.findActivityMembershipsByActivity_Id(activityId);
         if(memberships.isEmpty()){
             throw new IllegalArgumentException(ActivityResponseMessage.INVALID_ACTIVITY.toString());
@@ -222,9 +216,8 @@ public class ActivityService {
         List<Activity> userActivities = new ArrayList<>();
         Page<ActivityMembership> memberships = membershipRepo.findAllByProfileId(profileId, request);
         for (ActivityMembership membership : memberships) {
-            if (role.equals(ActivityMembership.Role.CREATOR)) {
-                userActivities.add(membership.getActivity());
-            } else if (membership.getRole().equals(role) && membership.getActivity().getPrivacyLevel() > 0) {
+            if (role.equals(ActivityMembership.Role.CREATOR)
+                || (membership.getRole().equals(role) && membership.getActivity().getPrivacyLevel() > 0)) {
                 userActivities.add(membership.getActivity());
             }
         }
@@ -372,29 +365,6 @@ public class ActivityService {
         }
         return profileRepo.findByActivityAndRole(activityId, role, pageable);
     }
-    /**
-     * Returns the specified page from the list of all activities.
-     * @param request A page request containing the index and size of the page to be returned.
-     * @return The specified page from the list of all activities.
-     */
-    public Page<Activity> getAllActivities(Pageable request) {
-        return activityRepo.findAll(request);
-    }
-
-    /**
-     * Returns a map of activities alongside the user's role in that activity.
-     *
-     * @param request A page request containing the index and size of the page to be returned.
-     * @param profileId The user's profile id
-     * @return A map of the activities and the role that the user has with that activity.
-     */
-    public Map<Activity, ActivityMembership.Role> getUsersActivities(Pageable request, Long profileId) {
-        Page<ActivityMembership> memberships = membershipRepo.findAllByProfileId(profileId, request);
-        Map<Activity, ActivityMembership.Role> activityRoleMap = new HashMap<>();
-        for (ActivityMembership membership: memberships.getContent()) {
-            activityRoleMap.put(membership.getActivity(), membership.getRole());
-        }
-    }
 
     /**
      * Edits the privacy of a given activity to the given privacy.
@@ -420,7 +390,7 @@ public class ActivityService {
      */
     public static List<SimplifiedActivity> createSimplifiedActivities(Map<Activity, ActivityMembership.Role> activities) {
         List<SimplifiedActivity> simplifiedActivities = new ArrayList<>();
-        activities.forEach((k,v) -> simplifiedActivities.add(new SimplifiedActivity(k, v.toString())));
+        activities.forEach((k,v) -> simplifiedActivities.add(new SimplifiedActivity(k)));
         return simplifiedActivities;
     }
 
@@ -493,7 +463,7 @@ public class ActivityService {
      */
     public List<SimplifiedActivity> createSimplifiedActivities(List<Activity> activities) {
         List<SimplifiedActivity> simplifiedActivities = new ArrayList<>();
-        activities.forEach((k) -> simplifiedActivities.add(new SimplifiedActivity(k)));
+        activities.forEach(k -> simplifiedActivities.add(new SimplifiedActivity(k)));
         return simplifiedActivities;
     }
 
