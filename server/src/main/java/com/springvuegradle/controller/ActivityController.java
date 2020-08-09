@@ -445,4 +445,18 @@ public class ActivityController {
         }
     }
 
+    /**
+     * An endpoint that takes a list of emails and roles of users and saves them as members.
+     * @param friendList list of emails and roles.
+     * @return An HTTP response notifying the sender whether the edit was successful
+     */
+    @PutMapping("/profiles/{profileId}/activities/{activityid}/visibility")
+    public ResponseEntity<String> addMembers (@RequestHeader ("authorization") String token,
+                                              @PathVariable ArrayList<ArrayList<String>> friendList) {
+
+        for (ArrayList<String> friend: friendList) {
+
+        }
+        return new ResponseEntity<>(ActivityResponseMessage.EDIT_SUCCESS.toString(), HttpStatus.OK);
+    }
 }
