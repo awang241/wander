@@ -61,11 +61,6 @@
     li{
         list-style-type: none;
     }
-    .is-vertical-center {
-        display: flex;
-        align-items: center;
-        padding-right: 1rem;
-    }
 
     .color-primary {
         color: #4099FF
