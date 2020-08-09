@@ -1,5 +1,6 @@
 package com.springvuegradle.controller;
 
+import com.springvuegradle.dto.ActivityRequest;
 import com.springvuegradle.dto.SimplifiedActivitiesResponse;
 import com.springvuegradle.enums.ActivityPrivacy;
 import com.springvuegradle.dto.ActivitiesResponse;
@@ -100,13 +101,15 @@ class ActivityControllerMockedTest {
     void getActivityByValidActivityIdTest() {
         long mockActivityId = 10;
         String mockToken = "token";
+        ActivityRequest mockRequest = new ActivityRequest(25);
+        long mockProfileId = mockRequest.getProfileId();
         Activity mockActivity = ActivityTestUtils.createNormalActivity();
         ResponseEntity<String> expectedResponse = new ResponseEntity<>(HttpStatus.OK);
 
         mockRepo.save(mockActivity);
         Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
-        Mockito.when(mockService.getActivityByActivityId(mockActivityId)).thenReturn(mockActivity);
-        ResponseEntity<Activity> actualResponse = activityController.getActivity(mockToken, mockActivityId);
+        Mockito.when(mockService.getActivityByActivityId(mockProfileId, mockActivityId)).thenReturn(mockActivity);
+        ResponseEntity<Activity> actualResponse = activityController.getActivity(mockRequest, mockToken, mockActivityId);
 
         assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
     }
@@ -115,11 +118,13 @@ class ActivityControllerMockedTest {
     void getActivityByInvalidIdTest() {
         long mockActivityId = 10;
         String mockToken = "token";
+        ActivityRequest mockRequest = new ActivityRequest(25);
+        long mockProfileId = mockRequest.getProfileId();
         ResponseEntity<String> expectedResponse = new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
         Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
-        Mockito.when(mockService.getActivityByActivityId(mockActivityId)).thenReturn(null);
-        ResponseEntity<Activity> actualResponse = activityController.getActivity(mockToken, mockActivityId);
+        Mockito.when(mockService.getActivityByActivityId(mockProfileId, mockActivityId)).thenReturn(null);
+        ResponseEntity<Activity> actualResponse = activityController.getActivity(mockRequest, mockToken, mockActivityId);
 
         assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
     }
@@ -128,10 +133,11 @@ class ActivityControllerMockedTest {
     void getActivityByIdInvalidTokenTest(){
         long mockActivityId = 10;
         String mockToken = "invalid token";
+        ActivityRequest mockRequest = new ActivityRequest(25);
         ResponseEntity<String> expectedResponse = new ResponseEntity<>(HttpStatus.FORBIDDEN);
 
         Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(false);
-        ResponseEntity<Activity> actualResponse = activityController.getActivity(mockToken, mockActivityId);
+        ResponseEntity<Activity> actualResponse = activityController.getActivity(mockRequest, mockToken, mockActivityId);
 
         assertEquals(expectedResponse, actualResponse);
     }
@@ -139,8 +145,10 @@ class ActivityControllerMockedTest {
     @Test
     void getActivityByIdNoTokenTest() {
         long mockActivityId = 10;
+        ActivityRequest mockRequest = new ActivityRequest(25);
+
         ResponseEntity<String> expectedResponse = new ResponseEntity<>((HttpStatus.UNAUTHORIZED));
-        ResponseEntity<Activity> actualResponse = activityController.getActivity(null, mockActivityId);
+        ResponseEntity<Activity> actualResponse = activityController.getActivity(mockRequest, null, mockActivityId);
 
         assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
     }
