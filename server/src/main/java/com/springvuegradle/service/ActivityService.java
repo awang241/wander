@@ -325,7 +325,7 @@ public class ActivityService {
      * Return an activity by activity id and profile id based on the privacy activity and role of the user.
      * @param profileId The ID of the profile that is requesting the Activity
      * @param activityId The ID of the activity that is being retrieved
-     * @return An activity object. If it does not exist returns null.
+     * @return An activity object. If it does not exist or the user is not authorized returns null.
      */
     public Activity getActivityByActivityId(Long profileId, Long activityId) {
         Optional<Activity> activity = activityRepo.findById(activityId);

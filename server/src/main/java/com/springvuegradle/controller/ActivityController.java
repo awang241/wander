@@ -177,8 +177,7 @@ public class ActivityController {
      * error code otherwise.
      */
     @GetMapping("/activities/{activityId}")
-    public ResponseEntity<Activity> getActivity(@RequestBody ActivityRequest activityRequest,
-                                                @RequestHeader("authorization") String token,
+    public ResponseEntity<Activity> getActivity(@RequestHeader("authorization") String token,
                                                 @PathVariable long activityId) {
         if (token == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
@@ -186,7 +185,7 @@ public class ActivityController {
         else if (!jwtUtil.validateToken(token)) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
-        Activity activity = activityService.getActivityByActivityId(activityRequest.getProfileId(), activityId);
+        Activity activity = activityService.getActivityByActivityId(jwtUtil.extractId(token), activityId);
         if (activity == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
