@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
@@ -246,7 +247,7 @@ public class ActivityService {
             case "private":
                 privacyLevel = 0;
                 break;
-            case "friends":
+            case "members":
                 privacyLevel = 1;
                 break;
             case "public":
@@ -454,5 +455,20 @@ public class ActivityService {
             return isAdmin || isCreatorOrOrganizer;
         }
         return isAdmin || isCreatorOrOrganizer || profileBeingEditedId == profileDoingEditingId;
+    }
+
+    /**
+     * Method to clear all memberships that have a specified role and return an appropriate http response
+     * @param activityId the ID of the activity being cleared
+     * @param roleToClear the ENUM String of the role to clear
+     * @return
+     */
+    public Boolean clearActivityRoleList(Long activityId, String roleToClear) {
+        //TODO - Requires U17 Feature 2 Code
+        //get all members of the activity
+        //remove the role of each of them for the specified activity
+        //return true if it all goes fine and false if anything fails?
+        // - potentially modifiy the controller method if only one specific thing will cause the fail
+        return false;
     }
 }

@@ -411,7 +411,7 @@ public class ActivityController {
         if (token == null || token.isBlank()) {
             return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
                     HttpStatus.UNAUTHORIZED);
-        } else if (!securityService.checkEditPermission(token, profileId)) {
+        } else if (!(activityService.isProfileActivityCreator(jwtUtil.extractId(token), activityId) || )) {
             return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(),
                     HttpStatus.FORBIDDEN);
         }
@@ -419,6 +419,40 @@ public class ActivityController {
             return new ResponseEntity<>(ActivityMessage.SUCCESSFUL_DELETION.getMessage(), HttpStatus.OK);
         }
         return new ResponseEntity<>(ActivityMessage.MEMBERSHIP_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    /**
+     * Removes all member roles of a specified level from a specified activity
+     * @param token the auth token of the request
+     * @param activityId The ID of the activity to have a role cleared
+     * @param roleToClear A string of "organizer", "participant" or "follower" to clear
+     * @return http response code for the outcome of the delete
+     */
+    @DeleteMapping("/activities/{activityId}/clearRole")
+    public @ResponseBody
+    ResponseEntity<String> clearRoleOfActivity(@RequestHeader("authorization") String token,
+                                               @PathVariable Long activityId,
+                                               @RequestBody ActivityRoleUpdateRequest roleToClear){
+        ResponseEntity response = null;
+        if (token == null || token.isBlank()) {
+            response = new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
+                    HttpStatus.UNAUTHORIZED);
+        }
+        response = checkActivityModifyPermissions(token, jwtUtil.extractId(token), activityId);
+        if (response == null) {
+            try {
+                String roleString = ActivityMembership.Role.valueOf(roleToClear.getRole().toUpperCase());
+                Boolean success = activityService.clearActivityRoleList(activityId, roleString);
+                if (success) {
+                    response = new ResponseEntity<>(ActivityMessage.SUCCESSFUL_DELETION.getMessage(), HttpStatus.OK);
+                } else {
+                    response = new ResponseEntity<>(ActivityMessage.UNSUCCESSFUL, HttpStatus.NOT_MODIFIED);
+                }
+            } catch(IllegalArgumentException e){
+                return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            }
+        }
+        return response;
     }
 
     /**
