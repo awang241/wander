@@ -8,7 +8,7 @@
                              :type="{ 'is-danger': errors[0], 'is-success': valid }"
                              :message="errors"
                              expanded>
-                        <template slot="label">Privacy<span>*</span></template>
+                        <template slot="label">Privacy<span class="requiredAsterix">*</span></template>
                         <b-select v-model="privacy" placeholder="Choose privacy setting" expanded>
                             <option value="private">Private</option>
                             <option value="friends">Restricted</option>
@@ -31,25 +31,19 @@
                     <br>
                     <br>
 
-                    <div v-for="email in emails" v-bind:key="email">
-                        <div id="profile-container">
-                            <b-button type="is-danger" size="is-small" @click="deleteEmail(email)">X</b-button>
-
-                            <p>{{email}}</p>
-
-                            <span>
-                                <b-select v-model="role">
+                    <div v-for="user in userRoles" v-bind:listItem="user.email" v-bind:key="user.email">
+                        <ListItem v-bind:listItem="user.email" v-on:deleteListItem="deleteUser(user.email)">
+                            <template>
+                                <b-select v-model="user.role">
                                     <option value="follower">Follower</option>
                                     <option value="participant">Participant</option>
                                     <option value="organiser">Organiser</option>
                                 </b-select>
-                            </span>
-
-                        </div>
-                        <br>
+                            </template>
+                        </ListItem>
                     </div>
-                    <br>
                 </div>
+                <br>
                 <b-button style="float: right" @click="shareActivity"
                           type="is-primary">
                     Save
@@ -71,18 +65,20 @@
     import toastMixin from "../mixins/toastMixin";
     import {ValidationObserver, ValidationProvider} from "vee-validate";
     import Api from "../Api";
+    import ListItem from "./ListItem";
 
     export default {
         name: "ShareActivity",
         mixins: [toastMixin],
         components: {
+            ListItem,
             ValidationProvider,
             ValidationObserver
         },
         data() {
             return {
                 privacy: null,
-                emails: [],
+                userRoles: [],
                 activityId: this.$route.params.id,
                 newEmail: "",
                 role: ""
@@ -93,24 +89,31 @@
         },
         methods: {
             addEmail() {
-                if (this.emails.includes(this.newEmail)) {
-                    this.warningToast("Email address has already been added")
-                } else if (this.newEmail === "" || this.newEmail.trim().length === 0 || !this.newEmail.includes('@', 0)) {
-                    this.warningToast("Please enter a valid email address")
-                } else {
-                    Api.verifyEmail(this.newEmail)
-                        .then((response) => {
-                            if (response.data === true) {
-                                console.log(this.emails);
-                                this.emails.push(this.newEmail);
-                                this.newEmail = "";
-                            } else {
-                                this.warningToast("User with that email does not exist")
-                            }
-                        })
-                        .catch(error => console.log(error));
-
+                let emailAlreadyAdded = false
+                this.userRoles.forEach(user => {
+                    if (user.email === this.newEmail) {
+                        emailAlreadyAdded = true
+                    }
+                })
+                if(emailAlreadyAdded){
+                    this.warningToast("Email has already been added!")
+                    return;
                 }
+                if (this.newEmail === "" || this.newEmail.trim().length === 0 || !this.newEmail.includes('@', 0)) {
+                    this.warningToast("Please enter a valid email address")
+                    return;
+                }
+                Api.verifyEmail(this.newEmail)
+                    .then((response) => {
+                        if (response.data === true) {
+                            this.userRoles.push({email: this.newEmail, role: "follower"});
+                            this.newEmail = "";
+                        } else {
+                            this.warningToast("User with that email does not exist")
+                        }
+                    })
+                    .catch(error => console.log(error));
+
             },
             shareActivity() {
                 // need to check whether 'restricted' option is chosen. If yes, need to check list of users > 0
@@ -123,8 +126,8 @@
                     .catch(error => console.log(error));
             },
 
-            deleteEmail(emailToDelete) {
-                this.emails = this.emails.filter(email => email != emailToDelete)
+            deleteUser(emailToDelete) {
+                this.userRoles = this.userRoles.filter(user => user.email != emailToDelete)
             },
 
             goBack() {
@@ -152,14 +155,12 @@
         }
     }
 
-    span {
+    .requiredAsterix {
         color: red;
     }
 
-    #profile-container{
-        display: flex;
-        width: 100%;
-        justify-content: space-between;
+    #roleSelection {
+
     }
 
 
