@@ -4,10 +4,7 @@ import com.springvuegradle.controller.ActivityController;
 import com.springvuegradle.dto.ActivityRoleCountResponse;
 import com.springvuegradle.enums.ActivityPrivacy;
 import com.springvuegradle.dto.responses.ActivityMemberProfileResponse;
-import com.springvuegradle.model.Activity;
-import com.springvuegradle.model.ActivityMembership;
-import com.springvuegradle.model.ActivityType;
-import com.springvuegradle.model.Profile;
+import com.springvuegradle.model.*;
 import com.springvuegradle.repositories.*;
 import com.springvuegradle.utilities.FormatHelper;
 import com.springvuegradle.utilities.InitialDataHelper;
@@ -65,6 +62,7 @@ class ActivityServiceTest {
         profileRepository.deleteAll();
         activityRepository.deleteAll();
         typeRepository.deleteAll();
+
     }
 
     /**
@@ -567,10 +565,11 @@ class ActivityServiceTest {
     @Test
     void getProfilesFromActivityWithOnlyCreatorTest() {
         Profile creator = profileRepository.save(createNormalProfileBen());
+        emailRepository.save(new Email("ben10@hotmail.com", true, creator));
         Activity activity = activityRepository.save(createNormalActivityKaikoura());
         ActivityMembership creatorMembership = new ActivityMembership(activity, creator, ActivityMembership.Role.CREATOR);
         activityMembershipRepository.save(creatorMembership);
-        List<ActivityMemberProfileResponse> response = Collections.singletonList(new ActivityMemberProfileResponse(creator.getId(), creator.getFirstname(), creator.getLastname(), ActivityMembership.Role.CREATOR));
+        List<ActivityMemberProfileResponse> response = Collections.singletonList(new ActivityMemberProfileResponse(creator.getId(), creator.getFirstname(), creator.getLastname(), creator.getPrimary_email(), ActivityMembership.Role.CREATOR));
         assertEquals(response, service.getActivityMembers(activity.getId()));
     }
 
@@ -581,11 +580,16 @@ class ActivityServiceTest {
     @Test
     void getProfilesWithRolesFromActivityWithMultipleRolesTest() {
         Profile creator = profileRepository.save(createNormalProfileBen());
-        Profile followerOne = profileRepository.save(createNormalProfileBen());
-        Profile followerTwo = profileRepository.save(createNormalProfileBen());
-        Profile organizer = profileRepository.save(createNormalProfileBen());
-        Profile participant = profileRepository.save(createNormalProfileBen());
+        Profile followerOne = profileRepository.save(createNormalProfileBen("ben11@hotmail.com"));
+        Profile followerTwo = profileRepository.save(createNormalProfileBen("ben12@hotmail.com"));
+        Profile organizer = profileRepository.save(createNormalProfileBen("ben13@hotmail.com"));
+        Profile participant = profileRepository.save(createNormalProfileBen("ben14@hotmail.com"));
         Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        emailRepository.save(new Email("ben10@hotmail.com", true, creator));
+        emailRepository.save(new Email("ben11@hotmail.com", true, followerOne));
+        emailRepository.save(new Email("ben12@hotmail.com", true, followerTwo));
+        emailRepository.save(new Email("ben13@hotmail.com", true, organizer));
+        emailRepository.save(new Email("ben14@hotmail.com", true, participant));;
         ActivityMembership creatorMembership = new ActivityMembership(activity, creator, ActivityMembership.Role.CREATOR);
         ActivityMembership followerOneMembership = new ActivityMembership(activity, followerOne, ActivityMembership.Role.FOLLOWER);
         ActivityMembership followerTwoMembership = new ActivityMembership(activity, followerTwo, ActivityMembership.Role.FOLLOWER);
@@ -595,7 +599,7 @@ class ActivityServiceTest {
         activityMembershipRepository.saveAll(memberships);
         List<ActivityMemberProfileResponse> response = new ArrayList<>();
         for(ActivityMembership membership: memberships){
-            response.add(new ActivityMemberProfileResponse(membership.getProfile().getId(), membership.getProfile().getFirstname(), membership.getProfile().getLastname(), membership.getRole()));
+            response.add(new ActivityMemberProfileResponse(membership.getProfile().getId(), membership.getProfile().getFirstname(), membership.getProfile().getLastname(), membership.getProfile().getPrimary_email(), membership.getRole()));
         }
         assertEquals(response, service.getActivityMembers(activity.getId()));
     }
@@ -767,7 +771,15 @@ class ActivityServiceTest {
 
 
     static Profile createNormalProfileBen() {
+
         return new Profile(null, "Ben", "Sales", "James", "Ben10", "ben10@hotmail.com", new String[]{"additional@email.com"}, "hushhush",
+                "Wooooooow", new GregorianCalendar(1999, Calendar.NOVEMBER,
+                28), "male", 1, new String[]{}, new String[]{});
+    }
+
+    static Profile createNormalProfileBen(String email) {
+
+        return new Profile(null, "Ben", "Sales", "James", "Ben10", email, new String[]{"additional@email.com"}, "hushhush",
                 "Wooooooow", new GregorianCalendar(1999, Calendar.NOVEMBER,
                 28), "male", 1, new String[]{}, new String[]{});
     }

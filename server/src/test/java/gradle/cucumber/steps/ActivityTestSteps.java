@@ -8,10 +8,7 @@ import com.springvuegradle.dto.requests.LoginRequest;
 import com.springvuegradle.dto.responses.ActivityMemberProfileResponse;
 import com.springvuegradle.dto.responses.LoginResponse;
 import com.springvuegradle.dto.PrivacyRequest;
-import com.springvuegradle.model.Activity;
-import com.springvuegradle.model.ActivityMembership;
-import com.springvuegradle.model.ActivityType;
-import com.springvuegradle.model.Profile;
+import com.springvuegradle.model.*;
 import com.springvuegradle.repositories.*;
 import com.springvuegradle.service.ProfileService;
 import com.springvuegradle.utilities.JwtUtil;
@@ -76,8 +73,8 @@ public class ActivityTestSteps {
 
     @AfterEach()
     private void tearDown() {
-        profileRepository.deleteAll();
         emailRepository.deleteAll();
+        profileRepository.deleteAll();
         typeRepository.deleteAll();
         activityRepository.deleteAll();
         membershipRepository.deleteAll();
@@ -255,10 +252,11 @@ public class ActivityTestSteps {
         List<ActivityMemberProfileResponse> activityMemberProfileResponseList = new ArrayList<>();
         for(int i = 0; i < roles.size(); i++){
             for(int j = 0; j < numRoles[i]; j++){
-                Profile newProfile = createNormalProfile("email", "password");
+                Profile newProfile = createNormalProfile("email"+j+i, "password");
                 profileRepository.save(newProfile);
+                emailRepository.save(new Email("email"+j+i, true, newProfile));
                 membershipRepository.save(new ActivityMembership(activity, newProfile, roles.get(i)));
-                activityMemberProfileResponseList.add(new ActivityMemberProfileResponse(newProfile.getId(), newProfile.getFirstname(), newProfile.getLastname(), roles.get(i)));
+                activityMemberProfileResponseList.add(new ActivityMemberProfileResponse(newProfile.getId(), newProfile.getFirstname(), newProfile.getLastname(), newProfile.getPrimary_email(), roles.get(i)));
             }
         }
         expectedMemberProfileResponse = new ResponseEntity<>(activityMemberProfileResponseList, HttpStatus.OK);
