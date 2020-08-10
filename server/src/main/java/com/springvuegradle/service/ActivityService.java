@@ -322,12 +322,7 @@ public class ActivityService {
     }
 
     /**
-     * Checks if an activity is valid by checking all fields and throws an exception otherwise.
-     *
-     * @param activity the activity to check the fields of.
-     */
-    /**
-     * Return an activity by activity id.
+     * Return an activity by activity id and profile id based on the privacy activity and role of the user.
      * @param profileId The ID of the profile that is requesting the Activity
      * @param activityId The ID of the activity that is being retrieved
      * @return An activity object. If it does not exist returns null.
@@ -335,21 +330,15 @@ public class ActivityService {
     public Activity getActivityByActivityId(Long profileId, Long activityId) {
         Optional<Activity> activity = activityRepo.findById(activityId);
         if (activity.isPresent()) {
-            ActivityMembership membership = membershipRepo.findByActivity_IdAndProfile_Id(activityId, profileId).get();
-            System.out.println("================");
-            System.out.println(membership.toString());
-            System.out.println("================");
+            Optional<ActivityMembership> activityMembership = membershipRepo.findByActivity_IdAndProfile_Id(activityId, profileId);
             if (activity.get().getPrivacyLevel().equals(2)){
                 return activity.get();
             }
-            else if (membership != null) {
-                System.out.println("LOOP");
-                System.out.println(membership.getRole());
-                System.out.println("looooop");
+            else if (activityMembership.isPresent()) {
                 if (activity.get().getPrivacyLevel().equals(1)) {
                     return activity.get();
                 }
-                else if (membership.getProfile().getId().equals(profileId) && membership.getRole().equals(ActivityMembership.Role.CREATOR)) {
+                else if (activityMembership.get().getRole().equals(ActivityMembership.Role.CREATOR)) {
                     return activity.get();
                 }
             }
