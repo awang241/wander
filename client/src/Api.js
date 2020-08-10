@@ -48,4 +48,5 @@ export default {
 
   // All verification APi requests
   verifyToken: (token) => localAxiosInstance.get('/token', {headers: {"authorization": token}}),
+  verifyEmail: (email) => localAxiosInstance.get('/email/' + email)
 }

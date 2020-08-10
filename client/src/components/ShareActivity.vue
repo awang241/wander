@@ -3,7 +3,7 @@
         <h1 class="title">Share Activity</h1>
         <ValidationObserver v-slot="{ handleSubmit }">
             <form @submit.prevent="handleSubmit(shareActivity)">
-                <ValidationProvider rules="required" name="activityPrivacy" v-slot="{ errors, valid }" slim>
+                <ValidationProvider rules="required" name="Privacy" v-slot="{ errors, valid }" slim>
                     <b-field label="Activity Privacy"
                              :type="{ 'is-danger': errors[0], 'is-success': valid }"
                              :message="errors"
@@ -98,12 +98,22 @@
                 } else if (this.newEmail === "" || this.newEmail.trim().length === 0 || !this.newEmail.includes('@', 0)) {
                     this.warningToast("Please enter a valid email address")
                 } else {
-                    console.log(this.emails);
-                    this.emails.push(this.newEmail);
-                    this.newEmail = "";
+                    Api.verifyEmail(this.newEmail)
+                        .then((response) => {
+                            if (response.data === true) {
+                                console.log(this.emails);
+                                this.emails.push(this.newEmail);
+                                this.newEmail = "";
+                            } else {
+                                this.warningToast("User with that email does not exist")
+                            }
+                        })
+                        .catch(error => console.log(error));
+
                 }
             },
             shareActivity() {
+                // need to check whether 'restricted' option is chosen. If yes, need to check list of users > 0
                 Api.editActivityPrivacy(store.getters.getUserId, this.$route.params.id, this.privacy, localStorage.getItem('authToken'))
                     .then((response) => {
                         console.log(response);
