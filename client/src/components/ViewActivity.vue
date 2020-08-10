@@ -48,7 +48,7 @@
                                             <td>{{activity.description}}</td>
                                         </tr>
                                         <tr>
-                                            <td>Continous/Duration:</td>
+                                            <td>Continuous/Duration:</td>
                                             <td v-if="activity.continuous">continuous</td>
                                             <td v-else>duration</td>
                                         </tr>
@@ -84,32 +84,65 @@
         </div>
 
         <div>
-            <b-tabs>
+            <b-tabs v-model="roleIndex">
                 <b-tab-item label="Organisers">
-                    <div class="flex">
+                    <div class="flex"
+                         v-if="members[roles.ORGANISER].length > 0">
                         <div class="table-profile"
-                               v-for="organiser in organisers"
-                                :key="organiser.id">
+                             v-for="organiser in members.organiser"
+                             :key="organiser.id">
                             <ProfileSummary class="flex-item" :profile="organiser">
                                 <template #options>
-                                    <b-button @click="changeRole(organiser, 'participant')">Change to participant</b-button>
+                                    <b-dropdown aria-role="list" class="is-pulled-right" position="is-bottom-left" v-if="store.getters.getAuthenticationLevel <= 1">
+                                        <b-icon icon="ellipsis-v" slot="trigger"></b-icon>
+                                        <b-dropdown-item @click="changeRole(organiser, roles.PARTICIPANT)">Change to organizer</b-dropdown-item>
+                                    </b-dropdown>
                                 </template>
                             </ProfileSummary>
                         </div>
+                    </div>
+                    <div v-else>
+                        <p>This activity has no organisers.</p>
                     </div>
                 </b-tab-item>
 
                 <b-tab-item label="Participants">
                     <div class="flex">
+                        <div v-if="members[roles.PARTICIPANT].length > 0">
+                            <div class="table-profile"
+                                 v-for="participant in members.participant"
+                                 :key="participant.id">
+                                <ProfileSummary class="flex-item" :profile="participant">
+                                    <template #options>
+                                        <b-dropdown aria-role="list" class="is-pulled-right" position="is-bottom-left">
+                                            <b-icon icon="ellipsis-v" slot="trigger"></b-icon>
+                                            <b-button @click="changeRole(participant, roles.ORGANISER)">Change to organizer</b-button>
+                                        </b-dropdown>
+                                    </template>
+                                </ProfileSummary>
+                            </div>
+                        </div>
+                        <div v-else>
+                            <p>This activity has no participants.</p>
+                        </div>
+                    </div>
+                </b-tab-item>
+
+                <b-tab-item label="Followers"
+                            v-if="store.getters.getAuthenticationLevel <= 1">
+                    <div class="flex"
+                         v-if="members[roles.FOLLOWER].length > 0">
                         <div class="table-profile"
-                             v-for="participant in participants"
-                             :key="participant.id">
-                            <ProfileSummary class="flex-item" :profile="participant">
+                             v-for="follower in members.followers"
+                             :key="follower.id">
+                            <ProfileSummary class="flex-item" :profile="follower">
                                 <template #options>
-                                    <b-button @click="changeRole(participant, 'organizer')">Change to organizer</b-button>
                                 </template>
                             </ProfileSummary>
                         </div>
+                    </div>
+                    <div v-else>
+                        <p>This activity has no followers.</p>
                     </div>
                 </b-tab-item>
             </b-tabs>
@@ -121,16 +154,35 @@
     import ProfileSummary from "./ProfileSummary";
     import router from "../router";
     import api from "../Api";
+    import store from '../store';
+    import toastMixin from "../mixins/toastMixin";
+
+    const ROLES = Object.freeze({
+        CREATOR: "creator",
+        ORGANISER: "organiser",
+        PARTICIPANT: "participant",
+        FOLLOWER: "follower"
+    });
 
     export default {
         name: "ViewActivity",
         components: {ProfileSummary},
         data() {
             return {
+                roles: ROLES,
+
                 activityId: this.$route.params.id,
                 activity: null,
+                members: {
+                    "organiser": [],
+                    "participant": [],
+                    "follower": [],
+                },
                 organisers: [],
                 participants: [],
+                followers: [],
+                roleIndex: 0,
+                store: store,
                 isCreatorOrOrganizer: false,
                 numFollowers: 0
           }
@@ -140,18 +192,55 @@
                 router.push({name: 'editActivity', params: {activityProp: this.activity}});
             },
             getActivity() {
-                api.getActivity(this.$route.params.id, localStorage.getItem('authToken'))
+                api.getActivity(this.activityId, localStorage.getItem('authToken'))
                     .then(response => this.activity = response.data)
                     .catch((error) => {
                         console.log(error);
-                        router.go(-1)
+                        router.go(-1);
                     })
             },
-            getActivityMembers() {
-
+            getAllActivityMembers() {
+                this.getActivityMembers(this.roles.PARTICIPANT);
+                this.getActivityMembers(this.roles.ORGANISER);
+                if (store.getters.getAuthenticationLevel <= 1) {
+                    this.getActivityMembers(this.roles.FOLLOWER);
+                }
             },
-            setProfileRole(profileId, role) {
-                profileId = role;
+            getActivityMembers(role) {
+                let searchParams = null;
+                if (role === this.roles.PARTICIPANT && store.getters.getAuthenticationLevel > 1) {
+                    searchParams = {
+                        count: 50,
+                        index: 0
+                    };
+                }
+                api.getActivityMembers(this.activityId, role, localStorage.getItem('authToken'), searchParams)
+                    .then(response => { this.members[role] = response.data.summaries;})
+                    .catch((error) => {
+                        console.log(error);
+                        toastMixin.warningToast("Error loading activity data");
+                    })
+            },
+            getRoleName: function (roleIndex) {
+                switch (roleIndex) {
+                    case 0:
+                        return ROLES.ORGANISER;
+                    case 1:
+                        return ROLES.PARTICIPANT;
+                    case 2:
+                        return ROLES.FOLLOWER;
+                    default:
+                        return null
+                }
+            },
+            changeRole(profile, role) {
+                //TODO finish implementing this method
+                api.editActivityMemberRole(profile.id, this.activity.id, role, localStorage.getItem("token"))
+                    .then((res) => {
+                        console.log(res)
+                    }).catch((error) => {
+                        console.log(error)
+                    })
             },
             shareActivity() {
                 router.push({name: 'shareActivity', path:"ShareActivity/" + this.activity.id})
@@ -180,38 +269,8 @@
             }
         },
         mounted() {
-            //Mock data for testing; replace with appropriate API calls when implemented.
             this.getActivity();
-
-            this.organisers = [
-                {
-                    id: 1,
-                    firstname: "Sample",
-                    lastname: "Org",
-                    activities: [],
-                    gender: "Gender",
-                    email: "email@cmail.dom"
-                },
-                {
-                    id: 2,
-                    firstname: "Sample",
-                    lastname: "Org2",
-                    activities: [],
-                    gender: "Gender",
-                    email: "email@cmail.dom"
-                }
-            ];
-            for (let i = 0; i < 50; i++) {
-                let participant = {
-                    id: i,
-                    firstname: "Tester",
-                    lastname: "Participant" + i,
-                    activities: [],
-                    gender: "Gender",
-                    email: "email@cmail.dom"
-                };
-                this.participants.push(participant)
-            }
+            this.getAllActivityMembers();
         }
     }
 </script>

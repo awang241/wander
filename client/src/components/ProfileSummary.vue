@@ -35,7 +35,7 @@
             }
         },
         mounted() {
-            this.profileData = this.props.profile;
+            this.profileData = this.$props.profile;
         },
         computed: {
             name() {
