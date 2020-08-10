@@ -2,11 +2,7 @@ package com.springvuegradle.controller;
 
 
 import com.springvuegradle.dto.*;
-import com.springvuegradle.enums.ActivityMessage;
-import com.springvuegradle.enums.ActivityPrivacy;
-import com.springvuegradle.enums.ActivityResponseMessage;
-import com.springvuegradle.enums.AuthenticationErrorMessage;
-import com.springvuegradle.enums.ProfileErrorMessage;
+import com.springvuegradle.enums.*;
 import com.springvuegradle.model.Activity;
 import com.springvuegradle.model.ActivityMembership;
 import com.springvuegradle.repositories.ActivityRepository;
@@ -438,19 +434,23 @@ public class ActivityController {
         if (token == null || token.isBlank()) {
             response = new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
                     HttpStatus.UNAUTHORIZED);
+        } else if (!jwtUtil.validateToken(token)){
+            response = new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
+                    HttpStatus.UNAUTHORIZED);
         }
-        response = checkActivityModifyPermissions(token, jwtUtil.extractId(token), activityId);
+        //TODO: Check Whether the user token is admin or activity owner here *in a way that can be mocked*
         if (response == null) {
-            try {
-                String roleString = roleToClear.getRole().toUpperCase();
+            String roleString = roleToClear.getRole().toUpperCase();
+            try{
+                Arrays.asList(ActivityRoleLevel.values()).contains(ActivityRoleLevel.valueOf(roleString));
                 Boolean success = activityService.clearActivityRoleList(activityId, roleString);
                 if (success) {
                     response = new ResponseEntity<>(ActivityMessage.SUCCESSFUL_DELETION.getMessage(), HttpStatus.OK);
                 } else {
                     response = new ResponseEntity<>(ActivityMessage.UNSUCCESSFUL, HttpStatus.NOT_MODIFIED);
                 }
-            } catch(IllegalArgumentException e){
-                return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            } catch (IllegalArgumentException e) {
+                response =  new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
         }
         return response;
