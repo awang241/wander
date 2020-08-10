@@ -11,13 +11,13 @@
                     <template slot="label">Privacy<span>*</span></template>
                     <b-select v-model="privacy" placeholder="Choose privacy setting" expanded>
                         <option value="private">Private</option>
-                        <option value="friends">Friends</option>
+                        <option value="members">Members</option>
                         <option value="public">Public</option>
                     </b-select>
                     </b-field>
                 </ValidationProvider>
 
-                <div v-if="privacy == 'friends'">
+                <div v-if="privacy == 'members'">
                     <b-field label="Emails">
                         <b-taginput
                                 v-model="emails"

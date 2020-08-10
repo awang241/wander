@@ -411,7 +411,7 @@ public class ActivityController {
         if (token == null || token.isBlank()) {
             return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
                     HttpStatus.UNAUTHORIZED);
-        } else if (!(activityService.isProfileActivityCreator(jwtUtil.extractId(token), activityId) || )) {
+        } else if (!securityService.checkEditPermission(token, profileId)) {
             return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(),
                     HttpStatus.FORBIDDEN);
         }
@@ -420,6 +420,7 @@ public class ActivityController {
         }
         return new ResponseEntity<>(ActivityMessage.MEMBERSHIP_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
     }
+
 
     /**
      * Removes all member roles of a specified level from a specified activity
@@ -441,7 +442,7 @@ public class ActivityController {
         response = checkActivityModifyPermissions(token, jwtUtil.extractId(token), activityId);
         if (response == null) {
             try {
-                String roleString = ActivityMembership.Role.valueOf(roleToClear.getRole().toUpperCase());
+                String roleString = roleToClear.getRole().toUpperCase();
                 Boolean success = activityService.clearActivityRoleList(activityId, roleString);
                 if (success) {
                     response = new ResponseEntity<>(ActivityMessage.SUCCESSFUL_DELETION.getMessage(), HttpStatus.OK);

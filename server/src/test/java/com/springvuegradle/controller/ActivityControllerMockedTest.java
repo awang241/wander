@@ -165,5 +165,15 @@ class ActivityControllerMockedTest {
         assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
     }
 
+//    @Test
+//    void clearRoleOfActivitySuccessTest(){
+//
+//    }
+//
+//    @Test
+//    void clearRoleOfActivityNoTokenTest(){
+//
+//    }
+
     //Need test for invalid roles
 }
