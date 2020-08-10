@@ -19,7 +19,7 @@
                         {{activity.activity_name}}
                     </h1>
                     <h2 class="subtitle is-5">
-                        Created by: creator name
+                        Created by: {{ activity.creator }}
                     </h2>
                     <div>
                         <h3 class="title is-5"> Privacy: {{privacy}}</h3>
