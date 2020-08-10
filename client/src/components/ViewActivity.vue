@@ -35,7 +35,6 @@
                         <!-- Activities -->
                         <div class="card">
                             <div class="card-content">
-                                <h3 class="title is-4">{{activity.activity_name}}</h3>
                                 <div class="content">
                                     <table class="table-profile">
                                         <caption hidden>Displayed Activity Table</caption>
@@ -95,7 +94,7 @@
                                 <template #options>
                                     <b-dropdown aria-role="list" class="is-pulled-right" position="is-bottom-left" v-if="store.getters.getAuthenticationLevel <= 1">
                                         <b-icon icon="ellipsis-v" slot="trigger"></b-icon>
-                                        <b-dropdown-item @click="changeRole(organiser, roles.PARTICIPANT)">Change to organizer</b-dropdown-item>
+                                        <b-dropdown-item @click="changeRole(organiser, roles.ORGANISER, roles.PARTICIPANT)">Change to Participant</b-dropdown-item>
                                     </b-dropdown>
                                 </template>
                             </ProfileSummary>
@@ -116,7 +115,7 @@
                                     <template #options>
                                         <b-dropdown aria-role="list" class="is-pulled-right" position="is-bottom-left">
                                             <b-icon icon="ellipsis-v" slot="trigger"></b-icon>
-                                            <b-button @click="changeRole(participant, roles.ORGANISER)">Change to organizer</b-button>
+                                            <b-dropdown-item @click="changeRole(participant, roles.PARTICIPANT, roles.ORGANISER)">Change to Organizer</b-dropdown-item>
                                         </b-dropdown>
                                     </template>
                                 </ProfileSummary>
@@ -137,6 +136,9 @@
                              :key="follower.id">
                             <ProfileSummary class="flex-item" :profile="follower">
                                 <template #options>
+                                    <b-dropdown aria-role="list" class="is-pulled-right" position="is-bottom-left">
+                                        <b-icon icon="ellipsis-v" slot="trigger"></b-icon>
+                                    </b-dropdown>
                                 </template>
                             </ProfileSummary>
                         </div>
@@ -167,6 +169,7 @@
     export default {
         name: "ViewActivity",
         components: {ProfileSummary},
+        mixins: [toastMixin],
         data() {
             return {
                 roles: ROLES,
@@ -215,10 +218,10 @@
                     };
                 }
                 api.getActivityMembers(this.activityId, role, localStorage.getItem('authToken'), searchParams)
-                    .then(response => { this.members[role] = response.data.summaries;})
+                    .then(response => {this.members[role] = response.data.summaries;})
                     .catch((error) => {
                         console.log(error);
-                        toastMixin.warningToast("Error loading activity data");
+                        this.warningToast("Error loading activity data");
                     })
             },
             getRoleName: function (roleIndex) {
@@ -233,14 +236,23 @@
                         return null
                 }
             },
-            changeRole(profile, role) {
-                //TODO finish implementing this method
-                api.editActivityMemberRole(profile.id, this.activity.id, role, localStorage.getItem("token"))
-                    .then((res) => {
-                        console.log(res)
-                    }).catch((error) => {
+            changeRole(profile, oldRole, newRole) {
+                if (newRole !== oldRole) {
+                    api.editActivityMemberRole(profile.id, this.activity.id, newRole, localStorage.getItem("authToken"))
+                        .then(() => {
+                            let index = this.members[oldRole].findIndex((item) => {return item === profile});
+                            if (index !== -1) {
+                                this.members[oldRole].splice(index, 1);
+                                this.members[newRole].push(profile);
+                            } else {
+                                console.log("Error updating members locally. The program will now reload data from server");
+                                this.getAllActivityMembers();
+                            }
+                            this.successToast("Role successfully updated.")
+                        }).catch((error) => {
                         console.log(error)
                     })
+                }
             },
             shareActivity() {
                 router.push({name: 'shareActivity', path:"ShareActivity/" + this.activity.id})
