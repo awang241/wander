@@ -4,10 +4,10 @@
         <section>
             <div id="activity-key-info">
                 <div>
-                    <div class="buttons" style="float:right">
+                    <div v-if="hasShareAndEditPermissions()" class="buttons" style="float:right">
                         <b-button style="float:right" @click="shareActivity"
                                   type="is-primary">
-                            Share Activity
+                            Share Activity / Change Privacy Level
                         </b-button>
                         <b-button style="float:right" @click="editActivity"
                                   type="is-primary">
@@ -235,6 +235,9 @@
                     default:
                         return null
                 }
+            },
+            hasShareAndEditPermissions() {
+                return ((this.activity && this.activity.creatorId == this.store.getters.getUserId) || this.store.getters.getAuthenticationLevel < 2);
             },
             changeRole(profile, oldRole, newRole) {
                 if (newRole !== oldRole) {

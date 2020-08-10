@@ -251,4 +251,17 @@ public class Activity {
         return null;
     }
 
+    /**
+     * Calls retrieveCreator to get the profile of the creator and returns the id of the creator. Need the long to be
+     * returned in the json data that is sent with each activity object.
+     * @return creator id if the creator exists, null otherwise.
+     */
+    public Long getCreatorId() {
+        Profile creator = retrieveCreator();
+        if (creator != null) {
+            return creator.getId();
+        }
+        return null;
+    }
+
 }

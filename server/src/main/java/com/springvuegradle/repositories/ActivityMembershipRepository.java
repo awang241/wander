@@ -31,7 +31,7 @@ public interface ActivityMembershipRepository extends JpaRepository<ActivityMemb
     @Query("SELECT am FROM ActivityMembership am WHERE am.activity.id = :id AND am.role = :role")
     Page<ActivityMembership> findByActivityAndRole(Long id, ActivityMembership.Role role, Pageable pageable);
 
-    @Query("SELECT new com.springvuegradle.dto.responses.ActivityMemberProfileResponse(p.id, p.firstname, p.lastname, am.role) FROM Profile p JOIN ActivityMembership am on am.profile.id = p.id AND am.activity.id = :activityId")
+    @Query("SELECT new com.springvuegradle.dto.responses.ActivityMemberProfileResponse(p.id, p.firstname, p.lastname, e.address, am.role) FROM Profile p JOIN ActivityMembership am on am.profile.id = p.id JOIN Email e ON p.id = e.profile.id WHERE am.activity.id = :activityId AND e.isPrimary=true")
     List<ActivityMemberProfileResponse> findActivityMembershipsByActivityId(long activityId);
 
     @Query("SELECT am FROM ActivityMembership am LEFT JOIN FETCH Activity a ON am.activity = a WHERE am.profile.id = :profileId")

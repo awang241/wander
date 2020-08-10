@@ -24,9 +24,17 @@
                                 placeholder="Enter a friend's email">
                         </b-taginput>
                     </b-field>
+                    <div v-if="members.length > 0">
+                        <br>
+                        <h3 class="title is-5">Current Members</h3>
+                        <table class="table-profile">
+                            <tr v-for="member in members" :key="member">
+                                <td>{{member.email}}</td>
+                            </tr>
+                        </table>
+                    </div>
                 </div>
                 <br>
-
                 <b-button style="float: right" @click="shareActivity"
                               type="is-primary">
                         Save
@@ -63,11 +71,13 @@
                 privacy: 'private',
                 emails: {},
                 activityId: this.$route.params.id,
+                members: []
 
             }
         },
         mounted() {
             this.checkAuthenticationStatus()
+            this.getMembers()
         },
         methods: {
 
@@ -77,6 +87,13 @@
                         console.log(response);
                         this.successToast("Activity privacy updated")
                         router.go(-1)
+                    })
+                    .catch(error => console.log(error));
+            },
+            getMembers() {
+                Api.getAllActivityMembers(this.$route.params.id, localStorage.getItem('authToken'))
+                    .then((response) => {
+                        this.members = response.data;
                     })
                     .catch(error => console.log(error));
             },

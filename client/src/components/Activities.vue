@@ -80,21 +80,6 @@ const DEFAULT_RESULT_COUNT = 10;
                 role: ""
             }
         },
-        // created() {
-        //     //Used to update the list of profiles when a profile on this list is changed
-        //     //This is done by watching for the profileWasEdited event on the global event bus
-        //     eventBus.$on('activityWasEdited', (editedActivity) => {
-        //         for (let i = 0; i < this.activities.length; i++) {
-        //             if(this.activities[i].id === editedActivity.id){
-        //                 this.activities[i].activityName = editedActivity.activityName
-        //                 this.activities[i].location = editedActivity.location
-        //                 this.activities[i].activityTypes = editedActivity.activityTypes
-        //                 this.activities[i].continuous = editedActivity.continuous
-        //                 this.activities[i].creatorName = editedActivity.creatorName
-        //             }
-        //         }
-        //     })
-        // },
         methods: {
             //once we can get different privacy levels
             //just set the prop before method call to change component?
