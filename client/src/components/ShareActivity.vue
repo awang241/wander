@@ -124,16 +124,15 @@
                     .catch(error => console.log(error));
 
             },
+            getRequestBody() {
+              let payload = {
+                privacy: this.privacy,
+                members: this.userRoles
+              };
+              return payload;
+            },
             shareActivity() {
-                if(this.privacy === 'friends') {
-                    Api.editActivityRestrictedUsers(store.getters.getUserId, this.$route.params.id, localStorage.getItem('authToken'), this.userRoles)
-                        .catch(error => console.log(error));
-                }
-                let payload = {
-                    privacy: this.privacy,
-                    members: this.userRoles
-                };
-                Api.editActivityPrivacy(store.getters.getUserId, this.$route.params.id, payload, localStorage.getItem('authToken'))
+                Api.editActivityPrivacy(store.getters.getUserId, this.$route.params.id, this.getRequestBody(), localStorage.getItem('authToken'))
                     .then((response) => {
                         console.log(response);
                         this.successToast("Activity privacy updated")

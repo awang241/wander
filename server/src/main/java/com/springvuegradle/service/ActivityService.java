@@ -542,6 +542,7 @@ public class ActivityService {
                 throw new IllegalArgumentException(ActivityResponseMessage.INVALID_EMAILS.toString());
             }
         }
+        Activity activity = optionalActivity.get();
         for (Profile profile: profiles.keySet()) {
             Optional<ActivityMembership> optionalMembership = membershipRepo.findByActivity_IdAndProfile_Id(profile.getId(), activityId);
             ActivityMembership.Role role = ActivityMembership.Role.valueOf(profiles.get(profile).toUpperCase());
@@ -550,9 +551,12 @@ public class ActivityService {
                 membership = optionalMembership.get();
                 membership.setRole(role);
             } else {
-                membership = new ActivityMembership(optionalActivity.get(), profile, role);
+                membership = new ActivityMembership(activity, profile, role);
             }
             membershipRepo.save(membership);
+            profile.addActivity(membership);
+            activity.addMember(membership);
+            profileRepo.save(profile);
         }
     }
 }
