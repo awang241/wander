@@ -700,6 +700,7 @@ public class Profile_Controller {
     }
 
     /**
+     * The method verifies that the given email exists in the database and returns true if it does.
      *
      * @param email object that contains the string email address
      * @return boolean whether email exists in the database or not
