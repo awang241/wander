@@ -19,6 +19,11 @@ public class PrivacyRequest {
         this.privacy = privacy;
     }
 
+    public PrivacyRequest(String privacy, List<MembersRequest> members) {
+        this.members = members;
+        this.privacy = privacy;
+    }
+
     public void setPrivacy(String privacy) { this.privacy = privacy; }
     public void setMembers(List<MembersRequest> members) {
         this.members = members;

@@ -439,7 +439,7 @@ public class ActivityController {
         }
         try {
             activityService.editActivityPrivacy(privacyRequest.getPrivacy(), activityId);
-            if (privacyRequest.getPrivacy().toLowerCase().equals("friends")) {
+            if (privacyRequest.getPrivacy().toLowerCase().equals("friends") && privacyRequest.getMembers() != null) {
                 activityService.addMembers(privacyRequest.getMembers(), activityId);
             }
             return new ResponseEntity<>(ActivityResponseMessage.EDIT_SUCCESS.toString(), HttpStatus.OK);

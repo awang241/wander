@@ -16,6 +16,7 @@ public interface ActivityMembershipRepository extends JpaRepository<ActivityMemb
 
     List<ActivityMembership> findActivityMembershipsByActivity_IdAndRole(Long id, ActivityMembership.Role role);
     List<ActivityMembership> findActivityMembershipsByActivity_Id(Long id);
+    List<ActivityMembership> findActivityMembershipsByRole(ActivityMembership.Role role);
     Optional<ActivityMembership> findByActivity_IdAndProfile_Id(long activityId, long profileId);
 
     @Query("SELECT am FROM ActivityMembership am LEFT JOIN FETCH Activity a ON am.activity = a WHERE am.profile.id = :profileId")
