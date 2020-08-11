@@ -266,6 +266,7 @@
                         this.members[oldRole] = this.members[oldRole].filter(member => member.id !== profile.id)
                         this.successToast("Removed user from activity!")
                     })
+                    .catch(() => this.warningToast("User could not be removed from the activity!"))
             },
             shareActivity() {
                 router.push({name: 'shareActivity', path:"ShareActivity/" + this.activity.id})

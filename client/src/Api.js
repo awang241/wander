@@ -19,6 +19,7 @@ export default {
   deleteActivity: (userId, token, activityId) => localAxiosInstance.delete('/profiles/'+userId+'/activities/'+activityId, {headers: {"authorization":token}}),
   deleteLocation: (userId, token) => localAxiosInstance.delete('/profiles/'+userId+'/location', {headers: {"authorization":token}}),
   deleteProfile: (userId, token) => localAxiosInstance.delete('/profiles/' + userId, {headers: {"authorization":token}}),
+  deleteActivityMembership: (userId, activityId, token) => localAxiosInstance.delete('/profiles/' + userId + "/activities/" + activityId + "/membership", {headers: {"authorization":token}}),
 
   // All edit API requests
   editEmail: (emails, userId, token) => localAxiosInstance.put('profiles/'+userId+'/emails', emails, {headers: {"authorization":token}}),
