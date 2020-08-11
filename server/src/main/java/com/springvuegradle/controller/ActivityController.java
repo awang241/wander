@@ -299,7 +299,6 @@ public class ActivityController {
         return new ResponseEntity<>(activitiesResponse, status);
     }
 
-
     /**
      * Deletes an activity from the repository given that it exists in the database.
      *
