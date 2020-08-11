@@ -424,7 +424,7 @@ public class ActivityController {
     /**
      * REST endpoint for editing the privacy level of an existing activity. Given a HTTP request containing a correctly formatted JSON file,
      * updates the given database entry. For more information on the JSON format, see the @JsonCreator-tagged constructor
-     * in the Activity class.
+     * in the Activity class. The endpoint now also adds new members to the activity.
      * @param privacyRequest The contents of HTTP request body, mapped to a privacy request.
      * @return A HTTP response notifying the sender whether the edit was successful
      */
@@ -439,24 +439,12 @@ public class ActivityController {
         }
         try {
             activityService.editActivityPrivacy(privacyRequest.getPrivacy(), activityId);
+            if (privacyRequest.getPrivacy().toLowerCase().equals("friends")) {
+                activityService.addMembers(privacyRequest.getMembers(), activityId);
+            }
             return new ResponseEntity<>(ActivityResponseMessage.EDIT_SUCCESS.toString(), HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
-    }
-
-    /**
-     * An endpoint that takes a list of emails and roles of users and saves them as members.
-     * @param friendList list of emails and roles.
-     * @return An HTTP response notifying the sender whether the edit was successful
-     */
-    @PutMapping("/profiles/{profileId}/activities/{activityid}/visibility")
-    public ResponseEntity<String> addMembers (@RequestHeader ("authorization") String token,
-                                              @PathVariable ArrayList<ArrayList<String>> friendList) {
-
-        for (ArrayList<String> friend: friendList) {
-
-        }
-        return new ResponseEntity<>(ActivityResponseMessage.EDIT_SUCCESS.toString(), HttpStatus.OK);
     }
 }
