@@ -1,5 +1,5 @@
 <template>
-    <div class="container containerColor">
+    <div v-if="activity" class="container containerColor">
         <!-- Header -->
         <section>
             <div id="activity-key-info">
@@ -22,7 +22,7 @@
                         Created by: {{ activity.creator }}
                     </h2>
                     <div>
-                        <h3 class="title is-5"> Privacy: {{privacy}}</h3>
+                        <h3 class="title is-5">{{privacy}}</h3>
                     </div>
                 </div>
             </div>
@@ -71,7 +71,7 @@
                                         </tr>
                                       <tr>
                                           <td>Followers:</td>
-                                          <td>follower number</td>
+                                          <td>{{numFollowers}}</td>
                                       </tr>
                                     </table>
                                 </div>
@@ -193,6 +193,10 @@
           }
         },
         methods: {
+            getRoleCounts(){
+                api.getRoleCountsForActivity(this.$route.params.id, localStorage.getItem('authToken'))
+                .then(response => this.numFollowers = response.data.followers)
+            },
             editActivity() {
                 router.push({name: 'editActivity', params: {activityProp: this.activity}});
             },
@@ -269,7 +273,7 @@
                     .catch(() => this.warningToast("User could not be removed from the activity!"))
             },
             shareActivity() {
-                router.push({name: 'shareActivity', path:"ShareActivity/" + this.activity.id})
+                router.push("/ShareActivity/" + this.activity.id + "/" + this.privacy.toLowerCase())
             },
             dateFormat(date) {
                 let year = date.slice(0, 4);
@@ -297,6 +301,11 @@
         mounted() {
             this.getActivity();
             this.getAllActivityMembers();
+            this.getRoleCounts();
+
+            this.activity = {
+                continuous: false
+            };
         }
     }
 </script>

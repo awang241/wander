@@ -1,6 +1,7 @@
 package com.springvuegradle.service;
 
 import com.springvuegradle.dto.ActivityRoleCountResponse;
+import com.springvuegradle.dto.MembersRequest;
 import com.springvuegradle.dto.SimplifiedActivity;
 import com.springvuegradle.dto.responses.ActivityMemberProfileResponse;
 import com.springvuegradle.enums.ActivityMessage;
@@ -14,6 +15,7 @@ import com.springvuegradle.repositories.ActivityMembershipRepository;
 import com.springvuegradle.repositories.ActivityRepository;
 import com.springvuegradle.repositories.ActivityTypeRepository;
 import com.springvuegradle.repositories.ProfileRepository;
+import com.springvuegradle.repositories.EmailRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -34,6 +36,7 @@ public class ActivityService {
     private ActivityRepository activityRepo;
     private ActivityTypeRepository typeRepo;
     private ActivityMembershipRepository membershipRepo;
+    private EmailRepository emailRepo;
 
     /**
      * Autowired constructor for Spring to create an ActivityService and inject the correct dependencies.
@@ -197,6 +200,26 @@ public class ActivityService {
         return false;
     }
 
+    /**
+     * Checks if the activity exists in the repository, checks if profile has membership,
+     * deletes the membership if profile has membership
+     *
+     * @param profileId the profile which membership needs to be removed
+     * @param activityId the specified activity
+     * @return true if membership was found and deleted, false otherwise
+     */
+    public boolean removeMembership(Long profileId, Long activityId) {
+        if (activityRepo.existsById(activityId)) {
+            for (ActivityMembership membership : membershipRepo.findAll()) {
+                if (membership.getActivity().getId() == activityId && membership.getProfile().getId().equals( profileId)) {
+                    membershipRepo.delete(membership);
+                    membership.getProfile().removeActivity(membership);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
     /**
      * Returns all activities associated with the given profile.
@@ -233,6 +256,61 @@ public class ActivityService {
     }
 
     /**
+     * Returns all the activities with privacy level of 2. Aka returns all public activities.
+     * @param request contains the count and start index for pagination
+     * @return list of activities
+     */
+    public List<Activity> getPublicActivities(PageRequest request) {
+        Page<Activity> activities = activityRepo.findAllByPrivacyLevelWithPagination(2, request);
+        return activities.getContent();
+    }
+
+    /**
+     * Returns all the activities that the user is a creator or organiser of.
+     * @param request contains the count and start index for pagination
+     * @param profileId the id of the user we want to check is the creator or organiser of an activity
+     * @return list of activities
+     */
+    public List<Activity> getActivitiesUserCanModify(PageRequest request, Long profileId) {
+        List<Activity> userActivities = new ArrayList<>();
+        Page<ActivityMembership> memberships = membershipRepo.findAllByProfileId(profileId, request);
+        for (ActivityMembership membership : memberships) {
+            if (membership.getRole().equals(ActivityMembership.Role.CREATOR) ||
+                    (membership.getRole().equals(ActivityMembership.Role.ORGANISER) && membership.getActivity().getPrivacyLevel() > 0)) {
+                userActivities.add(membership.getActivity());
+            }
+        }
+        return userActivities;
+    }
+
+
+    /**
+     * Returns all the new activities for the user to discover.
+     * @param request contains the count and start index for pagination
+     * @param profileId refers to id of the user we want to check
+     * @return list of activities the user has no current association with.
+     */
+    public List<Activity> getNewActivities(PageRequest request, Long profileId) {
+        List<Activity> activities = new ArrayList<>();
+        List<Activity> results = activityRepo.findAllByPrivacyLevel(2);
+        if (results!= null) {
+            for (Activity activity: results) {
+                boolean profileAssociated = false;
+                for (ActivityMembership am: activity.getMembers()) {
+                    if (am.getProfile().getId().equals(profileId)) {
+                        profileAssociated=true;
+                    }
+                }
+                if (!profileAssociated) {
+                    activities.add(activity);
+                }
+            }
+        }
+        return activities.subList(Math.min(activities.size(), request.getPageNumber()), Math.min(activities.size(), request.getPageSize()));
+    }
+
+
+    /**
      * Returns all activities with the given privacy level.
      *
      * @param privacy The given privacy level
@@ -240,7 +318,7 @@ public class ActivityService {
      */
     public List<Activity> getActivitiesWithPrivacyLevel(ActivityPrivacy privacy) {
         int privacyLevel = privacy.ordinal();
-        return activityRepo.findAllPublic(privacyLevel);
+        return activityRepo.findAllByPrivacyLevel(privacyLevel);
     }
 
     /**
@@ -284,13 +362,27 @@ public class ActivityService {
     /**
      * Return an activity by activity id.
      *
+     * Return an activity by activity id and profile id based on the privacy activity and role of the user.
+     * @param profileId The ID of the profile that is requesting the Activity
      * @param activityId The ID of the activity that is being retrieved
-     * @return An activity object. If it does not exist returns null.
+     * @return An activity object. If it does not exist or the user is not authorized returns null.
      */
-    public Activity getActivityByActivityId(Long activityId) {
+    public Activity getActivityByActivityId(Long profileId, Long activityId) {
         Optional<Activity> activity = activityRepo.findById(activityId);
         if (activity.isPresent()) {
-            return activity.get();
+            Optional<ActivityMembership> activityMembership = membershipRepo.findByActivity_IdAndProfile_Id(activityId, profileId);
+            if (activity.get().getPrivacyLevel().equals(2)){
+                return activity.get();
+            }
+            else if (activityMembership.isPresent()) {
+                if (activity.get().getPrivacyLevel().equals(1)) {
+                    return activity.get();
+                }
+                else if (activityMembership.get().getRole().equals(ActivityMembership.Role.CREATOR)) {
+                    return activity.get();
+                }
+            }
+            return null;
         }
         return null;
     }
@@ -512,5 +604,43 @@ public class ActivityService {
             }
         }
         return isAdmin || isCreatorOrOrganizer || profileBeingEditedId == profileDoingEditingId;
+    }
+
+    /**
+     * Adds the members to the activity under the given roles. If the member is already a role, their role is changed.
+     * @param members list of MembersRequest objects which contain member emails and their associated roles.
+     * @param activityId id referring to the activity.
+     * @throws IllegalArgumentException when activity or email is not found.
+     */
+    public void addMembers(List<MembersRequest> members, long activityId) throws IllegalArgumentException {
+        Optional<Activity> optionalActivity = activityRepo.findById(activityId);
+        if (optionalActivity.isEmpty()) {
+            throw new IllegalArgumentException(ActivityMessage.ACTIVITY_NOT_FOUND.getMessage());
+        }
+        Map<Profile, String> profiles = new HashMap<>();
+        for (MembersRequest member: members) {
+            List<Profile> profilesWithEmail = profileRepo.findByPrimaryEmail(member.getEmail());
+            if (profilesWithEmail.size() > 0) {
+                profiles.put(profilesWithEmail.get(0), member.getRole());
+            } else {
+                throw new IllegalArgumentException(ActivityResponseMessage.INVALID_EMAILS.toString());
+            }
+        }
+        Activity activity = optionalActivity.get();
+        for (Profile profile: profiles.keySet()) {
+            Optional<ActivityMembership> optionalMembership = membershipRepo.findByActivity_IdAndProfile_Id(profile.getId(), activityId);
+            ActivityMembership.Role role = ActivityMembership.Role.valueOf(profiles.get(profile).toUpperCase());
+            ActivityMembership membership;
+            if (optionalMembership.isPresent()) {
+                membership = optionalMembership.get();
+                membership.setRole(role);
+            } else {
+                membership = new ActivityMembership(activity, profile, role);
+            }
+            membershipRepo.save(membership);
+            profile.addActivity(membership);
+            activity.addMember(membership);
+            profileRepo.save(profile);
+        }
     }
 }
