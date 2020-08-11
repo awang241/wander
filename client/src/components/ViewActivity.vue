@@ -177,42 +177,12 @@
             }
         },
         mounted() {
-            //Mock data for testing; replace with appropriate API calls when implemented.
             this.getActivity()
             this.getRoleCounts()
 
             this.activity = {
                 continuous: false
             };
-            this.organisers = [
-                {
-                    id: 1,
-                    firstname: "Sample",
-                    lastname: "Org",
-                    activities: [],
-                    gender: "Gender",
-                    email: "email@cmail.dom"
-                },
-                {
-                    id: 2,
-                    firstname: "Sample",
-                    lastname: "Org2",
-                    activities: [],
-                    gender: "Gender",
-                    email: "email@cmail.dom"
-                }
-            ];
-            for (let i = 0; i < 50; i++) {
-                let participant = {
-                    id: i,
-                    firstname: "Tester",
-                    lastname: "Participant" + i,
-                    activities: [],
-                    gender: "Gender",
-                    email: "email@cmail.dom"
-                };
-                this.participants.push(participant)
-            }
         }
     }
 </script>

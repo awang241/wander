@@ -499,6 +499,9 @@ class ActivityServiceTest {
         assertEquals(null, failedResult);
     }
 
+    /**
+     * Tests that you can add a user as a participant to an activity.
+     */
     @Test
     void addNormalUserRoleToActivityTest() {
         Profile ben = createNormalProfileBen();
@@ -508,6 +511,9 @@ class ActivityServiceTest {
         assertEquals(1, activityMembershipRepository.findActivityMembershipsByActivity_IdAndRole(activity.getId(), ActivityMembership.Role.PARTICIPANT).size());
     }
 
+    /**
+     * Tests that you can add a user as a organiser to an activity.
+     */
     @Test
     void creatorAddsOrganiserRoleToActivityTest() {
         Profile ben = profileRepository.save(createNormalProfileBen());
@@ -517,6 +523,9 @@ class ActivityServiceTest {
         assertEquals(1, activityMembershipRepository.findActivityMembershipsByActivity_IdAndRole(activityRepository.getLastInsertedId(), ActivityMembership.Role.ORGANISER).size());
     }
 
+    /**
+     * Tests you can edit an activity's privacy level to public
+     */
     @Test
     void editActivityPrivacyToPublicTest() {
         Activity activity = activityRepository.save(createNormalActivity());
@@ -524,6 +533,9 @@ class ActivityServiceTest {
         assertEquals(2, activity.getPrivacyLevel());
     }
 
+    /**
+     * Tests you can edit the activity's privacy level to friends only
+     */
     @Test
     void editActivityPrivacyToFriendsTest() {
         Activity activity = activityRepository.save(createNormalActivity());
@@ -531,6 +543,9 @@ class ActivityServiceTest {
         assertEquals(1, activity.getPrivacyLevel());
     }
 
+    /**
+     * Tests you can edit the activity's privacy level to private
+     */
     @Test
     void editActivityPrivacyToPrivateTest() {
         Activity activity = activityRepository.save(createNormalActivity());
@@ -538,6 +553,11 @@ class ActivityServiceTest {
         assertEquals(0, activity.getPrivacyLevel());
     }
 
+    /**
+     * Tests when attempting to get private activities that a user is a role of (PARTICIPANT)
+     * does not work.
+     * Private activities can only be seen by the CREATOR or ADMIN
+     */
     @Test
     void getActivitiesByProfileIdByRolePrivateParticipantTest() {
         Profile benny = createNormalProfileBen();
@@ -553,6 +573,11 @@ class ActivityServiceTest {
         assertEquals(0, list.size());
     }
 
+    /**
+     * Tests when attempting to get public activities that a user is a role of (PARTICIPANT)
+     * does work.
+     * Public activities can be seen by all users with a role in the activity.
+     */
     @Test
     void getActivitiesByIdByRolePublicParticipantTest() {
         Profile benny = createNormalProfileBen();
@@ -568,6 +593,11 @@ class ActivityServiceTest {
         assertEquals(1, list.size());
     }
 
+    /**
+     * Tests when attempting to get public activities that a user is a role of (ORGANISER)
+     * does work.
+     * Public activities can be seen by all users with a role in the activity.
+     */
     @Test
     void getActivitiesByIdByRoleMemberOrganizerTest() {
         Profile benny = createNormalProfileBen();
@@ -583,6 +613,10 @@ class ActivityServiceTest {
         assertEquals(1, list.size());
     }
 
+    /**
+     * Tests when attempting to get private activities that a user is a CREATOR of works.
+     * Private activities can be seen by CREATORS only.
+     */
     @Test
     void getActivitiesByIdByRolePrivateCreatorTest() {
         Profile benny = createNormalProfileBen();
@@ -595,7 +629,10 @@ class ActivityServiceTest {
         assertEquals(1, list.size());
     }
 
-
+    /**
+     * Tests when attempting to get public activities that a user is a CREATOR of still works.
+     Public activities can be seen by all users with a role in the activity.
+     */
     @Test
     void getActivitiesByIdByRolePublicCreatorTest() {
         Profile benny = createNormalProfileBen();
@@ -608,6 +645,9 @@ class ActivityServiceTest {
         assertEquals(1, list.size());
     }
 
+    /**
+     * Test getting all public activities.
+     */
     @Test
     void getPublicActivitiesSuccessTest() {
         Activity activity = activityRepository.save(createNormalActivity());
@@ -615,6 +655,9 @@ class ActivityServiceTest {
         assertEquals(1, service.getActivitiesWithPrivacyLevel(ActivityPrivacy.PUBLIC).size());
     }
 
+    /**
+     * Test getting all private activities.
+     */
     @Test
     void getPrivateActivitiesSuccessTest() {
         Activity activity = activityRepository.save(createNormalActivity());
@@ -622,6 +665,9 @@ class ActivityServiceTest {
         assertEquals(1, service.getActivitiesWithPrivacyLevel(ActivityPrivacy.PRIVATE).size());
     }
 
+    /**
+     * Test getting all friends activities.
+     */
     @Test
     void getFriendsActivitiesSuccessTest() {
         Activity activity = activityRepository.save(createNormalActivity());
@@ -629,6 +675,9 @@ class ActivityServiceTest {
         assertEquals(1, service.getActivitiesWithPrivacyLevel(ActivityPrivacy.FRIENDS).size());
     }
 
+    /**
+     * Test getting all activities that are shared with friends only.
+     */
     @Test
     void getActivitiesDifferentPrivacyLevelTest() {
         Activity activity = activityRepository.save(createNormalActivity());
@@ -636,6 +685,9 @@ class ActivityServiceTest {
         assertTrue(service.getActivitiesWithPrivacyLevel(ActivityPrivacy.PUBLIC).isEmpty());
     }
 
+    /**
+     * Tests sharing with an invalid privacy level throws an error.
+     */
     @Test
     void editInvalidPrivacyActivitiesTest() {
         Activity activity = activityRepository.save(createNormalActivity());
@@ -683,6 +735,10 @@ class ActivityServiceTest {
         assertEquals(new ActivityRoleCountResponse(1, 1, 1), service.getRoleCounts(activity.getId()));
     }
 
+    /**
+     * Test that a FOLLOWER cannot change the role to an ORGANISER.
+     * Throws an exception error
+     */
     @Test
     void setProfileRoleToOrganizerAsFollowerThrowsIllegalArgumentExceptionTest() {
         Profile followerBen = profileRepository.save(createNormalProfileBen());
@@ -695,12 +751,18 @@ class ActivityServiceTest {
         assertThrows(IllegalArgumentException.class, ()-> service.setProfileRole(followerBen.getId(), followerJohnny.getId(), activity.getId(), ActivityMembership.Role.ORGANISER));
     }
 
-
+    /**
+     * Tests that an exception error is thrown when attempting to change a role of a non existent user.
+     */
     @Test
     void setProfileRoleForNonexistentMembershipThrowsIllegalArgumentExceptionTest() {
         Profile editor = profileRepository.save(createNormalProfileBen());
         assertThrows(IllegalArgumentException.class, ()-> service.setProfileRole(0, editor.getId(), 3, ActivityMembership.Role.FOLLOWER));
     }
+
+    /**
+     * Tests that setting a role to an ORGANISER as a CREATOR works.
+     */
     @Test
     void setProfileRoleToOrganiserTest() {
         Profile creator = profileRepository.save(createNormalProfileBen());
@@ -720,6 +782,9 @@ class ActivityServiceTest {
         }
     }
 
+    /**
+     * Tests that setting a role to an ORGANISER as an ADMIN works.
+     */
     @Test
     void setProfileRoleToOrganizerAsAdmin() {
         Profile admin = profileRepository.save(createNormalProfileBen());
@@ -733,6 +798,9 @@ class ActivityServiceTest {
                 activityMembershipRepository.findByActivity_IdAndProfile_Id(activity.getId(), follower.getId()).get().getRole());
     }
 
+    /**
+     * Tests that setting a role to an ORGANISER as a CREATOR works.
+     */
     @Test
     void setProfileRoleToOrganizerAsCreator() {
         Profile creator = profileRepository.save(createNormalProfileBen());
@@ -747,6 +815,9 @@ class ActivityServiceTest {
                 activityMembershipRepository.findByActivity_IdAndProfile_Id(activity.getId(), follower.getId()).get().getRole());
     }
 
+    /**
+     *  Tests that setting a profile role to CREATOR as an invalid profile doesn't work.
+     */
     @Test
     void setProfileRoleToCreatorThrowsIllegalArgumentExceptionTest() {
         Profile creator = profileRepository.save(createNormalProfileBen());
@@ -760,6 +831,9 @@ class ActivityServiceTest {
         assertThrows(IllegalArgumentException.class, ()-> service.setProfileRole(follower.getId(), 1, activity.getId(), ActivityMembership.Role.CREATOR));
     }
 
+    /**
+     * Tests you cannot change the role of the CREATOR of an activity.
+     */
     @Test
     void setProfileRoleFromCreatorThrowsIllegalArgumentExceptionTest() {
         Profile creator = profileRepository.save(createNormalProfileBen());
@@ -769,8 +843,6 @@ class ActivityServiceTest {
 
         assertThrows(IllegalArgumentException.class, ()-> service.setProfileRole(creator.getId(), creator.getId(), activity.getId(), ActivityMembership.Role.FOLLOWER));
     }
-
-
 
     /**
      * Example activities to use in tests

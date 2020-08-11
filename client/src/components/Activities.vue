@@ -114,7 +114,6 @@ const DEFAULT_RESULT_COUNT = 10;
                     .catch(error => console.log(error));
             },
             removeActivityFromList(activityId) {
-                console.log("goes through the remove bracket")
                 switch (this.role) {
                     case "follower":
                         this.followingActivities = this.followingActivities.filter((activity) => {

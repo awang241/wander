@@ -256,7 +256,7 @@ public class ActivityService {
      * Returns all the new activities for the user to discover.
      * @param request contains the count and start index for pagination
      * @param profileId refers to id of the user we want to check
-     * @return list of activities the user has no current association with and
+     * @return list of activities the user has no current association with.
      */
     public List<Activity> getNewActivities(PageRequest request, Long profileId) {
         List<Activity> activities = new ArrayList<>();
