@@ -259,7 +259,7 @@
                         this.warningToast("No changes made")
                     } else {
                         Api.updateActivity(store.getters.getUserId, localStorage.getItem('authToken'), activity, this.activityProp.id)
-                            .then((response) => {
+                            .then(() => {
                                 this.successToast("Activity updated")
                                 router.push({path: '/Activities'})
                             })
