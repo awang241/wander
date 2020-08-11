@@ -134,7 +134,7 @@
                     <div class="flex"
                          v-if="members[roles.FOLLOWER].length > 0">
                         <div class="table-profile"
-                             v-for="follower in members.followers"
+                             v-for="follower in members.follower"
                              :key="follower.id">
                             <ProfileSummary class="flex-item" :profile="follower">
                                 <template #options>

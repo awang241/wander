@@ -31,6 +31,7 @@
                     <br>
                     <br>
 
+
                     <div v-for="user in userRoles" v-bind:listItem="user.email" v-bind:key="user.email">
                         <ListItem v-bind:listItem="user.email" v-on:deleteListItem="deleteUser(user.email)">
                             <template>
@@ -42,14 +43,8 @@
                             </template>
                         </ListItem>
                     </div>
-                    <b-field label="Emails">
-                        <b-taginput
-                                v-model="emails"
-                                placeholder="Enter a friend's email">
-                        </b-taginput>
-                    </b-field>
+                    <hr>
                     <div v-if="members.length > 0">
-                        <br>
                         <h3 class="title is-5">Current Members</h3>
                         <table class="table-profile">
                             <tr v-for="member in members" :key="member">
@@ -104,7 +99,7 @@
                 userRoles: [],
                 activityId: this.$route.params.id,
                 newEmail: "",
-                role: ""
+                role: "",
                 members: []
 
             }
