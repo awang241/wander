@@ -1,5 +1,5 @@
 <template>
-    <div class="container containerColor">
+    <div v-if="activity" class="container containerColor">
         <!-- Header -->
         <section>
             <div id="activity-key-info">
@@ -18,11 +18,8 @@
                     <h1 class="title is-1">
                         {{activity.activity_name}}
                     </h1>
-                    <h2 class="subtitle is-5">
-                        Created by: creator name
-                    </h2>
                     <div>
-                        <h3 class="title is-5"> Privacy: {{privacy}}</h3>
+                        <h3 class="title is-5">{{privacy}}</h3>
                     </div>
                 </div>
             </div>
@@ -72,7 +69,7 @@
                                         </tr>
                                       <tr>
                                           <td>Followers:</td>
-                                          <td>follower number</td>
+                                          <td>{{numFollowers}}</td>
                                       </tr>
                                     </table>
                                 </div>
@@ -135,6 +132,10 @@
           }
         },
         methods: {
+            getRoleCounts(){
+                api.getRoleCountsForActivity(this.$route.params.id, localStorage.getItem('authToken'))
+                .then(response => this.numFollowers = response.data.followers)
+            },
             editActivity() {
                 router.push({name: 'editActivity', params: {activityProp: this.activity}});
             },
@@ -150,7 +151,7 @@
                 profileId = role;
             },
             shareActivity() {
-                router.push({name: 'shareActivity', path:"ShareActivity/" + this.activity.id})
+                router.push("/ShareActivity/" + this.activity.id + "/" + this.privacy.toLowerCase())
             },
             dateFormat(date) {
                 let year = date.slice(0, 4);
@@ -176,41 +177,12 @@
             }
         },
         mounted() {
-            //Mock data for testing; replace with appropriate API calls when implemented.
             this.getActivity()
+            this.getRoleCounts()
 
             this.activity = {
                 continuous: false
             };
-            this.organisers = [
-                {
-                    id: 1,
-                    firstname: "Sample",
-                    lastname: "Org",
-                    activities: [],
-                    gender: "Gender",
-                    email: "email@cmail.dom"
-                },
-                {
-                    id: 2,
-                    firstname: "Sample",
-                    lastname: "Org2",
-                    activities: [],
-                    gender: "Gender",
-                    email: "email@cmail.dom"
-                }
-            ];
-            for (let i = 0; i < 50; i++) {
-                let participant = {
-                    id: i,
-                    firstname: "Tester",
-                    lastname: "Participant" + i,
-                    activities: [],
-                    gender: "Gender",
-                    email: "email@cmail.dom"
-                };
-                this.participants.push(participant)
-            }
         }
     }
 </script>

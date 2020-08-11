@@ -42,14 +42,17 @@
                 store: store
             }
         },
-        mounted() {
-            this.activityData = this.props.activity;
-        },
         props: {
             activity: {
                 type: Object,
                 required: true
             }
+        },
+        mounted() {
+            if (this.props != undefined) {
+                this.activityData = this.props.activity;
+            }
+
         },
         methods: {
             editActivity(activity) {
@@ -67,10 +70,9 @@
             },
             deleteActivity(id) {
                 Api.deleteActivity(store.getters.getUserId, localStorage.getItem('authToken'), id)
-                    .then((response) => {
-                        console.log(response);
-                        this.warningToast("Activity deleted")
-                        this.activities = this.activities.filter(activity => activity.id != id);
+                    .then(() => {
+                        this.$parent.removeActivityFromList(id);
+                        this.warningToast("Activity deleted");
                     })
                     .catch(error => console.log(error));
             },

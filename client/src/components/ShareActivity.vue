@@ -52,7 +52,14 @@
 
     export default {
         name: "ShareActivity",
-        prop: ['activityPrivacy'],
+        props: {
+            id: {
+                type: Number
+            },
+            activityPrivacy: {
+                type: String
+            }
+        },
         mixins: [toastMixin],
         components: {
             ValidationProvider,
@@ -60,9 +67,8 @@
         },
         data() {
             return {
-                privacy: 'private',
+                privacy: this.activityPrivacy,
                 emails: {},
-                activityId: this.$route.params.id,
 
             }
         },
@@ -72,7 +78,7 @@
         methods: {
 
             shareActivity() {
-                Api.editActivityPrivacy(store.getters.getUserId, this.$route.params.id, this.privacy, localStorage.getItem('authToken'))
+                Api.editActivityPrivacy(store.getters.getUserId, this.id, this.privacy, localStorage.getItem('authToken'))
                     .then((response) => {
                         console.log(response);
                         this.successToast("Activity privacy updated")
