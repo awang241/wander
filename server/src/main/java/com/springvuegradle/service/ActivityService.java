@@ -147,7 +147,7 @@ public class ActivityService {
         if (!canChangeRole(profileDoingEditingId, profileBeingEditedId, activityId, null)) {
             throw new AccessControlException("No permission");
         }
-        if (membershipRepo.deleteActivityMembershipByProfile_IdAndActivity_Id(profileBeingEditedId, activityId) < 0) {
+        if (membershipRepo.deleteActivityMembershipByProfileIdAndActivityId(profileBeingEditedId, activityId) < 1) {
             throw new NoSuchElementException();
         }
     }

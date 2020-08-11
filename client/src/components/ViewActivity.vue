@@ -95,6 +95,7 @@
                                     <b-dropdown aria-role="list" class="is-pulled-right" position="is-bottom-left" v-if="store.getters.getAuthenticationLevel <= 1">
                                         <b-icon icon="ellipsis-v" slot="trigger"></b-icon>
                                         <b-dropdown-item @click="changeRole(organiser, roles.ORGANISER, roles.PARTICIPANT)">Change to Participant</b-dropdown-item>
+                                        <b-dropdown-item @click="deleteRole(organiser, roles.ORGANISER)">Remove from activity</b-dropdown-item>
                                     </b-dropdown>
                                 </template>
                             </ProfileSummary>
@@ -116,6 +117,7 @@
                                         <b-dropdown aria-role="list" class="is-pulled-right" position="is-bottom-left">
                                             <b-icon icon="ellipsis-v" slot="trigger"></b-icon>
                                             <b-dropdown-item @click="changeRole(participant, roles.PARTICIPANT, roles.ORGANISER)">Change to Organizer</b-dropdown-item>
+                                            <b-dropdown-item @click="deleteRole(participant, roles.PARTICIPANT)">Remove from activity</b-dropdown-item>
                                         </b-dropdown>
                                     </template>
                                 </ProfileSummary>
@@ -256,6 +258,14 @@
                         console.log(error)
                     })
                 }
+            },
+
+            deleteRole(profile, oldRole){
+                  api.deleteActivityMembership(profile.id, this.activity.id, localStorage.getItem("authToken"))
+                    .then(() => {
+                        this.members[oldRole] = this.members[oldRole].filter(member => member.id !== profile.id)
+                        this.successToast("Removed user from activity!")
+                    })
             },
             shareActivity() {
                 router.push({name: 'shareActivity', path:"ShareActivity/" + this.activity.id})
