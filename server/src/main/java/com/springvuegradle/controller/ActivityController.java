@@ -362,6 +362,31 @@ public class ActivityController {
         return new ResponseEntity<>(ActivityMessage.SUCCESSFUL_CREATION.getMessage(), HttpStatus.CREATED);
     }
 
+
+    /**
+     * Gets a user's role for a particular activity if a role exists.
+     * @param token the token of the user making the request.
+     * @param profileId the id of the profile we want to get the associated role for.
+     * @param activityId the id of the activity we want to get the user's role in.
+     * @return the role of the user in the particular activity.
+     */
+    @GetMapping("/profiles/{profileId}/activities/{activityId}/role")
+    public ResponseEntity<String> getActivityRole(@RequestHeader("authorization") String token,
+                                                  @PathVariable Long profileId,
+                                                  @PathVariable Long activityId) {
+        if (token == null || token.isBlank()) {
+            return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
+                    HttpStatus.UNAUTHORIZED);
+        } else if (!securityService.checkEditPermission(token, profileId)) {
+            return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(),
+                    HttpStatus.FORBIDDEN);
+        }
+        if (activityService.removeMembership(profileId, activityId)) {
+            return new ResponseEntity<>(ActivityMessage.SUCCESSFUL_DELETION.getMessage(), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(ActivityMessage.MEMBERSHIP_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
     /**
      * Removes a profiles activity membership from a specified activity
      *

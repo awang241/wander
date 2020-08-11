@@ -149,7 +149,6 @@
                 document.getElementById("autocompleteStates").value = null;
                 document.getElementById("country").value = '';
                 this.location = {country: "", city: "", state: ""}
-                console.log(this.location)
             },
             submitLocation(){
                 //Using JSON methods to make a constant and compare two JSON objects

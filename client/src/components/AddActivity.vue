@@ -183,7 +183,6 @@
         mounted() {
             this.checkAuthenticationStatus()
             this.getPossibleActivityTypes()
-            console.log(this.$props.activityProp)
             this.activity = this.convertToProp(this.$props.activityProp)
         },
         methods: {
@@ -251,8 +250,7 @@
                 const originalActivity = this.convertToProp(this.activityProp)
                 if (this.activity.creating) {
                     Api.createActivity(store.getters.getUserId, activity, localStorage.getItem('authToken'))
-                        .then((response) => {
-                            console.log(response);
+                        .then(() => {
                             this.successToast("Activity created")
                             router.push({path: '/Activities'})
                         })
@@ -260,10 +258,8 @@
                     if (JSON.stringify(this.activity) === JSON.stringify(originalActivity)) {
                         this.warningToast("No changes made")
                     } else {
-                        console.log(this.activity.location)
                         Api.updateActivity(store.getters.getUserId, localStorage.getItem('authToken'), activity, this.activityProp.id)
                             .then((response) => {
-                                console.log(response);
                                 this.successToast("Activity updated")
                                 router.push({path: '/Activities'})
                             })

@@ -133,8 +133,7 @@
             },
             shareActivity() {
                 Api.editActivityPrivacy(store.getters.getUserId, this.$route.params.id, this.getRequestBody(), localStorage.getItem('authToken'))
-                    .then((response) => {
-                        console.log(response);
+                    .then(() => {
                         this.successToast("Activity privacy updated")
                         router.go(-1)
                     })
