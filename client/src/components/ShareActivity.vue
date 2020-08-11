@@ -3,39 +3,56 @@
         <h1 class="title">Share Activity</h1>
         <ValidationObserver v-slot="{ handleSubmit }">
             <form @submit.prevent="handleSubmit(shareActivity)">
-                <ValidationProvider rules="required" name="activityPrivacy" v-slot="{ errors, valid }" slim>
+                <ValidationProvider rules="required" name="Privacy" v-slot="{ errors, valid }" slim>
                     <b-field label="Activity Privacy"
                              :type="{ 'is-danger': errors[0], 'is-success': valid }"
                              :message="errors"
-                             expanded >
-                    <template slot="label">Privacy<span>*</span></template>
-                    <b-select v-model="privacy" placeholder="Choose privacy setting" expanded>
-                        <option value="private">Private</option>
-                        <option value="friends">Friends</option>
-                        <option value="public">Public</option>
-                    </b-select>
+                             expanded>
+                        <template slot="label">Privacy<span class="requiredAsterisk">*</span></template>
+                        <b-select v-model="privacy" placeholder="Choose privacy setting" expanded>
+                            <option value="private">Private</option>
+                            <option value="friends">Restricted</option>
+                            <option value="public">Public</option>
+                        </b-select>
                     </b-field>
                 </ValidationProvider>
 
                 <div v-if="privacy == 'friends'">
-                    <b-field label="Emails">
-                        <b-taginput
-                                v-model="emails"
-                                placeholder="Enter a friend's email">
-                        </b-taginput>
-                    </b-field>
+                    <ValidationProvider rules="email" name="Email" v-slot="{ errors, valid }" slim>
+                        <b-field label="Add friend's emails"
+                                 :type="{'is-danger': errors[0], 'is-success': valid}"
+                                 :message="errors"
+                                 expanded>
+                            <b-input type="email" v-model="newEmail" placeholder="Enter a friend's email" maxlength="30"
+                                     expanded></b-input>
+                        </b-field>
+                    </ValidationProvider>
+                    <b-button class="addButton" type="is-primary" @click="addEmail()">Add</b-button>
+                    <br>
+                    <br>
+
+                    <div v-for="user in userRoles" v-bind:listItem="user.email" v-bind:key="user.email">
+                        <ListItem v-bind:listItem="user.email" v-on:deleteListItem="deleteUser(user.email)">
+                            <template>
+                                <b-select v-model="user.role">
+                                    <option value="follower">Follower</option>
+                                    <option value="participant">Participant</option>
+                                    <option value="organiser">Organiser</option>
+                                </b-select>
+                            </template>
+                        </ListItem>
+                    </div>
                 </div>
                 <br>
-
                 <b-button style="float: right" @click="shareActivity"
-                              type="is-primary">
-                        Save
-                    </b-button>
-                    <b-button style="float: left" @click="goBack"
-                              type="is-danger">
-                        Cancel
-                    </b-button>
-                    <br>
+                          type="is-primary">
+                    Save
+                </b-button>
+                <b-button style="float: left" @click="goBack"
+                          type="is-danger">
+                    Cancel
+                </b-button>
+                <br>
             </form>
         </ValidationObserver>
     </div>
@@ -48,7 +65,7 @@
     import toastMixin from "../mixins/toastMixin";
     import {ValidationObserver, ValidationProvider} from "vee-validate";
     import Api from "../Api";
-
+    import ListItem from "./ListItem";
 
     export default {
         name: "ShareActivity",
@@ -62,13 +79,17 @@
         },
         mixins: [toastMixin],
         components: {
+            ListItem,
             ValidationProvider,
             ValidationObserver
         },
         data() {
             return {
-                privacy: this.activityPrivacy,
-                emails: {},
+                privacy: null,
+                userRoles: [],
+                activityId: this.$route.params.id,
+                newEmail: "",
+                role: ""
 
             }
         },
@@ -76,15 +97,51 @@
             this.checkAuthenticationStatus()
         },
         methods: {
-
-            shareActivity() {
-                Api.editActivityPrivacy(store.getters.getUserId, this.id, this.privacy, localStorage.getItem('authToken'))
+            addEmail() {
+                let emailAlreadyAdded = false
+                this.userRoles.forEach(user => {
+                    if (user.email === this.newEmail) {
+                        emailAlreadyAdded = true
+                    }
+                })
+                if(emailAlreadyAdded){
+                    this.warningToast("Email has already been added!")
+                    return;
+                }
+                if (this.newEmail === "" || this.newEmail.trim().length === 0 || !this.newEmail.includes('@', 0)) {
+                    this.warningToast("Please enter a valid email address")
+                    return;
+                }
+                Api.verifyEmail(this.newEmail)
                     .then((response) => {
-                        console.log(response);
+                        if (response.data === true) {
+                            this.userRoles.push({email: this.newEmail, role: "follower"});
+                            this.newEmail = "";
+                        } else {
+                            this.warningToast("User with that email does not exist")
+                        }
+                    })
+                    .catch(error => console.log(error));
+
+            },
+            getRequestBody() {
+              let payload = {
+                privacy: this.privacy,
+                members: this.userRoles
+              };
+              return payload;
+            },
+            shareActivity() {
+                Api.editActivityPrivacy(store.getters.getUserId, this.$route.params.id, this.getRequestBody(), localStorage.getItem('authToken'))
+                    .then(() => {
                         this.successToast("Activity privacy updated")
                         router.go(-1)
                     })
                     .catch(error => console.log(error));
+            },
+
+            deleteUser(emailToDelete) {
+                this.userRoles = this.userRoles.filter(user => user.email != emailToDelete)
             },
 
             goBack() {
@@ -112,8 +169,12 @@
         }
     }
 
-    span {
+    .requiredAsterisk {
         color: red;
     }
 
+
+
 </style>
+
+

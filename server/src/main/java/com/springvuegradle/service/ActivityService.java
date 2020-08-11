@@ -1,6 +1,7 @@
 package com.springvuegradle.service;
 
 import com.springvuegradle.dto.ActivityRoleCountResponse;
+import com.springvuegradle.dto.MembersRequest;
 import com.springvuegradle.dto.SimplifiedActivity;
 import com.springvuegradle.enums.ActivityMessage;
 import com.springvuegradle.enums.ActivityPrivacy;
@@ -13,6 +14,7 @@ import com.springvuegradle.repositories.ActivityMembershipRepository;
 import com.springvuegradle.repositories.ActivityRepository;
 import com.springvuegradle.repositories.ActivityTypeRepository;
 import com.springvuegradle.repositories.ProfileRepository;
+import com.springvuegradle.repositories.EmailRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,6 +34,7 @@ public class ActivityService {
     private ActivityRepository activityRepo;
     private ActivityTypeRepository typeRepo;
     private ActivityMembershipRepository membershipRepo;
+    private EmailRepository emailRepo;
 
     /**
      * Autowired constructor for Spring to create an ActivityService and inject the correct dependencies.
@@ -517,5 +520,43 @@ public class ActivityService {
             return isAdmin || isCreatorOrOrganizer;
         }
         return isAdmin || isCreatorOrOrganizer || profileBeingEditedId == profileDoingEditingId;
+    }
+
+    /**
+     * Adds the members to the activity under the given roles. If the member is already a role, their role is changed.
+     * @param members list of MembersRequest objects which contain member emails and their associated roles.
+     * @param activityId id referring to the activity.
+     * @throws IllegalArgumentException when activity or email is not found.
+     */
+    public void addMembers(List<MembersRequest> members, long activityId) throws IllegalArgumentException {
+        Optional<Activity> optionalActivity = activityRepo.findById(activityId);
+        if (optionalActivity.isEmpty()) {
+            throw new IllegalArgumentException(ActivityMessage.ACTIVITY_NOT_FOUND.getMessage());
+        }
+        Map<Profile, String> profiles = new HashMap<>();
+        for (MembersRequest member: members) {
+            List<Profile> profilesWithEmail = profileRepo.findByPrimaryEmail(member.getEmail());
+            if (profilesWithEmail.size() > 0) {
+                profiles.put(profilesWithEmail.get(0), member.getRole());
+            } else {
+                throw new IllegalArgumentException(ActivityResponseMessage.INVALID_EMAILS.toString());
+            }
+        }
+        Activity activity = optionalActivity.get();
+        for (Profile profile: profiles.keySet()) {
+            Optional<ActivityMembership> optionalMembership = membershipRepo.findByActivity_IdAndProfile_Id(profile.getId(), activityId);
+            ActivityMembership.Role role = ActivityMembership.Role.valueOf(profiles.get(profile).toUpperCase());
+            ActivityMembership membership;
+            if (optionalMembership.isPresent()) {
+                membership = optionalMembership.get();
+                membership.setRole(role);
+            } else {
+                membership = new ActivityMembership(activity, profile, role);
+            }
+            membershipRepo.save(membership);
+            profile.addActivity(membership);
+            activity.addMember(membership);
+            profileRepo.save(profile);
+        }
     }
 }

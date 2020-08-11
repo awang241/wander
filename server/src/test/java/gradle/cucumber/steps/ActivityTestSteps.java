@@ -266,4 +266,30 @@ public class ActivityTestSteps {
         assertEquals(4, simplifiedActivitiesResponse.getResults().size());
     }
 
+
+    @When("I share the activity with email {string}, and give them the role {string}.")
+    public void shareActivity(String email, String roleString) {
+        List<MembersRequest> membersRequests = new ArrayList<>();
+        membersRequests.add(new MembersRequest(email, roleString));
+        ActivityMembership.Role role = ActivityMembership.Role.valueOf(roleString.toUpperCase());
+        PrivacyRequest privacyRequest = new PrivacyRequest("friends", membersRequests);
+        assertEquals(200, activityController.editActivityPrivacy(privacyRequest, loginResponse.getToken(), loginResponse.getUserId(), activityRepository.getLastInsertedId()).getStatusCodeValue());
+    }
+
+    @Then("The activity now has one creator and one follower.")
+    public void checkActivityMembers() {
+        assertEquals(1, membershipRepository.findActivityMembershipsByRole(ActivityMembership.Role.CREATOR).size());
+        assertEquals(1, membershipRepository.findActivityMembershipsByRole(ActivityMembership.Role.FOLLOWER).size());
+    }
+
+    @When("I change the privacy level to friends.")
+    public void i_change_the_privacy_level_to_friends() {
+        assertEquals(200, activityController.editActivityPrivacy(new PrivacyRequest("friends"), loginResponse.getToken(), loginResponse.getUserId(), activityRepository.getLastInsertedId()).getStatusCodeValue());
+    }
+
+    @Then("The activity privacy level is now {int}.")
+    public void the_activity_privacy_level_is_now(Integer level) {
+        List<Activity> activities = activityRepository.findAll();
+        assertEquals(level, activities.get(0).getPrivacyLevel());
+    }
 }

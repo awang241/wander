@@ -26,9 +26,11 @@ export default {
   editProfile: (userId, newData, token) => localAxiosInstance.put('/profiles/' + userId, newData, {headers: {"authorization":token}}),
   editProfileLocation: (userId, location, token) => localAxiosInstance.put('/profiles/' + userId + '/location', location, {headers: {"authorization":token}}),
   editProfilePermissions: (userId, role, token) => localAxiosInstance.put('/profiles/' + userId + '/role', {role: role}, {headers: {"authorization":token}}),
-  editActivityPrivacy: (userId, activityId, privacy, token) => localAxiosInstance.put('profiles/'+ userId + '/activities/' + activityId + '/privacy', {privacy: privacy}, {headers: {"authorization": token}}),
+  editActivityPrivacy: (userId, activityId, body, token) => localAxiosInstance.put('profiles/'+ userId + '/activities/' + activityId + '/privacy', {privacy: body.privacy, members: body.members}, {headers: {"authorization": token}}),
+  editActivityRestrictedUsers: (userId, activityId, token, users) => localAxiosInstance.put('profiles/' + userId + '/activities/' + activityId + '/visibility', users, {headers: {"authorization":token}}),
 
-  // All get API requests
+
+// All get API requests
   getActivity: (activityId, token) => localAxiosInstance.get('activities/' + activityId,{headers: {"authorization":token}}),
   getActivitiesList: () => localAxiosInstance.get('activities'),
   getActivityTypesList: () => localAxiosInstance.get('/activityTypes'),
@@ -49,4 +51,5 @@ export default {
 
   // All verification APi requests
   verifyToken: (token) => localAxiosInstance.get('/token', {headers: {"authorization": token}}),
+  verifyEmail: (email) => localAxiosInstance.get('/email/' + email)
 }

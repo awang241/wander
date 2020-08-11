@@ -67,6 +67,21 @@ Feature: Creating modifying and deleting activities
     When I change the visibility of my activity to "public" as the creator with email "aang@airbender.com"
     Then There is one activity with privacy "public"
 
+  @U17F3-ShareActivitesWithOthers
+  Scenario: As the creator of an activity, I want to share the activity with other users and make them followers.
+    Given I registered account with email "aang@airbender.com" and password "aang'sSecuredPwd"
+    And I create a continuous activity with the title "Airbending training session" and the location "Somewhere"
+    And I create another account with email "katana@waterbender.com" and password "katana'sSecuredPwd"
+    When I share the activity with email "katana@waterbender.com", and give them the role "follower".
+    Then The activity now has one creator and one follower.
+
+  @U17F3-ShareActivitesWithOthers
+  Scenario: As the creator of an activity, I want to change the privacy level of my activity to friends.
+    Given I registered account with email "aang@airbender.com" and password "aang'sSecuredPwd"
+    And I create a continuous activity with the title "Airbending training session" and the location "Somewhere"
+    When I change the privacy level to friends.
+    Then The activity privacy level is now 1.
+
   @U17F5-GetActivitiesToDisplayOnActivitiesPage
   Scenario: As a logged in user, I want view all the activities I am a creator or organiser of in a single display.
     Given I registered account with email "aang@airbender.com" and password "aang'sSecuredPwd"
