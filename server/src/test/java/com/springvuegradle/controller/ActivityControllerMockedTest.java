@@ -34,6 +34,7 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -60,14 +61,17 @@ class ActivityControllerMockedTest {
         ;
     }
 
+
     @Test
     void removeMembershipFromActivitySuccessTest() {
         long mockActivityId = 10;
         long mockProfileId = 11;
+        long editingUserId = 11;
         String mockToken = "token";
+        Mockito.when(mockJwt.extractId(mockToken)).thenReturn(editingUserId);
         ResponseEntity<String> expectedResponse = new ResponseEntity<>(HttpStatus.OK);
         Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
-        Mockito.when(mockService.removeMembership(mockProfileId, mockActivityId)).thenReturn(true);
+        Mockito.doNothing().when(mockService).removeUserRoleFromActivity(editingUserId, mockProfileId, mockActivityId);
         ResponseEntity<String> actualResponse = activityController.deleteActivityMembership(mockToken, mockProfileId, mockActivityId);
         assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
     }
@@ -76,10 +80,12 @@ class ActivityControllerMockedTest {
     void removeMembershipFromActivityFailTest() {
         long mockActivityId = 10;
         long mockProfileId = 11;
+        long editingUserId = 11;
         String mockToken = "token";
         ResponseEntity<String> expectedResponse = new ResponseEntity<>(HttpStatus.NOT_FOUND);
         Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
-        Mockito.when(mockService.removeMembership(mockProfileId, mockActivityId)).thenReturn(false);
+        Mockito.when(mockJwt.extractId(mockToken)).thenReturn(editingUserId);
+        Mockito.doThrow(NoSuchElementException.class).when(mockService).removeUserRoleFromActivity(mockProfileId, mockProfileId, mockActivityId);
         ResponseEntity<String> actualResponse = activityController.deleteActivityMembership(mockToken, mockProfileId, mockActivityId);
         assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
     }

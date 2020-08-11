@@ -1,8 +1,8 @@
 package com.springvuegradle.service;
 
 import com.springvuegradle.dto.ActivityRoleCountResponse;
-import com.springvuegradle.dto.responses.ActivityMemberProfileResponse;
 import com.springvuegradle.dto.SimplifiedActivity;
+import com.springvuegradle.dto.responses.ActivityMemberProfileResponse;
 import com.springvuegradle.enums.ActivityMessage;
 import com.springvuegradle.enums.ActivityPrivacy;
 import com.springvuegradle.enums.ActivityResponseMessage;
@@ -21,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
+import java.security.AccessControlException;
 import java.util.*;
 
 /**
@@ -36,9 +37,10 @@ public class ActivityService {
 
     /**
      * Autowired constructor for Spring to create an ActivityService and inject the correct dependencies.
-     * @param profileRepo the profile repository being injected.
-     * @param activityRepo the activity repository being injected.
-     * @param activityTypeRepo the activity type repository being injected.
+     *
+     * @param profileRepo                  the profile repository being injected.
+     * @param activityRepo                 the activity repository being injected.
+     * @param activityTypeRepo             the activity type repository being injected.
      * @param activityMembershipRepository the activity membership repository being injected.
      */
     @Autowired
@@ -52,7 +54,8 @@ public class ActivityService {
 
     /**
      * Inserts the given activity into the database and registers the profile with the given ID as the creator.
-     * @param activity The activity to be added to the database.
+     *
+     * @param activity  The activity to be added to the database.
      * @param creatorId The ID of the creator's profile.
      */
     public void create(Activity activity, Long creatorId) {
@@ -80,7 +83,8 @@ public class ActivityService {
 
     /**
      * Updates the activity given the new activity object and the id of the activity you want to update.
-     * @param activity the new activity object
+     *
+     * @param activity   the new activity object
      * @param activityId the id of the activity to update
      */
     public void update(Activity activity, Long activityId) {
@@ -130,33 +134,55 @@ public class ActivityService {
     }
 
     /**
+     * Removes an activity membership from an activity
+     *
+     * @param profileDoingEditingId the ID of the profile doing the editing
+     * @param profileBeingEditedId  the ID of the profile having their membership deleted
+     * @param activityId            the ID of the activity we are removing them from
+     */
+    public void removeUserRoleFromActivity(Long profileDoingEditingId, Long profileBeingEditedId, Long activityId) {
+        if (isProfileActivityCreator(profileBeingEditedId, profileDoingEditingId)) {
+            throw new IllegalArgumentException();
+        }
+        if (!canChangeRole(profileDoingEditingId, profileBeingEditedId, activityId, null)) {
+            throw new AccessControlException("No permission");
+        }
+        if (membershipRepo.deleteActivityMembershipByProfile_IdAndActivity_Id(profileBeingEditedId, activityId) < 0) {
+            throw new NoSuchElementException();
+        }
+    }
+
+    /**
      * Gets the number of people who have a role in an activity
+     *
      * @param activityId the ID of the activity we are counting the amount of roles for
      * @return the number of people who have different roles in an activity
      */
-    public ActivityRoleCountResponse getRoleCounts(long activityId){
+    public ActivityRoleCountResponse getRoleCounts(long activityId) {
         long organizers = 0;
         long followers = 0;
         long participants = 0;
         List<ActivityMembership> memberships = membershipRepo.findActivityMembershipsByActivity_Id(activityId);
-        if(memberships.isEmpty()){
+        if (memberships.isEmpty()) {
             throw new IllegalArgumentException(ActivityResponseMessage.INVALID_ACTIVITY.toString());
         }
-        for(ActivityMembership membership: memberships){
-            if(membership.getRole().equals(ActivityMembership.Role.PARTICIPANT)){
+        for (ActivityMembership membership : memberships) {
+            if (membership.getRole().equals(ActivityMembership.Role.PARTICIPANT)) {
                 participants++;
-            } else if(membership.getRole().equals(ActivityMembership.Role.FOLLOWER)){
+            } else if (membership.getRole().equals(ActivityMembership.Role.FOLLOWER)) {
                 followers++;
-            }  else if(membership.getRole().equals(ActivityMembership.Role.ORGANISER)){
+            } else if (membership.getRole().equals(ActivityMembership.Role.ORGANISER)) {
                 organizers++;
             }
         }
         return new ActivityRoleCountResponse(organizers, participants, followers);
     }
 
-    /**\
+    /**
+     * \
      * Checks if the userId corresponds to the creator of the activity associated with the activityId.
-     * @param userId id of the user making the request
+     *
+     * @param userId     id of the user making the request
      * @param activityId id of the activity
      * @return true if userId matches the creatorId, false otherwise
      */
@@ -171,29 +197,10 @@ public class ActivityService {
         return false;
     }
 
-    /**
-     * Checks if the activity exists in the repository, checks if profile has membership,
-     * deletes the membership if profile has membership
-     *
-     * @param profileId the profile which membership needs to be removed
-     * @param activityId the specified activity
-     * @return true if membership was found and deleted, false otherwise
-     */
-    public boolean removeMembership(Long profileId, Long activityId) {
-        if (activityRepo.existsById(activityId)) {
-            for (ActivityMembership membership : membershipRepo.findAll()) {
-                if (membership.getActivity().getId() == activityId && membership.getProfile().getId().equals( profileId)) {
-                    membershipRepo.delete(membership);
-                    membership.getProfile().removeActivity(membership);
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
 
     /**
      * Returns all activities associated with the given profile.
+     *
      * @param profileId The ID of the profile whose activities are being retrieved.
      * @return A list of the given profile's activities.
      */
@@ -208,8 +215,9 @@ public class ActivityService {
 
     /**
      * Returns all activities associated with the given profile by role.
+     *
      * @param profileId The ID of the profile whose activities are being retrieved.
-     * @param role The role of the user in the activity.
+     * @param role      The role of the user in the activity.
      * @return A list of the given profile's activities by role.
      */
     public List<Activity> getActivitiesByProfileIdByRole(PageRequest request, Long profileId, ActivityMembership.Role role) {
@@ -217,7 +225,7 @@ public class ActivityService {
         Page<ActivityMembership> memberships = membershipRepo.findAllByProfileId(profileId, request);
         for (ActivityMembership membership : memberships) {
             if (role.equals(ActivityMembership.Role.CREATOR)
-                || (membership.getRole().equals(role) && membership.getActivity().getPrivacyLevel() > 0)) {
+                    || (membership.getRole().equals(role) && membership.getActivity().getPrivacyLevel() > 0)) {
                 userActivities.add(membership.getActivity());
             }
         }
@@ -261,6 +269,7 @@ public class ActivityService {
 
     /**
      * Returns a list of all activities in the repository
+     *
      * @return a list of all activities in the repository
      */
     public List<Activity> getAllActivities() {
@@ -274,6 +283,7 @@ public class ActivityService {
      */
     /**
      * Return an activity by activity id.
+     *
      * @param activityId The ID of the activity that is being retrieved
      * @return An activity object. If it does not exist returns null.
      */
@@ -287,6 +297,7 @@ public class ActivityService {
 
     /**
      * Checks all the fields in an Activity for errors. Throws an error if there are any
+     *
      * @param activity The activity object
      */
     private void validateActivity(Activity activity) {
@@ -317,8 +328,9 @@ public class ActivityService {
 
     /**
      * Assigns the given role to the user for an activity.
-     * @param activityId the id of the activity we want to assign the role for.
-     * @param profileId the id of the user we want to assign the role to.
+     *
+     * @param activityId   the id of the activity we want to assign the role for.
+     * @param profileId    the id of the user we want to assign the role to.
      * @param activityRole the role we want to assign to the user for the activity.
      */
     public void addActivityRole(Long activityId, Long profileId, String activityRole) {
@@ -341,11 +353,12 @@ public class ActivityService {
 
     /**
      * Returns a simplified list of users with roles in an activity
+     *
      * @param activityId the ID of the activity we are getting members of
      * @return a list of simplified profiles with names and roles
      */
-    public List<ActivityMemberProfileResponse> getActivityMembers(long activityId){
-        if(!activityRepo.existsById(activityId)){
+    public List<ActivityMemberProfileResponse> getActivityMembers(long activityId) {
+        if (!activityRepo.existsById(activityId)) {
             throw new IllegalArgumentException();
         }
         return membershipRepo.findActivityMembershipsByActivityId(activityId);
@@ -354,13 +367,14 @@ public class ActivityService {
     /**
      * Returns a page of members of an activity that have the given role. Pagination information (count, index, etc.) is
      * provided in parameters.
+     *
      * @param activityId the ID of the activity the members belong to.
-     * @param role      the role members are matched against.
-     * @param pageable  the pageable object providing pagination information.
+     * @param role       the role members are matched against.
+     * @param pageable   the pageable object providing pagination information.
      * @return a list of all activity members with the given role.
      */
     public Page<Profile> getActivityMembersByRole(long activityId, ActivityMembership.Role role, Pageable pageable) {
-        if (!activityRepo.existsById(activityId)){
+        if (!activityRepo.existsById(activityId)) {
             throw new IllegalArgumentException(ActivityResponseMessage.INVALID_ACTIVITY.toString());
         }
         return profileRepo.findByActivityAndRole(activityId, role, pageable);
@@ -368,7 +382,8 @@ public class ActivityService {
 
     /**
      * Edits the privacy of a given activity to the given privacy.
-     * @param privacy a string defining the privacy level.
+     *
+     * @param privacy    a string defining the privacy level.
      * @param activityId the id of the activity to edit.
      */
     public void editActivityPrivacy(String privacy, Long activityId) {
@@ -385,32 +400,34 @@ public class ActivityService {
 
     /**
      * Converts a list of normal activities into a list of simplified activities
+     *
      * @param activities a list of normal activity objects to be simplified
      * @return a list of simplified activities
      */
     public static List<SimplifiedActivity> createSimplifiedActivities(Map<Activity, ActivityMembership.Role> activities) {
         List<SimplifiedActivity> simplifiedActivities = new ArrayList<>();
-        activities.forEach((k,v) -> simplifiedActivities.add(new SimplifiedActivity(k)));
+        activities.forEach((k, v) -> simplifiedActivities.add(new SimplifiedActivity(k)));
         return simplifiedActivities;
     }
 
     /**
      * Sets the role of an activity member to the given role. Profiles cannot be set as creators, and creators
      * cannot have their role changed for that activity.
-     * @param profileBeingEditedId The ID of the profile whose role is being changed
+     *
+     * @param profileBeingEditedId  The ID of the profile whose role is being changed
      * @param profileDoingEditingId The ID of the profile who is doing the editing
-     * @param activityId the ID of the activity
-     * @param newRole The role the member is being changed to
+     * @param activityId            the ID of the activity
+     * @param newRole               The role the member is being changed to
      * @throws IllegalArgumentException if the parameters do not match the database constraints (e.g. no profile with
-     * that id exists, or the given profile isn't a member of that activity), or if the profile is being set to or from
-     * the Creator role.
+     *                                  that id exists, or the given profile isn't a member of that activity), or if the profile is being set to or from
+     *                                  the Creator role.
      */
     public void setProfileRole(long profileBeingEditedId, long profileDoingEditingId, long activityId, ActivityMembership.Role newRole) {
         if (newRole.equals(ActivityMembership.Role.CREATOR)) {
             throw new IllegalArgumentException(ActivityResponseMessage.EDITING_CREATOR.toString());
         }
 
-        if(!canChangeRole(profileDoingEditingId, profileBeingEditedId, activityId, newRole)){
+        if (!canChangeRole(profileDoingEditingId, profileBeingEditedId, activityId, newRole)) {
             throw new IllegalArgumentException(ActivityResponseMessage.INVALID_PERMISSION.toString());
         }
 
@@ -428,7 +445,6 @@ public class ActivityService {
     }
 
 
-
     /**
      * Returns the specified page from the list of all activities.
      *
@@ -443,14 +459,14 @@ public class ActivityService {
     /**
      * Returns a map of activities alongside the user's role in that activity.
      *
-     * @param request A page request containing the index and size of the page to be returned.
+     * @param request   A page request containing the index and size of the page to be returned.
      * @param profileId The user's profile id
      * @return A map of the activities and the role that the user has with that activity.
      */
-    public Map<Activity,ActivityMembership.Role> getUsersActivities(Pageable request, Long profileId) {
+    public Map<Activity, ActivityMembership.Role> getUsersActivities(Pageable request, Long profileId) {
         Page<ActivityMembership> memberships = membershipRepo.findAllByProfileId(profileId, request);
         Map<Activity, ActivityMembership.Role> activityRoleMap = new HashMap<>();
-        for (ActivityMembership membership: memberships.getContent()) {
+        for (ActivityMembership membership : memberships.getContent()) {
             activityRoleMap.put(membership.getActivity(), membership.getRole());
         }
         return activityRoleMap;
@@ -458,6 +474,7 @@ public class ActivityService {
 
     /**
      * Converts a list of normal activities into a list of simplified activities
+     *
      * @param activities a list of normal activity objects to be simplified
      * @return a list of simplified activities
      */
@@ -468,29 +485,31 @@ public class ActivityService {
     }
 
 
-
     /**
      * Checks whether someone has rights to change the role of a user in an activity
      * Users should only be able to change someone to an organizer if they are a creator/organizer or admin
      * Users should be able to change someone else to a participant or follower if they are creator/organizer, admin, or it is themself
+     *
      * @param profileDoingEditingId the ID of the profile who is editing the activities membership
-     * @param activityId The ID of the activity we are editing
-     * @param newRole The role we are trying to change the user to
-     * @param profileBeingEditedId The ID of the user who is attempting to change the role
+     * @param activityId            The ID of the activity we are editing
+     * @param newRole               The role we are trying to change the user to
+     * @param profileBeingEditedId  The ID of the user who is attempting to change the role
      * @return whether the user doing the editing can change the profiles membership to organizer
      */
-    private boolean canChangeRole(long profileDoingEditingId, long profileBeingEditedId, long activityId, ActivityMembership.Role newRole){
+    private boolean canChangeRole(long profileDoingEditingId, long profileBeingEditedId, long activityId, ActivityMembership.Role newRole) {
         boolean isCreatorOrOrganizer = false;
         boolean isAdmin = profileRepo.getOne(profileDoingEditingId).getAuthLevel() < 2;
-        Optional<ActivityMembership> membership =membershipRepo.findByActivity_IdAndProfile_Id(activityId, profileDoingEditingId);
-        if(membership.isPresent()){
+        Optional<ActivityMembership> membership = membershipRepo.findByActivity_IdAndProfile_Id(activityId, profileDoingEditingId);
+        if (membership.isPresent()) {
             ActivityMembership.Role editorRole = membership.get().getRole();
-            if(editorRole.equals(ActivityMembership.Role.CREATOR) || editorRole.equals(ActivityMembership.Role.ORGANISER)){
+            if (editorRole.equals(ActivityMembership.Role.CREATOR) || editorRole.equals(ActivityMembership.Role.ORGANISER)) {
                 isCreatorOrOrganizer = true;
             }
         }
-        if(newRole.equals(ActivityMembership.Role.ORGANISER)) {
-            return isAdmin || isCreatorOrOrganizer;
+        if (newRole != null) {
+            if (newRole.equals(ActivityMembership.Role.ORGANISER)) {
+                return isAdmin || isCreatorOrOrganizer;
+            }
         }
         return isAdmin || isCreatorOrOrganizer || profileBeingEditedId == profileDoingEditingId;
     }

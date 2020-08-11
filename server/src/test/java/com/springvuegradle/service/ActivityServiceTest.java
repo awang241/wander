@@ -21,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.security.AccessControlException;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -245,10 +246,13 @@ class ActivityServiceTest {
     void removeActivityMemberShipSuccessTest() {
         Activity activity = activityRepository.save(createNormalActivityKaikoura());
         Profile bennyBoi = createNormalProfileBen();
+        Profile admin = createNormalProfileBen();
+        admin.setAuthLevel(1);
         profileRepository.save(bennyBoi);
+        profileRepository.save(admin);
         ActivityMembership testMemberShip = new ActivityMembership(activity, bennyBoi, ActivityMembership.Role.PARTICIPANT);
         activityMembershipRepository.save(testMemberShip);
-        service.removeMembership(bennyBoi.getId(), activity.getId());
+        service.removeUserRoleFromActivity(admin.getId(), bennyBoi.getId(), activity.getId());
         assertEquals(0, activityMembershipRepository.count());
     }
 
@@ -264,7 +268,7 @@ class ActivityServiceTest {
         profileRepository.save(johnnyBoi);
         ActivityMembership testMemberShip = new ActivityMembership(activity, bennyBoi, ActivityMembership.Role.PARTICIPANT);
         activityMembershipRepository.save(testMemberShip);
-        service.removeMembership(johnnyBoi.getId(), activity.getId());
+        assertThrows(AccessControlException.class, () -> service.removeUserRoleFromActivity(bennyBoi.getId(), johnnyBoi.getId(), activity.getId()));
         assertEquals(1, activityMembershipRepository.count());
     }
 
@@ -632,6 +636,11 @@ class ActivityServiceTest {
         Page<Profile> actualProfiles = service.getActivityMembersByRole(activity.getId(), ActivityMembership.Role.FOLLOWER, pageable);
         assertTrue(expectedProfiles.containsAll(actualProfiles.getContent()));
         assertEquals(expectedProfiles.size(),actualProfiles.getSize());
+    }
+
+    @Test
+    void deleteMembersFromActivityAsAdminTest(){
+
     }
 
     @Test

@@ -29,9 +29,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.AccessControlException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 /**
  * Class containing REST endpoints for activities
@@ -447,14 +449,17 @@ public class ActivityController {
         if (token == null || token.isBlank()) {
             return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
                     HttpStatus.UNAUTHORIZED);
-        } else if (!securityService.checkEditPermission(token, profileId)) {
-            return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(),
-                    HttpStatus.FORBIDDEN);
         }
-        if (activityService.removeMembership(profileId, activityId)) {
+        try{
+            activityService.removeUserRoleFromActivity(jwtUtil.extractId(token), profileId, activityId);
             return new ResponseEntity<>(ActivityMessage.SUCCESSFUL_DELETION.getMessage(), HttpStatus.OK);
+        } catch(AccessControlException e){
+            return new ResponseEntity<>(ActivityMessage.INSUFFICIENT_PERMISSION.getMessage(), HttpStatus.FORBIDDEN);
+        } catch(IllegalArgumentException e){
+            return new ResponseEntity<>(ActivityMessage.EDITING_CREATOR.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch(NoSuchElementException e){
+            return new ResponseEntity<>(ActivityMessage.MEMBERSHIP_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(ActivityMessage.MEMBERSHIP_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     /**
