@@ -186,6 +186,11 @@ public class Activity {
         this.location = location;
     }
 
+    @JsonIgnore
+    public Set<ActivityMembership> getMembers() {
+        return this.members;
+    }
+
     public List<String> getActivityTypes() {
         List<String> result = new ArrayList<>();
         for (ActivityType activityType: activityTypes) {

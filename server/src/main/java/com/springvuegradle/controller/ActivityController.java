@@ -185,7 +185,7 @@ public class ActivityController {
         else if (!jwtUtil.validateToken(token)) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
-        Activity activity = activityService.getActivityByActivityId(activityId);
+        Activity activity = activityService.getActivityByActivityId(jwtUtil.extractId(token), activityId);
         if (activity == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -250,17 +250,22 @@ public class ActivityController {
      * @param profileId  the users ID
      * @param count      an integer for the amount of activities to be returned by the database
      * @param startIndex an integer for the starting index of activities to search from
-     * @param role       the role of the user. Used to filter the activities
+     * @param role       the role of the user. Used to filter the activities. In this case, to prevent more duplication,
+     *                   "public" can also come through as a role to get all the public activities.
+     *                   "creatorOrOrganiser" can also come through as a role to get all the activities the user created
+     *                   and activities the organiser created.
+     *                   "discover" can also come through as a role to get all the activities that a public and the user
+     *                   does not have an associated role with.
      * @return a response with all the activities of the user in the database.
      */
     @GetMapping("/profiles/{profileId}/activities")
-    public ResponseEntity<SimplifiedActivitiesResponse> getAllUsersActivities(@RequestHeader("authorization") String token,
+    public ResponseEntity<SimplifiedActivitiesResponse> getUsersActivitiesByRole(@RequestHeader("authorization") String token,
                                                                               @PathVariable Long profileId,
                                                                               @RequestParam("count") int count,
                                                                               @RequestParam("startIndex") int startIndex,
                                                                               @RequestParam("role") String role) {
-        SimplifiedActivitiesResponse activitiesResponse = null;
-        HttpStatus status = null;
+        SimplifiedActivitiesResponse activitiesResponse;
+        HttpStatus status;
         if (token == null) {
             status = HttpStatus.UNAUTHORIZED;
             activitiesResponse = new SimplifiedActivitiesResponse(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage());
@@ -273,64 +278,26 @@ public class ActivityController {
         } else {
             int pageIndex = startIndex / count;
             PageRequest request = PageRequest.of(pageIndex, count);
-            try {
-                List<Activity> activityRoleMap = activityService.getActivitiesByProfileIdByRole(request, profileId, ActivityMembership.Role.valueOf(role.toUpperCase()));
-                List<SimplifiedActivity> simplifiedActivities = activityService.createSimplifiedActivities(activityRoleMap);
-                activitiesResponse = new SimplifiedActivitiesResponse(simplifiedActivities);
-                status = HttpStatus.OK;
-            } catch (IllegalArgumentException e) {
-
+            List<Activity> activities;
+            if (role.equals("public")) {
+                activities = activityService.getPublicActivities(request);
+            } else if (role.equals("creatorOrOrganiser")) {
+                activities = activityService.getActivitiesUserCanModify(request, profileId);
+            } else if (role.equals("discover")) {
+                activities = activityService.getNewActivities(request, profileId);
+            } else {
+                try {
+                    activities = activityService.getActivitiesByProfileIdByRole(request, profileId, ActivityMembership.Role.valueOf(role.toUpperCase()));
+                } catch (IllegalArgumentException e) {
+                    return new ResponseEntity<>(new SimplifiedActivitiesResponse(e.getMessage()), HttpStatus.BAD_REQUEST);
+                }
             }
-
+            List<SimplifiedActivity> simplifiedActivities = activityService.createSimplifiedActivities(activities);
+            activitiesResponse = new SimplifiedActivitiesResponse(simplifiedActivities);
+            status = HttpStatus.OK;
         }
         return new ResponseEntity<>(activitiesResponse, status);
     }
-
-//    /**
-//     * Queries the Database to find all the activities of a user with their profile id.
-//     *
-//     * @return a response with all the activities of the user in the database.
-//     */
-//    @GetMapping("/profiles/{profileId}/activities")
-//    public ResponseEntity<SimplifiedActivitiesResponse> getAllUsersActivities(@RequestHeader("authorization") String token,
-//                                                                @PathVariable Long profileId,
-//                                                                @RequestParam("count") int count,
-//                                                                @RequestParam("startIndex") int startIndex,
-//                                                                @RequestParam("role") String role) {
-//
-//        return getAllUsersActivities(token, profileId, count, startIndex, role, false);
-//    }
-//
-//
-//    public ResponseEntity<SimplifiedActivitiesResponse> getAllUsersActivities(String token, Long profileId,
-//            int count, int startIndex, String role, Boolean testing) {
-//        SimplifiedActivitiesResponse activitiesResponse = null;
-//        HttpStatus status = null;
-//        if (token == null && !testing) {
-//            status = HttpStatus.UNAUTHORIZED;
-//            activitiesResponse = new SimplifiedActivitiesResponse(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage());
-//        } else if (!testing && Boolean.FALSE.equals(jwtUtil.validateToken(token))) {
-//            status = HttpStatus.FORBIDDEN;
-//            activitiesResponse = new SimplifiedActivitiesResponse(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage());
-//        } else if (count <= 0) {
-//            status = HttpStatus.BAD_REQUEST;
-//            activitiesResponse = new SimplifiedActivitiesResponse(ProfileErrorMessage.INVALID_SEARCH_COUNT.getMessage());
-//        } else {
-//            int pageIndex = startIndex / count;
-//            PageRequest request = PageRequest.of(pageIndex, count);
-//            try {
-//                List<Activity> activityRoleMap = activityService.getActivitiesByProfileIdByRole(request, profileId, ActivityMembership.Role.valueOf(role.toUpperCase()));
-//                List<SimplifiedActivity> simplifiedActivities = activityService.createSimplifiedActivities(activityRoleMap);
-//                activitiesResponse = new SimplifiedActivitiesResponse(simplifiedActivities);
-//                status = HttpStatus.OK;
-//            } catch (IllegalArgumentException e) {
-//
-//            }
-//
-//        }
-//        return new ResponseEntity<>(activitiesResponse, status);
-//    }
-
 
     /**
      * Deletes an activity from the repository given that it exists in the database.
@@ -355,7 +322,6 @@ public class ActivityController {
                 return errorOccurred;
             }
         }
-
         if (activityService.delete(activityId)) {
             return new ResponseEntity<>("The activity has been deleted from the database.", HttpStatus.OK);
         }
@@ -447,4 +413,5 @@ public class ActivityController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
+
 }

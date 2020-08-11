@@ -69,6 +69,14 @@
 
     export default {
         name: "ShareActivity",
+        props: {
+            id: {
+                type: Number
+            },
+            activityPrivacy: {
+                type: String
+            }
+        },
         mixins: [toastMixin],
         components: {
             ListItem,
@@ -82,6 +90,7 @@
                 activityId: this.$route.params.id,
                 newEmail: "",
                 role: ""
+
             }
         },
         mounted() {

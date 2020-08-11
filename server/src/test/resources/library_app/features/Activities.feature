@@ -1,11 +1,5 @@
 Feature: Creating modifying and deleting activities
 
-  #@U8-activities
-  #Scenario: Adding an activity successfully
-  #  Given I register a user
-  #  When I register an activity with name "Kaikoura Coast Track Race" and description "A big and nice race on a lovely peninsula"
-  #  Then I check "Kaikoura Coast Track Race" exists in list of activities that have been registered
-
   @U28F1-Deleting/EditingActivities
   Scenario: I want to delete an activity I created as the owner
     Given I registered account with email "rick@gmail.com" and password "rick'sSecuredPwd"
@@ -87,6 +81,34 @@ Feature: Creating modifying and deleting activities
     And I create a continuous activity with the title "Airbending training session" and the location "Somewhere"
     When I change the privacy level to friends.
     Then The activity privacy level is now 1.
+
+  @U17F5-GetActivitiesToDisplayOnActivitiesPage
+  Scenario: As a logged in user, I want view all the activities I am a creator or organiser of in a single display.
+    Given I registered account with email "aang@airbender.com" and password "aang'sSecuredPwd"
+    And I create the following activities, making them public
+      | Hockey Game        |
+      | Bowling            |
+    And I create another account with email "katana@waterbender.com" and password "katana'sSecuredPwd"
+    And I login with the email "katana@waterbender.com" and password "katana'sSecuredPwd"
+    And I create the following activities, making them public and the account with email "aang@airbender.com" an organiser of each
+      | Fun Run            |
+      | Triathlon          |
+    When I login with the email "aang@airbender.com" and password "aang'sSecuredPwd"
+    And I go to view the activities that I am a creator or organiser of.
+    Then Four activities are returned.
+
+  @U17F5-GetActivitiesToDisplayOnActivitiesPage
+  Scenario: As a logged in user, I want to discover new public activities that I can follow / participate in.
+    Given I registered account with email "aang@airbender.com" and password "aang'sSecuredPwd"
+    And I create the following activities, making them public
+      | Hockey Game        |
+      | Bowling            |
+      | Fun Run            |
+      | Triathlon          |
+    And I create another account with email "katana@waterbender.com" and password "katana'sSecuredPwd"
+    When I login with the email "katana@waterbender.com" and password "katana'sSecuredPwd"
+    And I go to discover new public activities.
+    Then Four activities are returned.
 
 
   @U28F5-Editing-Participation
