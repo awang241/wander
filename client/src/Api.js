@@ -27,8 +27,10 @@ export default {
   editProfileLocation: (userId, location, token) => localAxiosInstance.put('/profiles/' + userId + '/location', location, {headers: {"authorization":token}}),
   editProfilePermissions: (userId, role, token) => localAxiosInstance.put('/profiles/' + userId + '/role', {role: role}, {headers: {"authorization":token}}),
   editActivityPrivacy: (userId, activityId, privacy, token) => localAxiosInstance.put('profiles/'+ userId + '/activities/' + activityId + '/privacy', {privacy: privacy}, {headers: {"authorization": token}}),
+  editActivityRestrictedUsers: (userId, activityId, token, users) => localAxiosInstance.put('profiles/' + userId + '/activities/' + activityId + 'visibility', users, {headers: {"authorization":token}}),
 
-  // All get API requests
+
+// All get API requests
   getActivity: (activityId, token) => localAxiosInstance.get('activities/' + activityId,{headers: {"authorization":token}}),
   getActivitiesList: () => localAxiosInstance.get('activities'),
   getActivityTypesList: () => localAxiosInstance.get('/activityTypes'),

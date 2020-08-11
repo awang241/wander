@@ -8,7 +8,7 @@
                              :type="{ 'is-danger': errors[0], 'is-success': valid }"
                              :message="errors"
                              expanded>
-                        <template slot="label">Privacy<span class="requiredAsterix">*</span></template>
+                        <template slot="label">Privacy<span class="requiredAsterisk">*</span></template>
                         <b-select v-model="privacy" placeholder="Choose privacy setting" expanded>
                             <option value="private">Private</option>
                             <option value="friends">Restricted</option>
@@ -116,7 +116,10 @@
 
             },
             shareActivity() {
-                // need to check whether 'restricted' option is chosen. If yes, need to check list of users > 0
+                if(this.privacy === 'friends') {
+                    Api.editActivityRestrictedUsers(store.getters.getUserId, this.$route.params.id, localStorage.getItem('authToken'), this.userRoles)
+                        .catch(error => console.log(error));
+                }
                 Api.editActivityPrivacy(store.getters.getUserId, this.$route.params.id, this.privacy, localStorage.getItem('authToken'))
                     .then((response) => {
                         console.log(response);
@@ -155,13 +158,10 @@
         }
     }
 
-    .requiredAsterix {
+    .requiredAsterisk {
         color: red;
     }
 
-    #roleSelection {
-
-    }
 
 
 </style>
