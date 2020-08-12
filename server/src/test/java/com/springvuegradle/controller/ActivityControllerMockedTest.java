@@ -25,6 +25,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.reset;
 
 @ActiveProfiles("mock-service")
 @ExtendWith(SpringExtension.class)
@@ -40,13 +41,10 @@ class ActivityControllerMockedTest {
     JwtUtil mockJwt;
     @Autowired
     ActivityController activityController;
-    @Autowired
-    ActivityRepository mockRepo;
 
     @AfterEach
     private void tearDown() {
-        mockRepo.deleteAll();
-        ;
+        Mockito.reset(mockService, mockJwt);
     }
 
     @Test
@@ -103,7 +101,6 @@ class ActivityControllerMockedTest {
         Activity mockActivity = ActivityTestUtils.createNormalActivity();
         ResponseEntity<String> expectedResponse = new ResponseEntity<>(HttpStatus.OK);
 
-        mockRepo.save(mockActivity);
         Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
         Mockito.when(mockJwt.extractId(mockToken)).thenReturn(mockProfileId);
         Mockito.when(mockService.getActivityByActivityId(mockProfileId, mockActivityId)).thenReturn(mockActivity);
@@ -135,7 +132,7 @@ class ActivityControllerMockedTest {
         Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(false);
         ResponseEntity<Activity> actualResponse = activityController.getActivity(mockToken, mockActivityId);
 
-        assertEquals(expectedResponse, actualResponse);
+        assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
     }
 
     @Test
@@ -182,18 +179,17 @@ class ActivityControllerMockedTest {
         assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
     }
 
-//    @Test
-//    void postActivityParticipationFailTest() {
-//        ResponseEntity<String> expectedResponse = new ResponseEntity<>(HttpStatus.FORBIDDEN);
-//        String mockToken = "bob";
-//        ActivityParticipationRequest mockParticipationRequest = ActivityTestUtils.createNormalParticipationRequest();
-//        ActivityParticipation mockParticipation = ActivityTestUtils.createNormalParticipation();
-//        long mockProfileId = 420;
-//        long mockActivityId = 505;
-//        Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
-//        //Mockito.when(mockService.createParticipation(mockActivityId, mockProfileId, mockParticipation)).thenThrow(new IllegalArgumentException());
-//        doThrow(new IllegalArgumentException()).when(mockService).createParticipation(mockActivityId, mockProfileId, mockParticipation);
-//        ResponseEntity<String> actualResponse = activityController.addActivityParticipation(mockParticipationRequest, mockToken, mockProfileId, mockActivityId);
-//        assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
-//    }
+    @Test
+    void postActivityParticipationFailTest() {
+        ResponseEntity<String> expectedResponse = new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        String mockToken = "bob";
+        ActivityParticipationRequest mockParticipationRequest = ActivityTestUtils.createNormalParticipationRequest();
+        ActivityParticipation mockParticipation = ActivityTestUtils.createNormalParticipation();
+        long mockProfileId = 420;
+        long mockActivityId = 505;
+        Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
+        Mockito.doThrow(new IllegalArgumentException()).when(mockService).createParticipation(mockActivityId, mockProfileId, mockParticipation);
+        ResponseEntity<String> actualResponse = activityController.addActivityParticipation(mockParticipationRequest, mockToken, mockProfileId, mockActivityId);
+        assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
+    }
 }

@@ -6,6 +6,8 @@ import com.springvuegradle.utilities.FormatHelper;
 
 import javax.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
+import java.util.Objects;
+
 @Entity
 public class ActivityParticipation {
 
@@ -41,7 +43,7 @@ public class ActivityParticipation {
 
     private OffsetDateTime endTime;
 
-    public ActivityParticipation() {};
+    public ActivityParticipation() {}
 
     public ActivityParticipation(String details,
                                  String outcome,
@@ -66,7 +68,7 @@ public class ActivityParticipation {
         this.details = details;
         this.outcome = outcome;
         this.startTime = FormatHelper.parseOffsetDateTime(startTime);
-        this.endTime = FormatHelper.parseOffsetDateTime(endTime);;
+        this.endTime = FormatHelper.parseOffsetDateTime(endTime);
     }
 
     public long getId() {
@@ -91,5 +93,23 @@ public class ActivityParticipation {
 
     public void setOutcome(String outcome) {
         this.outcome = outcome;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ActivityParticipation that = (ActivityParticipation) o;
+        return Objects.equals(profile, that.profile) &&
+                Objects.equals(activity, that.activity) &&
+                Objects.equals(details, that.details) &&
+                Objects.equals(outcome, that.outcome) &&
+                Objects.equals(startTime, that.startTime) &&
+                Objects.equals(endTime, that.endTime);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(profile, activity, details, outcome, startTime, endTime);
     }
 }
