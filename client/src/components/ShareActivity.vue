@@ -2,7 +2,7 @@
     <div class="container">
         <h1 class="title">Share Activity</h1>
         <ValidationObserver v-slot="{ handleSubmit }">
-            <form @submit.prevent="handleSubmit(shareActivity)">
+            <form @submit.prevent="handleSubmit(onShareActivityClicked)">
                 <ValidationProvider rules="required" name="activityPrivacy" v-slot="{ errors, valid }" slim>
                     <b-field label="Activity Privacy"
                              :type="{ 'is-danger': errors[0], 'is-success': valid }"
@@ -27,7 +27,7 @@
                 </div>
                 <br>
 
-                <b-button style="float: right" @click="shareActivity"
+                <b-button style="float: right" @click="onShareActivityClicked"
                               type="is-primary">
                         Save
                     </b-button>
@@ -47,6 +47,7 @@
     import router from "../router";
     import toastMixin from "../mixins/toastMixin";
     import {ValidationObserver, ValidationProvider} from "vee-validate";
+    import ActivityShareConfirmation from "./ActivityShareConfirmation";
     import Api from "../Api";
 
 
@@ -61,17 +62,24 @@
         data() {
             return {
                 privacy: 'private',
+                originalPrivacy: "public",
                 emails: {},
                 activityId: this.$route.params.id,
-
             }
         },
         mounted() {
             this.checkAuthenticationStatus()
         },
         methods: {
-
-            shareActivity() {
+            onShareActivityClicked() {
+                if(this.isPrivacyMoreRestrictive()){
+                    this.$buefy.modal.open({
+                        parent: this,
+                        component: ActivityShareConfirmation,
+                        trapFocus: true,
+                        scroll: "clip"
+                    })
+                }
                 Api.editActivityPrivacy(store.getters.getUserId, this.$route.params.id, this.privacy, localStorage.getItem('authToken'))
                     .then((response) => {
                         console.log(response);
@@ -80,7 +88,10 @@
                     })
                     .catch(error => console.log(error));
             },
-
+            isPrivacyMoreRestrictive(){
+                const privacyDict = {"public": 1, "members": 2, "private": 3}
+                return privacyDict[this.privacy] > privacyDict[this.originalPrivacy]
+            },
             goBack() {
                 router.go(-1)
             },
