@@ -1,5 +1,9 @@
 package com.springvuegradle.controller;
 
+import com.springvuegradle.dto.requests.*;
+import com.springvuegradle.dto.responses.ActivityTypesResponse;
+import com.springvuegradle.dto.responses.ProfileSearchResponse;
+import com.springvuegradle.dto.responses.ProfileSummary;
 import com.springvuegradle.enums.AuthLevel;
 import com.springvuegradle.enums.AuthenticationErrorMessage;
 import com.springvuegradle.model.*;
@@ -7,7 +11,6 @@ import com.springvuegradle.repositories.*;
 import com.springvuegradle.utilities.FieldValidationHelper;
 import com.springvuegradle.utilities.JwtUtil;
 import com.springvuegradle.service.SecurityService;
-import com.springvuegradle.dto.*;
 import com.springvuegradle.enums.ProfileErrorMessage;
 import com.springvuegradle.service.ProfileService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -700,6 +703,17 @@ public class Profile_Controller {
     }
 
     /**
+     * The method verifies that the given email exists in the database and returns true if it does.
+     *
+     * @param email object that contains the string email address
+     * @return boolean whether email exists in the database or not
+     */
+    @GetMapping("/email/{email}")
+    public boolean verifyEmailExists(@PathVariable String email) {
+        return profileService.checkEmailExistsInDB(email);
+    }
+
+    /**
      * Checks if a token is expired for the front end
      * @param token the token to be checked
      * @return An HTTP response with appropriate status code and a string to tell the front end that a token is expired or not
@@ -735,5 +749,4 @@ public class Profile_Controller {
             return new ResponseEntity<>(ProfileErrorMessage.INVALID_ROLE.getMessage(), HttpStatus.FORBIDDEN);
         }
     }
-
 }

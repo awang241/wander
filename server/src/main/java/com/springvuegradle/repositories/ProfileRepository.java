@@ -1,7 +1,9 @@
 package com.springvuegradle.repositories;
 
 
+import com.springvuegradle.model.ActivityMembership;
 import com.springvuegradle.model.Profile;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -24,13 +26,16 @@ public interface ProfileRepository extends JpaRepository<Profile, Long>, JpaSpec
     List<Profile> findByEmail(@Param("email") String email);
 
     @Query("SELECT p FROM Profile p WHERE p.authLevel = :auth_level")
-    List<Profile> findByAuthLevel(@Param("auth_level") Integer auth_level);
+    List<Profile> findByAuthLevel(@Param("auth_level") Integer authLevel);
 
     @Query("SELECT p FROM Profile p WHERE p.id = :id")
     List<Profile> findAllById(@Param("id") Long id);
 
     @Query("SELECT p FROM Profile p WHERE p.authLevel > :auth_level")
-    List<Profile> findAllBelowAuthlevel(@Param("auth_level") Integer auth_level);
+    List<Profile> findAllBelowAuthlevel(@Param("auth_level") Integer authLevel);
+
+    @Query("SELECT p FROM Profile p JOIN ActivityMembership am ON p = am.profile WHERE am.activity.id = :id AND am.role = :role")
+    Page<Profile> findByActivityAndRole(@Param("id") long activityId, @Param("role") ActivityMembership.Role role, Pageable pageable);
 
     @Query(value = "SELECT p FROM Profile p WHERE p.firstname = :firstname and " +
             "(p.middlename = :middlename or :middlename is null) and p.lastname = :lastname" )

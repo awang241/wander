@@ -1,11 +1,5 @@
 Feature: Creating modifying and deleting activities
 
-  #@U8-activities
-  #Scenario: Adding an activity successfully
-  #  Given I register a user
-  #  When I register an activity with name "Kaikoura Coast Track Race" and description "A big and nice race on a lovely peninsula"
-  #  Then I check "Kaikoura Coast Track Race" exists in list of activities that have been registered
-
   @U28F1-Deleting/EditingActivities
   Scenario: I want to delete an activity I created as the owner
     Given I registered account with email "rick@gmail.com" and password "rick'sSecuredPwd"
@@ -73,6 +67,49 @@ Feature: Creating modifying and deleting activities
     When I change the visibility of my activity to "public" as the creator with email "aang@airbender.com"
     Then There is one activity with privacy "public"
 
+  @U17F3-ShareActivitesWithOthers
+  Scenario: As the creator of an activity, I want to share the activity with other users and make them followers.
+    Given I registered account with email "aang@airbender.com" and password "aang'sSecuredPwd"
+    And I create a continuous activity with the title "Airbending training session" and the location "Somewhere"
+    And I create another account with email "katana@waterbender.com" and password "katana'sSecuredPwd"
+    When I share the activity with email "katana@waterbender.com", and give them the role "follower".
+    Then The activity now has one creator and one follower.
+
+  @U17F3-ShareActivitesWithOthers
+  Scenario: As the creator of an activity, I want to change the privacy level of my activity to friends.
+    Given I registered account with email "aang@airbender.com" and password "aang'sSecuredPwd"
+    And I create a continuous activity with the title "Airbending training session" and the location "Somewhere"
+    When I change the privacy level to friends.
+    Then The activity privacy level is now 1.
+
+  @U17F5-GetActivitiesToDisplayOnActivitiesPage
+  Scenario: As a logged in user, I want view all the activities I am a creator or organiser of in a single display.
+    Given I registered account with email "aang@airbender.com" and password "aang'sSecuredPwd"
+    And I create the following activities, making them public
+      | Hockey Game        |
+      | Bowling            |
+    And I create another account with email "katana@waterbender.com" and password "katana'sSecuredPwd"
+    And I login with the email "katana@waterbender.com" and password "katana'sSecuredPwd"
+    And I create the following activities, making them public and the account with email "aang@airbender.com" an organiser of each
+      | Fun Run            |
+      | Triathlon          |
+    When I login with the email "aang@airbender.com" and password "aang'sSecuredPwd"
+    And I go to view the activities that I am a creator or organiser of.
+    Then Four activities are returned.
+
+  @U17F5-GetActivitiesToDisplayOnActivitiesPage
+  Scenario: As a logged in user, I want to discover new public activities that I can follow / participate in.
+    Given I registered account with email "aang@airbender.com" and password "aang'sSecuredPwd"
+    And I create the following activities, making them public
+      | Hockey Game        |
+      | Bowling            |
+      | Fun Run            |
+      | Triathlon          |
+    And I create another account with email "katana@waterbender.com" and password "katana'sSecuredPwd"
+    When I login with the email "katana@waterbender.com" and password "katana'sSecuredPwd"
+    And I go to discover new public activities.
+    Then Four activities are returned.
+
 
   @U28F5-Editing-Participation
   Scenario: I want to change my role in an activity from follower to participant
@@ -121,3 +158,10 @@ Feature: Creating modifying and deleting activities
     And I am a "FOLLOWER" of this activity
     When I choose to change my role to "ORAGNISER"
     Then I am now a "FOLLOWER" of the activity
+
+  @U17F2-Getting-Users-With-Roles
+  Scenario: I want to find users with a role in an activity
+    Given I registered account with email "rick@gmail.com" and password "rick'sSecuredPwd"
+    And an activity exists in the database with 2 participants, 3 followers and 1 organizers
+    When I want to see who is following my activity
+    Then The ID first name last name and role of All people with roles in the activity is returned

@@ -3,10 +3,13 @@ package gradle.cucumber.steps;
 import com.springvuegradle.controller.ActivityController;
 import com.springvuegradle.controller.LoginController;
 import com.springvuegradle.controller.Profile_Controller;
-import com.springvuegradle.dto.ActivityRoleUpdateRequest;
-import com.springvuegradle.dto.LoginRequest;
-import com.springvuegradle.dto.LoginResponse;
+import com.springvuegradle.dto.requests.ActivityRoleUpdateRequest;
+import com.springvuegradle.dto.requests.LoginRequest;
+import com.springvuegradle.dto.responses.ActivityMemberProfileResponse;
+import com.springvuegradle.dto.responses.LoginResponse;
 import com.springvuegradle.dto.PrivacyRequest;
+import com.springvuegradle.model.*;
+import com.springvuegradle.dto.*;
 import com.springvuegradle.model.Activity;
 import com.springvuegradle.model.ActivityMembership;
 import com.springvuegradle.model.ActivityType;
@@ -20,6 +23,7 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.junit.jupiter.api.AfterEach;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,14 +68,20 @@ public class ActivityTestSteps {
 
     private LoginResponse loginResponse;
 
+    private ResponseEntity<List<ActivityMemberProfileResponse>> expectedMemberProfileResponse;
+
+    private ResponseEntity<List<ActivityMemberProfileResponse>> actualMemberProfileResponse;
+
     private ResponseEntity<String> responseEntity;
 
     private Activity activity;
 
+    private SimplifiedActivitiesResponse simplifiedActivitiesResponse;
+
     @AfterEach()
     private void tearDown() {
-        profileRepository.deleteAll();
         emailRepository.deleteAll();
+        profileRepository.deleteAll();
         typeRepository.deleteAll();
         activityRepository.deleteAll();
         membershipRepository.deleteAll();
@@ -227,5 +237,100 @@ public class ActivityTestSteps {
         Optional<ActivityMembership> optionalActivityMembership = membershipRepository.findByActivity_IdAndProfile_Id(activity.getId(), profile.getId());
         ActivityMembership activityMembership = optionalActivityMembership.get();
         assertEquals(role, activityMembership.getRole());
+    }
+
+    @Given("I create the following activities, making them public")
+    public void i_create_the_following_activities_making_them_public(io.cucumber.datatable.DataTable activityNames) {
+        typeRepository.save(new ActivityType("Running"));
+        for (String activityName: activityNames.asList()) {
+            assertEquals(201, activityController.createActivity(jwtUtil.extractId(loginResponse.getToken()), activity = createNormalActivity(activityName, "Christchurch"), loginResponse.getToken()).getStatusCodeValue());
+            assertEquals(200, activityController.editActivityPrivacy(new PrivacyRequest("public"), loginResponse.getToken(), loginResponse.getUserId(), activityRepository.getLastInsertedId()).getStatusCodeValue());
+        }
+    }
+
+    @Given("I create the following activities, making them public and the account with email {string} an organiser of each")
+    public void i_create_the_following_activities_making_them_public_and_the_account_with_email_an_organiser_of_each(String email, io.cucumber.datatable.DataTable activityNames) {
+        Long profileId = profileRepository.findByEmail(email).get(0).getId();
+        for (String activityName: activityNames.asList()) {
+            assertEquals(201, activityController.createActivity(jwtUtil.extractId(loginResponse.getToken()), activity = createNormalActivity(activityName, "Christchurch"), loginResponse.getToken()).getStatusCodeValue());
+            assertEquals(200, activityController.editActivityPrivacy(new PrivacyRequest("public"), loginResponse.getToken(), loginResponse.getUserId(), activityRepository.getLastInsertedId()).getStatusCodeValue());
+            assertEquals(201, activityController.addActivityRole(loginResponse.getToken(), profileId, activityRepository.getLastInsertedId(), "organiser").getStatusCodeValue());
+        }
+    }
+
+    @When("I go to view the activities that I am a creator or organiser of.")
+    public void i_go_to_view_the_activities_that_I_am_a_creator_or_organiser_of() {
+        ResponseEntity<SimplifiedActivitiesResponse> response = activityController.getUsersActivitiesByRole(loginResponse.getToken(), loginResponse.getUserId(), 5, 0, "creatorOrOrganiser");
+        assertEquals(200, response.getStatusCodeValue());
+        simplifiedActivitiesResponse = response.getBody();
+    }
+
+    @And("I go to discover new public activities.")
+    public void i_go_to_discover_new_public_activities() {
+        ResponseEntity<SimplifiedActivitiesResponse> response = activityController.getUsersActivitiesByRole(loginResponse.getToken(), loginResponse.getUserId(), 5, 0, "discover");
+        assertEquals(200, response.getStatusCodeValue());
+        simplifiedActivitiesResponse = response.getBody();
+    }
+
+    @Then("Four activities are returned.")
+    public void four_activities_are_returned() {
+        assertEquals(4, simplifiedActivitiesResponse.getResults().size());
+    }
+
+
+    @When("I share the activity with email {string}, and give them the role {string}.")
+    public void shareActivity(String email, String roleString) {
+        List<MembersRequest> membersRequests = new ArrayList<>();
+        membersRequests.add(new MembersRequest(email, roleString));
+        ActivityMembership.Role role = ActivityMembership.Role.valueOf(roleString.toUpperCase());
+        PrivacyRequest privacyRequest = new PrivacyRequest("friends", membersRequests);
+        assertEquals(200, activityController.editActivityPrivacy(privacyRequest, loginResponse.getToken(), loginResponse.getUserId(), activityRepository.getLastInsertedId()).getStatusCodeValue());
+    }
+
+    @Then("The activity now has one creator and one follower.")
+    public void checkActivityMembers() {
+        assertEquals(1, membershipRepository.findActivityMembershipsByRole(ActivityMembership.Role.CREATOR).size());
+        assertEquals(1, membershipRepository.findActivityMembershipsByRole(ActivityMembership.Role.FOLLOWER).size());
+    }
+
+    @When("I change the privacy level to friends.")
+    public void i_change_the_privacy_level_to_friends() {
+        assertEquals(200, activityController.editActivityPrivacy(new PrivacyRequest("friends"), loginResponse.getToken(), loginResponse.getUserId(), activityRepository.getLastInsertedId()).getStatusCodeValue());
+    }
+
+    @Then("The activity privacy level is now {int}.")
+    public void the_activity_privacy_level_is_now(Integer level) {
+        List<Activity> activities = activityRepository.findAll();
+        assertEquals(level, activities.get(0).getPrivacyLevel());
+    }
+
+
+    @When("I want to see who is following my activity")
+    public void iWantToSeeWhoIsFollowingMyActivity() {
+        actualMemberProfileResponse = activityController.getActivityMembers(loginResponse.getToken(), activity.getId());
+    }
+
+    @Then("The ID first name last name and role of All people with roles in the activity is returned")
+    public void theIDFirstNameLastNameAndRoleOfAllPeopleWithRolesInTheActivityIsReturned() {
+        assertEquals(expectedMemberProfileResponse, activityController.getActivityMembers(loginResponse.getToken(), activity.getId()));
+    }
+
+    @And("an activity exists in the database with {int} participants, {int} followers and {int} organizers")
+    public void anActivityExistsInTheDatabaseWithParticipantsFollowersAndOrganizers(int numParticipants, int numFollowers, int numOrganizers) {
+        List<ActivityMembership.Role> roles = Arrays.asList(ActivityMembership.Role.PARTICIPANT, ActivityMembership.Role.FOLLOWER, ActivityMembership.Role.ORGANISER);
+        int[] numRoles = {numParticipants, numFollowers, numOrganizers};
+        activity = createNormalActivity("Cool activity", "Christchurch");
+        activityRepository.save(activity);
+        List<ActivityMemberProfileResponse> activityMemberProfileResponseList = new ArrayList<>();
+        for(int i = 0; i < roles.size(); i++){
+            for(int j = 0; j < numRoles[i]; j++){
+                Profile newProfile = createNormalProfile("email"+j+i, "password");
+                profileRepository.save(newProfile);
+                emailRepository.save(new Email("email"+j+i, true, newProfile));
+                membershipRepository.save(new ActivityMembership(activity, newProfile, roles.get(i)));
+                activityMemberProfileResponseList.add(new ActivityMemberProfileResponse(newProfile.getId(), newProfile.getFirstname(), newProfile.getLastname(), newProfile.getPrimary_email(), roles.get(i)));
+            }
+        }
+        expectedMemberProfileResponse = new ResponseEntity<>(activityMemberProfileResponseList, HttpStatus.OK);
     }
 }

@@ -6,9 +6,9 @@ import com.springvuegradle.model.Profile;
 
 import com.springvuegradle.model.ProfileLocation;
 import com.springvuegradle.repositories.*;
-import com.springvuegradle.dto.ChangePasswordRequest;
-import com.springvuegradle.dto.EmailAddRequest;
-import com.springvuegradle.dto.EmailUpdateRequest;
+import com.springvuegradle.dto.requests.ChangePasswordRequest;
+import com.springvuegradle.dto.requests.EmailAddRequest;
+import com.springvuegradle.dto.requests.EmailUpdateRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
