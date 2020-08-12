@@ -5,6 +5,14 @@
             <div id="activity-key-info">
                 <div>
                     <div class="buttons" style="float:right">
+                        <b-button style="float:right" @click="addRole(id, 'follower')"
+                                 type="is-primary">
+                            Follow
+                        </b-button>
+                        <b-button style="float:right" @click="addRole(id, 'participate')"
+                                  type="is-primary">
+                            Participate
+                        </b-button>
                         <b-button style="float:right" @click="shareActivity"
                                   type="is-primary">
                             Share Activity
@@ -151,6 +159,15 @@
             },
             shareActivity() {
                 router.push({name: 'shareActivity', path:"ShareActivity/" + this.activity.id})
+            },
+            addRole(profileId, role) {
+              api.addActivityRole(profileId, this.$route.params.id, localStorage.getItem('authToken'), role)
+                  .then(() => {
+                    this.successToast("Now a " + role)
+                  })
+                  .catch((error) => {
+                    console.log(error)
+                  })
             },
             dateFormat(date) {
                 let year = date.slice(0, 4);
