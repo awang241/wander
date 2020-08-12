@@ -19,6 +19,7 @@ export default {
   deleteActivity: (userId, token, activityId) => localAxiosInstance.delete('/profiles/'+userId+'/activities/'+activityId, {headers: {"authorization":token}}),
   deleteLocation: (userId, token) => localAxiosInstance.delete('/profiles/'+userId+'/location', {headers: {"authorization":token}}),
   deleteProfile: (userId, token) => localAxiosInstance.delete('/profiles/' + userId, {headers: {"authorization":token}}),
+  deleteActivityMembership: (userId, activityId, token) => localAxiosInstance.delete('/profiles/' + userId + "/activities/" + activityId + "/membership", {headers: {"authorization":token}}),
 
   // All edit API requests
   editEmail: (emails, userId, token) => localAxiosInstance.put('profiles/'+userId+'/emails', emails, {headers: {"authorization":token}}),
@@ -26,6 +27,7 @@ export default {
   editProfile: (userId, newData, token) => localAxiosInstance.put('/profiles/' + userId, newData, {headers: {"authorization":token}}),
   editProfileLocation: (userId, location, token) => localAxiosInstance.put('/profiles/' + userId + '/location', location, {headers: {"authorization":token}}),
   editProfilePermissions: (userId, role, token) => localAxiosInstance.put('/profiles/' + userId + '/role', {role: role}, {headers: {"authorization":token}}),
+  editActivityMemberRole: (userId, activityId, newRole, token) => localAxiosInstance.put(`/profiles/${userId}/activities/${activityId}/role`, {role: newRole}, {headers: {"authorization": token}}),
   editActivityPrivacy: (userId, activityId, body, token) => localAxiosInstance.put('profiles/'+ userId + '/activities/' + activityId + '/privacy', {privacy: body.privacy, members: body.members}, {headers: {"authorization": token}}),
   editActivityRestrictedUsers: (userId, activityId, token, users) => localAxiosInstance.put('profiles/' + userId + '/activities/' + activityId + '/visibility', users, {headers: {"authorization":token}}),
 
@@ -33,6 +35,8 @@ export default {
 // All get API requests
   getActivity: (activityId, token) => localAxiosInstance.get('activities/' + activityId,{headers: {"authorization":token}}),
   getActivitiesList: () => localAxiosInstance.get('activities'),
+  getAllActivityMembers: (activityId, token) => localAxiosInstance.get(`/activities/${activityId}/members`, {headers: {"authorization": token}}),
+  getActivityMembers: (activityId, role, token, parameters={}) => localAxiosInstance.get(`activities/${activityId}/members/${role}`, {headers: {"authorization": token}, params: parameters}),
   getActivityTypesList: () => localAxiosInstance.get('/activityTypes'),
   getAuthLevel: (token) => localAxiosInstance.get('authLevel/', {headers: {"authorization":token}}),
   getProfile: (userId, token) => localAxiosInstance.get('profiles/'+userId, {headers: {"authorization":token}}),

@@ -1,7 +1,13 @@
 package com.springvuegradle.controller;
 
 
+import com.springvuegradle.dto.SimplifiedActivitiesResponse;
+import com.springvuegradle.dto.SimplifiedActivity;
+import com.springvuegradle.dto.requests.ActivityRoleUpdateRequest;
+import com.springvuegradle.dto.responses.ActivityMemberProfileResponse;
 import com.springvuegradle.dto.*;
+import com.springvuegradle.dto.responses.ActivityMemberRoleResponse;
+import com.springvuegradle.dto.responses.ProfileSummary;
 import com.springvuegradle.enums.ActivityMessage;
 import com.springvuegradle.enums.ActivityPrivacy;
 import com.springvuegradle.enums.ActivityResponseMessage;
@@ -9,21 +15,25 @@ import com.springvuegradle.enums.AuthenticationErrorMessage;
 import com.springvuegradle.enums.ProfileErrorMessage;
 import com.springvuegradle.model.Activity;
 import com.springvuegradle.model.ActivityMembership;
-import com.springvuegradle.repositories.ActivityRepository;
-import com.springvuegradle.utilities.FieldValidationHelper;
-import com.springvuegradle.utilities.JwtUtil;
+import com.springvuegradle.model.Profile;
 import com.springvuegradle.service.ActivityService;
 import com.springvuegradle.service.SecurityService;
+import com.springvuegradle.utilities.FieldValidationHelper;
+import com.springvuegradle.utilities.FormatHelper;
+import com.springvuegradle.utilities.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.AccessControlException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
+import java.util.NoSuchElementException;
 
 /**
  * Class containing REST endpoints for activities
@@ -39,12 +49,6 @@ public class ActivityController {
 
     @Autowired
     private ActivityService activityService;
-
-    /**
-     * Way to access Activity Repository (Activity table in db).
-     */
-    @Autowired
-    private ActivityRepository aRepo;
 
     @Autowired
     public ActivityController(ActivityService activityService, JwtUtil jwtUtil) {
@@ -143,9 +147,87 @@ public class ActivityController {
     }
 
     /**
-     * Queries the Database to find all the activities.
-     *
-     * @return a response with all the activities in the database.
+     * Gets a simplified list of users including their basic info and role in the activity
+     * @param token the authorization token of the user
+     * @param activityId the ID of the activity we are getting users with roles from
+     * @return a simplified list of users including basic info and their role in the activity
+     */
+    @GetMapping("/activities/{activityId}/members")
+    public ResponseEntity<List<ActivityMemberProfileResponse>> getActivityMembers(@RequestHeader("authorization") String token,
+                                                                                  @PathVariable long activityId) {
+        if (!jwtUtil.validateToken(token)) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        try {
+            return new ResponseEntity<>(activityService.getActivityMembers(activityId), HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    /**
+     * Given an activity ID, returns an HTTP response containing a list of summaries of all members of that activity
+     * with the given role. If count and index are supplied in the query string, the result is paginated.
+     * @param token         The provided authorisation token
+     * @param activityId    The ID of the activity the members belong to
+     * @param roleName      The name of the role being searched for. This must match one of the roles specified in
+     *                      ActivityMemberships.
+     * @param count         Optional parameter for specifying page size. This parameter must either be included with index
+     *                      or not at all.
+     * @param index         Optional parameter for specifying a member index; the server will return the page that contains
+     *                      that item. This parameter must either be included with count or not at all.
+     * @return An HTTP response containing the list of members with that role if the request was successful. Otherwise,
+     *          an error message is returned instead.
+     */
+    @GetMapping("/activities/{activityId}/members/{role}")
+    public ResponseEntity<ActivityMemberRoleResponse> getActivityMembers(@RequestHeader("authorization") String token,
+                                                                         @PathVariable long activityId,
+                                                                         @PathVariable(name = "role") String roleName,
+                                                                         @RequestParam(name = "count", required = false) Integer count,
+                                                                         @RequestParam(name = "index", required = false) Integer index) {
+        ActivityMemberRoleResponse body;
+        HttpStatus status;
+        if (!jwtUtil.validateToken(token)) {
+            body = new ActivityMemberRoleResponse(AuthenticationErrorMessage.INVALID_CREDENTIALS);
+            return new ResponseEntity<>(body, HttpStatus.UNAUTHORIZED);
+        }
+
+        Pageable pageable;
+        if (count == null && index == null) {
+            pageable = PageRequest.of(0, 10000);
+        } else if (count == null || index == null || count < 1 || index < 0) {
+            body = new ActivityMemberRoleResponse(ProfileErrorMessage.INVALID_SEARCH_COUNT);
+            return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+        } else {
+            pageable =  PageRequest.of(index / count, count);
+        }
+
+        try {
+            ActivityMembership.Role role = ActivityMembership.Role.valueOf(roleName.toUpperCase());
+            Page<Profile> profiles = activityService.getActivityMembersByRole(activityId, role, pageable);
+            List<ProfileSummary> summaries = FormatHelper.createProfileSummaries(profiles.getContent());
+            body = new ActivityMemberRoleResponse(summaries);
+            status = HttpStatus.OK;
+        } catch (IllegalArgumentException e) {
+            body = new ActivityMemberRoleResponse(e.getMessage());
+            if (e.getMessage().equals(ActivityResponseMessage.INVALID_ACTIVITY.toString())) {
+                status = HttpStatus.NOT_FOUND;
+            } else {
+                status = HttpStatus.BAD_REQUEST;
+            }
+        } catch (Exception e) {
+            body = new ActivityMemberRoleResponse(e.getMessage());
+            status = HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+        return new ResponseEntity<>(body, status);
+    }
+
+    /**
+     * Gets a list of activities with the given privacy
+     * @param privacyString the privacy level of the activities
+     * @param token The users authentication token
+     * @return a list of activities
      */
     @GetMapping("/activities")
     public ResponseEntity<List<Activity>> getActivities(@RequestParam String privacyString,
@@ -299,6 +381,7 @@ public class ActivityController {
         return new ResponseEntity<>(activitiesResponse, status);
     }
 
+
     /**
      * Deletes an activity from the repository given that it exists in the database.
      *
@@ -402,14 +485,17 @@ public class ActivityController {
         if (token == null || token.isBlank()) {
             return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
                     HttpStatus.UNAUTHORIZED);
-        } else if (!securityService.checkEditPermission(token, profileId)) {
-            return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(),
-                    HttpStatus.FORBIDDEN);
         }
-        if (activityService.removeMembership(profileId, activityId)) {
+        try{
+            activityService.removeUserRoleFromActivity(jwtUtil.extractId(token), profileId, activityId);
             return new ResponseEntity<>(ActivityMessage.SUCCESSFUL_DELETION.getMessage(), HttpStatus.OK);
+        } catch(AccessControlException e){
+            return new ResponseEntity<>(ActivityMessage.INSUFFICIENT_PERMISSION.getMessage(), HttpStatus.FORBIDDEN);
+        } catch(IllegalArgumentException e){
+            return new ResponseEntity<>(ActivityMessage.EDITING_CREATOR.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch(NoSuchElementException e){
+            return new ResponseEntity<>(ActivityMessage.MEMBERSHIP_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(ActivityMessage.MEMBERSHIP_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     /**

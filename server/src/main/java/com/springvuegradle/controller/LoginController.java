@@ -1,8 +1,8 @@
 package com.springvuegradle.controller;
 
 import com.springvuegradle.utilities.JwtUtil;
-import com.springvuegradle.dto.LoginRequest;
-import com.springvuegradle.dto.LoginResponse;
+import com.springvuegradle.dto.requests.LoginRequest;
+import com.springvuegradle.dto.responses.LoginResponse;
 import com.springvuegradle.model.Profile;
 import com.springvuegradle.repositories.EmailRepository;
 import org.springframework.beans.factory.annotation.Autowired;

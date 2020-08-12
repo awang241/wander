@@ -3,7 +3,7 @@
         <h1 class="title">Share Activity</h1>
         <ValidationObserver v-slot="{ handleSubmit }">
             <form @submit.prevent="handleSubmit(shareActivity)">
-                <ValidationProvider rules="required" name="Privacy" v-slot="{ errors, valid }" slim>
+                <ValidationProvider rules="required" name="activityPrivacy" v-slot="{ errors, valid }" slim>
                     <b-field label="Activity Privacy"
                              :type="{ 'is-danger': errors[0], 'is-success': valid }"
                              :message="errors"
@@ -31,6 +31,7 @@
                     <br>
                     <br>
 
+
                     <div v-for="user in userRoles" v-bind:listItem="user.email" v-bind:key="user.email">
                         <ListItem v-bind:listItem="user.email" v-on:deleteListItem="deleteUser(user.email)">
                             <template>
@@ -41,6 +42,15 @@
                                 </b-select>
                             </template>
                         </ListItem>
+                    </div>
+                    <hr>
+                    <div v-if="members.length > 0">
+                        <h3 class="title is-5">Current Members</h3>
+                        <table class="table-profile">
+                            <tr v-for="member in members" :key="member">
+                                <td>{{member.email}}</td>
+                            </tr>
+                        </table>
                     </div>
                 </div>
                 <br>
@@ -85,16 +95,18 @@
         },
         data() {
             return {
-                privacy: null,
+                privacy: "private",
                 userRoles: [],
                 activityId: this.$route.params.id,
                 newEmail: "",
-                role: ""
+                role: "",
+                members: []
 
             }
         },
         mounted() {
             this.checkAuthenticationStatus()
+            this.getMembers()
         },
         methods: {
             addEmail() {
@@ -139,6 +151,13 @@
                     })
                     .catch(error => console.log(error));
             },
+            getMembers() {
+                Api.getAllActivityMembers(this.$route.params.id, localStorage.getItem('authToken'))
+                    .then((response) => {
+                        this.members = response.data;
+                    })
+                    .catch(error => console.log(error));
+            },
 
             deleteUser(emailToDelete) {
                 this.userRoles = this.userRoles.filter(user => user.email != emailToDelete)
@@ -173,8 +192,4 @@
         color: red;
     }
 
-
-
 </style>
-
-

@@ -7,7 +7,7 @@ import java.util.Objects;
 @Entity
 public class ActivityMembership {
     public enum Role {
-        CREATOR, ORGANISER, PARTICIPANT, FOLLOWER;
+        CREATOR, ORGANISER, PARTICIPANT, FOLLOWER
     }
 
     @Embeddable
@@ -44,11 +44,11 @@ public class ActivityMembership {
     @EmbeddedId
     private ActivityMembershipId id;
 
-    @ManyToOne//(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "profile_fk", insertable = false, updatable = false)
     private Profile profile;
 
-    @ManyToOne//(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "activity_fk", insertable = false, updatable = false)
     private Activity activity;
 

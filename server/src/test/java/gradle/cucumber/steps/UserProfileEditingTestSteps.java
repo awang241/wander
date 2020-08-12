@@ -2,8 +2,8 @@ package gradle.cucumber.steps;
 
 import com.springvuegradle.controller.LoginController;
 import com.springvuegradle.controller.Profile_Controller;
-import com.springvuegradle.dto.LoginRequest;
-import com.springvuegradle.dto.LoginResponse;
+import com.springvuegradle.dto.requests.LoginRequest;
+import com.springvuegradle.dto.responses.LoginResponse;
 import com.springvuegradle.model.Profile;
 import com.springvuegradle.repositories.EmailRepository;
 import com.springvuegradle.repositories.ProfileRepository;

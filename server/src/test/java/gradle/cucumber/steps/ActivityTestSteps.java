@@ -3,6 +3,12 @@ package gradle.cucumber.steps;
 import com.springvuegradle.controller.ActivityController;
 import com.springvuegradle.controller.LoginController;
 import com.springvuegradle.controller.Profile_Controller;
+import com.springvuegradle.dto.requests.ActivityRoleUpdateRequest;
+import com.springvuegradle.dto.requests.LoginRequest;
+import com.springvuegradle.dto.responses.ActivityMemberProfileResponse;
+import com.springvuegradle.dto.responses.LoginResponse;
+import com.springvuegradle.dto.PrivacyRequest;
+import com.springvuegradle.model.*;
 import com.springvuegradle.dto.*;
 import com.springvuegradle.model.Activity;
 import com.springvuegradle.model.ActivityMembership;
@@ -17,6 +23,7 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.junit.jupiter.api.AfterEach;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,6 +68,10 @@ public class ActivityTestSteps {
 
     private LoginResponse loginResponse;
 
+    private ResponseEntity<List<ActivityMemberProfileResponse>> expectedMemberProfileResponse;
+
+    private ResponseEntity<List<ActivityMemberProfileResponse>> actualMemberProfileResponse;
+
     private ResponseEntity<String> responseEntity;
 
     private Activity activity;
@@ -69,8 +80,8 @@ public class ActivityTestSteps {
 
     @AfterEach()
     private void tearDown() {
-        profileRepository.deleteAll();
         emailRepository.deleteAll();
+        profileRepository.deleteAll();
         typeRepository.deleteAll();
         activityRepository.deleteAll();
         membershipRepository.deleteAll();
@@ -291,5 +302,35 @@ public class ActivityTestSteps {
     public void the_activity_privacy_level_is_now(Integer level) {
         List<Activity> activities = activityRepository.findAll();
         assertEquals(level, activities.get(0).getPrivacyLevel());
+    }
+
+
+    @When("I want to see who is following my activity")
+    public void iWantToSeeWhoIsFollowingMyActivity() {
+        actualMemberProfileResponse = activityController.getActivityMembers(loginResponse.getToken(), activity.getId());
+    }
+
+    @Then("The ID first name last name and role of All people with roles in the activity is returned")
+    public void theIDFirstNameLastNameAndRoleOfAllPeopleWithRolesInTheActivityIsReturned() {
+        assertEquals(expectedMemberProfileResponse, activityController.getActivityMembers(loginResponse.getToken(), activity.getId()));
+    }
+
+    @And("an activity exists in the database with {int} participants, {int} followers and {int} organizers")
+    public void anActivityExistsInTheDatabaseWithParticipantsFollowersAndOrganizers(int numParticipants, int numFollowers, int numOrganizers) {
+        List<ActivityMembership.Role> roles = Arrays.asList(ActivityMembership.Role.PARTICIPANT, ActivityMembership.Role.FOLLOWER, ActivityMembership.Role.ORGANISER);
+        int[] numRoles = {numParticipants, numFollowers, numOrganizers};
+        activity = createNormalActivity("Cool activity", "Christchurch");
+        activityRepository.save(activity);
+        List<ActivityMemberProfileResponse> activityMemberProfileResponseList = new ArrayList<>();
+        for(int i = 0; i < roles.size(); i++){
+            for(int j = 0; j < numRoles[i]; j++){
+                Profile newProfile = createNormalProfile("email"+j+i, "password");
+                profileRepository.save(newProfile);
+                emailRepository.save(new Email("email"+j+i, true, newProfile));
+                membershipRepository.save(new ActivityMembership(activity, newProfile, roles.get(i)));
+                activityMemberProfileResponseList.add(new ActivityMemberProfileResponse(newProfile.getId(), newProfile.getFirstname(), newProfile.getLastname(), newProfile.getPrimary_email(), roles.get(i)));
+            }
+        }
+        expectedMemberProfileResponse = new ResponseEntity<>(activityMemberProfileResponseList, HttpStatus.OK);
     }
 }

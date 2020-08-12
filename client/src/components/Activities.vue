@@ -259,4 +259,16 @@ const DEFAULT_RESULT_COUNT = 10;
         padding: 0 1rem;
     }
 
+    .flex {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: space-between;
+    }
+    .flex-item {
+      margin: 20px 0;
+      width: 500px;
+    }
+
+
 </style>
