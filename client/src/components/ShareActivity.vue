@@ -71,10 +71,17 @@
             this.checkAuthenticationStatus()
         },
         methods: {
+            printHelloWorld(rolesToRetain) {
+                this.successToast(rolesToRetain)
+            },
             onShareActivityClicked() {
                 if(this.isPrivacyMoreRestrictive()){
                     this.$buefy.modal.open({
                         parent: this,
+                        events: {
+                            'confirmPrivacyChange': rolesToRetain => this.printHelloWorld(rolesToRetain)
+                        },
+                        props: { activityId: this.activityId, activityPrivacy: this.privacy},
                         component: ActivityShareConfirmation,
                         trapFocus: true,
                         scroll: "clip"

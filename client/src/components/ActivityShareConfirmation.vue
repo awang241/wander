@@ -1,10 +1,7 @@
 <template>
     <div class="container containerColor">
-        <h1 class="title">Are you sure you want to change this activity to <b>private?</b></h1>
+        <h1 class="title">Are you sure you want to change this activity to <b>{{activityPrivacy}}?</b></h1>
         <h2 class="subtitle">This would remove these users access to the activity</h2>
-        <div v-for="person in users" :key="person.id">
-            <p>{{person.firstname}} {{person.lastname}} (Follower)</p>
-        </div>
 
         <h2><b>{{numFollowers}}</b> Followers</h2>
         <h2><b>{{numParticipants}}</b> Participants</h2>
@@ -26,8 +23,8 @@
                 Retain Organizers
             </b-checkbox>
         </div>
-        <b-button class="is-danger">Cancel</b-button>
-        <b-button class="is-primary is-pulled-right">Continue</b-button>
+        <b-button class="is-danger" @click="this.$parent.close">Cancel</b-button>
+        <b-button class="is-primary is-pulled-right" @click="openHelloWorld">Continue</b-button>
     </div>
 </template>
 
@@ -39,6 +36,10 @@
             activityId: {
                 type: Number,
                 required: true
+            },
+            activityPrivacy: {
+                type: String,
+                required: true
             }
         },
         data(){
@@ -49,6 +50,12 @@
                 rolesToRetain: []
             }
         },
+        methods: {
+            openHelloWorld() {
+                console.log(this.$parent)
+                this.$emit('confirmPrivacyChange', this.rolesToRetain)
+            }
+        }
     }
 </script>
 
