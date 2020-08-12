@@ -9,8 +9,10 @@ import com.springvuegradle.enums.AuthenticationErrorMessage;
 import com.springvuegradle.enums.ProfileErrorMessage;
 import com.springvuegradle.model.Activity;
 import com.springvuegradle.model.ActivityMembership;
+import com.springvuegradle.model.ActivityParticipation;
 import com.springvuegradle.repositories.ActivityRepository;
 import com.springvuegradle.utilities.FieldValidationHelper;
+import com.springvuegradle.utilities.FormatHelper;
 import com.springvuegradle.utilities.JwtUtil;
 import com.springvuegradle.service.ActivityService;
 import com.springvuegradle.service.SecurityService;
@@ -20,6 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -149,7 +152,7 @@ public class ActivityController {
      */
     @GetMapping("/activities")
     public ResponseEntity<List<Activity>> getActivities(@RequestParam String privacyString,
-                                                        @RequestHeader("authorization") String token ) {
+                                                        @RequestHeader("authorization") String token) {
         if (Boolean.TRUE.equals(FieldValidationHelper.isNullOrEmpty(privacyString))) {
             return new ResponseEntity<>(activityService.getAllActivities(), HttpStatus.OK);
         } else {
@@ -171,7 +174,8 @@ public class ActivityController {
 
     /**
      * REST endpoint to return the activity with the given ID
-     * @param token authentication token
+     *
+     * @param token      authentication token
      * @param activityId the id of the activity
      * @return A response containing the requested activity if successful, or a empty response with the appropriate
      * error code otherwise.
@@ -181,8 +185,7 @@ public class ActivityController {
                                                 @PathVariable long activityId) {
         if (token == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        }
-        else if (!jwtUtil.validateToken(token)) {
+        } else if (!jwtUtil.validateToken(token)) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         Activity activity = activityService.getActivityByActivityId(jwtUtil.extractId(token), activityId);
@@ -193,34 +196,34 @@ public class ActivityController {
     }
 
 
-
     /**
      * Gets the number of people for each role in an activity
-     * @param token the authentication token of the user
+     *
+     * @param token      the authentication token of the user
      * @param activityId the ID of the activity we are checking roles for
      * @return the count of people who have a role in an activity
      */
     @GetMapping("/activities/{activityId}/rolecount")
     public ResponseEntity<ActivityRoleCountResponse> getActivityRoleCount(@RequestHeader("authorization") String token,
-                                                        @PathVariable long activityId
+                                                                          @PathVariable long activityId
     ) {
         if (!jwtUtil.validateToken(token)) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
         try {
             return new ResponseEntity<>(activityService.getRoleCounts(activityId), HttpStatus.OK);
-        } catch(IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
 
 
-
     /**
      * Allows the changing of a profiles role within an activity memebership
-     * @param role the role the user wants to change to
-     * @param token the users authentication token
-     * @param profileId the ID of the profile whose membership we are changing
+     *
+     * @param role       the role the user wants to change to
+     * @param token      the users authentication token
+     * @param profileId  the ID of the profile whose membership we are changing
      * @param activityId the ID of the activity the profile is a part of
      * @return an HTTP status code indicating the result of the operation
      */
@@ -228,7 +231,7 @@ public class ActivityController {
     public ResponseEntity<String> changeProfilesActivityRole(@RequestBody ActivityRoleUpdateRequest role,
                                                              @RequestHeader("authorization") String token,
                                                              @PathVariable Long profileId,
-                                                             @PathVariable Long activityId){
+                                                             @PathVariable Long activityId) {
         if (token == null || token.isBlank()) {
             return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
                     HttpStatus.UNAUTHORIZED);
@@ -239,13 +242,14 @@ public class ActivityController {
         try {
             activityService.setProfileRole(profileId, jwtUtil.extractId(token), activityId, ActivityMembership.Role.valueOf(role.getRole().toUpperCase()));
             return new ResponseEntity<>(HttpStatus.OK);
-        } catch(IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
     /**
      * Queries the Database to find all the activities of a user with their profile id.
+     *
      * @param token      the users authentication token
      * @param profileId  the users ID
      * @param count      an integer for the amount of activities to be returned by the database
@@ -260,10 +264,10 @@ public class ActivityController {
      */
     @GetMapping("/profiles/{profileId}/activities")
     public ResponseEntity<SimplifiedActivitiesResponse> getUsersActivitiesByRole(@RequestHeader("authorization") String token,
-                                                                              @PathVariable Long profileId,
-                                                                              @RequestParam("count") int count,
-                                                                              @RequestParam("startIndex") int startIndex,
-                                                                              @RequestParam("role") String role) {
+                                                                                 @PathVariable Long profileId,
+                                                                                 @RequestParam("count") int count,
+                                                                                 @RequestParam("startIndex") int startIndex,
+                                                                                 @RequestParam("role") String role) {
         SimplifiedActivitiesResponse activitiesResponse;
         HttpStatus status;
         if (token == null) {
@@ -365,8 +369,9 @@ public class ActivityController {
 
     /**
      * Gets a user's role for a particular activity if a role exists.
-     * @param token the token of the user making the request.
-     * @param profileId the id of the profile we want to get the associated role for.
+     *
+     * @param token      the token of the user making the request.
+     * @param profileId  the id of the profile we want to get the associated role for.
      * @param activityId the id of the activity we want to get the user's role in.
      * @return the role of the user in the particular activity.
      */
@@ -416,6 +421,7 @@ public class ActivityController {
      * REST endpoint for editing the privacy level of an existing activity. Given a HTTP request containing a correctly formatted JSON file,
      * updates the given database entry. For more information on the JSON format, see the @JsonCreator-tagged constructor
      * in the Activity class. The endpoint now also adds new members to the activity.
+     *
      * @param privacyRequest The contents of HTTP request body, mapped to a privacy request.
      * @return A HTTP response notifying the sender whether the edit was successful
      */
@@ -438,5 +444,37 @@ public class ActivityController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
+
+    /**
+     * Posts a users participation details in a particular activity
+     *
+     * @param request                      DTO containing participation details
+     * @param token                        the token of the user making the request.
+     * @param profileId                    the id of the user posting their activity participation
+     * @param activityId                   the activity the user participated in
+     * @return
+     */
+    @PostMapping("/profiles/{profileId}/activities/{activityId}/participation")
+    public ResponseEntity<String> addActivityParticipation(@RequestBody ActivityParticipationRequest request,
+                                                           @RequestHeader("authorization") String token,
+                                                           @PathVariable long profileId,
+                                                           @PathVariable long activityId) {
+        if (token == null || token.isBlank()) {
+            return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
+                    HttpStatus.UNAUTHORIZED);
+        }
+        if (!jwtUtil.validateToken(token)) {
+            return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(),
+                    HttpStatus.FORBIDDEN);
+        }
+        try {
+            ActivityParticipation participation = new ActivityParticipation(request.getDetails(), request.getOutcome(), request.getStartTime(), request.getEndTime());
+            activityService.createParticipation(activityId, profileId, participation);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
+        }
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
 
 }

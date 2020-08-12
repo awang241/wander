@@ -1,10 +1,7 @@
 package com.springvuegradle.controller;
 
-import com.springvuegradle.dto.ActivityRequest;
-import com.springvuegradle.dto.SimplifiedActivitiesResponse;
+import com.springvuegradle.dto.*;
 import com.springvuegradle.enums.ActivityPrivacy;
-import com.springvuegradle.dto.ActivitiesResponse;
-import com.springvuegradle.dto.ActivityRoleRequest;
 import com.springvuegradle.model.*;
 import com.springvuegradle.repositories.*;
 import com.springvuegradle.service.ActivityService;
@@ -27,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.doThrow;
 
 @ActiveProfiles("mock-service")
 @ExtendWith(SpringExtension.class)
@@ -171,4 +169,31 @@ class ActivityControllerMockedTest {
     }
 
     //Need test for invalid roles
+
+    @Test
+    void postActivityParticipationSuccessTest() {
+        ResponseEntity<String> expectedResponse = new ResponseEntity<>(HttpStatus.CREATED);
+        String mockToken = "bob";
+        ActivityParticipationRequest mockParticipationRequest = ActivityTestUtils.createNormalParticipationRequest();
+        long mockProfileId = 420;
+        long mockActivityId = 505;
+        Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
+        ResponseEntity<String> actualResponse = activityController.addActivityParticipation(mockParticipationRequest, mockToken, mockProfileId, mockActivityId);
+        assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
+    }
+
+//    @Test
+//    void postActivityParticipationFailTest() {
+//        ResponseEntity<String> expectedResponse = new ResponseEntity<>(HttpStatus.FORBIDDEN);
+//        String mockToken = "bob";
+//        ActivityParticipationRequest mockParticipationRequest = ActivityTestUtils.createNormalParticipationRequest();
+//        ActivityParticipation mockParticipation = ActivityTestUtils.createNormalParticipation();
+//        long mockProfileId = 420;
+//        long mockActivityId = 505;
+//        Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
+//        //Mockito.when(mockService.createParticipation(mockActivityId, mockProfileId, mockParticipation)).thenThrow(new IllegalArgumentException());
+//        doThrow(new IllegalArgumentException()).when(mockService).createParticipation(mockActivityId, mockProfileId, mockParticipation);
+//        ResponseEntity<String> actualResponse = activityController.addActivityParticipation(mockParticipationRequest, mockToken, mockProfileId, mockActivityId);
+//        assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
+//    }
 }

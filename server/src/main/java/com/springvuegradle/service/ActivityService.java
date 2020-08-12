@@ -1,15 +1,13 @@
 package com.springvuegradle.service;
 
+import com.springvuegradle.dto.ActivityParticipationRequest;
 import com.springvuegradle.dto.ActivityRoleCountResponse;
 import com.springvuegradle.dto.MembersRequest;
 import com.springvuegradle.dto.SimplifiedActivity;
 import com.springvuegradle.enums.ActivityMessage;
 import com.springvuegradle.enums.ActivityPrivacy;
 import com.springvuegradle.enums.ActivityResponseMessage;
-import com.springvuegradle.model.Activity;
-import com.springvuegradle.model.ActivityMembership;
-import com.springvuegradle.model.ActivityType;
-import com.springvuegradle.model.Profile;
+import com.springvuegradle.model.*;
 import com.springvuegradle.repositories.ActivityMembershipRepository;
 import com.springvuegradle.repositories.ActivityRepository;
 import com.springvuegradle.repositories.ActivityTypeRepository;
@@ -558,5 +556,9 @@ public class ActivityService {
             activity.addMember(membership);
             profileRepo.save(profile);
         }
+    }
+
+    public void createParticipation(long activityId, long profileId, ActivityParticipation participation) {
+        
     }
 }

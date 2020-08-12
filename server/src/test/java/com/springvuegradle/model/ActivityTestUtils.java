@@ -1,5 +1,7 @@
 package com.springvuegradle.model;
 
+import com.springvuegradle.dto.ActivityParticipationRequest;
+
 public class ActivityTestUtils {
 
     /**
@@ -14,6 +16,14 @@ public class ActivityTestUtils {
     public static Activity createNullActivity() {
         return new Activity(null, null, null,
                 null, null, null, null);
+    }
+
+    public static ActivityParticipation createNormalParticipation() {
+        return new ActivityParticipation("Played League as a noob", "Got rekt", "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300");
+    }
+
+    public static ActivityParticipationRequest createNormalParticipationRequest() {
+        return new ActivityParticipationRequest("Played League as a noob", "Got rekt", "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300");
     }
 
 }
