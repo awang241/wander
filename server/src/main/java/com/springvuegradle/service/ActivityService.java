@@ -3,10 +3,7 @@ package com.springvuegradle.service;
 import com.springvuegradle.dto.ActivityRoleCountResponse;
 import com.springvuegradle.dto.MembersRequest;
 import com.springvuegradle.dto.SimplifiedActivity;
-import com.springvuegradle.enums.ActivityMessage;
-import com.springvuegradle.enums.ActivityPrivacy;
-import com.springvuegradle.enums.ActivityResponseMessage;
-import com.springvuegradle.enums.ProfileErrorMessage;
+import com.springvuegradle.enums.*;
 import com.springvuegradle.model.*;
 import com.springvuegradle.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +51,7 @@ public class ActivityService {
      */
     public void create(Activity activity, Long creatorId) {
         validateActivity(activity);
-        Optional<Profile> profileResult = profileRepo.findById(creatorId);
+        Optional<Profile> profileResult =  profileRepo.findById(creatorId);
         if (profileResult.isEmpty()) {
             throw new EntityNotFoundException(ActivityResponseMessage.INVALID_PROFILE.toString());
         }
@@ -561,19 +558,11 @@ public class ActivityService {
      * @param profileId     The ID of the profile
      * @param participation The participation being saved. The participation's activity and profile fields will be
      *                      replaced by ones with the given ID's.
-     * @throws IllegalArgumentException If no profile or activity with the given ID exists in the repository
      */
     public void createParticipation(long activityId, long profileId, ActivityParticipation participation) {
-        Optional<Activity> activityResult = activityRepo.findById(activityId);
-        if (activityResult.isEmpty()) {
-            throw new IllegalArgumentException(ActivityResponseMessage.INVALID_ACTIVITY.toString());
-        }
-        Optional<Profile> profileResult = profileRepo.findById(profileId);
-        if (profileResult.isEmpty()) {
-            throw new IllegalArgumentException(ProfileErrorMessage.PROFILE_NOT_FOUND.toString());
-        }
-        Profile profile = profileResult.get();
-        Activity activity = activityResult.get();
+        checkParticipationHelper(activityId, profileId);
+        Profile profile = profileRepo.getOne(profileId);
+        Activity activity = activityRepo.getOne(activityId);
         participation.setProfile(profile);
         participation.setActivity(activity);
         participation = participationRepo.save(participation);
@@ -582,4 +571,41 @@ public class ActivityService {
         activity.addParticipation(participation);
         activityRepo.save(activity);
     }
+
+    /**
+     * Updates the fields of an existing participation
+     * @param activityId      The ID of the activity
+     * @param profileId       The ID of the profile
+     * @param participationId The ID of the participation being changed
+     * @param participation   An ActivityParticipation object which contains the new fields to be changed
+     * @throws IllegalArgumentException if a participation does not exist
+     */
+    public void editParticipation(long activityId, long profileId, long participationId, ActivityParticipation participation) {
+        checkParticipationHelper(activityId, profileId);
+        Optional<ActivityParticipation> participationResult = participationRepo.findById(participationId);
+        if (participationResult.isEmpty()) {
+            throw new IllegalArgumentException(ActivityParticipationMessage.PARTICIPATION_NOT_FOUND.toString());
+        }
+        ActivityParticipation dbParticipation = participationResult.get();
+        dbParticipation.updateActivityParticipation(participation);
+        participationRepo.save(dbParticipation);
+    }
+
+    /**
+     * Checks if an activity and profile exists
+     * @param activityId
+     * @param profileId
+     * @throws IllegalArgumentException If no profile or activity with the given ID exists in the repository
+     */
+    public void checkParticipationHelper(long activityId, long profileId) {
+        Optional<Activity> activityResult = activityRepo.findById(activityId);
+        if (activityResult.isEmpty()) {
+            throw new IllegalArgumentException(ActivityResponseMessage.INVALID_ACTIVITY.toString());
+        }
+        Optional<Profile> profileResult = profileRepo.findById(profileId);
+        if (profileResult.isEmpty()) {
+            throw new IllegalArgumentException(ProfileErrorMessage.PROFILE_NOT_FOUND.toString());
+        }
+    }
+
 }
