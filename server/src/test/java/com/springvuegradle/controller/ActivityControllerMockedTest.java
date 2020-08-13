@@ -24,8 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.reset;
 
 @ActiveProfiles("mock-service")
 @ExtendWith(SpringExtension.class)
@@ -180,7 +178,7 @@ class ActivityControllerMockedTest {
     }
 
     @Test
-    void postActivityParticipationFailTest() {
+    void postActivityParticipationWhenServiceThrowsExceptionReturnsA403ErrorTest() {
         ResponseEntity<String> expectedResponse = new ResponseEntity<>(HttpStatus.FORBIDDEN);
         String mockToken = "bob";
         ActivityParticipationRequest mockParticipationRequest = ActivityTestUtils.createNormalParticipationRequest();
