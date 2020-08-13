@@ -13,10 +13,10 @@
                                   type="is-primary">
                             Participate
                         </b-button>
-                      <div v-if="hasShareAndEditPermissions()" class="buttons" style="float:right">
-                        <b-button style="float:right" @click="shareActivity"
+                      <div v-if="hasShareAndEditPermissions()">
+                        <b-button style="float:right; margin-left: 0.5rem;" @click="shareActivity"
                                   type="is-primary">
-                          Share Activity / Change Privacy Level
+                          Share / Change Privacy Level
                         </b-button>
                         <b-button style="float:right" @click="editActivity"
                                   type="is-primary">
