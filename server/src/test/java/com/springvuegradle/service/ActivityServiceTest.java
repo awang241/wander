@@ -544,7 +544,7 @@ class ActivityServiceTest {
     @Test
     void editActivityPrivacyToFriendsTest() {
         Activity activity = activityRepository.save(createNormalActivity());
-        service.editActivityPrivacy("members", activity.getId());
+        service.editActivityPrivacy("friends", activity.getId());
         assertEquals(1, activity.getPrivacyLevel());
     }
 
@@ -676,7 +676,7 @@ class ActivityServiceTest {
     @Test
     void getFriendsActivitiesSuccessTest() {
         Activity activity = activityRepository.save(createNormalActivity());
-        service.editActivityPrivacy("members", activity.getId());
+        service.editActivityPrivacy("friends", activity.getId());
         assertEquals(1, service.getActivitiesWithPrivacyLevel(ActivityPrivacy.FRIENDS).size());
     }
 
@@ -686,7 +686,7 @@ class ActivityServiceTest {
     @Test
     void getActivitiesDifferentPrivacyLevelTest() {
         Activity activity = activityRepository.save(createNormalActivity());
-        service.editActivityPrivacy("members", activity.getId());
+        service.editActivityPrivacy("friends", activity.getId());
         assertTrue(service.getActivitiesWithPrivacyLevel(ActivityPrivacy.PUBLIC).isEmpty());
     }
 

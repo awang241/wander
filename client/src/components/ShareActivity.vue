@@ -200,7 +200,7 @@
                 this.userRoles = this.userRoles.filter(user => user.email != emailToDelete)
             },
             isPrivacyMoreRestrictive(){
-              const privacyDict = {"public": 1, "members": 2, "private": 3}
+              const privacyDict = {"public": 1, "friends": 2, "private": 3}
               return privacyDict[this.privacy] > privacyDict[this.originalPrivacy]
             },
 

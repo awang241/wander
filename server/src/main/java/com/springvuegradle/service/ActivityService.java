@@ -334,7 +334,7 @@ public class ActivityService {
             case "private":
                 privacyLevel = 0;
                 break;
-            case "members":
+            case "friends":
                 privacyLevel = 1;
                 break;
             case "public":

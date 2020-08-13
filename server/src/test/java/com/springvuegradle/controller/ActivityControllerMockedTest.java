@@ -1,6 +1,6 @@
 package com.springvuegradle.controller;
 
-import com.springvuegradle.dto.ActivityRoleUpdateRequest;
+import com.springvuegradle.dto.requests.ActivityRoleUpdateRequest;
 import com.springvuegradle.dto.responses.ActivityMemberRoleResponse;
 import com.springvuegradle.dto.responses.ProfileSummary;
 import com.springvuegradle.enums.ActivityResponseMessage;
