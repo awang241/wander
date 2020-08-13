@@ -24,11 +24,13 @@
             </b-checkbox>
         </div>
         <b-button class="is-danger" @click="this.$parent.close">Cancel</b-button>
-        <b-button class="is-primary is-pulled-right" @click="openHelloWorld">Continue</b-button>
+        <b-button class="is-primary is-pulled-right" @click="confirmPrivacyChange">Continue</b-button>
     </div>
 </template>
 
 <script>
+
+    import Api from "../Api";
 
     export default {
         name: "ActivityShareConfirmation",
@@ -44,16 +46,26 @@
         },
         data(){
             return {
-                numFollowers: 17,
-                numOrganizers: 3,
-                numParticipants: 53,
+                numFollowers: 0,
+                numOrganizers: 0,
+                numParticipants: 0,
                 rolesToRetain: []
             }
         },
+        mounted() {
+            this.getRoleCountsForActivity()
+        },
         methods: {
-            openHelloWorld() {
-                console.log(this.$parent)
+            confirmPrivacyChange() {
                 this.$emit('confirmPrivacyChange', this.rolesToRetain)
+            },
+            getRoleCountsForActivity(){
+                Api.getRoleCountsForActivity(this.activityId, localStorage.getItem('authToken') )
+                .then(response => {
+                    this.numFollowers = response.data.followers
+                    this.numOrganizers = response.data.organizers
+                    this.numParticipants = response.data.participants
+                })
             }
         }
     }

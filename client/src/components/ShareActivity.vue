@@ -31,30 +31,26 @@
                     <br>
                     <br>
 
+                    <h3 class="title is-5">Current Members</h3>
+                    <div v-if="userRoles.length > 0">
+                        <div v-for="user in userRoles" v-bind:listItem="user.email" v-bind:key="user.email">
+                            <ListItem v-bind:listItem="user.email" v-on:deleteListItem="deleteUser(user.email)">
+                                <template>
+                                    <b-select v-model="user.role">
+                                        <option value="follower">Follower</option>
+                                        <option value="participant">Participant</option>
+                                        <option value="organiser">Organiser</option>
+                                    </b-select>
+                                </template>
+                            </ListItem>
+                        </div>
+                    </div>
+                    <p v-else>This activity currently has no members</p>
 
-                    <div v-for="user in userRoles" v-bind:listItem="user.email" v-bind:key="user.email">
-                        <ListItem v-bind:listItem="user.email" v-on:deleteListItem="deleteUser(user.email)">
-                            <template>
-                                <b-select v-model="user.role">
-                                    <option value="follower">Follower</option>
-                                    <option value="participant">Participant</option>
-                                    <option value="organiser">Organiser</option>
-                                </b-select>
-                            </template>
-                        </ListItem>
-                    </div>
-                    <hr>
-                    <div v-if="members.length > 0">
-                        <h3 class="title is-5">Current Members</h3>
-                        <table class="table-profile">
-                            <tr v-for="member in members" :key="member">
-                                <td>{{member.email}}</td>
-                            </tr>
-                        </table>
-                    </div>
                 </div>
                 <br>
-                <b-button style="float: right" @click="shareActivity"
+
+                <b-button style="float: right" @click="onShareActivityClicked"
                           type="is-primary">
                     Save
                 </b-button>
@@ -63,16 +59,6 @@
                     Cancel
                 </b-button>
                 <br>
-
-                <b-button style="float: right" @click="onShareActivityClicked"
-                              type="is-primary">
-                        Save
-                    </b-button>
-                    <b-button style="float: left" @click="goBack"
-                              type="is-danger">
-                        Cancel
-                    </b-button>
-                    <br>
             </form>
         </ValidationObserver>
     </div>
@@ -110,11 +96,8 @@
                 userRoles: [],
                 originalPrivacy: "public",
                 emails: {},
-                activityId: this.$route.params.id,
                 newEmail: "",
                 role: "",
-                members: []
-
             }
         },
         mounted() {
@@ -122,30 +105,35 @@
             this.getMembers()
         },
         methods: {
-          printHelloWorld(rolesToRetain) {
-            this.successToast(rolesToRetain)
-          },
-          onShareActivityClicked() {
-            if(this.isPrivacyMoreRestrictive()){
-              this.$buefy.modal.open({
-                parent: this,
-                events: {
-                  'confirmPrivacyChange': rolesToRetain => this.printHelloWorld(rolesToRetain)
-                },
-                props: { activityId: this.activityId, activityPrivacy: this.privacy},
-                component: ActivityShareConfirmation,
-                trapFocus: true,
-                scroll: "clip"
-              })
-            }
-            Api.editActivityPrivacy(store.getters.getUserId, this.$route.params.id, this.privacy, localStorage.getItem('authToken'))
-                .then((response) => {
-                  console.log(response);
-                  this.successToast("Activity privacy updated")
-                  router.go(-1)
-                })
-                .catch(error => console.log(error));
-          },
+            printHelloWorld(rolesToRetain) {
+                this.successToast(rolesToRetain)
+            },
+            onShareActivityClicked() {
+                if (this.isPrivacyMoreRestrictive()) {
+                    this.$buefy.modal.open({
+                        parent: this,
+                        events: {
+                            'confirmPrivacyChange': rolesToRetain => this.printHelloWorld(rolesToRetain)
+                        },
+                        props: {activityId: this.id, activityPrivacy: this.privacy},
+                        component: ActivityShareConfirmation,
+                        trapFocus: true,
+                        scroll: "clip"
+                    })
+                } else {
+                    this.updateActivityPrivacy()
+                }
+
+            },
+            updateActivityPrivacy(){
+                Api.editActivityPrivacy(store.getters.getUserId, this.id, this.privacy, localStorage.getItem('authToken'))
+                    .then((response) => {
+                        console.log(response);
+                        this.successToast("Activity privacy updated")
+                        router.go(-1)
+                    })
+                    .catch(error => console.log(error));
+            },
             addEmail() {
                 let emailAlreadyAdded = false
                 this.userRoles.forEach(user => {
@@ -153,7 +141,7 @@
                         emailAlreadyAdded = true
                     }
                 })
-                if(emailAlreadyAdded){
+                if (emailAlreadyAdded) {
                     this.warningToast("Email has already been added!")
                     return;
                 }
@@ -174,14 +162,14 @@
 
             },
             getRequestBody() {
-              let payload = {
-                privacy: this.privacy,
-                members: this.userRoles
-              };
-              return payload;
+                let payload = {
+                    privacy: this.privacy,
+                    members: this.userRoles
+                };
+                return payload;
             },
             shareActivity() {
-                Api.editActivityPrivacy(store.getters.getUserId, this.$route.params.id, this.getRequestBody(), localStorage.getItem('authToken'))
+                Api.editActivityPrivacy(store.getters.getUserId, this.id, this.getRequestBody(), localStorage.getItem('authToken'))
                     .then(() => {
                         this.successToast("Activity privacy updated")
                         router.go(-1)
@@ -189,9 +177,13 @@
                     .catch(error => console.log(error));
             },
             getMembers() {
-                Api.getAllActivityMembers(this.$route.params.id, localStorage.getItem('authToken'))
+                Api.getAllActivityMembers(this.id, localStorage.getItem('authToken'))
                     .then((response) => {
-                        this.members = response.data;
+                        response.data.forEach(profile => {
+                            if (profile.role !== "CREATOR") {
+                                this.userRoles.push({email: profile.email, role: profile.role.toLowerCase()})
+                            }
+                        })
                     })
                     .catch(error => console.log(error));
             },
@@ -199,9 +191,9 @@
             deleteUser(emailToDelete) {
                 this.userRoles = this.userRoles.filter(user => user.email != emailToDelete)
             },
-            isPrivacyMoreRestrictive(){
-              const privacyDict = {"public": 1, "friends": 2, "private": 3}
-              return privacyDict[this.privacy] > privacyDict[this.originalPrivacy]
+            isPrivacyMoreRestrictive() {
+                const privacyDict = {"public": 1, "friends": 2, "private": 3}
+                return privacyDict[this.privacy] > privacyDict[this.originalPrivacy]
             },
 
             goBack() {
