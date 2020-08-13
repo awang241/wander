@@ -5,7 +5,7 @@
 
         <h2><b>{{numFollowers}}</b> Followers</h2>
         <h2><b>{{numParticipants}}</b> Participants</h2>
-        <h2><b>{{numOrganizers}}</b> Organizers</h2>
+        <h2><b>{{numOrganisers}}</b> Organisers</h2>
 
         <br>
         <div class="block">
@@ -19,8 +19,8 @@
             </b-checkbox>
 
             <b-checkbox v-model="rolesToRetain"
-                        native-value="organizers">
-                Retain Organizers
+                        native-value="organisers">
+                Retain Organisers
             </b-checkbox>
         </div>
         <b-button class="is-danger" @click="this.$parent.close">Cancel</b-button>
@@ -45,7 +45,7 @@
         data(){
             return {
                 numFollowers: 17,
-                numOrganizers: 3,
+                numOrganisers: 3,
                 numParticipants: 53,
                 rolesToRetain: []
             }

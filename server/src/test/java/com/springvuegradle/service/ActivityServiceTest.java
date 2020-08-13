@@ -604,7 +604,7 @@ class ActivityServiceTest {
      * Public activities can be seen by all users with a role in the activity.
      */
     @Test
-    void getActivitiesByIdByRoleMemberOrganizerTest() {
+    void getActivitiesByIdByRoleMemberOrganiserTest() {
         Profile benny = createNormalProfileBen();
         profileRepository.save(benny);
         Profile johnny = createNormalProfileJohnny();
@@ -745,7 +745,7 @@ class ActivityServiceTest {
      * Throws an exception error
      */
     @Test
-    void setProfileRoleToOrganizerAsFollowerThrowsIllegalArgumentExceptionTest() {
+    void setProfileRoleToOrganiserAsFollowerThrowsIllegalArgumentExceptionTest() {
         Profile followerBen = profileRepository.save(createNormalProfileBen());
         Profile followerJohnny = profileRepository.save(createNormalProfileJohnny());
         Activity activity = activityRepository.save(createNormalActivityKaikoura());
@@ -791,7 +791,7 @@ class ActivityServiceTest {
      * Tests that setting a role to an ORGANISER as an ADMIN works.
      */
     @Test
-    void setProfileRoleToOrganizerAsAdmin() {
+    void setProfileRoleToOrganiserAsAdmin() {
         Profile admin = profileRepository.save(createNormalProfileBen());
         admin.setAuthLevel(1);
         Profile follower = profileRepository.save(createNormalProfileJohnny());
@@ -807,7 +807,7 @@ class ActivityServiceTest {
      * Tests that setting a role to an ORGANISER as a CREATOR works.
      */
     @Test
-    void setProfileRoleToOrganizerAsCreator() {
+    void setProfileRoleToOrganiserAsCreator() {
         Profile creator = profileRepository.save(createNormalProfileBen());
         Profile follower = profileRepository.save(createNormalProfileJohnny());
         Activity activity = activityRepository.save(createNormalActivityKaikoura());
@@ -871,20 +871,20 @@ class ActivityServiceTest {
         Profile creator = profileRepository.save(createNormalProfileBen());
         Profile followerOne = profileRepository.save(createNormalProfileBen("ben11@hotmail.com"));
         Profile followerTwo = profileRepository.save(createNormalProfileBen("ben12@hotmail.com"));
-        Profile organizer = profileRepository.save(createNormalProfileBen("ben13@hotmail.com"));
+        Profile organiser = profileRepository.save(createNormalProfileBen("ben13@hotmail.com"));
         Profile participant = profileRepository.save(createNormalProfileBen("ben14@hotmail.com"));
         Activity activity = activityRepository.save(createNormalActivityKaikoura());
         emailRepository.save(new Email("ben10@hotmail.com", true, creator));
         emailRepository.save(new Email("ben11@hotmail.com", true, followerOne));
         emailRepository.save(new Email("ben12@hotmail.com", true, followerTwo));
-        emailRepository.save(new Email("ben13@hotmail.com", true, organizer));
+        emailRepository.save(new Email("ben13@hotmail.com", true, organiser));
         emailRepository.save(new Email("ben14@hotmail.com", true, participant));;
         ActivityMembership creatorMembership = new ActivityMembership(activity, creator, ActivityMembership.Role.CREATOR);
         ActivityMembership followerOneMembership = new ActivityMembership(activity, followerOne, ActivityMembership.Role.FOLLOWER);
         ActivityMembership followerTwoMembership = new ActivityMembership(activity, followerTwo, ActivityMembership.Role.FOLLOWER);
-        ActivityMembership organizerMembership = new ActivityMembership(activity, organizer, ActivityMembership.Role.ORGANISER);
+        ActivityMembership organiserMembership = new ActivityMembership(activity, organiser, ActivityMembership.Role.ORGANISER);
         ActivityMembership participantMembership = new ActivityMembership(activity, participant, ActivityMembership.Role.PARTICIPANT);
-        List<ActivityMembership> memberships = Arrays.asList(creatorMembership, followerOneMembership, followerTwoMembership, organizerMembership, participantMembership);
+        List<ActivityMembership> memberships = Arrays.asList(creatorMembership, followerOneMembership, followerTwoMembership, organiserMembership, participantMembership);
         activityMembershipRepository.saveAll(memberships);
         List<ActivityMemberProfileResponse> response = new ArrayList<>();
         for(ActivityMembership membership: memberships){
@@ -903,15 +903,15 @@ class ActivityServiceTest {
         Profile creator = profileRepository.save(createNormalProfileBen());
         Profile followerOne = profileRepository.save(createNormalProfileBen());
         Profile followerTwo = profileRepository.save(createNormalProfileBen());
-        Profile organizer = profileRepository.save(createNormalProfileBen());
+        Profile organiser = profileRepository.save(createNormalProfileBen());
         Profile participant = profileRepository.save(createNormalProfileBen());
         Activity activity = activityRepository.save(createNormalActivityKaikoura());
         ActivityMembership creatorMembership = new ActivityMembership(activity, creator, ActivityMembership.Role.CREATOR);
         ActivityMembership followerOneMembership = new ActivityMembership(activity, followerOne, ActivityMembership.Role.FOLLOWER);
         ActivityMembership followerTwoMembership = new ActivityMembership(activity, followerTwo, ActivityMembership.Role.FOLLOWER);
-        ActivityMembership organizerMembership = new ActivityMembership(activity, organizer, ActivityMembership.Role.ORGANISER);
+        ActivityMembership organiserMembership = new ActivityMembership(activity, organiser, ActivityMembership.Role.ORGANISER);
         ActivityMembership participantMembership = new ActivityMembership(activity, participant, ActivityMembership.Role.PARTICIPANT);
-        List<ActivityMembership> memberships = Arrays.asList(creatorMembership, followerOneMembership, followerTwoMembership, organizerMembership, participantMembership);
+        List<ActivityMembership> memberships = Arrays.asList(creatorMembership, followerOneMembership, followerTwoMembership, organiserMembership, participantMembership);
         activityMembershipRepository.saveAll(memberships);
 
         Pageable pageable = PageRequest.of(0, 2);
@@ -967,6 +967,11 @@ class ActivityServiceTest {
     void getActivityMembersWithRoleWithNonExistentActivityTest() {
         assertThrows(IllegalArgumentException.class, () ->
                 service.getActivityMembersByRole(-1, ActivityMembership.Role.CREATOR, null));
+    }
+
+    @Test
+    void clearRolesOfActivityThatDoesntExistThrowsExceptionTest(){
+        assertThrows(IllegalArgumentException.class, ()-> service.clearActivityRoleList(915730971l, "FOLLOWER"));
     }
 
 

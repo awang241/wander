@@ -164,7 +164,7 @@ public class ActivityService {
      * @return the number of people who have different roles in an activity
      */
     public ActivityRoleCountResponse getRoleCounts(long activityId) {
-        long organizers = 0;
+        long organisers = 0;
         long followers = 0;
         long participants = 0;
         List<ActivityMembership> memberships = membershipRepo.findActivityMembershipsByActivity_Id(activityId);
@@ -177,10 +177,10 @@ public class ActivityService {
             } else if (membership.getRole().equals(ActivityMembership.Role.FOLLOWER)) {
                 followers++;
             } else if (membership.getRole().equals(ActivityMembership.Role.ORGANISER)) {
-                organizers++;
+                organisers++;
             }
         }
-        return new ActivityRoleCountResponse(organizers, participants, followers);
+        return new ActivityRoleCountResponse(organisers, participants, followers);
     }
 
     /**
@@ -581,31 +581,31 @@ public class ActivityService {
 
     /**
      * Checks whether someone has rights to change the role of a user in an activity
-     * Users should only be able to change someone to an organizer if they are a creator/organizer or admin
-     * Users should be able to change someone else to a participant or follower if they are creator/organizer, admin, or it is themself
+     * Users should only be able to change someone to an organiser if they are a creator/organiser or admin
+     * Users should be able to change someone else to a participant or follower if they are creator/organiser, admin, or it is themself
      *
      * @param profileDoingEditingId the ID of the profile who is editing the activities membership
      * @param activityId            The ID of the activity we are editing
      * @param newRole               The role we are trying to change the user to
      * @param profileBeingEditedId  The ID of the user who is attempting to change the role
-     * @return whether the user doing the editing can change the profiles membership to organizer
+     * @return whether the user doing the editing can change the profiles membership to organiser
      */
     private boolean canChangeRole(long profileDoingEditingId, long profileBeingEditedId, long activityId, ActivityMembership.Role newRole) {
-        boolean isCreatorOrOrganizer = false;
+        boolean isCreatorOrOrganiser = false;
         boolean isAdmin = profileRepo.getOne(profileDoingEditingId).getAuthLevel() < 2;
         Optional<ActivityMembership> membership = membershipRepo.findByActivity_IdAndProfile_Id(activityId, profileDoingEditingId);
         if (membership.isPresent()) {
             ActivityMembership.Role editorRole = membership.get().getRole();
             if (editorRole.equals(ActivityMembership.Role.CREATOR) || editorRole.equals(ActivityMembership.Role.ORGANISER)) {
-                isCreatorOrOrganizer = true;
+                isCreatorOrOrganiser = true;
             }
         }
         if (newRole != null) {
             if (newRole.equals(ActivityMembership.Role.ORGANISER)) {
-                return isAdmin || isCreatorOrOrganizer;
+                return isAdmin || isCreatorOrOrganiser;
             }
         }
-        return isAdmin || isCreatorOrOrganizer || profileBeingEditedId == profileDoingEditingId;
+        return isAdmin || isCreatorOrOrganiser || profileBeingEditedId == profileDoingEditingId;
     }
 
     /**
@@ -653,9 +653,6 @@ public class ActivityService {
      */
     public void clearActivityRoleList(Long activityId, String roleToClear) {
         List<ActivityMemberProfileResponse> memberships = getActivityMembers(activityId);
-        if (memberships.isEmpty()){
-            throw new NoSuchElementException(ActivityResponseMessage.INVALID_ACTIVITY.toString());
-        }
         for (ActivityMemberProfileResponse membership : memberships) {
             if (membership.getRole().name().equals(roleToClear)) {
                 removeMembership(membership.getId(), activityId);

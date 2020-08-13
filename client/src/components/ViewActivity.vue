@@ -126,7 +126,7 @@
                                     <template #options>
                                         <b-dropdown aria-role="list" class="is-pulled-right" position="is-bottom-left">
                                             <b-icon icon="ellipsis-v" slot="trigger"></b-icon>
-                                            <b-dropdown-item @click="changeRole(participant, roles.PARTICIPANT, roles.ORGANISER)">Change to Organizer</b-dropdown-item>
+                                            <b-dropdown-item @click="changeRole(participant, roles.PARTICIPANT, roles.ORGANISER)">Change to Organiser</b-dropdown-item>
                                             <b-dropdown-item @click="deleteRole(participant, roles.PARTICIPANT)">Remove from activity</b-dropdown-item>
                                         </b-dropdown>
                                     </template>
@@ -198,7 +198,7 @@
                 followers: [],
                 roleIndex: 0,
                 store: store,
-                isCreatorOrOrganizer: false,
+                isCreatorOrOrganiser: false,
                 numFollowers: 0
           }
         },

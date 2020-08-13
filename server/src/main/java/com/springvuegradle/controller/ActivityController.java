@@ -501,7 +501,7 @@ public class ActivityController {
      * Removes all member roles of a specified level from a specified activity
      * @param token the auth token of the request
      * @param activityId The ID of the activity to have a role cleared
-     * @param roleToClear A string of "organizer", "participant" or "follower" to clear
+     * @param roleToClear A string of "organiser", "participant" or "follower" to clear
      * @return http response code for the outcome of the delete
      */
     @DeleteMapping("/activities/{activityId}/clearRole")
