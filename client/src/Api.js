@@ -14,6 +14,7 @@ export default {
   // All create API requests
   createActivity: (userId, data, token) => localAxiosInstance.post('/profiles/'+userId+'/activities', data, {headers: {"authorization":token}}),
   createProfile: (user) => localAxiosInstance.post('/profiles', user),
+  createParticipation: (userId, activityId, participation, token) => localAxiosInstance.post('/profiles/'+ userId + '/activities/' + activityId + '/participation', participation, {headers: {'authorization': token}}),
 
   // All delete API requests
   deleteActivity: (userId, token, activityId) => localAxiosInstance.delete('/profiles/'+userId+'/activities/'+activityId, {headers: {"authorization":token}}),

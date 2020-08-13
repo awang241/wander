@@ -13,6 +13,11 @@
                                   type="is-primary">
                             Edit Activity
                         </b-button>
+                        <b-button style="float:right" @click="createParticipation"
+                                  type="is-primary">
+                            Create Participation
+                        </b-button>
+
                     </div>
 
                     <h1 class="title is-1">
@@ -152,6 +157,9 @@
             },
             shareActivity() {
                 router.push("/ShareActivity/" + this.activity.id + "/" + this.privacy.toLowerCase())
+            },
+            createParticipation() {
+                router.push('/Activities/' + this.activity.id + '/Participation')
             },
             dateFormat(date) {
                 let year = date.slice(0, 4);

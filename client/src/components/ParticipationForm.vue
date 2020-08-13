@@ -4,34 +4,22 @@
 
             <div class="container">
                 <h1 class="title">Record Participation</h1>
-<!--                <b-field group-multiline grouped>-->
-<!--                    <b-field label="Start date" expanded>-->
-<!--                        <input v-model="startDate" class="input" type="date">-->
-<!--                    </b-field>-->
-<!--                    <b-field label="End date" expanded>-->
-<!--                        <input v-model="endDate" class="input" type="date">-->
-<!--                    </b-field>-->
-<!--                </b-field>-->
-<!--                <b-field group-multiline grouped>-->
-<!--                    <b-field label="Start time" expanded>-->
-<!--                        <input v-model="startTime" class="input" type="time">-->
-<!--                    </b-field>-->
-<!--                    <b-field label="End time" expanded>-->
-<!--                        <input v-model="endTime" class="input" type="time">-->
-<!--                    </b-field>-->
-<!--                </b-field>-->
-
-                <b-field label="Start date and time">
-                    <b-datetimepicker datetime-formatter="dateFormatter" v-model="startTime" placeholder="Type or select a date" editable>
-                    </b-datetimepicker>
+                <b-field group-multiline grouped>
+                    <b-field label="Start date" expanded>
+                        <input v-model="startDate" class="input" type="date">
+                    </b-field>
+                    <b-field label="End date" expanded>
+                        <input v-model="endDate" class="input" type="date">
+                    </b-field>
                 </b-field>
-
-                <b-field label="End date and time">
-                    <b-datetimepicker v-model="endTime" placeholder="Type or select a date" editable>
-                    </b-datetimepicker>
+                <b-field group-multiline grouped>
+                    <b-field label="Start time" expanded>
+                        <input v-model="startTime" class="input" type="time">
+                    </b-field>
+                    <b-field label="End time" expanded>
+                        <input v-model="endTime" class="input" type="time">
+                    </b-field>
                 </b-field>
-
-
 
                 <ValidationProvider rules="required" name="Outcome" v-slot="{ errors, valid }" slim>
 
@@ -75,7 +63,10 @@
 <script>
     import {ValidationProvider, ValidationObserver} from 'vee-validate'
     import router from "../router"
-    // import toastMixin from "../../mixins/toatsMixin";
+    import Api from "../Api"
+    import store from "../store"
+    import toastMixin from "../mixins/toastMixin"
+    import dateTimeMixin from "../mixins/dateTimeMixin";
 
     export default {
         name: "ParticipationForm",
@@ -83,33 +74,70 @@
             ValidationProvider,
             ValidationObserver
         },
+        mixins: [toastMixin, dateTimeMixin],
+        props: {
+          //If user is creating/adding a participation
+          default: function() {
+              return {
+                  startDate: null,
+                  endDate: null,
+                  startTime: "",
+                  endTime: "",
+                  outcome: "",
+                  details: "",
+                  activityId: this.$route.params.id
+              }
+          }
+        },
         data() {
             return {
-                // startDate: null,
-                // endDate: null,
-                startTime: new Date(),
-                endTime: new Date,
-                outcome: "",
-                details: ""
+                participation: {}
+            }
+        },
+        computed: {
+            combinedStartDate: function () {
+                return this.combineDateAndTime(this.startDate, this.startTime)
+            },
+            combinedEndDate: function () {
+                return this.combineDateAndTime(this.endDate, this.endTime)
             }
         },
         methods: {
             submitParticipation() {
+                console.log(this.startTime)
                 console.log(this.startDate)
                 console.log(this.outcome)
+                if (this.validateDates() || this.startDate === null) {
+                    let participation = {
+                        "details": this.details,
+                        "outcome": this.outcome,
+                        "startTime": this.startTime,
+                        "endTime": this.endTime
+                    }
+                    Api.createParticipation(store.getters.getUserId, this.activityId, participation, localStorage.getItem('authToken'))
+                        .then(() => {
+                            this.successToast("Participation added successfully")
+                            router.go(-1)
+                        })
+                        .catch(() => this.warningToast("Unknown error occurred"))
+                }
             },
             goBack() {
                 router.go(-1)
             },
-            validateParticipation() {
-
+            validateDates() {
+                let isValid = true
+                const startDate = Date.parse(this.combinedStartDate)
+                const endDate = Date.parse(this.combinedEndDate)
+                if (isNaN(startDate) || isNaN(endDate)) {
+                    this.warningToast("Invalid dates entered!")
+                    isValid = false
+                } else if (Date.parse(this.combinedStartDate) > Date.parse(this.combinedEndDate)) {
+                    this.warningToast("The end date must be after the start date")
+                    isValid = false
+                }
+                return isValid
             },
-            dateFormatter() {
-                let options = {day:'numeric', month:'numeric', year:'numeric'}
-                console.log('test')
-                console.log(this.startDate.toLocaleDateString('en-GB', options))
-                return this.startDate.toLocaleDateString('en-GB', options);
-            }
         }
     }
 
