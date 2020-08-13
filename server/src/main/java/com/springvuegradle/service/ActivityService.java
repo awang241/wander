@@ -1,18 +1,14 @@
 package com.springvuegradle.service;
 
-import com.springvuegradle.dto.ActivityParticipationRequest;
 import com.springvuegradle.dto.ActivityRoleCountResponse;
 import com.springvuegradle.dto.MembersRequest;
 import com.springvuegradle.dto.SimplifiedActivity;
 import com.springvuegradle.enums.ActivityMessage;
 import com.springvuegradle.enums.ActivityPrivacy;
 import com.springvuegradle.enums.ActivityResponseMessage;
+import com.springvuegradle.enums.ProfileErrorMessage;
 import com.springvuegradle.model.*;
-import com.springvuegradle.repositories.ActivityMembershipRepository;
-import com.springvuegradle.repositories.ActivityRepository;
-import com.springvuegradle.repositories.ActivityTypeRepository;
-import com.springvuegradle.repositories.ProfileRepository;
-import com.springvuegradle.repositories.EmailRepository;
+import com.springvuegradle.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,7 +28,7 @@ public class ActivityService {
     private ActivityRepository activityRepo;
     private ActivityTypeRepository typeRepo;
     private ActivityMembershipRepository membershipRepo;
-    private EmailRepository emailRepo;
+    private ActivityParticipationRepository participationRepo;
 
     /**
      * Autowired constructor for Spring to create an ActivityService and inject the correct dependencies.
@@ -43,11 +39,12 @@ public class ActivityService {
      */
     @Autowired
     public ActivityService(ProfileRepository profileRepo, ActivityRepository activityRepo, ActivityTypeRepository activityTypeRepo,
-                           ActivityMembershipRepository activityMembershipRepository) {
+                           ActivityMembershipRepository activityMembershipRepository, ActivityParticipationRepository participationRepo) {
         this.profileRepo = profileRepo;
         this.activityRepo = activityRepo;
         this.typeRepo = activityTypeRepo;
         this.membershipRepo = activityMembershipRepository;
+        this.participationRepo = participationRepo;
     }
 
     /**
@@ -384,7 +381,7 @@ public class ActivityService {
      * @param profileId the id of the user we want to assign the role to.
      * @param activityRole the role we want to assign to the user for the activity.
      */
-    public void addActivityRole(Long activityId, Long profileId, String activityRole) throws IllegalArgumentException {
+    public void addActivityRole(Long activityId, Long profileId, String activityRole) {
         Optional<Profile> optionalProfile = profileRepo.findById(profileId);
         Optional<Activity> optionalActivity = activityRepo.findById(activityId);
         if (optionalProfile.isEmpty()) {
@@ -488,7 +485,7 @@ public class ActivityService {
      */
     public List<SimplifiedActivity> createSimplifiedActivities(List<Activity> activities) {
         List<SimplifiedActivity> simplifiedActivities = new ArrayList<>();
-        activities.forEach((k) -> simplifiedActivities.add(new SimplifiedActivity(k)));
+        activities.forEach(k -> simplifiedActivities.add(new SimplifiedActivity(k)));
         return simplifiedActivities;
     }
 
@@ -526,7 +523,7 @@ public class ActivityService {
      * @param activityId id referring to the activity.
      * @throws IllegalArgumentException when activity or email is not found.
      */
-    public void addMembers(List<MembersRequest> members, long activityId) throws IllegalArgumentException {
+    public void addMembers(List<MembersRequest> members, long activityId) {
         Optional<Activity> optionalActivity = activityRepo.findById(activityId);
         if (optionalActivity.isEmpty()) {
             throw new IllegalArgumentException(ActivityMessage.ACTIVITY_NOT_FOUND.getMessage());
@@ -534,7 +531,7 @@ public class ActivityService {
         Map<Profile, String> profiles = new HashMap<>();
         for (MembersRequest member: members) {
             List<Profile> profilesWithEmail = profileRepo.findByPrimaryEmail(member.getEmail());
-            if (profilesWithEmail.size() > 0) {
+            if (!profilesWithEmail.isEmpty()) {
                 profiles.put(profilesWithEmail.get(0), member.getRole());
             } else {
                 throw new IllegalArgumentException(ActivityResponseMessage.INVALID_EMAILS.toString());
@@ -558,7 +555,31 @@ public class ActivityService {
         }
     }
 
+    /**
+     * Saves the given participation details of a user who participated in a specific activity to the repository.
+     * @param activityId    The ID of the activity
+     * @param profileId     The ID of the profile
+     * @param participation The participation being saved. The participation's activity and profile fields will be
+     *                      replaced by ones with the given ID's.
+     * @throws IllegalArgumentException If no profile or activity with the given ID exists in the repository
+     */
     public void createParticipation(long activityId, long profileId, ActivityParticipation participation) {
-        
+        Optional<Activity> activityResult = activityRepo.findById(activityId);
+        if (activityResult.isEmpty()) {
+            throw new IllegalArgumentException(ActivityResponseMessage.INVALID_ACTIVITY.toString());
+        }
+        Optional<Profile> profileResult = profileRepo.findById(profileId);
+        if (profileResult.isEmpty()) {
+            throw new IllegalArgumentException(ProfileErrorMessage.PROFILE_NOT_FOUND.toString());
+        }
+        Profile profile = profileResult.get();
+        Activity activity = activityResult.get();
+        participation.setProfile(profile);
+        participation.setActivity(activity);
+        participation = participationRepo.save(participation);
+        profile.addParticipation(participation);
+        profileRepo.save(profile);
+        activity.addParticipation(participation);
+        activityRepo.save(activity);
     }
 }

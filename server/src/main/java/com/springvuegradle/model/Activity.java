@@ -64,6 +64,9 @@ public class Activity {
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "activity")
     private Set<ActivityMembership> members;
 
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "activity")
+    private Set<ActivityParticipation> activityParticipations = new HashSet<>();
+
     public Activity(){}
 
     @JsonCreator
@@ -228,4 +231,15 @@ public class Activity {
 
     public void setPrivacyLevel(Integer privacyLevel) { this.privacyLevel = privacyLevel; }
 
+    public Set<ActivityParticipation> getParticipations() {
+        return Collections.unmodifiableSet(activityParticipations);
+    }
+
+    public boolean addParticipation(ActivityParticipation participation) {
+        return activityParticipations.add(participation);
+    }
+
+    public boolean removeParticipation(ActivityParticipation participation) {
+        return activityParticipations.remove(participation);
+    }
 }

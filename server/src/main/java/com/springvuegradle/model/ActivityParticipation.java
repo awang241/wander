@@ -23,7 +23,7 @@ public class ActivityParticipation {
      */
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "profile_id")
-    @JsonBackReference
+    @JsonBackReference(value = "profile")
     private Profile profile;
 
     /**
@@ -31,8 +31,11 @@ public class ActivityParticipation {
      */
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "activity_id")
-    @JsonBackReference
+    @JsonBackReference(value = "activity")
     private Activity activity;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    private ActivityMembership activityMembership;
 
     private String details;
 
@@ -93,6 +96,38 @@ public class ActivityParticipation {
 
     public void setOutcome(String outcome) {
         this.outcome = outcome;
+    }
+
+    public Profile getProfile() {
+        return profile;
+    }
+
+    public void setProfile(Profile profile) {
+        this.profile = profile;
+    }
+
+    public Activity getActivity() {
+        return activity;
+    }
+
+    public void setActivity(Activity activity) {
+        this.activity = activity;
+    }
+
+    public OffsetDateTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(OffsetDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public OffsetDateTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(OffsetDateTime endTime) {
+        this.endTime = endTime;
     }
 
     @Override
