@@ -17,6 +17,8 @@ import com.springvuegradle.service.SecurityService;
 import com.springvuegradle.utilities.FieldValidationHelper;
 import com.springvuegradle.utilities.FormatHelper;
 import com.springvuegradle.utilities.JwtUtil;
+import javassist.NotFoundException;
+import org.hibernate.annotations.NotFound;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -515,19 +517,20 @@ public class ActivityController {
             response = new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
                     HttpStatus.UNAUTHORIZED);
         }
-        //TODO: Check Whether the user token is admin or activity owner here *in a way that can be mocked*
+        //TODO: Check Whether the user token is admin or activity owner here *in a way that can be mocked* - currently only checks ownership
+        if (!(activityService.isProfileActivityCreator(jwtUtil.extractId(token), activityId))){
+            response = new ResponseEntity<>(ActivityMessage.INSUFFICIENT_PERMISSION.getMessage(), HttpStatus.FORBIDDEN);
+        }
         if (response == null) {
             String roleString = roleToClear.getRole().toUpperCase();
             try{
                 Arrays.asList(ActivityRoleLevel.values()).contains(ActivityRoleLevel.valueOf(roleString));
-                Boolean success = activityService.clearActivityRoleList(activityId, roleString);
-                if (success) {
-                    response = new ResponseEntity<>(ActivityMessage.SUCCESSFUL_DELETION.getMessage(), HttpStatus.OK);
-                } else {
-                    response = new ResponseEntity<>(ActivityMessage.UNSUCCESSFUL, HttpStatus.NOT_MODIFIED);
-                }
+                activityService.clearActivityRoleList(activityId, roleString);
+                response = new ResponseEntity<>(ActivityMessage.SUCCESSFUL_DELETION.getMessage(), HttpStatus.OK);
             } catch (IllegalArgumentException e) {
                 response =  new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            } catch (NoSuchElementException e){
+                response = new ResponseEntity<>(e, HttpStatus.NOT_FOUND);
             }
         }
         return response;

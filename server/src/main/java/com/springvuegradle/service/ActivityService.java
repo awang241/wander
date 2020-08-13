@@ -16,6 +16,7 @@ import com.springvuegradle.repositories.ActivityRepository;
 import com.springvuegradle.repositories.ActivityTypeRepository;
 import com.springvuegradle.repositories.ProfileRepository;
 import com.springvuegradle.repositories.EmailRepository;
+import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -649,14 +650,19 @@ public class ActivityService {
      * Method to clear all memberships that have a specified role and return an appropriate http response
      * @param activityId the ID of the activity being cleared
      * @param roleToClear the ENUM String of the role to clear
-     * @return
      */
-    public Boolean clearActivityRoleList(Long activityId, String roleToClear) {
-        //TODO - Requires U17 Feature 2 Code
-        //get all members of the activity
-        //remove the role of each of them for the specified activity
-        //return true if it all goes fine and false if anything fails?
-        // - potentially modifiy the controller method if only one specific thing will cause the fail
-        return false;
+    public void clearActivityRoleList(Long activityId, String roleToClear) {
+        List<ActivityMemberProfileResponse> memberships = getActivityMembers(activityId);
+        if (memberships.isEmpty()){
+            throw new NoSuchElementException(ActivityResponseMessage.INVALID_ACTIVITY.toString());
+        }
+        for (ActivityMemberProfileResponse membership : memberships) {
+            if (membership.getRole().name().equals(roleToClear)) {
+                removeMembership(membership.getId(), activityId);
+            }
+        }
     }
+
+
 }
+
