@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
@@ -581,5 +582,20 @@ public class ActivityService {
         profileRepo.save(profile);
         activity.addParticipation(participation);
         activityRepo.save(activity);
+    }
+
+    /**
+     * Checks the database to see if a participation with the given ID exists, returns the activity if it exists and
+     * throws an error otherwise.
+     *
+     * @param participationId the id of the participation
+     * @return the participation object.
+     */
+    public ActivityParticipation readParticipation(Long participationId) {
+        Optional<ActivityParticipation> optionalActivityParticipation = participationRepo.findById(participationId);
+        if (optionalActivityParticipation.isEmpty()) {
+            throw new IllegalArgumentException(ActivityMessage.PARTICIPATION_NOT_FOUND.getMessage());
+        }
+        return optionalActivityParticipation.get();
     }
 }
