@@ -87,6 +87,13 @@ public class ActivityParticipation {
         this.endTime = FormatHelper.parseOffsetDateTime(endTime);
     }
 
+    public void updateActivityParticipation(ActivityParticipation participation) {
+        this.details = participation.details;
+        this.outcome = participation.outcome;
+        this.startTime = participation.startTime;
+        this.endTime = participation.endTime;
+    }
+
     @JsonIgnore
     public long getId() {
         return id;
