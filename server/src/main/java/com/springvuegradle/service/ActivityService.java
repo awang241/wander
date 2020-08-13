@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
@@ -581,11 +580,11 @@ public class ActivityService {
      * @param participation   An ActivityParticipation object which contains the new fields to be changed
      * @throws IllegalArgumentException if a participation does not exist
      */
-    public void updateParticipation(long activityId, long profileId, long participationId, ActivityParticipation participation) {
+    public void editParticipation(long activityId, long profileId, long participationId, ActivityParticipation participation) {
         checkParticipationHelper(activityId, profileId);
         Optional<ActivityParticipation> participationResult = participationRepo.findById(participationId);
         if (participationResult.isEmpty()) {
-            throw new IllegalArgumentException(ParticipationErrorMessage.PARTICIPATION_NOT_FOUND.toString());
+            throw new IllegalArgumentException(ActivityParticipationMessage.PARTICIPATION_NOT_FOUND.toString());
         }
         ActivityParticipation dbParticipation = participationResult.get();
         dbParticipation.updateActivityParticipation(participation);

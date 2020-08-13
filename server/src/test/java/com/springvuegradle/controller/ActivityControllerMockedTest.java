@@ -190,4 +190,32 @@ class ActivityControllerMockedTest {
         ResponseEntity<String> actualResponse = activityController.addActivityParticipation(mockParticipationRequest, mockToken, mockProfileId, mockActivityId);
         assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
     }
+
+    @Test
+    void editActivityParticipationSuccessTest() {
+        ResponseEntity<String> expectedResponse = new ResponseEntity<>(HttpStatus.OK);
+        String mockToken = ":)";
+        ActivityParticipationRequest updatedParticipation = ActivityTestUtils.createADifferentParticipationRequest();
+        long mockParticipationId = 555;
+        long mockProfileId = 420;
+        long mockActivityId = 505;
+        Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
+        ResponseEntity<String> actualResponse = activityController.updateParticipation(updatedParticipation, mockToken, mockProfileId, mockActivityId, mockParticipationId);
+        assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
+    }
+
+    @Test
+    void editActivityParticipationThrow403Test() {
+        ResponseEntity<String> expectedResponse = new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        String mockToken = ":)";
+        ActivityParticipationRequest mockUpdatedParticipationRequest = ActivityTestUtils.createADifferentParticipationRequest();
+        ActivityParticipation mockUpdatedParticipation = ActivityTestUtils.createADifferentParticipation();
+        long mockParticipationId = 555;
+        long mockProfileId = 420;
+        long mockActivityId = 505;
+        Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
+        Mockito.doThrow(new IllegalArgumentException()).when(mockService).editParticipation(mockActivityId, mockProfileId, mockParticipationId, mockUpdatedParticipation);
+        ResponseEntity<String> actualResponse = activityController.updateParticipation(mockUpdatedParticipationRequest, mockToken, mockProfileId, mockActivityId, mockParticipationId);
+        assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
+    }
 }

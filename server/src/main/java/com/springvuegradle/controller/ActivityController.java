@@ -2,11 +2,7 @@ package com.springvuegradle.controller;
 
 
 import com.springvuegradle.dto.*;
-import com.springvuegradle.enums.ActivityMessage;
-import com.springvuegradle.enums.ActivityPrivacy;
-import com.springvuegradle.enums.ActivityResponseMessage;
-import com.springvuegradle.enums.AuthenticationErrorMessage;
-import com.springvuegradle.enums.ProfileErrorMessage;
+import com.springvuegradle.enums.*;
 import com.springvuegradle.model.Activity;
 import com.springvuegradle.model.ActivityMembership;
 import com.springvuegradle.model.ActivityParticipation;
@@ -474,6 +470,30 @@ public class ActivityController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
         }
         return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @PutMapping("/profiles/{profileId}/activities/{activityId}/participation/{participationId}")
+    public ResponseEntity<String> updateParticipation (@RequestBody ActivityParticipationRequest request,
+                                                       @RequestHeader("authorization") String token,
+                                                       @PathVariable long profileId,
+                                                       @PathVariable long activityId,
+                                                       @PathVariable long participationId)
+    {
+        if (token == null || token.isBlank()) {
+            return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
+                    HttpStatus.UNAUTHORIZED);
+        }
+        if (!jwtUtil.validateToken(token)) {
+            return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(),
+                    HttpStatus.FORBIDDEN);
+        }
+        try {
+            ActivityParticipation updatedParticipation = new ActivityParticipation(request.getDetails(), request.getOutcome(), request.getStartTime(), request.getEndTime());
+            activityService.editParticipation(activityId, profileId, participationId, updatedParticipation);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
+        }
+        return new ResponseEntity<>(ActivityParticipationMessage.EDIT_SUCCESS.toString(), HttpStatus.OK);
     }
 
 
