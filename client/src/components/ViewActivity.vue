@@ -328,6 +328,7 @@
                 return hour + ":" + min + " " + day + "/" + month + "/" + year;
             },
             getUserRole() {
+                console.log(this.store.getters.getUserId)
                 api.getSingleUserActivityRole(this.store.getters.getUserId, this.$route.params.id, localStorage.getItem('authToken'))
                     .then(response => {
                         this.userRole = response.data.role})
@@ -355,7 +356,13 @@
             this.activity = {
                 continuous: false
             };
-            this.getUserRole()
+            //User ID is undefined in the vuex store on mount. This timeout ensures
+            //That we can actually use the ID in the store when getting the users role
+            //Probably a better way of doing this but at the moment this works
+            setTimeout(() => {
+                this.getUserRole()
+            }, 400);
+
         }
     }
 </script>
