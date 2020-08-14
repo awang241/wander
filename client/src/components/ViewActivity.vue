@@ -114,6 +114,14 @@
                         </div>
                     </div>
                 </b-tab-item>
+
+                <b-tab-item label="Results">
+                    <div class="flex">
+                        <div class="table-profile">
+                            need data here
+                        </div>
+                    </div>
+                </b-tab-item>
             </b-tabs>
         </div>
     </div>
