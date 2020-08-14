@@ -104,6 +104,7 @@
                     <div v-else>
                         <p>This activity has no organisers.</p>
                     </div>
+                    <observer v-on:intersect="loadMoreOrganisers"></observer>
                 </b-tab-item>
 
                 <b-tab-item label="Participants">
@@ -160,6 +161,9 @@
     import api from "../Api";
     import store from '../store';
     import toastMixin from "../mixins/toastMixin";
+    import Observer from "./Observer";
+
+    const DEFAULT_RESULT_COUNT = 50;
 
     const ROLES = Object.freeze({
         CREATOR: "creator",
@@ -170,7 +174,7 @@
 
     export default {
         name: "ViewActivity",
-        components: {ProfileSummary},
+        components: {ProfileSummary, Observer},
         mixins: [toastMixin],
         data() {
             return {
@@ -183,13 +187,16 @@
                     "participant": [],
                     "follower": [],
                 },
-                organisers: [],
-                participants: [],
-                followers: [],
                 roleIndex: 0,
+                organisersIndex: 0,
+                participantsIndex: 0,
+                followersIndex: 0,
                 store: store,
                 isCreatorOrOrganizer: false,
-                numFollowers: 0
+                numFollowers: 0,
+                moreOrganisersExist: true,
+                moreParticipantsExist: true,
+                moreFollowersExist: true
           }
         },
         methods: {
@@ -224,7 +231,13 @@
                     };
                 }
                 api.getActivityMembers(this.activityId, role, localStorage.getItem('authToken'), searchParams)
-                    .then(response => {this.members[role] = response.data.summaries;})
+                    .then(response => {
+                        this.members[role] = response.data.summaries;
+                        for (let i=0; i < 20; i++){
+                            this.members[role] = [...this.members[role],...response.data.summaries]
+
+                        }
+                    })
                     .catch((error) => {
                         console.log(error);
                         this.warningToast("Error loading activity data");
@@ -282,6 +295,25 @@
                 let hour = date.slice(11, 13);
                 let min = date.slice(14, 16);
                 return hour + ":" + min + " " + day + "/" + month + "/" + year;
+            },
+            loadMoreOrganisers() {
+                if (this.moreOrganisersExist) {
+                    const searchParameters = this.getSearchParameters(this.organisersIndex, "organiser")
+                    api.getActivityMembers(this.activityId, "ORGANISER", localStorage.getItem("authToken"), searchParameters)
+                        .then(response => {
+                            if (response.data.results.length == 0) {
+                                this.moreOrganisersExist = false;
+                            }
+                            else {
+                                this.organisersIndex += DEFAULT_RESULT_COUNT
+                                const profiles = response.data.summaries
+                                this.members["organiser"] = [...this.members["organiser"],...profiles]
+                            }
+                        })
+                }
+            },
+            getSearchParameters(index, role) {
+                return {count: DEFAULT_RESULT_COUNT, index: index, role: role}
             }
         },
         computed: {
