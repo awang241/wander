@@ -218,4 +218,30 @@ class ActivityControllerMockedTest {
         ResponseEntity<String> actualResponse = activityController.updateParticipation(mockUpdatedParticipationRequest, mockToken, mockProfileId, mockActivityId, mockParticipationId);
         assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
     }
+
+    @Test
+    void deleteActivityParticipationSuccessTest() {
+        ResponseEntity<String> expectedResponse = new ResponseEntity<>(HttpStatus.OK);
+        String mockToken = ":)";
+        long mockParticipationId = 555;
+        long mockProfileId = 420;
+        long mockActivityId = 505;
+        Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
+        Mockito.when(mockService.removeParticipation(mockActivityId, mockProfileId, mockParticipationId)).thenReturn(true);
+        ResponseEntity<String> actualResponse = activityController.deleteParticipation(mockToken, mockProfileId, mockActivityId, mockParticipationId);
+        assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
+    }
+
+    @Test
+    void deleteActivityParticipationFailThrow404Test() {
+        ResponseEntity<String> expectedResponse = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        String mockToken = ":)";
+        long mockParticipationId = 555;
+        long mockProfileId = 420;
+        long mockActivityId = 505;
+        Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
+        Mockito.when(mockService.removeParticipation(mockActivityId, mockProfileId, mockParticipationId)).thenReturn(false);
+        ResponseEntity<String> actualResponse = activityController.deleteParticipation(mockToken, mockProfileId, mockActivityId, mockParticipationId);
+        assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
+    }
 }

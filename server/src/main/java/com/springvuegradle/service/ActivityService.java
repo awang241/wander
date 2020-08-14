@@ -582,11 +582,8 @@ public class ActivityService {
      */
     public void editParticipation(long activityId, long profileId, long participationId, ActivityParticipation participation) {
         checkParticipationHelper(activityId, profileId);
-        Optional<ActivityParticipation> participationResult = participationRepo.findById(participationId);
-        if (participationResult.isEmpty()) {
-            throw new IllegalArgumentException(ActivityParticipationMessage.PARTICIPATION_NOT_FOUND.toString());
-        }
-        ActivityParticipation dbParticipation = participationResult.get();
+        checkParticipationExists(participationId);
+        ActivityParticipation dbParticipation = participationRepo.getOne(participationId);
         dbParticipation.updateActivityParticipation(participation);
         participationRepo.save(dbParticipation);
     }
@@ -608,4 +605,37 @@ public class ActivityService {
         }
     }
 
+    /**
+     * Checks if a participation exists
+     * @param participationId
+     * @throws IllegalArgumentException If no such participation exists
+     */
+    public void checkParticipationExists(long participationId) {
+        Optional<ActivityParticipation> participationResult = participationRepo.findById(participationId);
+        if (participationResult.isEmpty()) {
+            throw new IllegalArgumentException(ActivityParticipationMessage.PARTICIPATION_NOT_FOUND.toString());
+        }
+    }
+
+    /**
+     * Deletes the participation of a user in a particular activity
+     * @param activityId      The ID of the activity
+     * @param profileId       The ID of the profile
+     * @param participationId The ID of the participation being deleted
+     * @throws IllegalArgumentException if a participation does not exist
+     */
+    public boolean removeParticipation(long activityId, long profileId, long participationId) {
+        checkParticipationHelper(activityId, profileId);
+        checkParticipationExists(participationId);
+        ActivityParticipation participation = participationRepo.getOne(participationId);
+        Profile profile = participation.getProfile();
+        Activity activity = participation.getActivity();
+        if (activity.getId() == activityId && profile.getId() == profileId) {
+            participationRepo.delete(participation);
+            profile.removeParticipation(participation);
+            activity.removeParticipation(participation);
+            return true;
+        }
+        return false;
+    }
 }
