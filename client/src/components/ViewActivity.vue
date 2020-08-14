@@ -277,6 +277,7 @@
                 if (newRole !== oldRole) {
                     api.editActivityMemberRole(profile.id, this.activity.id, newRole, localStorage.getItem("authToken"))
                         .then(() => {
+                            this.getRoleCounts();
                             let index = this.members[oldRole].findIndex((item) => {return item === profile});
                             if (index !== -1) {
                                 this.members[oldRole].splice(index, 1);
@@ -300,6 +301,7 @@
                         if (profileId === this.store.getters.getUserId) {
                             this.userRole = null
                         }
+                        this.getRoleCounts();
                     })
                     .catch(() => this.warningToast("User could not be removed from the activity!"))
             },
@@ -311,6 +313,7 @@
                   .then(() => {
                       this.userRole = role
                     this.successToast("Now a " + role)
+                      this.getRoleCounts();
                   })
                   .catch((error) => {
                     console.log(error)
