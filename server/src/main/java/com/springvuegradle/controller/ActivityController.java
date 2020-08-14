@@ -473,14 +473,14 @@ public class ActivityController {
     }
 
     /**
-     * Updates a users participation details in a particular activity
+     * Updates the ActivityParticipation object containing a set of participation details, given a participation id.
      *
-     * @param request                      DTO containing the new participation details
-     * @param token                        the token of the user making the request.
-     * @param profileId                    the id of the user editing their activity participation
-     * @param activityId                   the activity the user participated in
-     * @param participationId              the participation the user wants to edit
-     * @return a response entity containing an appropriate status code
+     * @param token             the token of the user, which must be valid.
+     * @param profileId         the id of the user.
+     * @param activityId        the id of the activity.
+     * @param participationId   the id of the participation.
+     * @return an ActivityParticipationResponse containing the ActivityParticipation object is successful, or an error
+     * message if unsuccessful.
      */
     @PutMapping("/profiles/{profileId}/activities/{activityId}/participation/{participationId}")
     public ResponseEntity<String> updateParticipation (@RequestBody ActivityParticipationRequest request,
@@ -532,5 +532,43 @@ public class ActivityController {
         }
         return new ResponseEntity<>(ActivityParticipationMessage.PARTICIPATION_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
     }
+    /**
+     * Gets and returns an ActivityParticipation object containing a set of participation details, given a participation
+     * id.
+     *
+     * @param token             the token of the user, which must be valid.
+     * @param profileId         the id of the user.
+     * @param activityId        the id of the activity.
+     * @param participationId   the id of the participation.
+     * @return an ActivityParticipationResponse containing the ActivityParticipation object is successful, or an error
+     * message if unsuccessful.
+     */
+    @GetMapping("/profiles/{profileId}/activities/{activityId}/participation/{participationId}")
+    public ResponseEntity<ActivityParticipationResponse> getParticipation (@RequestHeader("authorization") String token,
+                                                                      @PathVariable long profileId,
+                                                                      @PathVariable long activityId,
+                                                                      @PathVariable long participationId)
+    {
+        if (token == null || token.isBlank()) {
+            return new ResponseEntity<>(new ActivityParticipationResponse(
+                    AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage()),
+                    HttpStatus.UNAUTHORIZED);
+        }
+        if (!jwtUtil.validateToken(token)) {
+            return new ResponseEntity<>(new ActivityParticipationResponse(
+                    AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage()),
+                    HttpStatus.FORBIDDEN);
+        }
+        try {
+            ActivityParticipation participation = activityService.readParticipation(participationId);
+            return new ResponseEntity<>(new ActivityParticipationResponse(
+                    participation), HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(new ActivityParticipationResponse(
+                    e.getMessage()), HttpStatus.NOT_FOUND);
+        }
+
+    }
+
 
 }

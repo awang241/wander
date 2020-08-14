@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
@@ -582,8 +583,11 @@ public class ActivityService {
      */
     public void editParticipation(long activityId, long profileId, long participationId, ActivityParticipation participation) {
         checkParticipationHelper(activityId, profileId);
-        checkParticipationExists(participationId);
-        ActivityParticipation dbParticipation = participationRepo.getOne(participationId);
+        Optional<ActivityParticipation> participationResult = participationRepo.findById(participationId);
+        if (participationResult.isEmpty()) {
+            throw new IllegalArgumentException(ActivityParticipationMessage.PARTICIPATION_NOT_FOUND.toString());
+        }
+        ActivityParticipation dbParticipation = participationResult.get();
         dbParticipation.updateActivityParticipation(participation);
         participationRepo.save(dbParticipation);
     }
@@ -637,5 +641,20 @@ public class ActivityService {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Checks the database to see if a participation with the given ID exists, returns the activity if it exists and
+     * throws an error otherwise.
+     *
+     * @param participationId the id of the participation
+     * @return the participation object.
+     */
+    public ActivityParticipation readParticipation(Long participationId) {
+        Optional<ActivityParticipation> optionalActivityParticipation = participationRepo.findById(participationId);
+        if (optionalActivityParticipation.isEmpty()) {
+            throw new IllegalArgumentException(ActivityMessage.PARTICIPATION_NOT_FOUND.getMessage());
+        }
+        return optionalActivityParticipation.get();
     }
 }
