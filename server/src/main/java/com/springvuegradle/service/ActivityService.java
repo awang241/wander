@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
@@ -608,4 +609,50 @@ public class ActivityService {
         }
     }
 
+    /**
+     * Checks if a participation exists
+     * @param participationId
+     * @throws IllegalArgumentException If no such participation exists
+     */
+    public void checkParticipationExists(long participationId) {
+        Optional<ActivityParticipation> participationResult = participationRepo.findById(participationId);
+        if (participationResult.isEmpty()) {
+            throw new IllegalArgumentException(ActivityParticipationMessage.PARTICIPATION_NOT_FOUND.toString());
+        }
+    }
+
+    /**
+     * Deletes the participation of a user in a particular activity
+     * @param activityId      The ID of the activity
+     * @param profileId       The ID of the profile
+     * @param participationId The ID of the participation being deleted
+     * @throws IllegalArgumentException if a participation does not exist
+     */
+    public boolean removeParticipation(long activityId, long profileId, long participationId) {
+        checkParticipationHelper(activityId, profileId);
+        checkParticipationExists(participationId);
+        ActivityParticipation participation = participationRepo.getOne(participationId);
+        Profile profile = participation.getProfile();
+        Activity activity = participation.getActivity();
+        if (activity.getId() == activityId && profile.getId() == profileId) {
+            participationRepo.delete(participation);
+            profile.removeParticipation(participation);
+            activity.removeParticipation(participation);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Checks the database to see if a participation with the given ID exists, returns the activity if it exists and
+     * throws an error otherwise.
+     *
+     * @param participationId the id of the participation
+     * @return the participation object.
+     */
+    public ActivityParticipation readParticipation(Long participationId) {
+        checkParticipationExists(participationId);
+        Optional<ActivityParticipation> optionalActivityParticipation = participationRepo.findById(participationId);
+        return optionalActivityParticipation.get();
+    }
 }
