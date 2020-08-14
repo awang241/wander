@@ -496,5 +496,21 @@ public class ActivityController {
         return new ResponseEntity<>(ActivityParticipationMessage.EDIT_SUCCESS.toString(), HttpStatus.OK);
     }
 
+    @GetMapping("/profiles/{profileId}/activities/{activityId}/participation")
+    public ResponseEntity<String> getParticipationSummaries (@RequestHeader("authorization") String token,
+                                                             @PathVariable long profileId,
+                                                             @PathVariable long activityId)
+    {
+
+        if (token == null || token.isBlank()) {
+            return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
+                    HttpStatus.UNAUTHORIZED);
+        }
+        if (!jwtUtil.validateToken(token)) {
+            return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(),
+                    HttpStatus.FORBIDDEN);
+        }
+    }
+
 
 }
