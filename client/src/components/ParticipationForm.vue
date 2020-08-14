@@ -94,10 +94,11 @@
         },
         computed: {
             combinedStartDate: function () {
-                return this.combineDateAndTime(this.startDate, this.startTime)
+                return this.combineDateAndTime(this.participation.startDate, this.participation.startTime)
+
             },
             combinedEndDate: function () {
-                return this.combineDateAndTime(this.endDate, this.endTime)
+                return this.combineDateAndTime(this.participation.endDate, this.participation.endTime)
             }
         },
         methods: {
