@@ -4,23 +4,23 @@
         <section>
             <div id="activity-key-info">
                 <div>
-                    <div v-if="hasShareAndEditPermissions()" class="buttons" style="float:right">
-                        <b-button style="float:right;" @click="shareActivity"
+                    <div v-if="hasShareAndEditPermissions" class="buttons" style="float:right">
+                        <b-button id="shareButton" style="float:right;" @click="shareActivity"
                                   type="is-primary">
                             Share / Change Privacy Level
                         </b-button>
-                        <b-button style="float:right" @click="editActivity"
+                        <b-button id="editButton" style="float:right" @click="editActivity"
                                   type="is-primary">
                             Edit Activity
                         </b-button>
                     </div>
                     <div v-else class="buttons" style="float:right">
                         <div class="buttons">
-                        <b-button v-if="userRole !== 'follower'" style="float:right" @click="addRole('follower')"
+                        <b-button id="followButton" v-if="userRole !== 'follower'" style="float:right" @click="addRole('follower')"
                                  type="is-primary">
                             Follow
                         </b-button>
-                        <b-button v-if="userRole === 'follower'" style="float:right" @click="deleteRole(store.getters.getUserId, 'follower')"
+                        <b-button id="unfollowButton" v-if="userRole === 'follower'" style="float:right" @click="deleteRole(store.getters.getUserId, 'follower')"
                                   type="is-danger">
                             Unfollow
                         </b-button>
@@ -270,9 +270,6 @@
                         return null
                 }
             },
-            hasShareAndEditPermissions() {
-                return ((this.activity && this.activity.creatorId == this.store.getters.getUserId) || this.store.getters.getAuthenticationLevel < 2);
-            },
             changeRole(profile, oldRole, newRole) {
                 if (newRole !== oldRole) {
                     api.editActivityMemberRole(profile.id, this.activity.id, newRole, localStorage.getItem("authToken"))
@@ -320,6 +317,7 @@
                   })
             },
             dateFormat(date) {
+                if(date == null) return ""
                 let year = date.slice(0, 4);
                 let month = date.slice(5, 7);
                 let day = date.slice(8, 10);
@@ -328,7 +326,6 @@
                 return hour + ":" + min + " " + day + "/" + month + "/" + year;
             },
             getUserRole() {
-                console.log(this.store.getters.getUserId)
                 api.getSingleUserActivityRole(this.store.getters.getUserId, this.$route.params.id, localStorage.getItem('authToken'))
                     .then(response => {
                         this.userRole = response.data.role})
@@ -346,7 +343,10 @@
                     default:
                         return "Private";
                 }
-            }
+            },
+            hasShareAndEditPermissions() {
+                return ((this.activity && this.activity.creatorId == this.store.getters.getUserId) || this.store.getters.getAuthenticationLevel < 2);
+            },
         },
         mounted() {
             this.getActivity();
