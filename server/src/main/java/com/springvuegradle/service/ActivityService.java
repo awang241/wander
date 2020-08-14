@@ -3,16 +3,14 @@ package com.springvuegradle.service;
 import com.springvuegradle.dto.ActivityRoleCountResponse;
 import com.springvuegradle.dto.MembersRequest;
 import com.springvuegradle.dto.SimplifiedActivity;
-import com.springvuegradle.enums.ActivityMessage;
-import com.springvuegradle.enums.ActivityPrivacy;
-import com.springvuegradle.enums.ActivityResponseMessage;
-import com.springvuegradle.enums.ProfileErrorMessage;
+import com.springvuegradle.enums.*;
 import com.springvuegradle.model.*;
 import com.springvuegradle.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
@@ -54,7 +52,7 @@ public class ActivityService {
      */
     public void create(Activity activity, Long creatorId) {
         validateActivity(activity);
-        Optional<Profile> profileResult = profileRepo.findById(creatorId);
+        Optional<Profile> profileResult =  profileRepo.findById(creatorId);
         if (profileResult.isEmpty()) {
             throw new EntityNotFoundException(ActivityResponseMessage.INVALID_PROFILE.toString());
         }
@@ -561,9 +559,46 @@ public class ActivityService {
      * @param profileId     The ID of the profile
      * @param participation The participation being saved. The participation's activity and profile fields will be
      *                      replaced by ones with the given ID's.
-     * @throws IllegalArgumentException If no profile or activity with the given ID exists in the repository
      */
     public void createParticipation(long activityId, long profileId, ActivityParticipation participation) {
+        checkParticipationHelper(activityId, profileId);
+        Profile profile = profileRepo.getOne(profileId);
+        Activity activity = activityRepo.getOne(activityId);
+        participation.setProfile(profile);
+        participation.setActivity(activity);
+        participation = participationRepo.save(participation);
+        profile.addParticipation(participation);
+        profileRepo.save(profile);
+        activity.addParticipation(participation);
+        activityRepo.save(activity);
+    }
+
+    /**
+     * Updates the fields of an existing participation
+     * @param activityId      The ID of the activity
+     * @param profileId       The ID of the profile
+     * @param participationId The ID of the participation being changed
+     * @param participation   An ActivityParticipation object which contains the new fields to be changed
+     * @throws IllegalArgumentException if a participation does not exist
+     */
+    public void editParticipation(long activityId, long profileId, long participationId, ActivityParticipation participation) {
+        checkParticipationHelper(activityId, profileId);
+        Optional<ActivityParticipation> participationResult = participationRepo.findById(participationId);
+        if (participationResult.isEmpty()) {
+            throw new IllegalArgumentException(ActivityParticipationMessage.PARTICIPATION_NOT_FOUND.toString());
+        }
+        ActivityParticipation dbParticipation = participationResult.get();
+        dbParticipation.updateActivityParticipation(participation);
+        participationRepo.save(dbParticipation);
+    }
+
+    /**
+     * Checks if an activity and profile exists
+     * @param activityId
+     * @param profileId
+     * @throws IllegalArgumentException If no profile or activity with the given ID exists in the repository
+     */
+    public void checkParticipationHelper(long activityId, long profileId) {
         Optional<Activity> activityResult = activityRepo.findById(activityId);
         if (activityResult.isEmpty()) {
             throw new IllegalArgumentException(ActivityResponseMessage.INVALID_ACTIVITY.toString());
@@ -572,14 +607,52 @@ public class ActivityService {
         if (profileResult.isEmpty()) {
             throw new IllegalArgumentException(ProfileErrorMessage.PROFILE_NOT_FOUND.toString());
         }
-        Profile profile = profileResult.get();
-        Activity activity = activityResult.get();
-        participation.setProfile(profile);
-        participation.setActivity(activity);
-        participation = participationRepo.save(participation);
-        profile.addParticipation(participation);
-        profileRepo.save(profile);
-        activity.addParticipation(participation);
-        activityRepo.save(activity);
+    }
+
+    /**
+     * Checks if a participation exists
+     * @param participationId
+     * @throws IllegalArgumentException If no such participation exists
+     */
+    public void checkParticipationExists(long participationId) {
+        Optional<ActivityParticipation> participationResult = participationRepo.findById(participationId);
+        if (participationResult.isEmpty()) {
+            throw new IllegalArgumentException(ActivityParticipationMessage.PARTICIPATION_NOT_FOUND.toString());
+        }
+    }
+
+    /**
+     * Deletes the participation of a user in a particular activity
+     * @param activityId      The ID of the activity
+     * @param profileId       The ID of the profile
+     * @param participationId The ID of the participation being deleted
+     * @throws IllegalArgumentException if a participation does not exist
+     */
+    public boolean removeParticipation(long activityId, long profileId, long participationId) {
+        checkParticipationHelper(activityId, profileId);
+        checkParticipationExists(participationId);
+        ActivityParticipation participation = participationRepo.getOne(participationId);
+        Profile profile = participation.getProfile();
+        Activity activity = participation.getActivity();
+        if (activity.getId() == activityId && profile.getId() == profileId) {
+            participationRepo.delete(participation);
+            profile.removeParticipation(participation);
+            activity.removeParticipation(participation);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Checks the database to see if a participation with the given ID exists, returns the activity if it exists and
+     * throws an error otherwise.
+     *
+     * @param participationId the id of the participation
+     * @return the participation object.
+     */
+    public ActivityParticipation readParticipation(Long participationId) {
+        checkParticipationExists(participationId);
+        Optional<ActivityParticipation> optionalActivityParticipation = participationRepo.findById(participationId);
+        return optionalActivityParticipation.get();
     }
 }

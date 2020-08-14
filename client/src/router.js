@@ -11,6 +11,7 @@ import AddActivityComponent from "./components/AddActivity";
 import ProfileSearchComponent from "./components/ProfileSearch"
 import ViewActivityComponent from "./components/ViewActivity.vue"
 import ShareActivityComponent from "./components/ShareActivity.vue";
+import ParticipationComponent from "./components/ParticipationForm.vue";
 import store from "./store";
 
 
@@ -20,6 +21,7 @@ const routes = [
     {path: "/Registration", name: "registration", component: RegistrationComponent},
     {path: "/NavBar", name: "navbar", component: NavBarComponent},
 
+    {path: "/Participation", name: "participationForm", component: ParticipationComponent},
     {path: "/AddActivity", name: "addActivity", component: AddActivityComponent},
     {path: "/Activities", name: "activities", component:ActivitiesComponent},
     {path: '/ShareActivity/:id/:activityPrivacy', name:"shareActivity", component: ShareActivityComponent, props: true},

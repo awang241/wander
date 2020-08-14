@@ -22,8 +22,16 @@ public class ActivityTestUtils {
         return new ActivityParticipation("Played League as a noob", "Got rekt", "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300");
     }
 
+    public static ActivityParticipation createADifferentParticipation() {
+        return new ActivityParticipation("Scored last minute winner", "Won Champions League :)", "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300");
+    }
+
     public static ActivityParticipationRequest createNormalParticipationRequest() {
         return new ActivityParticipationRequest("Played League as a noob", "Got rekt", "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300");
+    }
+
+    public static ActivityParticipationRequest createADifferentParticipationRequest() {
+        return new ActivityParticipationRequest("Scored last minute winner", "Won Champions League :)", "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300");
     }
 
 }
