@@ -4,12 +4,12 @@
         <section>
             <div id="activity-key-info">
                 <div>
-                    <div v-if="hasShareAndEditPermissions()" class="buttons" style="float:right">
-                        <b-button style="float:right;" @click="shareActivity"
+                    <div v-if="hasShareAndEditPermissions" class="buttons" style="float:right">
+                        <b-button style="float:right;" id="shareButton" @click="shareActivity"
                                   type="is-primary">
                             Share / Change Privacy Level
                         </b-button>
-                        <b-button style="float:right" @click="editActivity"
+                        <b-button id="editButton" style="float:right" @click="editActivity"
                                   type="is-primary">
                             Edit Activity
                         </b-button>
@@ -17,19 +17,19 @@
                     <div v-else class="buttons" style="float:right">
                         <div class="buttons">
                             <b-button v-if="userRole !== 'follower'" style="float:right" @click="updateRole(store.getters.getUserId, 'follower')"
-                                      type="is-primary">
+                                      id="followButton" type="is-primary">
                                 Follow
                             </b-button>
-                            <b-button v-if="userRole === 'follower'" style="float:right" @click="deleteRole(store.getters.getUserId, 'follower')"
-                                      type="is-danger">
+                            <b-button id="unfollowButton" v-if="userRole === 'follower'" style="float:right" @click="deleteRole(store.getters.getUserId, 'follower')"
+                                       type="is-danger">
                                 Unfollow
                             </b-button>
-                            <b-button v-if="userRole !== 'participant'" style="float:right" @click="updateRole(store.getters.getUserId, 'participant')"
-                                      type="is-primary">
+                            <b-button id="participateButton" v-if="userRole !== 'participant'" style="float:right" @click="updateRole(store.getters.getUserId, 'participant')"
+                                       type="is-primary">
                                 Participate
                             </b-button>
-                            <b-button v-if="userRole === 'participant'" style="float:right" @click="deleteRole(store.getters.getUserId, 'participant')"
-                                      type="is-danger">
+                            <b-button id="unparticipateButton" v-if="userRole === 'participant'" style="float:right" @click="deleteRole(store.getters.getUserId, 'participant')"
+                                       type="is-danger">
                                 Unparticipate
                             </b-button>
                         </div>
@@ -285,9 +285,6 @@
                         return null
                 }
             },
-            hasShareAndEditPermissions() {
-                return ((this.activity && this.activity.creatorId === this.store.getters.getUserId) || this.store.getters.getAuthenticationLevel < 2);
-            },
             changeRole(profileId, oldRole, newRole) {
                 if (newRole !== oldRole) {
                     api.editActivityMemberRole(profileId, this.activity.id, newRole, localStorage.getItem("authToken"))
@@ -330,12 +327,15 @@
                     })
             },
             dateFormat(date) {
-                let year = date.slice(0, 4);
-                let month = date.slice(5, 7);
-                let day = date.slice(8, 10);
-                let hour = date.slice(11, 13);
-                let min = date.slice(14, 16);
-                return hour + ":" + min + " " + day + "/" + month + "/" + year;
+                if (date) {
+                    let year = date.slice(0, 4);
+                    let month = date.slice(5, 7);
+                    let day = date.slice(8, 10);
+                    let hour = date.slice(11, 13);
+                    let min = date.slice(14, 16);
+                    return hour + ":" + min + " " + day + "/" + month + "/" + year;
+                }
+
             },
             getUserRole() {
                 api.getSingleUserActivityRole(localStorage.getItem('userId'), this.$route.params.id, localStorage.getItem('authToken'))
@@ -355,6 +355,9 @@
                     default:
                         return "Private";
                 }
+            },
+            hasShareAndEditPermissions() {
+                return ((this.activity && this.activity.creatorId === this.store.getters.getUserId) || this.store.getters.getAuthenticationLevel < 2);
             }
         },
         mounted() {
@@ -365,7 +368,10 @@
             this.activity = {
                 continuous: false
             };
-            this.getUserRole()
+            setTimeout(() => {
+                this.getUserRole()
+            }, 400);
+
         }
     }
 </script>

@@ -2,6 +2,7 @@ import axios from 'axios'
 
 
 const SERVER_URL = process.env.VUE_APP_SERVER_ADD;
+console.log(SERVER_URL + "@@@");
 
 
 const localAxiosInstance = axios.create({
