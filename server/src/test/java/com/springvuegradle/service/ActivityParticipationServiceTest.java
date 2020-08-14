@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.Optional;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -86,6 +88,109 @@ public class ActivityParticipationServiceTest {
     }
 
     @Test
+    void editParticipationOutcomeSuccessTest() {
+        long profileId = profileRepository.getLastInsertedId();
+        service.create(ActivityTestUtils.createNormalActivity(), profileId);
+        long activityId = activityRepository.getLastInsertedId();
+
+        ActivityParticipation activityParticipation = ActivityTestUtils.createNormalParticipation();
+        service.createParticipation(activityId, profileId, activityParticipation);
+        long participationId = activityParticipation.getId();
+        ActivityParticipation editedParticipation = ActivityTestUtils.createEditedNormalParticipation();
+        service.editParticipation(activityId, profileId, participationId, editedParticipation);
+        Optional<ActivityParticipation> result = activityParticipationRepository.findById(participationId);
+        ActivityParticipation updatedParticipation = result.get();
+
+        assertEquals(activityParticipation.getId(), updatedParticipation.getId());
+        assertEquals("Won the game", activityParticipation.getOutcome());
+    }
+
+    @Test
+    void editParticipationDetailsSuccessTest(){
+        long profileId = profileRepository.getLastInsertedId();
+        service.create(ActivityTestUtils.createNormalActivity(), profileId);
+        long activityId = activityRepository.getLastInsertedId();
+
+        ActivityParticipation activityParticipation = ActivityTestUtils.createNormalParticipation();
+        service.createParticipation(activityId, profileId, activityParticipation);
+        long participationId = activityParticipation.getId();
+        ActivityParticipation editedParticipation = ActivityTestUtils.createEditedNormalParticipation();
+        service.editParticipation(activityId, profileId, participationId, editedParticipation);
+        Optional<ActivityParticipation> result = activityParticipationRepository.findById(participationId);
+        ActivityParticipation updatedParticipation = result.get();
+
+        assertEquals(activityParticipation.getId(), updatedParticipation.getId());
+        assertEquals("Played League as a pro", activityParticipation.getDetails());
+    }
+
+    @Test
+    void editParticipationStartTimeSuccessTest(){
+        long profileId = profileRepository.getLastInsertedId();
+        service.create(ActivityTestUtils.createNormalActivity(), profileId);
+        long activityId = activityRepository.getLastInsertedId();
+
+        ActivityParticipation activityParticipation = ActivityTestUtils.createNormalParticipation();
+        service.createParticipation(activityId, profileId, activityParticipation);
+        long participationId = activityParticipation.getId();
+        ActivityParticipation editedParticipation = ActivityTestUtils.createEditedNormalParticipation();
+        service.editParticipation(activityId, profileId, participationId, editedParticipation);
+        Optional<ActivityParticipation> result = activityParticipationRepository.findById(participationId);
+        ActivityParticipation updatedParticipation = result.get();
+
+        assertEquals(activityParticipation.getId(), updatedParticipation.getId());
+        assertEquals(FormatHelper.parseOffsetDateTime("2020-02-20T12:00:00+1300"), activityParticipation.getStartTime());
+    }
+
+    @Test
+    void editParticipationEndTimeSuccessTest(){
+        long profileId = profileRepository.getLastInsertedId();
+        service.create(ActivityTestUtils.createNormalActivity(), profileId);
+        long activityId = activityRepository.getLastInsertedId();
+
+        ActivityParticipation activityParticipation = ActivityTestUtils.createNormalParticipation();
+        service.createParticipation(activityId, profileId, activityParticipation);
+        long participationId = activityParticipation.getId();
+        ActivityParticipation editedParticipation = ActivityTestUtils.createEditedNormalParticipation();
+        service.editParticipation(activityId, profileId, participationId, editedParticipation);
+        Optional<ActivityParticipation> result = activityParticipationRepository.findById(participationId);
+        ActivityParticipation updatedParticipation = result.get();
+
+        assertEquals(activityParticipation.getId(), updatedParticipation.getId());
+        assertEquals(FormatHelper.parseOffsetDateTime("2020-02-20T16:00:00+1300"), activityParticipation.getEndTime());
+    }
+
+    @Test
+    void editParticipationWhereParticipationDoesNotExistThrowErrorTest(){
+        long profileId = profileRepository.getLastInsertedId();
+        service.create(ActivityTestUtils.createNormalActivity(), profileId);
+        long activityId = activityRepository.getLastInsertedId();
+
+        long participationId = 20;
+        ActivityParticipation editedParticipation = ActivityTestUtils.createEditedNormalParticipation();
+        assertThrows(IllegalArgumentException.class, ()->service.editParticipation(activityId, profileId, participationId, editedParticipation));
+    }
+
+    @Test
+    void deleteParticipationSuccessTest() {
+        long profileId = profileRepository.getLastInsertedId();
+        service.create(ActivityTestUtils.createNormalActivity(), profileId);
+        long activityId = activityRepository.getLastInsertedId();
+        ActivityParticipation participation = ActivityTestUtils.createNormalParticipation();
+        service.createParticipation(activityId, profileId, participation);
+        service.removeParticipation(activityId, profileId, participation.getId());
+        assertEquals(0, activityParticipationRepository.count());
+    }
+
+    @Test
+    void deleteParticipationFailParticipationIdDoesNotExistTest() {
+        long profileId = profileRepository.getLastInsertedId();
+        service.create(ActivityTestUtils.createNormalActivity(), profileId);
+        long activityId = activityRepository.getLastInsertedId();
+        long failParticipationId = 20;
+        assertThrows(IllegalArgumentException.class, ()->service.removeParticipation(activityId, profileId, failParticipationId));
+    }
+
+    @Test
     void readParticipationsFromActivityNormalTest() {
         long creatorId = profileRepository.getLastInsertedId();
         service.create(ActivityTestUtils.createNormalActivity(), creatorId);
@@ -120,4 +225,5 @@ public class ActivityParticipationServiceTest {
         long invalidId = -1;
         assertThrows(IllegalArgumentException.class, () -> service.readParticipationsFromActivity(-1));
     }
+
 }
