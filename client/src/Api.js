@@ -14,7 +14,7 @@ export default {
   // All create API requests
   createActivity: (userId, data, token) => localAxiosInstance.post('/profiles/'+userId+'/activities', data, {headers: {"authorization":token}}),
   createProfile: (user) => localAxiosInstance.post('/profiles', user),
-  addActivityRole: (userId, activityId, token, role) => localAxiosInstance.post('/profiles/'+userId+'/activities/'+activityId+'/role', role,{headers: {"authorization":token}}),
+  addActivityRole: (userId, activityId, token, role) => localAxiosInstance.post('/profiles/'+userId+'/activities/'+activityId+'/role', {role: role},{headers: {"authorization":token}}),
 
   // All delete API requests
   deleteActivity: (userId, token, activityId) => localAxiosInstance.delete('/profiles/'+userId+'/activities/'+activityId, {headers: {"authorization":token}}),
@@ -45,6 +45,7 @@ export default {
   getUserActivitiesList: (userId, token) => localAxiosInstance.get('/profiles/' + userId + '/activities', {headers: {"authorization":token}}),
   getUserProfiles: (token, parameters = {}) => localAxiosInstance.get('profiles/', {headers: {"authorization":token}, params: parameters}),
   getNextActivities: (userId, token, parameters = {}) => localAxiosInstance.get('/profiles/' + userId + '/activities', {headers: {"authorization":token}, params: parameters}),
+  getSingleUserActivityRole: (userId, activityId, token) => localAxiosInstance.get(`/profiles/${userId}/activities/${activityId}/role`, {headers: {"authorization":token}}),
 
 
   // All login/logout API requests

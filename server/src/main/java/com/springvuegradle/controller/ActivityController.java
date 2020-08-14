@@ -415,18 +415,19 @@ public class ActivityController {
      * @param token      the user's authentication token.
      * @param profileId  the id of the user we want to assign the role to.
      * @param activityId the id of the activity we want to add the user's role to.
-     * @param role       the role we want to give to the user for that specific activity.
+     * @param newRole    the role we want to give to the user for that specific activity. Represented as ActivityUpdateRequest
      * @return response entity with message detailing whether it was a success or not.
      */
     @PostMapping("/profiles/{profileId}/activities/{activityId}/role")
     public ResponseEntity<String> addActivityRole(@RequestHeader("authorization") String token,
                                                   @PathVariable Long profileId,
                                                   @PathVariable Long activityId,
-                                                  @RequestBody String role) {
+                                                  @RequestBody ActivityRoleUpdateRequest newRole) {
         if (token == null || token.isBlank()) {
             return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
                     HttpStatus.UNAUTHORIZED);
         }
+        String role = newRole.getRole();
         List<String> possibleRoles = new ArrayList<>(Arrays.asList("participant", "follower"));
         Boolean checkFollowerOrParticipant = securityService.checkEditPermission(token, profileId) && possibleRoles.contains(role);
         possibleRoles.add("organiser");
@@ -452,20 +453,23 @@ public class ActivityController {
      * @return the role of the user in the particular activity.
      */
     @GetMapping("/profiles/{profileId}/activities/{activityId}/role")
-    public ResponseEntity<String> getActivityRole(@RequestHeader("authorization") String token,
+    public ResponseEntity<ActivityRoleUpdateRequest> getActivityRole(@RequestHeader("authorization") String token,
                                                   @PathVariable Long profileId,
                                                   @PathVariable Long activityId) {
         if (token == null || token.isBlank()) {
-            return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
+            return new ResponseEntity<>(null,
                     HttpStatus.UNAUTHORIZED);
         } else if (!securityService.checkEditPermission(token, profileId)) {
-            return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(),
+            return new ResponseEntity<>(null,
                     HttpStatus.FORBIDDEN);
         }
-        if (activityService.removeMembership(profileId, activityId)) {
-            return new ResponseEntity<>(ActivityMessage.SUCCESSFUL_DELETION.getMessage(), HttpStatus.OK);
+        try{
+            String currentRole = activityService.getSingleActivityMembership(profileId, activityId);
+            return new ResponseEntity<>(new ActivityRoleUpdateRequest(currentRole), HttpStatus.OK);
+        } catch (NoSuchElementException e){
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(ActivityMessage.MEMBERSHIP_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
+
     }
 
     /**

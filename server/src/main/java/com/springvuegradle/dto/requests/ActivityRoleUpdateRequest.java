@@ -1,8 +1,12 @@
 package com.springvuegradle.dto.requests;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@AllArgsConstructor
 @Data
+@NoArgsConstructor
 public class ActivityRoleUpdateRequest {
     private String role;
 

@@ -4,25 +4,41 @@
         <section>
             <div id="activity-key-info">
                 <div>
-                    <div class="buttons" style="float:right">
-                        <b-button style="float:right" @click="addRole(id, 'follower')"
-                                 type="is-primary">
-                            Follow
-                        </b-button>
-                        <b-button style="float:right" @click="addRole(id, 'participate')"
+                    <div v-if="hasShareAndEditPermissions()" class="buttons" style="float:right">
+                        <b-button style="float:right;" @click="shareActivity"
                                   type="is-primary">
-                            Participate
-                        </b-button>
-                      <div v-if="hasShareAndEditPermissions()">
-                        <b-button style="float:right; margin-left: 0.5rem;" @click="shareActivity"
-                                  type="is-primary">
-                          Share / Change Privacy Level
+                            Share / Change Privacy Level
                         </b-button>
                         <b-button style="float:right" @click="editActivity"
                                   type="is-primary">
-                          Edit Activity
+                            Edit Activity
                         </b-button>
-                      </div>
+                    </div>
+                    <div v-else class="buttons" style="float:right">
+                        <div class="buttons">
+                        <b-button v-if="userRole !== 'follower'" style="float:right" @click="addRole('follower')"
+                                 type="is-primary">
+                            Follow
+                        </b-button>
+                        <b-button v-if="userRole === 'follower'" style="float:right" @click="deleteRole(store.getters.getUserId, 'follower')"
+                                  type="is-danger">
+                            Unfollow
+                        </b-button>
+                        <b-button v-if="userRole !== 'participant'" style="float:right" @click="addRole('participant')"
+                                  type="is-primary">
+                            Participate
+                        </b-button>
+                        <b-button v-if="userRole === 'participant'" style="float:right" @click="deleteRole(store.getters.getUserId, 'participant')"
+                                  type="is-danger">
+                            Unparticipate
+                        </b-button>
+                        </div>
+                    </div>
+                    <div v-if="userRole === 'organiser'" style="float:right; margin-right: 0.5rem;" class="buttons">
+                        <b-button v-if="userRole === 'organiser'" style="float:right" @click="deleteRole(store.getters.getUserId,'organiser')"
+                                  type="is-danger">
+                            Remove self as organiser
+                        </b-button>
                     </div>
 
                     <h1 class="title is-1">
@@ -105,7 +121,7 @@
                                     <b-dropdown aria-role="list" class="is-pulled-right" position="is-bottom-left" v-if="store.getters.getAuthenticationLevel <= 1">
                                         <b-icon icon="ellipsis-v" slot="trigger"></b-icon>
                                         <b-dropdown-item @click="changeRole(organiser, roles.ORGANISER, roles.PARTICIPANT)">Change to Participant</b-dropdown-item>
-                                        <b-dropdown-item @click="deleteRole(organiser, roles.ORGANISER)">Remove from activity</b-dropdown-item>
+                                        <b-dropdown-item @click="deleteRole(organiser.id, roles.ORGANISER)">Remove from activity</b-dropdown-item>
                                     </b-dropdown>
                                 </template>
                             </ProfileSummary>
@@ -127,7 +143,7 @@
                                         <b-dropdown aria-role="list" class="is-pulled-right" position="is-bottom-left">
                                             <b-icon icon="ellipsis-v" slot="trigger"></b-icon>
                                             <b-dropdown-item @click="changeRole(participant, roles.PARTICIPANT, roles.ORGANISER)">Change to Organiser</b-dropdown-item>
-                                            <b-dropdown-item @click="deleteRole(participant, roles.PARTICIPANT)">Remove from activity</b-dropdown-item>
+                                            <b-dropdown-item @click="deleteRole(participant.id, roles.PARTICIPANT)">Remove from activity</b-dropdown-item>
                                         </b-dropdown>
                                     </template>
                                 </ProfileSummary>
@@ -185,6 +201,8 @@
         data() {
             return {
                 roles: ROLES,
+
+                userRole: null,
 
                 activityId: this.$route.params.id,
                 activity: null,
@@ -274,20 +292,24 @@
                 }
             },
 
-            deleteRole(profile, oldRole){
-                  api.deleteActivityMembership(profile.id, this.activity.id, localStorage.getItem("authToken"))
+            deleteRole(profileId, oldRole){
+                  api.deleteActivityMembership(profileId, this.activity.id, localStorage.getItem("authToken"))
                     .then(() => {
-                        this.members[oldRole] = this.members[oldRole].filter(member => member.id !== profile.id)
+                        this.members[oldRole] = this.members[oldRole].filter(member => member.id !== profileId)
                         this.successToast("Removed user from activity!")
+                        if (profileId === this.store.getters.getUserId) {
+                            this.userRole = null
+                        }
                     })
                     .catch(() => this.warningToast("User could not be removed from the activity!"))
             },
             shareActivity() {
                 router.push("/ShareActivity/" + this.activity.id + "/" + this.privacy.toLowerCase())
             },
-            addRole(profileId, role) {
-              api.addActivityRole(profileId, this.$route.params.id, localStorage.getItem('authToken'), role)
+            addRole(role) {
+              api.addActivityRole(this.store.getters.getUserId, this.$route.params.id, localStorage.getItem('authToken'), role)
                   .then(() => {
+                      this.userRole = role
                     this.successToast("Now a " + role)
                   })
                   .catch((error) => {
@@ -301,6 +323,11 @@
                 let hour = date.slice(11, 13);
                 let min = date.slice(14, 16);
                 return hour + ":" + min + " " + day + "/" + month + "/" + year;
+            },
+            getUserRole() {
+                api.getSingleUserActivityRole(this.store.getters.getUserId, this.$route.params.id, localStorage.getItem('authToken'))
+                    .then(response => {
+                        this.userRole = response.data.role})
             }
         },
         computed: {
@@ -325,6 +352,7 @@
             this.activity = {
                 continuous: false
             };
+            this.getUserRole()
         }
     }
 </script>

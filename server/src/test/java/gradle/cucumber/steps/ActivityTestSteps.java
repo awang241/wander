@@ -178,7 +178,7 @@ public class ActivityTestSteps {
     public void i_choose_to_add_the_account_with_the_email_to_the_activity_as_a(String email, String role) {
         Long profileId = profileRepository.findByPrimaryEmail(email).get(0).getId();
         System.out.println(role);
-        ResponseEntity<String> response = activityController.addActivityRole(loginResponse.getToken(), profileId, activityRepository.getLastInsertedId(), role);
+        ResponseEntity<String> response = activityController.addActivityRole(loginResponse.getToken(), profileId, activityRepository.getLastInsertedId(), new ActivityRoleUpdateRequest(role));
         System.out.println(response.getBody());
         assertEquals(201, response.getStatusCodeValue());
     }
@@ -259,7 +259,7 @@ public class ActivityTestSteps {
         for (String activityName: activityNames.asList()) {
             assertEquals(201, activityController.createActivity(jwtUtil.extractId(loginResponse.getToken()), activity = createNormalActivity(activityName, "Christchurch"), loginResponse.getToken()).getStatusCodeValue());
             assertEquals(200, activityController.editActivityPrivacy(new PrivacyRequest("public"), loginResponse.getToken(), loginResponse.getUserId(), activityRepository.getLastInsertedId()).getStatusCodeValue());
-            assertEquals(201, activityController.addActivityRole(loginResponse.getToken(), profileId, activityRepository.getLastInsertedId(), "organiser").getStatusCodeValue());
+            assertEquals(201, activityController.addActivityRole(loginResponse.getToken(), profileId, activityRepository.getLastInsertedId(), new ActivityRoleUpdateRequest("organiser")).getStatusCodeValue());
         }
     }
 

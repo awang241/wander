@@ -3,6 +3,7 @@ package com.springvuegradle.service;
 import com.springvuegradle.dto.ActivityRoleCountResponse;
 import com.springvuegradle.dto.MembersRequest;
 import com.springvuegradle.dto.SimplifiedActivity;
+import com.springvuegradle.dto.requests.ActivityRoleUpdateRequest;
 import com.springvuegradle.dto.responses.ActivityMemberProfileResponse;
 import com.springvuegradle.enums.ActivityMessage;
 import com.springvuegradle.enums.ActivityPrivacy;
@@ -658,6 +659,20 @@ public class ActivityService {
                 removeMembership(membership.getId(), activityId);
             }
         }
+    }
+
+    /**
+     * Gets a users role in an activity if it exists
+     * @param profileId the id of the profile
+     * @param activityId the id of the activity
+     * @return the role of the user in the activity if they have one
+     */
+    public String getSingleActivityMembership(Long profileId, Long activityId){
+        Optional<ActivityMembership> optionalActivityMembership = membershipRepo.findByActivity_IdAndProfile_Id(activityId, profileId);
+        if(optionalActivityMembership.isEmpty()){
+            throw new NoSuchElementException();
+        }
+        return optionalActivityMembership.get().getRole().name().toLowerCase();
     }
 
 
