@@ -116,7 +116,7 @@
                     "startTime": this.combinedStartDate,
                     "endTime": this.combinedEndDate
                 }
-                Api.createParticipation(store.getters.getUserId, this.$route.params.id, newParticipation, localStorage.getItem('authToken'))
+                Api.createActivityParticipation(store.getters.getUserId, this.$route.params.id, newParticipation, localStorage.getItem('authToken'))
                     .then(() => {
                         this.successToast("Participation Added!")
                         router.go(-1)
