@@ -168,4 +168,25 @@ public class ActivityParticipationServiceTest {
         ActivityParticipation editedParticipation = ActivityTestUtils.createEditedNormalParticipation();
         assertThrows(IllegalArgumentException.class, ()->service.editParticipation(activityId, profileId, participationId, editedParticipation));
     }
+
+    @Test
+    void deleteParticipationSuccessTest() {
+        long profileId = profileRepository.getLastInsertedId();
+        service.create(ActivityTestUtils.createNormalActivity(), profileId);
+        long activityId = activityRepository.getLastInsertedId();
+        ActivityParticipation participation = ActivityTestUtils.createNormalParticipation();
+        service.createParticipation(activityId, profileId, participation);
+        service.removeParticipation(activityId, profileId, participation.getId());
+        assertEquals(0, activityParticipationRepository.count());
+    }
+
+    @Test
+    void deleteParticipationFailParticipationIdDoesNotExistTest() {
+        long profileId = profileRepository.getLastInsertedId();
+        service.create(ActivityTestUtils.createNormalActivity(), profileId);
+        long activityId = activityRepository.getLastInsertedId();
+        long failParticipationId = 20;
+        assertThrows(IllegalArgumentException.class, ()->service.removeParticipation(activityId, profileId, failParticipationId));
+    }
+
 }
