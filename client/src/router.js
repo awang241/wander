@@ -21,7 +21,7 @@ const routes = [
     {path: "/Registration", name: "registration", component: RegistrationComponent},
     {path: "/NavBar", name: "navbar", component: NavBarComponent},
 
-    {path: "/Participation", name: "participationForm", component: ParticipationComponent},
+    {path: "/Activities/:id/Participation", name: "participationForm", component: ParticipationComponent},
     {path: "/AddActivity", name: "addActivity", component: AddActivityComponent},
     {path: "/Activities", name: "activities", component:ActivitiesComponent},
     {path: '/ShareActivity/:id/:activityPrivacy', name:"shareActivity", component: ShareActivityComponent, props: true},

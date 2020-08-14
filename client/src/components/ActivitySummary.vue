@@ -65,7 +65,6 @@
 
             },
             goToActivity(activity) {
-                console.log("goes through the thing");
                 router.push({path: 'Activities/' + activity.id})
             },
             deleteActivity(id) {

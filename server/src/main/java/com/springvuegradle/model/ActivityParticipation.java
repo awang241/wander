@@ -2,6 +2,9 @@ package com.springvuegradle.model;
 
 import javax.persistence.*;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.springvuegradle.utilities.FormatHelper;
 
 import javax.validation.constraints.NotNull;
@@ -63,10 +66,20 @@ public class ActivityParticipation {
         this.activity = activity;
     }
 
-    public ActivityParticipation(String details,
-                                 String outcome,
-                                 String startTime,
-                                 String endTime){
+    /**
+     * When an ActivityParticipation object is sent to the frontend, it will contain the following details.
+     *
+     * @param details allow the user to enter more information about how they did in the activity.
+     * @param outcome shows the user's outcome.
+     * @param startTime indicates the time that the user started a particular activity.
+     * @param endTime indicates the time that the user finished a particular activity.
+     */
+    @JsonCreator
+    public ActivityParticipation(
+                @JsonProperty("details") String details,
+                @JsonProperty("outcome") String outcome,
+                @JsonProperty("start_time") String startTime,
+                @JsonProperty("end_time") String endTime){
 
         this.details = details;
         this.outcome = outcome;
@@ -81,6 +94,7 @@ public class ActivityParticipation {
         this.endTime = participation.endTime;
     }
 
+    @JsonIgnore
     public long getId() {
         return id;
     }
@@ -89,6 +103,7 @@ public class ActivityParticipation {
         this.id = id;
     }
 
+    @JsonIgnore
     public String getDetails() {
         return details;
     }
@@ -97,6 +112,7 @@ public class ActivityParticipation {
         this.details = details;
     }
 
+    @JsonIgnore
     public String getOutcome() {
         return outcome;
     }
@@ -105,6 +121,7 @@ public class ActivityParticipation {
         this.outcome = outcome;
     }
 
+    @JsonIgnore
     public Profile getProfile() {
         return profile;
     }
@@ -113,6 +130,7 @@ public class ActivityParticipation {
         this.profile = profile;
     }
 
+    @JsonIgnore
     public Activity getActivity() {
         return activity;
     }
@@ -121,6 +139,7 @@ public class ActivityParticipation {
         this.activity = activity;
     }
 
+    @JsonIgnore
     public OffsetDateTime getStartTime() {
         return startTime;
     }
@@ -129,6 +148,7 @@ public class ActivityParticipation {
         this.startTime = startTime;
     }
 
+    @JsonIgnore
     public OffsetDateTime getEndTime() {
         return endTime;
     }
@@ -152,6 +172,6 @@ public class ActivityParticipation {
 
     @Override
     public int hashCode() {
-        return Objects.hash(profile, activity, details, outcome, startTime, endTime);
+        return Objects.hash(details, outcome, startTime, endTime);
     }
 }
