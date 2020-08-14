@@ -104,7 +104,7 @@
                     <div v-else>
                         <p>This activity has no organisers.</p>
                     </div>
-                    <observer v-on:intersect="loadMoreOrganisers"></observer>
+                    <observer v-on:intersect="loadMoreProfiles(roles.ORGANISER, moreOrganisersExist, organisersIndex)"></observer>
                 </b-tab-item>
 
                 <b-tab-item label="Participants">
@@ -128,6 +128,7 @@
                             <p>This activity has no participants.</p>
                         </div>
                     </div>
+                    <observer v-on:intersect="loadMoreProfiles(roles.PARTICIPANT, moreParticipantsExist, participantsIndex)"></observer>
                 </b-tab-item>
 
                 <b-tab-item label="Followers"
@@ -149,6 +150,7 @@
                     <div v-else>
                         <p>This activity has no followers.</p>
                     </div>
+                    <observer v-on:intersect="loadMoreProfiles(roles.FOLLOWER, moreFollowersExist, followersIndex)"></observer>
                 </b-tab-item>
             </b-tabs>
         </div>
@@ -233,16 +235,13 @@
                 api.getActivityMembers(this.activityId, role, localStorage.getItem('authToken'), searchParams)
                     .then(response => {
                         this.members[role] = response.data.summaries;
-                        for (let i=0; i < 20; i++){
-                            this.members[role] = [...this.members[role],...response.data.summaries]
-
-                        }
                     })
                     .catch((error) => {
                         console.log(error);
                         this.warningToast("Error loading activity data");
                     })
             },
+            //I think unused method. If anyone else can confirm that this method is not needed, please delete.
             getRoleName: function (roleIndex) {
                 switch (roleIndex) {
                     case 0:
@@ -276,7 +275,6 @@
                     })
                 }
             },
-
             deleteRole(profile, oldRole){
                   api.deleteActivityMembership(profile.id, this.activity.id, localStorage.getItem("authToken"))
                     .then(() => {
@@ -296,18 +294,17 @@
                 let min = date.slice(14, 16);
                 return hour + ":" + min + " " + day + "/" + month + "/" + year;
             },
-            loadMoreOrganisers() {
-                if (this.moreOrganisersExist) {
-                    const searchParameters = this.getSearchParameters(this.organisersIndex, "organiser")
-                    api.getActivityMembers(this.activityId, "ORGANISER", localStorage.getItem("authToken"), searchParameters)
+            loadMoreProfiles(role, moreProfilesExist, index) {
+                if (moreProfilesExist && this.store.getters.getAuthenticationLevel < 2) {
+                    const searchParameters = this.getSearchParameters(index, role)
+                    api.getActivityMembers(this.activityId, role, localStorage.getItem("authToken"), searchParameters)
                         .then(response => {
                             if (response.data.results.length == 0) {
                                 this.moreOrganisersExist = false;
-                            }
-                            else {
-                                this.organisersIndex += DEFAULT_RESULT_COUNT
+                            } else {
+                                index += DEFAULT_RESULT_COUNT
                                 const profiles = response.data.summaries
-                                this.members["organiser"] = [...this.members["organiser"],...profiles]
+                                this.members[role] = [...this.members[role], ...profiles]
                             }
                         })
                 }
