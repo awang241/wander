@@ -1,7 +1,7 @@
 export default {
     methods: {
         combineDateAndTime(date, time) {
-            if (date === null) {
+            if (date === null|| time== null) {
                 return null
             }
             let dateParts = date.split('-')

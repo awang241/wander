@@ -152,6 +152,6 @@ public class ActivityParticipation {
 
     @Override
     public int hashCode() {
-        return Objects.hash(profile, activity, details, outcome, startTime, endTime);
+        return Objects.hash(details, outcome, startTime, endTime);
     }
 }

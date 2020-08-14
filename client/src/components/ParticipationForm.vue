@@ -6,18 +6,18 @@
                 <h1 class="title">Record Participation</h1>
                 <b-field group-multiline grouped>
                     <b-field label="Start date" expanded>
-                        <input v-model="startDate" class="input" type="date">
+                        <input v-model="participation.startDate" class="input" type="date">
                     </b-field>
                     <b-field label="End date" expanded>
-                        <input v-model="endDate" class="input" type="date">
+                        <input v-model="participation.endDate" class="input" type="date">
                     </b-field>
                 </b-field>
                 <b-field group-multiline grouped>
                     <b-field label="Start time" expanded>
-                        <input v-model="startTime" class="input" type="time">
+                        <input v-model="participation.startTime" class="input" type="time">
                     </b-field>
                     <b-field label="End time" expanded>
-                        <input v-model="endTime" class="input" type="time">
+                        <input v-model="participation.endTime" class="input" type="time">
                     </b-field>
                 </b-field>
 
@@ -29,7 +29,7 @@
                     <template slot="label">Outcome <span class="requiredStar">*</span></template>
                     <b-select
                             placeholder="Outcome"
-                            v-model="outcome"
+                            v-model="participation.outcome"
                             expanded>
                         <option value="completed">Completed</option>
                         <option value="not completed">Not Completed</option>
@@ -40,7 +40,7 @@
 
                 <b-field>
                     <b-field label="Details">
-                        <b-input v-model="details" maxlength="200" type="textarea" placeholder="Details"></b-input>
+                        <b-input v-model="participation.details" maxlength="200" type="textarea" placeholder="Details"></b-input>
                     </b-field>
                 </b-field>
 
@@ -76,16 +76,14 @@
         },
         mixins: [toastMixin, dateTimeMixin],
         props: {
-          //If user is creating/adding a participation
           default: function() {
               return {
                   startDate: null,
                   endDate: null,
                   startTime: "",
                   endTime: "",
-                  outcome: "",
-                  details: "",
-                  activityId: this.$route.params.id
+                  outcome: null,
+                  details: null,
               }
           }
         },
@@ -104,23 +102,25 @@
         },
         methods: {
             submitParticipation() {
-                console.log(this.startTime)
-                console.log(this.startDate)
-                console.log(this.outcome)
-                if (this.validateDates() || this.startDate === null) {
-                    let participation = {
-                        "details": this.details,
-                        "outcome": this.outcome,
-                        "startTime": this.startTime,
-                        "endTime": this.endTime
-                    }
-                    Api.createParticipation(store.getters.getUserId, this.activityId, participation, localStorage.getItem('authToken'))
-                        .then(() => {
-                            this.successToast("Participation added successfully")
-                            router.go(-1)
-                        })
-                        .catch(() => this.warningToast("Unknown error occurred"))
+                if (this.combinedStartDate !== null && this.validateDates()) {
+                    this.saveParticipation()
+                } else {
+                    this.saveParticipation()
                 }
+            },
+            saveParticipation() {
+                let newParticipation = {
+                    "details": this.participation.details,
+                    "outcome": this.participation.outcome,
+                    "startTime": this.combinedStartDate,
+                    "endTime": this.combinedEndDate
+                }
+                Api.createParticipation(store.getters.getUserId, this.$route.params.id, newParticipation, localStorage.getItem('authToken'))
+                    .then(() => {
+                        this.successToast("Participation Added!")
+                        router.go(-1)
+                    })
+                    .catch(() => this.warningToast("Unknown error occurred"))
             },
             goBack() {
                 router.go(-1)
@@ -137,7 +137,7 @@
                     isValid = false
                 }
                 return isValid
-            },
+            }
         }
     }
 

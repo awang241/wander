@@ -512,6 +512,7 @@ public class Profile {
         return this.activities.remove(membership);
     }
 
+    @JsonIgnore
     public Set<ActivityParticipation> getParticipations() {
         return Collections.unmodifiableSet(activityParticipations);
     }
