@@ -1,7 +1,6 @@
 package com.springvuegradle.service;
 
-import com.springvuegradle.model.ActivityParticipation;
-import com.springvuegradle.model.ActivityTestUtils;
+import com.springvuegradle.model.*;
 import com.springvuegradle.utilities.InitialDataHelper;
 import com.springvuegradle.repositories.*;
 import org.junit.jupiter.api.AfterEach;
@@ -11,6 +10,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -82,4 +85,39 @@ public class ActivityParticipationServiceTest {
         assertThrows(IllegalArgumentException.class, () -> service.createParticipation(fakeActivityId, profileId, participation));
     }
 
+    @Test
+    void readParticipationsFromActivityNormalTest() {
+        long creatorId = profileRepository.getLastInsertedId();
+        service.create(ActivityTestUtils.createNormalActivity(), creatorId);
+        Profile participant1 = ProfileTestUtils.createNormalProfileMaurice();
+        Profile participant2 = ProfileTestUtils.createProfileJimmy();
+        participant1.setPassports(new HashSet<>());
+        participant2.setPassports(new HashSet<>());
+        participant1 = profileRepository.save(participant1);
+        participant2 = profileRepository.save(participant2);
+        long activityId = activityRepository.getLastInsertedId();
+        ActivityParticipation participation1 = ActivityTestUtils.createNormalParticipation();
+        ActivityParticipation participation2 = ActivityTestUtils.createADifferentParticipation();
+        service.createParticipation(activityId, participant1.getId(), participation1);
+        service.createParticipation(activityId, participant2.getId(), participation2);
+
+        List<ActivityParticipation> result = service.readParticipationsFromActivity(activityId);
+        assertEquals(2, result.size());
+    }
+
+    @Test
+    void readParticipationsFromActivityWhenActivityHasNoParticipationsReturnsEmptyListTest() {
+        long creatorId = profileRepository.getLastInsertedId();
+        service.create(ActivityTestUtils.createNormalActivity(), creatorId);
+        long activityId = activityRepository.getLastInsertedId();
+
+        List<ActivityParticipation> result = service.readParticipationsFromActivity(activityId);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void readParticipationsFromActivityWhenActivityDoesNotExistThrowsIllegalArgumentExceptionTest() {
+        long invalidId = -1;
+        assertThrows(IllegalArgumentException.class, () -> service.readParticipationsFromActivity(-1));
+    }
 }
