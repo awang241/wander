@@ -22,6 +22,10 @@ public class ActivityTestUtils {
         return new ActivityParticipation("Played League as a noob", "Got rekt", "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300");
     }
 
+    public static ActivityParticipation createEditedNormalParticipation() {
+        return new ActivityParticipation("Played League as a pro", "Won the game", "2020-02-20T12:00:00+1300", "2020-02-20T16:00:00+1300");
+    }
+
     public static ActivityParticipation createADifferentParticipation() {
         return new ActivityParticipation("Scored last minute winner", "Won Champions League :)", "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300");
     }
