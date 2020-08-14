@@ -472,6 +472,16 @@ public class ActivityController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
+    /**
+     * Updates the ActivityParticipation object containing a set of participation details, given a participation id.
+     *
+     * @param token             the token of the user, which must be valid.
+     * @param profileId         the id of the user.
+     * @param activityId        the id of the activity.
+     * @param participationId   the id of the participation.
+     * @return an ActivityParticipationResponse containing the ActivityParticipation object is successful, or an error
+     * message if unsuccessful.
+     */
     @PutMapping("/profiles/{profileId}/activities/{activityId}/participation/{participationId}")
     public ResponseEntity<String> updateParticipation (@RequestBody ActivityParticipationRequest request,
                                                        @RequestHeader("authorization") String token,
@@ -494,6 +504,44 @@ public class ActivityController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
         }
         return new ResponseEntity<>(ActivityParticipationMessage.EDIT_SUCCESS.toString(), HttpStatus.OK);
+    }
+
+    /**
+     * Gets and returns an ActivityParticipation object containing a set of participation details, given a participation
+     * id.
+     *
+     * @param token             the token of the user, which must be valid.
+     * @param profileId         the id of the user.
+     * @param activityId        the id of the activity.
+     * @param participationId   the id of the participation.
+     * @return an ActivityParticipationResponse containing the ActivityParticipation object is successful, or an error
+     * message if unsuccessful.
+     */
+    @GetMapping("/profiles/{profileId}/activities/{activityId}/participation/{participationId}")
+    public ResponseEntity<ActivityParticipationResponse> getParticipation (@RequestHeader("authorization") String token,
+                                                                      @PathVariable long profileId,
+                                                                      @PathVariable long activityId,
+                                                                      @PathVariable long participationId)
+    {
+        if (token == null || token.isBlank()) {
+            return new ResponseEntity<>(new ActivityParticipationResponse(
+                    AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage()),
+                    HttpStatus.UNAUTHORIZED);
+        }
+        if (!jwtUtil.validateToken(token)) {
+            return new ResponseEntity<>(new ActivityParticipationResponse(
+                    AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage()),
+                    HttpStatus.FORBIDDEN);
+        }
+        try {
+            ActivityParticipation participation = activityService.readParticipation(participationId);
+            return new ResponseEntity<>(new ActivityParticipationResponse(
+                    participation), HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(new ActivityParticipationResponse(
+                    e.getMessage()), HttpStatus.NOT_FOUND);
+        }
+
     }
 
 

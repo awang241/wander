@@ -1,6 +1,7 @@
 package com.springvuegradle.controller;
 
 import com.springvuegradle.dto.*;
+import com.springvuegradle.enums.ActivityMessage;
 import com.springvuegradle.enums.ActivityPrivacy;
 import com.springvuegradle.model.*;
 import com.springvuegradle.repositories.*;
@@ -216,6 +217,35 @@ class ActivityControllerMockedTest {
         Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
         Mockito.doThrow(new IllegalArgumentException()).when(mockService).editParticipation(mockActivityId, mockProfileId, mockParticipationId, mockUpdatedParticipation);
         ResponseEntity<String> actualResponse = activityController.updateParticipation(mockUpdatedParticipationRequest, mockToken, mockProfileId, mockActivityId, mockParticipationId);
+        assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
+    }
+
+    @Test
+    void getActivityParticipationSuccessTest() {
+        String mockToken = ":)";
+        ActivityParticipation mockParticipation = new ActivityParticipation("The final score was 2 - 1.", "University Wins", "2020-02-20T08:00:00+1300",
+                "2020-02-20T10:15:00+1300");
+
+        ResponseEntity<ActivityParticipationResponse> expectedResponse = new ResponseEntity<>(new ActivityParticipationResponse(mockParticipation), HttpStatus.OK);
+        long mockParticipationId = 555;
+        long mockProfileId = 420;
+        long mockActivityId = 505;
+        Mockito.when(mockService.readParticipation(mockParticipationId)).thenReturn(mockParticipation);
+        Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
+        ResponseEntity<ActivityParticipationResponse> actualResponse = activityController.getParticipation(mockToken, mockProfileId, mockActivityId, mockParticipationId);
+        assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
+    }
+
+    @Test
+    void getActivityParticipationWhereDoesntExistTest() {
+        String mockToken = ":)";
+        ResponseEntity<ActivityParticipationResponse> expectedResponse = new ResponseEntity<>(new ActivityParticipationResponse(ActivityMessage.PARTICIPATION_NOT_FOUND.getMessage()), HttpStatus.NOT_FOUND);
+        long mockParticipationId = 555;
+        long mockProfileId = 420;
+        long mockActivityId = 505;
+        Mockito.when(mockService.readParticipation(mockParticipationId)).thenThrow(new IllegalArgumentException(ActivityMessage.PARTICIPATION_NOT_FOUND.getMessage()));
+        Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
+        ResponseEntity<ActivityParticipationResponse> actualResponse = activityController.getParticipation(mockToken, mockProfileId, mockActivityId, mockParticipationId);
         assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
     }
 }
