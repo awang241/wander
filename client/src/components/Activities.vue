@@ -57,7 +57,7 @@ const DEFAULT_RESULT_COUNT = 10;
     export default {
         name: "Activities",
         mixins: [toastMixin],
-      components: {Observer, ActivitySummary},
+        components: {Observer, ActivitySummary},
         data() {
             return {
                 store: store,
@@ -70,13 +70,13 @@ const DEFAULT_RESULT_COUNT = 10;
                 moreFollowingActivitiesExist: true,
                 moreParticipatingActivitiesExist: true,
                 observer: null,
-                activities: null,
                 myActivities: [],
                 participatingActivities: [],
                 followingActivities: [],
                 discoverActivities: [],
-                component: "",
-                role: ""
+                activities: this.myActivities,
+                component: activityList,
+                role: "creatorOrOrganiser"
             }
         },
         methods: {
@@ -164,7 +164,7 @@ const DEFAULT_RESULT_COUNT = 10;
                 switch(role) {
                     case "creatorOrOrganiser":
                         if (this.moreMyActivitiesExist) {
-                            const searchParameters = this.getParameters(this.myActivitiesStartIndex, role);
+                            let searchParameters = this.getParameters(this.myActivitiesStartIndex, role);
                             api.getNextActivities(store.getters.getUserId, localStorage.getItem("authToken"), searchParameters).then(response => {
                                 if (response.data.results.length == 0) {
                                     this.moreMyActivitiesExist = false;
@@ -178,7 +178,7 @@ const DEFAULT_RESULT_COUNT = 10;
                         break;
                     case "participant":
                         if (this.moreParticipatingActivitiesExist) {
-                            const searchParameters = this.getParameters(this.participatingActivitiesStartIndex, role);
+                            let searchParameters = this.getParameters(this.participatingActivitiesStartIndex, role);
                             api.getNextActivities(store.getters.getUserId, localStorage.getItem("authToken"), searchParameters).then(response => {
                                 if (response.data.results.length == 0) {
                                     this.moreParticipatingActivitiesExist = false;
@@ -192,7 +192,7 @@ const DEFAULT_RESULT_COUNT = 10;
                         break;
                     case "follower":
                         if (this.moreFollowingActivitiesExist) {
-                            const searchParameters = this.getParameters(this.followingActivitiesStartIndex, role);
+                            let searchParameters = this.getParameters(this.followingActivitiesStartIndex, role);
                             api.getNextActivities(store.getters.getUserId, localStorage.getItem("authToken"), searchParameters).then(response => {
                                 if (response.data.results.length == 0) {
                                     this.moreFollowingActivitiesExist = false;
@@ -206,7 +206,7 @@ const DEFAULT_RESULT_COUNT = 10;
                         break;
                     case "discover":
                         if (this.moreDiscoverActivitiesExist) {
-                            const searchParameters = this.getParameters(this.discoverActivitiesStartIndex, role);
+                            let searchParameters = this.getParameters(this.discoverActivitiesStartIndex, role);
                             api.getNextActivities(store.getters.getUserId, localStorage.getItem("authToken"), searchParameters).then(response => {
                                 if (response.data.results.length == 0) {
                                     this.moreDiscoverActivitiesExist = false;
@@ -223,10 +223,14 @@ const DEFAULT_RESULT_COUNT = 10;
         },
         mounted() {
             this.checkAuthenticationStatus();
+
+        },
+        beforeMount() {
             this.loadMoreActivities("creatorOrOrganiser");
             this.loadMoreActivities("participant");
             this.loadMoreActivities("follower");
             this.loadMoreActivities("discover");
+            setTimeout(() => (this.changeToMyActivities()), 2200);
         }
     }
 
