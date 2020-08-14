@@ -231,25 +231,20 @@ public class ProfileTestSteps{
 
     @When("I register an account with email {string} and password {string} and fitness level {int} and the following passport countries are added")
     public void i_register_an_account_with_email_and_password_and_fitness_level_and_the_following_passport_countries_are_added(String email, String password, Integer fitness_level, io.cucumber.datatable.DataTable dataTable) {
-        System.out.println(pcRepo.count());
         ArrayList<String> passport_countries = new ArrayList<>();
         for (String name : dataTable.asList()) {
             if (!name.equals("name")) {
                 passport_countries.add(name);
-                System.out.println(name);
-                System.out.println(pcRepo.existsByCountryName(name));
             }
         }
         String[] myArray = new String[passport_countries.size()];
         passport_countries.toArray(myArray);
         Profile jacky = createNormalProfileJackyWithFitnessLevelPassportCountries(email, password, fitness_level, myArray);
         createProfileResponse = profileController.createProfile(jacky);
-        System.out.println(createProfileResponse.getBody());
     }
 
     @Then("An account with email {string} exists with fitness level {int} and the following passport countries")
     public void an_account_with_email_exists_with_fitness_level_and_the_following_passport_countries(String email, Integer fitness_level, io.cucumber.datatable.DataTable dataTable) {
-        System.out.println(repo.count());
         Profile profile = repo.findByEmail(email).get(0);
         assertNotNull(profile);
         assertEquals(fitness_level, profile.getFitness());

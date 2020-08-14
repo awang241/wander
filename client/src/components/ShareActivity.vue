@@ -127,12 +127,11 @@
             },
             updateActivityPrivacy(){
                 Api.editActivityPrivacy(store.getters.getUserId, this.id, this.privacy, localStorage.getItem('authToken'))
-                    .then((response) => {
-                        console.log(response);
-                        this.successToast("Activity privacy updated")
+                    .then(() => {
+                        this.successToast("Activity privacy updated");
                         router.go(-1)
                     })
-                    .catch(error => console.log(error));
+                    .catch(() => this.warningToast("Error updating activity privacy."));
             },
             addEmail() {
                 let emailAlreadyAdded = false
@@ -158,7 +157,7 @@
                             this.warningToast("User with that email does not exist")
                         }
                     })
-                    .catch(error => console.log(error));
+                    .catch(() => this.warningToast("Error verifying email."));
 
             },
             getRequestBody() {
@@ -174,7 +173,7 @@
                         this.successToast("Activity privacy updated")
                         router.go(-1)
                     })
-                    .catch(error => console.log(error));
+                    .catch(() => this.warningToast("Error sharing activity."));
             },
             getMembers() {
                 Api.getAllActivityMembers(this.id, localStorage.getItem('authToken'))
@@ -185,7 +184,7 @@
                             }
                         })
                     })
-                    .catch(error => console.log(error));
+                    .catch(() => this.warningToast("Error getting activity members."));
             },
 
             deleteUser(emailToDelete) {

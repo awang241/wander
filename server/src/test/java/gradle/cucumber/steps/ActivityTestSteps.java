@@ -164,7 +164,6 @@ public class ActivityTestSteps {
         Long profileId = profileRepository.findByPrimaryEmail(email).get(0).getId();
         PrivacyRequest privacyRequest = new PrivacyRequest(privacy);
         ResponseEntity<String> response = activityController.editActivityPrivacy(privacyRequest, loginResponse.getToken(), profileId, activityRepository.getLastInsertedId());
-        System.out.println(response.getBody());
         assertEquals(200, response.getStatusCodeValue());
     }
 
@@ -177,9 +176,7 @@ public class ActivityTestSteps {
     @When("I choose to add the account with the email {string} to the activity as a {string}")
     public void i_choose_to_add_the_account_with_the_email_to_the_activity_as_a(String email, String role) {
         Long profileId = profileRepository.findByPrimaryEmail(email).get(0).getId();
-        System.out.println(role);
         ResponseEntity<String> response = activityController.addActivityRole(loginResponse.getToken(), profileId, activityRepository.getLastInsertedId(), new ActivityRoleUpdateRequest(role));
-        System.out.println(response.getBody());
         assertEquals(201, response.getStatusCodeValue());
     }
 
@@ -204,7 +201,6 @@ public class ActivityTestSteps {
     @Then("There is one activity with privacy {string}")
     public void there_is_one_activity_with_privacy_level(String privacy) {
         ResponseEntity<List<Activity>> response = activityController.getActivities(privacy, loginResponse.getToken());
-        System.out.println(response.getBody());
         assertEquals(1, response.getBody().size());
     }
 

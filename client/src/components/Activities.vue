@@ -111,7 +111,7 @@ const DEFAULT_RESULT_COUNT = 10;
                             }
                         );
                     })
-                    .catch(error => console.log(error));
+                    .catch(() => this.warningToast("Error while fetching next activities."));
             },
             removeActivityFromList(activityId) {
                 switch (this.role) {

@@ -61,11 +61,10 @@
                         let wholeActivity = response.data;
                         router.push({name: 'editActivity', params: {activityProp: wholeActivity}});
                     })
-                    .catch(error => console.log(error));
+                    .catch(() => this.warningToast("Error occurred while getting Activity details."));
 
             },
             goToActivity(activity) {
-                console.log("goes through the thing");
                 router.push({path: 'Activities/' + activity.id})
             },
             deleteActivity(id) {
@@ -74,7 +73,7 @@
                         this.$parent.removeActivityFromList(id);
                         this.warningToast("Activity deleted");
                     })
-                    .catch(error => console.log(error));
+                    .catch(() => this.warningToast("Error occurred while deleting Activity."));
             },
         }
     }

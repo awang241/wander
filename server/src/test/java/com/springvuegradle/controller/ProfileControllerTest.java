@@ -128,7 +128,6 @@ class ProfileControllerTest {
         Profile testProfile = createProfileWithMinimalFields();
         ResponseEntity<String> responseEntity = profileController.createProfile(testProfile);
 
-        System.out.println(responseEntity.getBody());
 
         List<Profile> result = repo.findAll();
         assertTrue(result.contains(testProfile));
@@ -166,7 +165,6 @@ class ProfileControllerTest {
         Profile dummy_maurice = createInvalidFieldsProfileMaurice();
 
         ResponseEntity<String> response_entity = profileController.createProfile(dummy_maurice);
-        System.out.println(response_entity.getBody());
         String actual_error_message = response_entity.getBody();
         String expected_error_message = "The email field is blank.\n" +
                 "The First Name field is blank.\n" +
