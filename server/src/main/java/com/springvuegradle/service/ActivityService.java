@@ -651,10 +651,8 @@ public class ActivityService {
      * @return the participation object.
      */
     public ActivityParticipation readParticipation(Long participationId) {
+        checkParticipationExists(participationId);
         Optional<ActivityParticipation> optionalActivityParticipation = participationRepo.findById(participationId);
-        if (optionalActivityParticipation.isEmpty()) {
-            throw new IllegalArgumentException(ActivityMessage.PARTICIPATION_NOT_FOUND.getMessage());
-        }
         return optionalActivityParticipation.get();
     }
 }
