@@ -7,7 +7,7 @@
 
             <form @submit.prevent="handleSubmit(sendUpdatedData)">
                 <b-field group-multiline grouped>
-                    <ValidationProvider rules="required|minName" name="First Name" v-slot="{ errors, valid }" slim>
+                    <ValidationProvider rules="required|minName|alphabeticCharsOrSpaces" name="First Name" v-slot="{ errors, valid }" slim>
                         <b-field label="First Name"
                                  :type="{ 'is-danger': errors[0], 'is-success': valid }"
                                  :message="errors"
@@ -25,7 +25,7 @@
                             <b-input v-model="middleName" placeholder="Middle Name"></b-input>
                         </b-field>
                     </ValidationProvider>
-                    <ValidationProvider rules="required|minName" name="Last Name" v-slot="{ errors, valid }" slim>
+                    <ValidationProvider rules="required|minName|alphabeticCharsOrSpaces" name="Last Name" v-slot="{ errors, valid }" slim>
                         <b-field label="Last Name"
                                  :type="{ 'is-danger': errors[0], 'is-success': valid }"
                                  :message="errors"

@@ -1,4 +1,4 @@
-import { required, confirmed, email } from "vee-validate/dist/rules";
+import { alpha_spaces, required, confirmed, email } from "vee-validate/dist/rules";
 import { extend } from "vee-validate";
 
 extend('minName', value => {
@@ -19,6 +19,12 @@ extend('changeEmail', {
     ...required,
     message: 'Must choose an additional email'
 })
+
+extend('alphabeticCharsOrSpaces',  {
+    ...alpha_spaces,
+    message: '{_field_} can only contain alphabetic characters and spaces'
+})
+
 
 extend('optionalEmail', {
     ...required,

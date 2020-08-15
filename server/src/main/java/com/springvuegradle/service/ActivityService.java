@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
@@ -130,8 +129,9 @@ public class ActivityService {
      * @return the number of people who have different roles in an activity
      */
     public ActivityRoleCountResponse getRoleCounts(long activityId){
-        long organizers, followers, participants;
-        organizers = followers = participants = 0;
+        long organizers = 0;
+        long followers = 0;
+        long participants = 0;
         List<ActivityMembership> memberships = membershipRepo.findActivityMembershipsByActivity_Id(activityId);
         if(memberships.isEmpty()){
             throw new IllegalArgumentException(ActivityResponseMessage.INVALID_ACTIVITY.toString());
@@ -210,9 +210,8 @@ public class ActivityService {
         List<Activity> userActivities = new ArrayList<>();
         Page<ActivityMembership> memberships = membershipRepo.findAllByProfileId(profileId, request);
         for (ActivityMembership membership : memberships) {
-            if (role.equals(ActivityMembership.Role.CREATOR)) {
-                userActivities.add(membership.getActivity());
-            } else if (membership.getRole().equals(role) && membership.getActivity().getPrivacyLevel() > 0) {
+            boolean roleMatchAndNotDefaultAdmin = membership.getRole().equals(role) && membership.getActivity().getPrivacyLevel() > 0;
+            if (role.equals(ActivityMembership.Role.CREATOR) || roleMatchAndNotDefaultAdmin) {
                 userActivities.add(membership.getActivity());
             }
         }
@@ -331,10 +330,8 @@ public class ActivityService {
                 return activity.get();
             }
             else if (activityMembership.isPresent()) {
-                if (activity.get().getPrivacyLevel().equals(1)) {
-                    return activity.get();
-                }
-                else if (activityMembership.get().getRole().equals(ActivityMembership.Role.CREATOR)) {
+                boolean roleIsCreator = activityMembership.get().getRole().equals(ActivityMembership.Role.CREATOR);
+                if (activity.get().getPrivacyLevel().equals(1) || roleIsCreator) {
                     return activity.get();
                 }
             }
@@ -536,9 +533,11 @@ public class ActivityService {
             }
         }
         Activity activity = optionalActivity.get();
-        for (Profile profile: profiles.keySet()) {
+        for (Map.Entry<Profile, String> entry: profiles.entrySet()) {
+            Profile profile = entry.getKey();
+            String roleName = entry.getValue();
             Optional<ActivityMembership> optionalMembership = membershipRepo.findByActivity_IdAndProfile_Id(profile.getId(), activityId);
-            ActivityMembership.Role role = ActivityMembership.Role.valueOf(profiles.get(profile).toUpperCase());
+            ActivityMembership.Role role = ActivityMembership.Role.valueOf(roleName.toUpperCase());
             ActivityMembership membership;
             if (optionalMembership.isPresent()) {
                 membership = optionalMembership.get();
@@ -594,8 +593,8 @@ public class ActivityService {
 
     /**
      * Checks if an activity and profile exists
-     * @param activityId
-     * @param profileId
+     * @param activityId The ID of the activity
+     * @param profileId The ID of the profile
      * @throws IllegalArgumentException If no profile or activity with the given ID exists in the repository
      */
     public void checkParticipationHelper(long activityId, long profileId) {
@@ -611,7 +610,7 @@ public class ActivityService {
 
     /**
      * Checks if a participation exists
-     * @param participationId
+     * @param participationId the ID of the participation
      * @throws IllegalArgumentException If no such participation exists
      */
     public void checkParticipationExists(long participationId) {
@@ -651,8 +650,23 @@ public class ActivityService {
      * @return the participation object.
      */
     public ActivityParticipation readParticipation(Long participationId) {
-        checkParticipationExists(participationId);
         Optional<ActivityParticipation> optionalActivityParticipation = participationRepo.findById(participationId);
+        if (optionalActivityParticipation.isEmpty()) {
+            throw new IllegalArgumentException(ActivityParticipationMessage.PARTICIPATION_NOT_FOUND.toString());
+        }
         return optionalActivityParticipation.get();
+    }
+
+    /**
+     * Retrieves a list of all participations for the given activity.
+     * @param activityId The ID of the activity.
+     * @throws IllegalArgumentException if no activity with that ID exists.
+     * @return A list of that activity's participations.
+     */
+    public List<ActivityParticipation> readParticipationsFromActivity(long activityId) {
+        if (!activityRepo.existsById(activityId)) {
+            throw new IllegalArgumentException(ActivityResponseMessage.INVALID_ACTIVITY.toString());
+        }
+        return participationRepo.findAllByActivityId(activityId);
     }
 }
