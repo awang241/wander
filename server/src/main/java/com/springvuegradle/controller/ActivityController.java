@@ -8,7 +8,6 @@ import com.springvuegradle.model.ActivityMembership;
 import com.springvuegradle.model.ActivityParticipation;
 import com.springvuegradle.repositories.ActivityRepository;
 import com.springvuegradle.utilities.FieldValidationHelper;
-import com.springvuegradle.utilities.FormatHelper;
 import com.springvuegradle.utilities.JwtUtil;
 import com.springvuegradle.service.ActivityService;
 import com.springvuegradle.service.SecurityService;
@@ -18,11 +17,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Class containing REST endpoints for activities
@@ -570,5 +567,29 @@ public class ActivityController {
 
     }
 
-
+    /**
+     *
+     * @param token The token of the user
+     * @param activityId ID of the activity all the participations belong to
+     * @return an ActivityParticipationSummariesResponse that contains a list of participations if successful.
+     * Otherwise returns an error message.
+     */
+    @GetMapping("/activities/{activityId}/participations")
+    public ResponseEntity<ActivityParticipationSummariesResponse> getParticipationSummaries (@RequestHeader("authorization") String token,
+                                                                                             @PathVariable long activityId)
+    {
+        if (token == null || token.isBlank()) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        else if (!jwtUtil.validateToken(token)) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        try {
+            List<ActivityParticipation> activityParticipationSummaries = activityService.readParticipationsFromActivity(activityId);
+            return new ResponseEntity<>(new ActivityParticipationSummariesResponse(
+                    activityParticipationSummaries), HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
 }

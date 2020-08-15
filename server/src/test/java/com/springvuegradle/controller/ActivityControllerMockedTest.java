@@ -3,6 +3,7 @@ package com.springvuegradle.controller;
 import com.springvuegradle.dto.*;
 import com.springvuegradle.enums.ActivityMessage;
 import com.springvuegradle.enums.ActivityPrivacy;
+import com.springvuegradle.enums.ActivityResponseMessage;
 import com.springvuegradle.model.*;
 import com.springvuegradle.repositories.*;
 import com.springvuegradle.service.ActivityService;
@@ -13,7 +14,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
@@ -272,6 +272,47 @@ class ActivityControllerMockedTest {
         Mockito.when(mockService.readParticipation(mockParticipationId)).thenThrow(new IllegalArgumentException(ActivityMessage.PARTICIPATION_NOT_FOUND.getMessage()));
         Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
         ResponseEntity<ActivityParticipationResponse> actualResponse = activityController.getParticipation(mockToken, mockProfileId, mockActivityId, mockParticipationId);
+        assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
+    }
+
+    @Test
+    void getActivityParticipationSummariesValidTest() {
+        String mockToken = "token";
+        long mockActivityId = 10;
+        List<ActivityParticipation> mockParticipationsList = ActivityTestUtils.createValidActivityParticipationsList();
+        ResponseEntity<ActivityParticipationSummariesResponse> expectedResponse = new ResponseEntity<>(new ActivityParticipationSummariesResponse(mockParticipationsList), HttpStatus.OK);
+        Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
+        Mockito.when(mockService.readParticipationsFromActivity(mockActivityId)).thenReturn(mockParticipationsList);
+        ResponseEntity<ActivityParticipationSummariesResponse> actualResponse = activityController.getParticipationSummaries(mockToken, mockActivityId);
+        assertEquals(actualResponse.getBody().getAllActivityParticipation(), expectedResponse.getBody().getAllActivityParticipation());
+    }
+
+    @Test
+    void getActivityParticipationSummariesInvalidTokenTest() {
+        String mockToken = "invalidToken";
+        long mockActivityId = 10;
+        Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(false);
+        ResponseEntity<String> expectedResponse = new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        ResponseEntity<ActivityParticipationSummariesResponse> actualResponse = activityController.getParticipationSummaries(mockToken, mockActivityId);
+        assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
+    }
+
+    @Test
+    void getActivityParticipationSummariesNoTokenTest() {
+        long mockActivityId = 10;
+        ResponseEntity<String> expectedResponse = new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        ResponseEntity<ActivityParticipationSummariesResponse> actualResponse = activityController.getParticipationSummaries(null, mockActivityId);
+        assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
+    }
+
+    @Test
+    void getActivityParticipationSummariesInvalidActivityIdTest() {
+        long mockActivityId = 10;
+        String mockToken = "token";
+        Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
+        Mockito.when(mockService.readParticipationsFromActivity(mockActivityId)).thenThrow(new IllegalArgumentException(ActivityResponseMessage.INVALID_ACTIVITY.toString()));
+        ResponseEntity<String> expectedResponse = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        ResponseEntity<ActivityParticipationSummariesResponse> actualResponse = activityController.getParticipationSummaries(mockToken, mockActivityId);
         assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
     }
 }

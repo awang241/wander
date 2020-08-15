@@ -2,6 +2,9 @@ package com.springvuegradle.model;
 
 import com.springvuegradle.dto.ActivityParticipationRequest;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ActivityTestUtils {
 
     /**
@@ -38,4 +41,12 @@ public class ActivityTestUtils {
         return new ActivityParticipationRequest("Scored last minute winner", "Won Champions League :)", "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300");
     }
 
+    public static List<ActivityParticipation> createValidActivityParticipationsList() {
+        ActivityParticipation normalActivityParticpation = createNormalParticipation();
+        ActivityParticipation normalActivityParticpation1 = createADifferentParticipation();
+        List<ActivityParticipation> activityParticipations = new ArrayList<>();
+        activityParticipations.add(normalActivityParticpation);
+        activityParticipations.add(normalActivityParticpation1);
+        return activityParticipations;
+    }
 }
