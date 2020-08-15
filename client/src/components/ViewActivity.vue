@@ -43,7 +43,6 @@
                         </div>
                     </div>
 
-
                     <h1 class="title is-1">
                         {{activity.activity_name}}
                     </h1>
@@ -139,6 +138,7 @@
                     <div v-else>
                         <p>This activity has no organisers.</p>
                     </div>
+                    <observer v-on:intersect="loadMoreProfiles(roles.ORGANISER, moreOrganisersExist, organisersIndex)"></observer>
                 </b-tab-item>
 
                 <b-tab-item label="Participants">
@@ -168,6 +168,7 @@
                             <p>This activity has no participants.</p>
                         </div>
                     </div>
+                    <observer v-on:intersect="loadMoreProfiles(roles.PARTICIPANT, moreParticipantsExist, participantsIndex)"></observer>
                 </b-tab-item>
 
                 <b-tab-item label="Followers"
@@ -189,6 +190,7 @@
                     <div v-else>
                         <p>This activity has no followers.</p>
                     </div>
+                    <observer v-on:intersect="loadMoreProfiles(roles.FOLLOWER, moreFollowersExist, followersIndex)"></observer>
                 </b-tab-item>
             </b-tabs>
         </div>
@@ -201,6 +203,9 @@
     import api from "../Api";
     import store from '../store';
     import toastMixin from "../mixins/toastMixin";
+    import Observer from "./Observer";
+
+    const DEFAULT_RESULT_COUNT = 50;
 
     const ROLES = Object.freeze({
         CREATOR: "creator",
@@ -211,7 +216,7 @@
 
     export default {
         name: "ViewActivity",
-        components: {ProfileSummary},
+        components: {ProfileSummary, Observer},
         mixins: [toastMixin],
         data() {
             return {
@@ -227,10 +232,16 @@
                     "follower": [],
                 },
                 roleIndex: 0,
+                organisersIndex: 0,
+                participantsIndex: 0,
+                followersIndex: 0,
                 store: store,
-                isCreatorOrOrganiser: false,
-                numFollowers: 0
-            }
+                isCreatorOrOrganizer: false,
+                numFollowers: 0,
+                moreOrganisersExist: true,
+                moreParticipantsExist: true,
+                moreFollowersExist: true
+          }
         },
         methods: {
             updateRole(profileId, newRole) {
@@ -271,11 +282,14 @@
                     };
                 }
                 api.getActivityMembers(this.activityId, role, localStorage.getItem('authToken'), searchParams)
-                    .then(response => {this.members[role] = response.data.summaries;})
+                    .then(response => {
+                        this.members[role] = response.data.summaries;
+                    })
                     .catch(() => {
                         this.warningToast("Error loading activity data.");
                     })
             },
+            //I think unused method. If anyone else can confirm that this method is not needed, please delete.
             getRoleName: function (roleIndex) {
                 switch (roleIndex) {
                     case 0:
@@ -345,7 +359,24 @@
                     .then(response => {
                         this.userRole = response.data.role})
             },
-
+            loadMoreProfiles(role, moreProfilesExist, index) {
+                if (moreProfilesExist && this.store.getters.getAuthenticationLevel < 2) {
+                    const searchParameters = this.getSearchParameters(index, role)
+                    api.getActivityMembers(this.activityId, role, localStorage.getItem("authToken"), searchParameters)
+                        .then(response => {
+                            if (response.data.results.length == 0) {
+                                this.moreOrganisersExist = false;
+                            } else {
+                                index += DEFAULT_RESULT_COUNT
+                                const profiles = response.data.summaries
+                                this.members[role] = [...this.members[role], ...profiles]
+                            }
+                        })
+                }
+            },
+            getSearchParameters(index, role) {
+                return {count: DEFAULT_RESULT_COUNT, index: index, role: role}
+            }
         },
         computed: {
             privacy: function () {
@@ -363,7 +394,6 @@
             hasShareAndEditPermissions: function () {
                 return ((this.activity && parseInt(this.activity.creatorId) === parseInt(this.store.getters.getUserId)) || this.store.getters.getAuthenticationLevel < 2);
             }
-
         },
         mounted() {
             this.getActivity();
