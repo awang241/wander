@@ -5,7 +5,7 @@
             <div id="activity-key-info">
                 <div>
                     <div style="float:right">
-                        <div v-if="hasShareAndEditPermissions()" class="buttons">
+                        <div v-if="hasShareAndEditPermissions" class="buttons">
                             <b-button style="float:right;" id="shareButton" @click="shareActivity"
                                       type="is-primary">
                                 Share / Change Privacy Level
@@ -15,7 +15,7 @@
                                 Edit Activity
                             </b-button>
                         </div>
-                        <div class="buttons">
+                        <div v-if="parseInt(activity.creatorId) !== parseInt(store.getters.getUserId)" class="buttons">
                             <div class="buttons">
                                 <b-button v-if="userRole !== 'follower'" style="float:right" @click="updateRole(store.getters.getUserId, 'follower')"
                                           id="followButton" type="is-primary">
@@ -120,14 +120,14 @@
                              v-for="organiser in members.organiser"
                              :key="organiser.id">
                             <ProfileSummary class="flex-item" :profile="organiser">
-                                <template v-if="hasShareAndEditPermissions()" #options>
+                                <template v-if="hasShareAndEditPermissions" #options>
                                     <b-dropdown aria-role="list" class="is-pulled-right" position="is-bottom-left" v-if="store.getters.getAuthenticationLevel <= 1">
                                         <b-icon icon="ellipsis-v" slot="trigger"></b-icon>
                                         <b-dropdown-item @click="changeRole(organiser, roles.ORGANISER, roles.PARTICIPANT)">Change to Participant</b-dropdown-item>
                                         <b-dropdown-item @click="deleteRole(organiser.id, roles.ORGANISER)">Remove from activity</b-dropdown-item>
                                     </b-dropdown>
                                 </template>
-                                <template v-else-if="organiser.id == store.getters.getUserId" #options>
+                                <template v-else-if="parseInt(organiser.id) === parseInt(store.getters.getUserId)" #options>
                                     <b-button @click="deleteRole(organiser.id, roles.PARTICIPANT)"
                                               type="is-danger">
                                         Remove role
@@ -148,14 +148,14 @@
                                  v-for="participant in members.participant"
                                  :key="participant.id">
                                 <ProfileSummary class="flex-item" :profile="participant">
-                                    <template v-if="hasShareAndEditPermissions()" #options>
+                                    <template v-if="hasShareAndEditPermissions" #options>
                                         <b-dropdown aria-role="list" class="is-pulled-right" position="is-bottom-left">
                                             <b-icon icon="ellipsis-v" slot="trigger"></b-icon>
                                             <b-dropdown-item @click="changeRole(participant, roles.PARTICIPANT, roles.ORGANISER)">Change to Organiser</b-dropdown-item>
                                             <b-dropdown-item @click="deleteRole(participant.id, roles.PARTICIPANT)">Remove from activity</b-dropdown-item>
                                         </b-dropdown>
                                     </template>
-                                    <template v-else-if="participant.id == store.getters.getUserId" #options>
+                                    <template v-else-if="parseInt(participant.id) === parseInt(store.getters.getUserId)" #options>
                                         <b-button @click="deleteRole(participant.id, roles.PARTICIPANT)"
                                                   type="is-danger">
                                             Remove role
@@ -307,7 +307,7 @@
                     .then(() => {
                         this.members[oldRole] = this.members[oldRole].filter(member => member.id !== profileId)
                         this.successToast("Removed user from activity!")
-                        if (profileId === this.store.getters.getUserId) {
+                        if (parseInt(profileId) === parseInt(store.getters.getUserId)) {
                             this.userRole = null
                         }
                         this.getRoleCounts();
@@ -345,9 +345,7 @@
                     .then(response => {
                         this.userRole = response.data.role})
             },
-            hasShareAndEditPermissions() {
-                return ((this.activity && this.activity.creatorId === this.store.getters.getUserId) || this.store.getters.getAuthenticationLevel < 2);
-            }
+
         },
         computed: {
             privacy: function () {
@@ -362,6 +360,9 @@
                         return "Private";
                 }
             },
+            hasShareAndEditPermissions: function () {
+                return ((this.activity && parseInt(this.activity.creatorId) === parseInt(this.store.getters.getUserId)) || this.store.getters.getAuthenticationLevel < 2);
+            }
 
         },
         mounted() {
