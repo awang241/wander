@@ -1,18 +1,13 @@
 <template>
     <div class="card">
-        <div class="columns">
-            <div class="column">
-                <h4><strong>{{name}}</strong></h4>
-                <p>{{profile.gender}}</p>
-                <p>{{profile.email}}</p>
+        <div class="card-content">
+            <h4><strong>{{result.name}}</strong></h4>
+            <p class="outcome">{{result.outcome}}</p>
+            <div v-if="result.start_time != null">
+                <p>Start Time: {{dateFormat(result.start_time)}}</p>
+                <p>End Time: {{dateFormat(result.end_time)}}</p>
             </div>
-            <div class="column">
-                <p class="color-primary">{{result.outcome}}</p>
-                <div v-if="result.startTime != null">
-                    <p>Start Time: {{result.startTime}}</p>
-                    <p>End Time: {{result.endTime}}</p>
-                </div>
-            </div>
+
             <p>{{result.details}}</p>
             <slot name="options">
             </slot>
@@ -23,6 +18,7 @@
 <script>
     import toastMixin from "../mixins/toastMixin";
     import store from "../store";
+    import ViewActivity from "./ViewActivity";
 
     export default {
         name: "ActivityParticipationSummary",
@@ -36,32 +32,29 @@
         mounted() {
             this.resultData = this.$props.result;
         },
-        computed: {
-            // name() {
-            //     return `${this.result.firstname}  ${this.result.lastname}`
-            // },
-            // profileIsAdmin(){
-            //     return this.result.authLevel < 2
-            // }
-        },
+        computed: {},
         props: {
             result: {
                 type: Object,
                 required: true
+            },
+        },
+        methods: {
+            dateFormat(date) {
+                return ViewActivity.methods.dateFormat(date);
             }
         }
+
     }
 </script>
 
 <style scoped>
-    .columns {
+    .card-content {
         padding: 1rem;
     }
-    li{
-        list-style-type: none;
-    }
 
-    .color-primary {
-        color: #4099FF
+    .outcome {
+        color: #4099FF;
+        text-transform: uppercase;
     }
 </style>

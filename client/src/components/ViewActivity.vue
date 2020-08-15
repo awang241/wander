@@ -57,11 +57,11 @@
 
                                         <tr v-if="!activity.continuous">
                                             <td>Start Time:</td>
-                                            <td>UTC {{dateFormat(activity.start_time)}}</td>
+                                            <td>{{dateFormat(activity.start_time)}}</td>
                                         </tr>
                                         <tr v-if="!activity.continuous">
                                             <td>End Time:</td>
-                                            <td>UTC {{dateFormat(activity.end_time)}}</td>
+                                            <td>{{dateFormat(activity.end_time)}}</td>
                                         </tr>
 
                                         <tr>
@@ -190,8 +190,10 @@
                 return hour + ":" + min + " " + day + "/" + month + "/" + year;
             },
             getParticipationResults() {
-                api.getAllActivityParticipations()
-                    .then(response => this.participationResults = response.data)
+                api.getAllActivityParticipations(this.$route.params.id, localStorage.getItem('authToken'))
+                    .then(response => {
+                        this.participationResults = response.data.results
+                        })
             },
         },
         computed: {

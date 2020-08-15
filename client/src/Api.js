@@ -41,8 +41,8 @@ export default {
   getUserActivitiesList: (userId, token) => localAxiosInstance.get('/profiles/' + userId + '/activities', {headers: {"authorization":token}}),
   getUserProfiles: (token, parameters = {}) => localAxiosInstance.get('profiles/', {headers: {"authorization":token}, params: parameters}),
   getNextActivities: (userId, token, parameters = {}) => localAxiosInstance.get('/profiles/' + userId + '/activities', {headers: {"authorization":token}, params: parameters}),
-  getActivityParticipation: (userId, activityId, token, participationId) => localAxiosInstance.put('/profiles/'+ userId + '/activities/' + activityId + '/participation/' + participationId, {headers: {'authorization': token}}),
-
+  getActivityParticipation: (userId, activityId, token, participationId) => localAxiosInstance.get('/profiles/'+ userId + '/activities/' + activityId + '/participation/' + participationId, {headers: {'authorization': token}}),
+  getAllActivityParticipations: (activityId, token) => localAxiosInstance.get('activities/' + activityId + '/participations', {headers: {'authorization': token}}),
 
   // All login/logout API requests
   login: (user) => localAxiosInstance.post('login', user),

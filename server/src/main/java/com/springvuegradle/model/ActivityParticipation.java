@@ -74,12 +74,8 @@ public class ActivityParticipation {
      * @param startTime indicates the time that the user started a particular activity.
      * @param endTime indicates the time that the user finished a particular activity.
      */
-    @JsonCreator
-    public ActivityParticipation(
-                @JsonProperty("details") String details,
-                @JsonProperty("outcome") String outcome,
-                @JsonProperty("start_time") String startTime,
-                @JsonProperty("end_time") String endTime){
+//    @JsonCreator
+    public ActivityParticipation(String details, String outcome, String startTime, String endTime){
 
         this.details = details;
         this.outcome = outcome;
@@ -103,7 +99,7 @@ public class ActivityParticipation {
         this.id = id;
     }
 
-    @JsonIgnore
+    @JsonProperty("details")
     public String getDetails() {
         return details;
     }
@@ -112,7 +108,7 @@ public class ActivityParticipation {
         this.details = details;
     }
 
-    @JsonIgnore
+    @JsonProperty("outcome")
     public String getOutcome() {
         return outcome;
     }
@@ -139,7 +135,7 @@ public class ActivityParticipation {
         this.activity = activity;
     }
 
-    @JsonIgnore
+    @JsonProperty("start_time")
     public OffsetDateTime getStartTime() {
         return startTime;
     }
@@ -148,13 +144,16 @@ public class ActivityParticipation {
         this.startTime = startTime;
     }
 
-    @JsonIgnore
-    public OffsetDateTime getEndTime() {
-        return endTime;
-    }
+    @JsonProperty("end_time")
+    public OffsetDateTime getEndTime() { return endTime; }
 
     public void setEndTime(OffsetDateTime endTime) {
         this.endTime = endTime;
+    }
+
+    @JsonProperty("name")
+    public String getProfileName() {
+        return this.profile.getFullName();
     }
 
     @Override
