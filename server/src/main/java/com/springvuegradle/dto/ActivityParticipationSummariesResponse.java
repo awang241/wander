@@ -9,7 +9,7 @@ import java.util.List;
  * DTO object to return data to client upon a successful GET request for all of a users
  * participation of an activity.
  */
-public class ActivityParticipationsResponse {
+public class ActivityParticipationSummariesResponse {
 
     private List<ActivityParticipation> results;
     String message;
@@ -18,12 +18,12 @@ public class ActivityParticipationsResponse {
      * Constructor for a ActivityParticipationListResponse with parameters. for JSON parsing with spring requestmapping methods.
      * @param results list containing strings of all the user's participation of an activity listed in the database
      */
-    public ActivityParticipationsResponse(List<ActivityParticipation> results){
+    public ActivityParticipationSummariesResponse(List<ActivityParticipation> results){
         this.results = results;
         this.message = null;
     }
 
-    public ActivityParticipationsResponse(String message) {
+    public ActivityParticipationSummariesResponse(String message) {
         this.results = null;
         this.message = message;
     }
