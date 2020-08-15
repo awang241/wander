@@ -116,10 +116,20 @@
                 </b-tab-item>
 
                 <b-tab-item label="Results">
-                    <div class="flex">
-                        <div class="table-profile">
-                            need data here
+                    <div class="flex" v-if="participationResults.length > 0">
+                        <div class="table-profile"
+                             v-for="participationResult in participationResults" :key="participationResult.id">
+                            <ActivityParticipationSummary class="flex-item" :result="participationResult">
+<!--                                <template #options>-->
+<!--                                    <b-dropdown aria-role="list" class="is-pulled-right" position="is-bottom-left">-->
+<!--                                        <b-icon icon="ellipsis-v" slot="trigger"></b-icon>-->
+<!--                                    </b-dropdown>-->
+<!--                                </template>-->
+                            </ActivityParticipationSummary>
                         </div>
+                    </div>
+                    <div v-else>
+                        <p>This activity has no participation results.</p>
                     </div>
                 </b-tab-item>
             </b-tabs>
@@ -131,17 +141,19 @@
     import ProfileSummary from "./ProfileSummary";
     import router from "../router";
     import api from "../Api";
+    import ActivityParticipationSummary from "./ActivityParticipationSummary";
 
     export default {
         name: "ViewActivity",
-        components: {ProfileSummary},
+        components: {ActivityParticipationSummary, ProfileSummary},
         data() {
             return {
                 activityId: this.$route.params.id,
                 activity: null,
                 organisers: [],
                 participants: [],
-                numFollowers: 0
+                numFollowers: 0,
+                participationResults: []
           }
         },
         methods: {
@@ -176,7 +188,11 @@
                 let hour = date.slice(11, 13);
                 let min = date.slice(14, 16);
                 return hour + ":" + min + " " + day + "/" + month + "/" + year;
-            }
+            },
+            getParticipationResults() {
+                api.getAllActivityParticipations()
+                    .then(response => this.participationResults = response.data)
+            },
         },
         computed: {
             privacy: function () {
@@ -195,6 +211,7 @@
         mounted() {
             this.getActivity()
             this.getRoleCounts()
+            this.getParticipationResults()
 
             this.activity = {
                 continuous: false
