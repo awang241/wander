@@ -570,21 +570,24 @@ public class ActivityController {
 
     }
 
-    @GetMapping("/profiles/{profileId}/activities/{activityId}/participation")
-    public ResponseEntity<String> getParticipationSummaries (@RequestHeader("authorization") String token,
+    @GetMapping("/profiles/{profileId}/activities/{activityId}/participations")
+    public ResponseEntity<ActivityParticipationsResponse> getParticipationSummaries (@RequestHeader("authorization") String token,
                                                              @PathVariable long profileId,
                                                              @PathVariable long activityId)
     {
-
         if (token == null || token.isBlank()) {
-            return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
-                    HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
-        if (!jwtUtil.validateToken(token)) {
-            return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(),
-                    HttpStatus.FORBIDDEN);
+        else if (!jwtUtil.validateToken(token)) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
+        try {
+            List<ActivityParticipation> activityParticipations = activityService.readParticipationsFromActivity(activityId);
+            return new ResponseEntity<>(new ActivityParticipationsResponse(
+                    activityParticipations), HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
     }
-
-
 }
