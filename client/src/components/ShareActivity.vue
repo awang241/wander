@@ -113,7 +113,7 @@
                     this.$buefy.modal.open({
                         parent: this,
                         events: {
-                            'confirmPrivacyChange': rolesToRetain => this.printHelloWorld(rolesToRetain)
+                            'confirmPrivacyChange': rolesToRemove => this.updateActivityPrivacyAndRoles(rolesToRemove)
                         },
                         props: {activityId: this.id, activityPrivacy: this.privacy},
                         component: ActivityShareConfirmation,
@@ -121,12 +121,15 @@
                         scroll: "clip"
                     })
                 } else {
-                    this.updateActivityPrivacy()
+                    this.updateActivityPrivacyAndRoles()
                 }
 
             },
-            updateActivityPrivacy(){
-                Api.editActivityPrivacy(store.getters.getUserId, this.id, this.privacy, localStorage.getItem('authToken'))
+            updateActivityPrivacyAndRoles(rolesToRemove){
+                if (rolesToRemove) {
+                    rolesToRemove.forEach((role) => (Api.clearRoleOfActivity(localStorage.getItem('authToken'), this.id, role).catch(()=>this.warningToast(`Error deleting all ${role} roles from the activity.`))));
+                }
+                Api.editActivityPrivacy(store.getters.getUserId, this.id, {privacy:this.privacy, members: this.userRoles}, localStorage.getItem('authToken'))
                     .then(() => {
                         this.successToast("Activity privacy updated");
                         router.go(-1)

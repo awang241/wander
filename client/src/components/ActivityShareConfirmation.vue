@@ -9,18 +9,18 @@
 
         <br>
         <div class="block">
-            <b-checkbox v-model="rolesToRetain"
-                        native-value="followers">
-                Retain Followers
+            <b-checkbox v-model="rolesToRemove"
+                        native-value="follower">
+                Remove Followers
             </b-checkbox>
-            <b-checkbox v-model="rolesToRetain"
-                        native-value="participants">
-                Retain Participants
+            <b-checkbox v-model="rolesToRemove"
+                        native-value="participant">
+                Remove Participants
             </b-checkbox>
 
-            <b-checkbox v-model="rolesToRetain"
-                        native-value="organisers">
-                Retain Organisers
+            <b-checkbox v-model="rolesToRemove"
+                        native-value="organiser">
+                Remove Organisers
             </b-checkbox>
         </div>
         <b-button class="is-danger" @click="this.$parent.close">Cancel</b-button>
@@ -49,7 +49,7 @@
                 numFollowers: 0,
                 numOrganisers: 0,
                 numParticipants: 0,
-                rolesToRetain: []
+                rolesToRemove: []
             }
         },
         mounted() {
@@ -57,7 +57,9 @@
         },
         methods: {
             confirmPrivacyChange() {
-                this.$emit('confirmPrivacyChange', this.rolesToRetain)
+                console.log(this.rolesToRemove)
+                this.$emit('confirmPrivacyChange', this.rolesToRemove)
+                this.$parent.close();
             },
             getRoleCountsForActivity(){
                 Api.getRoleCountsForActivity(this.activityId, localStorage.getItem('authToken') )

@@ -4,42 +4,45 @@
         <section>
             <div id="activity-key-info">
                 <div>
-                    <div v-if="hasShareAndEditPermissions" class="buttons" style="float:right">
-                        <b-button style="float:right;" id="shareButton" @click="shareActivity"
-                                  type="is-primary">
-                            Share / Change Privacy Level
-                        </b-button>
-                        <b-button id="editButton" style="float:right" @click="editActivity"
-                                  type="is-primary">
-                            Edit Activity
-                        </b-button>
-                    </div>
-                    <div v-else class="buttons" style="float:right">
+                    <div style="float:right">
+                        <div v-if="hasShareAndEditPermissions()" class="buttons">
+                            <b-button style="float:right;" id="shareButton" @click="shareActivity"
+                                      type="is-primary">
+                                Share / Change Privacy Level
+                            </b-button>
+                            <b-button id="editButton" style="float:bottom" @click="editActivity"
+                                      type="is-primary">
+                                Edit Activity
+                            </b-button>
+                        </div>
                         <div class="buttons">
-                            <b-button v-if="userRole !== 'follower'" style="float:right" @click="updateRole(store.getters.getUserId, 'follower')"
-                                      id="followButton" type="is-primary">
-                                Follow
-                            </b-button>
-                            <b-button id="unfollowButton" v-if="userRole === 'follower'" style="float:right" @click="deleteRole(store.getters.getUserId, 'follower')"
-                                       type="is-danger">
-                                Unfollow
-                            </b-button>
-                            <b-button id="participateButton" v-if="userRole !== 'participant'" style="float:right" @click="updateRole(store.getters.getUserId, 'participant')"
-                                       type="is-primary">
-                                Participate
-                            </b-button>
-                            <b-button id="unparticipateButton" v-if="userRole === 'participant'" style="float:right" @click="deleteRole(store.getters.getUserId, 'participant')"
-                                       type="is-danger">
-                                Unparticipate
+                            <div class="buttons">
+                                <b-button v-if="userRole !== 'follower'" style="float:right" @click="updateRole(store.getters.getUserId, 'follower')"
+                                          id="followButton" type="is-primary">
+                                    Follow
+                                </b-button>
+                                <b-button id="unfollowButton" v-if="userRole === 'follower'" style="float:right" @click="deleteRole(store.getters.getUserId, 'follower')"
+                                          type="is-danger">
+                                    Unfollow
+                                </b-button>
+                                <b-button id="participateButton" v-if="userRole !== 'participant'" style="float:right" @click="updateRole(store.getters.getUserId, 'participant')"
+                                          type="is-primary">
+                                    Participate
+                                </b-button>
+                                <b-button id="unparticipateButton" v-if="userRole === 'participant'" style="float:right" @click="deleteRole(store.getters.getUserId, 'participant')"
+                                          type="is-danger">
+                                    Unparticipate
+                                </b-button>
+                            </div>
+                        </div>
+                        <div v-if="userRole === 'organiser'" style="margin-right: 0.5rem;" class="buttons">
+                            <b-button v-if="userRole === 'organiser'" style="float:right" @click="deleteRole(store.getters.getUserId,'organiser')"
+                                      type="is-danger">
+                                Remove self as organiser
                             </b-button>
                         </div>
                     </div>
-                    <div v-if="userRole === 'organiser'" style="float:right; margin-right: 0.5rem;" class="buttons">
-                        <b-button v-if="userRole === 'organiser'" style="float:right" @click="deleteRole(store.getters.getUserId,'organiser')"
-                                  type="is-danger">
-                            Remove self as organiser
-                        </b-button>
-                    </div>
+
 
                     <h1 class="title is-1">
                         {{activity.activity_name}}
@@ -341,6 +344,9 @@
                 api.getSingleUserActivityRole(localStorage.getItem('userId'), this.$route.params.id, localStorage.getItem('authToken'))
                     .then(response => {
                         this.userRole = response.data.role})
+            },
+            hasShareAndEditPermissions() {
+                return ((this.activity && this.activity.creatorId === this.store.getters.getUserId) || this.store.getters.getAuthenticationLevel < 2);
             }
         },
         computed: {
@@ -356,9 +362,7 @@
                         return "Private";
                 }
             },
-            hasShareAndEditPermissions() {
-                return ((this.activity && this.activity.creatorId === this.store.getters.getUserId) || this.store.getters.getAuthenticationLevel < 2);
-            }
+
         },
         mounted() {
             this.getActivity();

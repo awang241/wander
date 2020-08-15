@@ -512,7 +512,8 @@ public class ActivityController {
     public @ResponseBody
     ResponseEntity<String> clearRoleOfActivity(@RequestHeader("authorization") String token,
                                                @PathVariable Long activityId,
-                                               @RequestBody ActivityRoleUpdateRequest roleToClear){
+                                               @RequestParam("role") String roleToClear)
+    {
         ResponseEntity response = null;
         if (token == null || token.isBlank()) {
             response = new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
@@ -526,7 +527,7 @@ public class ActivityController {
             response = new ResponseEntity<>(ActivityMessage.INSUFFICIENT_PERMISSION.getMessage(), HttpStatus.FORBIDDEN);
         }
         if (response == null) {
-            String roleString = roleToClear.getRole().toUpperCase();
+            String roleString = roleToClear.toUpperCase();
             try{
                 Arrays.asList(ActivityRoleLevel.values()).contains(ActivityRoleLevel.valueOf(roleString));
                 activityService.clearActivityRoleList(activityId, roleString);
