@@ -27,15 +27,18 @@
                 </b-tab-item>
 
                 <b-tab-item label="Participating">
-                    <ActivityList v-bind:activities="participatingActivities" v-bind:role="'participant'"/>
+                    <ActivityList v-on:loadMoreActivities="loadMoreActivities('participant')"
+                                  v-bind:activities="participatingActivities" v-bind:role="'participant'"/>
                 </b-tab-item>
 
                 <b-tab-item label="Following">
-                    <ActivityList v-bind:activities="followingActivities" v-bind:role="'follower'"/>
+                    <ActivityList v-on:loadMoreActivities="loadMoreActivities('follower')"
+                                  v-bind:activities="followingActivities" v-bind:role="'follower'"/>
                 </b-tab-item>
 
                 <b-tab-item label="Discover Activities">
-                    <ActivityList v-bind:activities="discoverActivities" v-bind:role="'discover'"/>
+                    <ActivityList v-on:loadMoreActivities="loadMoreActivities('discover')"
+                                  v-bind:activities="discoverActivities" v-bind:role="'discover'"/>
                 </b-tab-item>
 
             </b-tabs>
@@ -50,7 +53,7 @@
     import toastMixin from "../mixins/toastMixin";
     import ActivityList from "./ActivityList";
 
-    const DEFAULT_RESULT_COUNT = 400;
+    const DEFAULT_RESULT_COUNT = 5;
 
 
     export default {
@@ -79,17 +82,6 @@
             }
         },
         methods: {
-            getActivities() {
-                api.getNextActivities(store.getters.getUserId, localStorage.getItem('authToken'), this.getParameters())
-                    .then((response) => {
-                        this.activities = response.data;
-                        this.activities.sort(function (a, b) {
-                                return a.continuous - b.continuous;
-                            }
-                        );
-                    })
-                    .catch(() => this.warningToast("Error while fetching next activities."));
-            },
             removeActivityFromList(activityId) {
                 switch (this.role) {
                     case "follower":
@@ -141,56 +133,72 @@
                 switch (role) {
                     case "creatorOrOrganiser":
                         if (this.moreMyActivitiesExist) {
-                            let searchParameters = this.getParameters(this.myActivitiesStartIndex, role);
-                            api.getNextActivities(store.getters.getUserId, localStorage.getItem("authToken"), searchParameters).then(response => {
+                            let searchParameters = { count: DEFAULT_RESULT_COUNT, startIndex: this.myActivitiesStartIndex, role: role };
+                            api.getNextActivities(this.store.getters.getUserId, localStorage.getItem("authToken"), searchParameters).then(response => {
                                 if (response.data.results.length == 0) {
                                     this.moreMyActivitiesExist = false;
                                 } else {
                                     this.myActivitiesStartIndex += DEFAULT_RESULT_COUNT;
                                     const activities = response.data.results;
                                     this.myActivities = [...this.myActivities, ...activities];
+                                    this.myActivities.sort(function (a, b) {
+                                            return a.continuous - b.continuous;
+                                        }
+                                    );
                                 }
                             });
                         }
                         break;
                     case "participant":
                         if (this.moreParticipatingActivitiesExist) {
-                            let searchParameters = this.getParameters(this.participatingActivitiesStartIndex, role);
-                            api.getNextActivities(store.getters.getUserId, localStorage.getItem("authToken"), searchParameters).then(response => {
+                            let searchParameters = { count: DEFAULT_RESULT_COUNT, startIndex: this.participatingActivitiesStartIndex, role: role };
+                            api.getNextActivities(this.store.getters.getUserId, localStorage.getItem("authToken"), searchParameters).then(response => {
                                 if (response.data.results.length == 0) {
                                     this.moreParticipatingActivitiesExist = false;
                                 } else {
                                     this.participatingActivitiesStartIndex += DEFAULT_RESULT_COUNT;
                                     const activities = response.data.results;
                                     this.participatingActivities = [...this.participatingActivities, ...activities];
+                                    this.participatingActivities.sort(function (a, b) {
+                                            return a.continuous - b.continuous;
+                                        }
+                                    );
                                 }
                             });
                         }
                         break;
                     case "follower":
                         if (this.moreFollowingActivitiesExist) {
-                            let searchParameters = this.getParameters(this.followingActivitiesStartIndex, role);
-                            api.getNextActivities(store.getters.getUserId, localStorage.getItem("authToken"), searchParameters).then(response => {
+                            let searchParameters = { count: DEFAULT_RESULT_COUNT, startIndex: this.followingActivitiesStartIndex, role: role };
+                            api.getNextActivities(this.store.getters.getUserId, localStorage.getItem("authToken"), searchParameters).then(response => {
                                 if (response.data.results.length == 0) {
                                     this.moreFollowingActivitiesExist = false;
                                 } else {
                                     this.followingActivitiesStartIndex += DEFAULT_RESULT_COUNT;
                                     const activities = response.data.results;
                                     this.followingActivities = [...this.followingActivities, ...activities];
+                                    this.followingActivities.sort(function (a, b) {
+                                            return a.continuous - b.continuous;
+                                        }
+                                    );
                                 }
                             });
                         }
                         break;
                     case "discover":
                         if (this.moreDiscoverActivitiesExist) {
-                            let searchParameters = this.getParameters(this.discoverActivitiesStartIndex, role);
-                            api.getNextActivities(store.getters.getUserId, localStorage.getItem("authToken"), searchParameters).then(response => {
+                            let searchParameters = { count: DEFAULT_RESULT_COUNT, startIndex: this.discoverActivitiesStartIndex, role: role };
+                            api.getNextActivities(this.store.getters.getUserId, localStorage.getItem("authToken"), searchParameters).then(response => {
                                 if (response.data.results.length == 0) {
                                     this.moreDiscoverActivitiesExist = false;
                                 } else {
                                     this.discoverActivitiesStartIndex += DEFAULT_RESULT_COUNT;
                                     const activities = response.data.results;
                                     this.discoverActivities = [...this.discoverActivities, ...activities];
+                                    this.discoverActivities.sort(function (a, b) {
+                                            return a.continuous - b.continuous;
+                                        }
+                                    );
                                 }
                             });
                         }
@@ -203,10 +211,6 @@
 
         },
         beforeMount() {
-            this.loadMoreActivities("creatorOrOrganiser");
-            this.loadMoreActivities("participant");
-            this.loadMoreActivities("follower");
-            this.loadMoreActivities("discover");
         }
     }
 

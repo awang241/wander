@@ -372,7 +372,7 @@ public class ActivityController {
             } else if (role.equals("creatorOrOrganiser")) {
                 activities = activityService.getActivitiesUserCanModify(request, profileId);
             } else if (role.equals("discover")) {
-                activities = activityService.getNewActivities(request, profileId);
+                activities = activityService.getNewActivities(profileId, startIndex, count);
             } else {
                 try {
                     activities = activityService.getActivitiesByProfileIdByRole(request, profileId, ActivityMembership.Role.valueOf(role.toUpperCase()));
