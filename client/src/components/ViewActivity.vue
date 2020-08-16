@@ -19,7 +19,7 @@
                                 Create Participation
                             </b-button>
                         </div>
-                        <div v-if="parseInt(activity.creatorId) !== parseInt(store.getters.getUserId)" class="buttons">
+                        <div v-if="parseInt(activity.creatorId) !== parseInt(store.getters.getUserId) && userRole !== 'organiser'" class="buttons">
                             <div class="buttons">
                                 <b-button v-if="userRole !== 'follower'" style="float:right" @click="updateRole(store.getters.getUserId,'follower')"
                                           id="followButton" type="is-primary">
