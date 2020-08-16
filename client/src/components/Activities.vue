@@ -19,47 +19,38 @@
             </div>
         </section>
         <div class="has-same-height is-gapless">
-            <div class="tabs is-centered">
+            <b-tabs v-model="tabIndex" expanded>
 
-                <b-tabs v-model="tabIndex" expanded>
+                <b-tab-item label="My Activities">
+                    <ActivityList v-on:loadMoreActivities="loadMoreActivities('creatorOrOrganiser')"
+                                  v-bind:activities="myActivities" v-bind:role="'creatorOrOrganiser'"/>
+                </b-tab-item>
 
-                    <b-tab-item label="My Activities">
-                        <ActivityList v-on:loadMoreActivities="loadMoreActivities('creatorOrOrganiser')"  v-bind:activities="myActivities" v-bind:role="'creatorOrOrganiser'"/>
-                    </b-tab-item>
+                <b-tab-item label="Participating">
+                    <ActivityList v-bind:activities="participatingActivities" v-bind:role="'participant'"/>
+                </b-tab-item>
 
-                    <b-tab-item label="Participating">
-                        <ActivityList v-bind:activities="participatingActivities" v-bind:role="'participant'"/>
-                    </b-tab-item>
+                <b-tab-item label="Following">
+                    <ActivityList v-bind:activities="followingActivities" v-bind:role="'follower'"/>
+                </b-tab-item>
 
-                    <b-tab-item label="Following">
-                        <ActivityList v-bind:activities="followingActivities" v-bind:role="'follower'"/>
-                    </b-tab-item>
+                <b-tab-item label="Discover Activities">
+                    <ActivityList v-bind:activities="discoverActivities" v-bind:role="'discover'"/>
+                </b-tab-item>
 
-                    <b-tab-item label="Discover Activities">
-                        <ActivityList v-bind:activities="discoverActivities" v-bind:role="'discover'"/>
-                    </b-tab-item>
-
-
-                </b-tabs>
-
-
-            </div>
+            </b-tabs>
         </div>
-
-
-
-
     </div>
 </template>
 
 <script>
-import api from '../Api';
-import router from "../router";
-import store from "../store"
-import toastMixin from "../mixins/toastMixin";
-import ActivityList from "./ActivityList";
+    import api from '../Api';
+    import router from "../router";
+    import store from "../store"
+    import toastMixin from "../mixins/toastMixin";
+    import ActivityList from "./ActivityList";
 
-const DEFAULT_RESULT_COUNT = 400;
+    const DEFAULT_RESULT_COUNT = 400;
 
 
     export default {
@@ -144,10 +135,10 @@ const DEFAULT_RESULT_COUNT = 400;
                 }
             },
             getParameters(startIndex, role) {
-              return {count: DEFAULT_RESULT_COUNT, startIndex: startIndex, role: role};
+                return {count: DEFAULT_RESULT_COUNT, startIndex: startIndex, role: role};
             },
             loadMoreActivities(role) {
-                switch(role) {
+                switch (role) {
                     case "creatorOrOrganiser":
                         if (this.moreMyActivitiesExist) {
                             let searchParameters = this.getParameters(this.myActivitiesStartIndex, role);
@@ -242,21 +233,22 @@ const DEFAULT_RESULT_COUNT = 400;
         margin-left: 1rem;
     }
 
-    #activities-key-info{
+    #activities-key-info {
         display: flex;
         justify-content: space-between;
         padding: 0 1rem;
     }
 
     .flex {
-      display: flex;
-      flex-direction: row;
-      flex-wrap: wrap;
-      justify-content: space-between;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-between;
     }
+
     .flex-item {
-      margin: 20px 0;
-      width: 500px;
+        margin: 20px 0;
+        width: 500px;
     }
 
 
