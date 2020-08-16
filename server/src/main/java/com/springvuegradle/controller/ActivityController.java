@@ -527,7 +527,6 @@ public class ActivityController {
             response = new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
                     HttpStatus.UNAUTHORIZED);
         }
-        //TODO: Check Whether the user token is admin or activity owner here *in a way that can be mocked* - currently only checks ownership
         if (!(securityService.checkEditPermission(token, activityId))) {
             response = new ResponseEntity<>(ActivityMessage.INSUFFICIENT_PERMISSION.getMessage(), HttpStatus.FORBIDDEN);
         }
