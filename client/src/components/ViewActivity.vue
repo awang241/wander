@@ -23,7 +23,10 @@
                     <h1 class="title is-1">
                         {{activity.activity_name}}
                     </h1>
-                    <div>
+                    <h2 class="subtitle is-5">
+                      My Role: {{myRole}}
+                    </h2>
+                  <div>
                         <h3 class="title is-5">{{privacy}}</h3>
                     </div>
                 </div>
@@ -153,7 +156,8 @@
                 organisers: [],
                 participants: [],
                 numFollowers: 0,
-                participationResults: []
+                participationResults: [],
+                myRole: "None"
           }
         },
         methods: {
@@ -195,6 +199,12 @@
                         this.participationResults = response.data.results
                         })
             },
+            getMyRole(){
+              api.getMyActivityRole(this.$route.params.id, localStorage.getItem('authToken'))
+                  .then(response => {
+                    this.myRole = response.data.results
+                  })
+            },
         },
         computed: {
             privacy: function () {
@@ -214,6 +224,7 @@
             this.getActivity()
             this.getRoleCounts()
             this.getParticipationResults()
+            this.getMyRole()
 
             this.activity = {
                 continuous: false
