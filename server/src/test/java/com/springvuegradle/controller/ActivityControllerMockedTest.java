@@ -276,9 +276,8 @@ class ActivityControllerMockedTest {
         long mockActivityID = 666;
         long mockProfileID = 123;
         Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
-//        Mockito.when(mockSecurity.checkEditPermission(mockToken, 54321L)).thenReturn(true);
-
-        Mockito.when(mockSecurity.checkEditPermission(mockToken, mockActivityID)).thenReturn(true);
+        Mockito.when(mockJwt.extractPermission(mockToken)).thenReturn(0);
+        Mockito.when(mockJwt.extractId(mockToken)).thenReturn(mockProfileID);
         Mockito.when(mockService.isProfileActivityCreator(mockProfileID, mockActivityID)).thenReturn(true);
         ResponseEntity actualResponse = activityController.clearRoleOfActivity(mockToken, mockActivityID, "participant");
         assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
@@ -329,15 +328,17 @@ class ActivityControllerMockedTest {
         ResponseEntity<String> expectedResponse = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         String mockToken = "54321";
         long mockActivityID = 666;
+        long mockProfileID = 54321;
         Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
-        Mockito.when(mockJwt.extractId(mockToken)).thenReturn(54321l);
-        Mockito.when(mockService.isProfileActivityCreator(54321l, mockActivityID)).thenReturn(true);
+        Mockito.when(mockJwt.extractPermission(mockToken)).thenReturn(0);
+        Mockito.when(mockJwt.extractId(mockToken)).thenReturn(mockProfileID);
+        Mockito.when(mockService.isProfileActivityCreator(mockProfileID, mockActivityID)).thenReturn(true);
         ResponseEntity actualResponse = activityController.clearRoleOfActivity(mockToken, mockActivityID, "partycrasher");
         assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
     }
 
     @Test
-    void clearRoleOfActivityNothingToDeleteTest(){
+    void clearRoleOfActivityNothingtoDeleteTest(){
         ResponseEntity<String> expectedResponse = new ResponseEntity<>(HttpStatus.NOT_FOUND);
         String mockToken = "54321";
         long mockActivityID = 666;
@@ -359,8 +360,7 @@ class ActivityControllerMockedTest {
         long mockProfileId = 987;
         long mockActivityID = 666;
         Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
-        Mockito.when(mockSecurity.checkEditPermission(mockToken, mockActivityID)).thenReturn(true);
-        Mockito.when(mockService.isProfileActivityCreator(mockProfileId, mockActivityID)).thenReturn(true);
+        Mockito.when(mockSecurity.checkEditPermission(mockToken, mockProfileId)).thenReturn(true);
         ResponseEntity actualResponse = activityController.getActivityRole(mockToken, mockProfileId,mockActivityID);
         assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
     }
