@@ -139,8 +139,17 @@
                     })
                     .catch(() => this.warningToast("Error updating activity privacy."));
             },
-            addEmail() {
+            async addEmail() {
                 let emailAlreadyAdded = false
+                let emailIsCreators = false
+                let response = await Api.getProfile(store.getters.getUserId, localStorage.getItem('authToken'))
+                if (response.data.primary_email === this.newEmail) {
+                    emailIsCreators = true
+                }
+                if (emailIsCreators) {
+                    this.warningToast("Cannot add yourself to an activity!")
+                    return;
+                }
                 this.userRoles.forEach(user => {
                     if (user.email === this.newEmail) {
                         emailAlreadyAdded = true
@@ -164,7 +173,6 @@
                         }
                     })
                     .catch(() => this.warningToast("Error verifying email."));
-
             },
             getRequestBody() {
                 let payload = {
@@ -209,7 +217,7 @@
                 if (!store.getters.getAuthenticationStatus) {
                     router.push({path: '/'})
                 }
-            },
+            }
         }
     }
 </script>
