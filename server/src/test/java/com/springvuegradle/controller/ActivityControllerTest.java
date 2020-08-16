@@ -100,7 +100,6 @@ public class ActivityControllerTest {
         Profile profile = prepo.save(maurice);
         activityController.createActivity(profile.getId(), trackRace, null, true);
         Activity activity = arepo.findAll().get(0);
-        System.out.println(activity.retrieveActivityTypes());
 
         int expected_in_repo = 1;
         assertEquals(expected_in_repo, arepo.count());

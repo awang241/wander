@@ -186,9 +186,8 @@
                         }
 
                     })
-                    .catch((error)  => {
-                        console.log(error)
-                        this.warningToast(`Chould not change user to ${permissionLevel}`)
+                    .catch(()  => {
+                        this.warningToast(`Could not change user to ${permissionLevel}.`);
                     })
             },
             getPossibleActivityTypes() {

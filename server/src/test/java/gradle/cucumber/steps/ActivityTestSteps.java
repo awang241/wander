@@ -15,6 +15,7 @@ import com.springvuegradle.model.ActivityMembership;
 import com.springvuegradle.model.ActivityType;
 import com.springvuegradle.model.Profile;
 import com.springvuegradle.repositories.*;
+import com.springvuegradle.service.ActivityService;
 import com.springvuegradle.service.ProfileService;
 import com.springvuegradle.utilities.JwtUtil;
 import io.cucumber.java.en.And;
@@ -64,6 +65,9 @@ public class ActivityTestSteps {
     @Autowired
     JwtUtil jwtUtil;
 
+    @Autowired
+    ActivityService activityService;
+
     private Profile profile;
 
     private LoginResponse loginResponse;
@@ -77,6 +81,7 @@ public class ActivityTestSteps {
     private Activity activity;
 
     private SimplifiedActivitiesResponse simplifiedActivitiesResponse;
+
 
     @AfterEach()
     private void tearDown() {
@@ -159,7 +164,6 @@ public class ActivityTestSteps {
         Long profileId = profileRepository.findByPrimaryEmail(email).get(0).getId();
         PrivacyRequest privacyRequest = new PrivacyRequest(privacy);
         ResponseEntity<String> response = activityController.editActivityPrivacy(privacyRequest, loginResponse.getToken(), profileId, activityRepository.getLastInsertedId());
-        System.out.println(response.getBody());
         assertEquals(200, response.getStatusCodeValue());
     }
 
@@ -172,9 +176,7 @@ public class ActivityTestSteps {
     @When("I choose to add the account with the email {string} to the activity as a {string}")
     public void i_choose_to_add_the_account_with_the_email_to_the_activity_as_a(String email, String role) {
         Long profileId = profileRepository.findByPrimaryEmail(email).get(0).getId();
-        System.out.println(role);
-        ResponseEntity<String> response = activityController.addActivityRole(loginResponse.getToken(), profileId, activityRepository.getLastInsertedId(), role);
-        System.out.println(response.getBody());
+        ResponseEntity<String> response = activityController.addActivityRole(loginResponse.getToken(), profileId, activityRepository.getLastInsertedId(), new ActivityRoleUpdateRequest(role));
         assertEquals(201, response.getStatusCodeValue());
     }
 
@@ -199,7 +201,6 @@ public class ActivityTestSteps {
     @Then("There is one activity with privacy {string}")
     public void there_is_one_activity_with_privacy_level(String privacy) {
         ResponseEntity<List<Activity>> response = activityController.getActivities(privacy, loginResponse.getToken());
-        System.out.println(response.getBody());
         assertEquals(1, response.getBody().size());
     }
 
@@ -254,7 +255,7 @@ public class ActivityTestSteps {
         for (String activityName: activityNames.asList()) {
             assertEquals(201, activityController.createActivity(jwtUtil.extractId(loginResponse.getToken()), activity = createNormalActivity(activityName, "Christchurch"), loginResponse.getToken()).getStatusCodeValue());
             assertEquals(200, activityController.editActivityPrivacy(new PrivacyRequest("public"), loginResponse.getToken(), loginResponse.getUserId(), activityRepository.getLastInsertedId()).getStatusCodeValue());
-            assertEquals(201, activityController.addActivityRole(loginResponse.getToken(), profileId, activityRepository.getLastInsertedId(), "organiser").getStatusCodeValue());
+            assertEquals(201, activityController.addActivityRole(loginResponse.getToken(), profileId, activityRepository.getLastInsertedId(), new ActivityRoleUpdateRequest("organiser")).getStatusCodeValue());
         }
     }
 
@@ -315,10 +316,10 @@ public class ActivityTestSteps {
         assertEquals(expectedMemberProfileResponse, activityController.getActivityMembers(loginResponse.getToken(), activity.getId()));
     }
 
-    @And("an activity exists in the database with {int} participants, {int} followers and {int} organizers")
-    public void anActivityExistsInTheDatabaseWithParticipantsFollowersAndOrganizers(int numParticipants, int numFollowers, int numOrganizers) {
+    @And("an activity exists in the database with {int} participants, {int} followers and {int} organisers")
+    public void anActivityExistsInTheDatabaseWithParticipantsFollowersAndOrganisers(int numParticipants, int numFollowers, int numOrganisers) {
         List<ActivityMembership.Role> roles = Arrays.asList(ActivityMembership.Role.PARTICIPANT, ActivityMembership.Role.FOLLOWER, ActivityMembership.Role.ORGANISER);
-        int[] numRoles = {numParticipants, numFollowers, numOrganizers};
+        int[] numRoles = {numParticipants, numFollowers, numOrganisers};
         activity = createNormalActivity("Cool activity", "Christchurch");
         activityRepository.save(activity);
         List<ActivityMemberProfileResponse> activityMemberProfileResponseList = new ArrayList<>();
@@ -332,5 +333,32 @@ public class ActivityTestSteps {
             }
         }
         expectedMemberProfileResponse = new ResponseEntity<>(activityMemberProfileResponseList, HttpStatus.OK);
+    }
+
+
+    @And("I am the owner of the activity")
+    public void iAmTheOwnerOfTheActivity() {
+        ActivityMembership.Role role = ActivityMembership.Role.valueOf("CREATOR");
+        ActivityMembership membership = new ActivityMembership(activity, profile, role);
+        membershipRepository.save(membership);
+    }
+
+    @When("I remove all {string}s from the activity")
+    public void iRemoveAllSFromTheActivity(String role) {
+        activityService.clearActivityRoleList(activity.getId(), role);
+    }
+
+    @Then("The amount of {string}s of the activity is {int}")
+    public void theAmountOfSOfTheActivityIs(String role, int roleCount) {
+        ActivityRoleCountResponse roleCounts = activityService.getRoleCounts(activity.getId());
+        if(role.equals("FOLLOWER")) {
+            assertEquals(roleCount, roleCounts.getFollowers());
+        }
+        else if(role.equals("PARTICIPANT")) {
+            assertEquals(roleCount, roleCounts.getParticipants());
+        }
+        else if(role.equals("ORGANISER")) {
+            assertEquals(roleCount, roleCounts.getOrganisers());
+        }
     }
 }

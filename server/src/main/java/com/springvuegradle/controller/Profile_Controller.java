@@ -439,7 +439,6 @@ public class Profile_Controller {
             MessageDigest hashedPW = MessageDigest.getInstance("SHA-256");
             return DatatypeConverter.printHexBinary(hashedPW.digest(plainPassword.getBytes(StandardCharsets.UTF_8)));
         } catch (NoSuchAlgorithmException error) {
-            System.out.println(error);
             return "Hash Failed";
         }
     }

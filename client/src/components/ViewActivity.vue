@@ -4,15 +4,43 @@
         <section>
             <div id="activity-key-info">
                 <div>
-                    <div v-if="hasShareAndEditPermissions()" class="buttons" style="float:right">
-                        <b-button style="float:right" @click="shareActivity"
-                                  type="is-primary">
-                            Share Activity / Change Privacy Level
-                        </b-button>
-                        <b-button style="float:right" @click="editActivity"
-                                  type="is-primary">
-                            Edit Activity
-                        </b-button>
+                    <div style="float:right">
+                        <div v-if="hasShareAndEditPermissions" class="buttons">
+                            <b-button style="float:right;" id="shareButton" @click="shareActivity"
+                                      type="is-primary">
+                                Share / Change Privacy Level
+                            </b-button>
+                            <b-button id="editButton" style="float:bottom" @click="editActivity"
+                                      type="is-primary">
+                                Edit Activity
+                            </b-button>
+                        </div>
+                        <div v-if="parseInt(activity.creatorId) !== parseInt(store.getters.getUserId)" class="buttons">
+                            <div class="buttons">
+                                <b-button v-if="userRole !== 'follower'" style="float:right" @click="updateRole(store.getters.getUserId,'follower')"
+                                          id="followButton" type="is-primary">
+                                    Follow
+                                </b-button>
+                                <b-button id="unfollowButton" v-if="userRole === 'follower'" style="float:right" @click="deleteRole(store.getters.getUserId, 'follower')"
+                                          type="is-danger">
+                                    Unfollow
+                                </b-button>
+                                <b-button id="participateButton" v-if="userRole !== 'participant'" style="float:right" @click="updateRole(store.getters.getUserId, 'participant')"
+                                          type="is-primary">
+                                    Participate
+                                </b-button>
+                                <b-button id="unparticipateButton" v-if="userRole === 'participant'" style="float:right" @click="deleteRole(store.getters.getUserId, 'participant')"
+                                          type="is-danger">
+                                    Unparticipate
+                                </b-button>
+                            </div>
+                        </div>
+                        <div v-if="userRole === 'organiser'" style="margin-right: 0.5rem;" class="buttons">
+                            <b-button v-if="userRole === 'organiser'" style="float:right" @click="deleteRole(store.getters.getUserId,'organiser')"
+                                      type="is-danger">
+                                Remove self as organiser
+                            </b-button>
+                        </div>
                     </div>
 
                     <h1 class="title is-1">
@@ -29,7 +57,7 @@
         </section>
 
         <div class="has-same-height is-gapless">
-          <div>
+            <div>
                 <div>
                     <div class="column">
                         <!-- Activities -->
@@ -69,10 +97,10 @@
                                             <td>Activity Type:</td>
                                             <td>{{type}}</td>
                                         </tr>
-                                      <tr>
-                                          <td>Followers:</td>
-                                          <td>{{numFollowers}}</td>
-                                      </tr>
+                                        <tr>
+                                            <td>Followers:</td>
+                                            <td>{{numFollowers}}</td>
+                                        </tr>
                                     </table>
                                 </div>
                             </div>
@@ -91,12 +119,18 @@
                              v-for="organiser in members.organiser"
                              :key="organiser.id">
                             <ProfileSummary class="flex-item" :profile="organiser">
-                                <template #options>
+                                <template v-if="hasShareAndEditPermissions" #options>
                                     <b-dropdown aria-role="list" class="is-pulled-right" position="is-bottom-left" v-if="store.getters.getAuthenticationLevel <= 1">
                                         <b-icon icon="ellipsis-v" slot="trigger"/>
-                                        <b-dropdown-item @click="changeRole(organiser, roles.ORGANISER, roles.PARTICIPANT)">Change to Participant</b-dropdown-item>
-                                        <b-dropdown-item @click="deleteRole(organiser, roles.ORGANISER)">Remove from activity</b-dropdown-item>
+                                        <b-dropdown-item @click="changeRole(organiser.id, roles.ORGANISER, roles.PARTICIPANT)">Change to Participant</b-dropdown-item>
+                                        <b-dropdown-item @click="deleteRole(organiser.id, roles.ORGANISER)">Remove from activity</b-dropdown-item>
                                     </b-dropdown>
+                                </template>
+                                <template v-else-if="parseInt(organiser.id) === parseInt(store.getters.getUserId)" #options>
+                                    <b-button @click="deleteRole(organiser.id, roles.PARTICIPANT)"
+                                              type="is-danger">
+                                        Remove role
+                                    </b-button>
                                 </template>
                             </ProfileSummary>
                         </div>
@@ -113,12 +147,18 @@
                                  v-for="participant in members.participant"
                                  :key="participant.id">
                                 <ProfileSummary class="flex-item" :profile="participant">
-                                    <template #options>
+                                    <template v-if="hasShareAndEditPermissions" #options>
                                         <b-dropdown aria-role="list" class="is-pulled-right" position="is-bottom-left">
                                             <b-icon icon="ellipsis-v" slot="trigger"/>
-                                            <b-dropdown-item @click="changeRole(participant, roles.PARTICIPANT, roles.ORGANISER)">Change to Organizer</b-dropdown-item>
-                                            <b-dropdown-item @click="deleteRole(participant, roles.PARTICIPANT)">Remove from activity</b-dropdown-item>
+                                            <b-dropdown-item @click="changeRole(participant.id, roles.PARTICIPANT, roles.ORGANISER)">Change to Organizer</b-dropdown-item>
+                                            <b-dropdown-item @click="deleteRole(participant.id, roles.PARTICIPANT)">Remove from activity</b-dropdown-item>
                                         </b-dropdown>
+                                    </template>
+                                    <template v-else-if="parseInt(participant.id) === parseInt(store.getters.getUserId)" #options>
+                                        <b-button @click="deleteRole(participant.id, roles.PARTICIPANT)"
+                                                  type="is-danger">
+                                            Remove role
+                                        </b-button>
                                     </template>
                                 </ProfileSummary>
                             </div>
@@ -185,6 +225,8 @@
             return {
                 roles: ROLES,
 
+                userRole: null,
+
                 activityId: this.$route.params.id,
                 activity: null,
                 members: {
@@ -208,9 +250,16 @@
           }
         },
         methods: {
+            updateRole(profileId, newRole) {
+                if (this.userRole == null) {
+                    this.addRole(newRole);
+                } else if (this.userRole !== newRole) {
+                    this.changeRole(profileId, this.userRole, newRole);
+                }
+            },
             getRoleCounts(){
                 api.getRoleCountsForActivity(this.$route.params.id, localStorage.getItem('authToken'))
-                .then(response => this.numFollowers = response.data.followers)
+                    .then(response => this.numFollowers = response.data.followers)
             },
             editActivity() {
                 router.push({name: 'editActivity', params: {activityProp: this.activity}});
@@ -218,17 +267,18 @@
             getActivity() {
                 api.getActivity(this.activityId, localStorage.getItem('authToken'))
                     .then(response => this.activity = response.data)
-                    .catch((error) => {
-                        console.log(error);
+                    .catch(() => {
+                        this.warningToast("Error occurred.");
                         router.go(-1);
                     })
             },
             getAllActivityMembers() {
                 this.getActivityMembers(this.roles.PARTICIPANT);
                 this.getActivityMembers(this.roles.ORGANISER);
-                if (store.getters.getAuthenticationLevel <= 1) {
-                    this.getActivityMembers(this.roles.FOLLOWER);
-                }
+                    if (this.store.getters.getAuthenticationLevel <= 1) {
+                        this.getActivityMembers(this.roles.FOLLOWER);
+                    }
+
             },
             getActivityMembers(role) {
                 let searchParams = null;
@@ -242,50 +292,75 @@
                     .then(response => {
                         this.members[role] = response.data.summaries;
                     })
-                    .catch((error) => {
-                        console.log(error);
-                        this.warningToast("Error loading activity data");
+                    .catch(() => {
+                        this.warningToast("Error loading activity data.");
                     })
             },
-            hasShareAndEditPermissions() {
-                return ((this.activity && this.activity.creatorId === this.store.getters.getUserId) || this.store.getters.getAuthenticationLevel < 2);
-            },
-            changeRole(profile, oldRole, newRole) {
+            changeRole(profileId, oldRole, newRole) {
+
                 if (newRole !== oldRole) {
-                    api.editActivityMemberRole(profile.id, this.activity.id, newRole, localStorage.getItem("authToken"))
+                    api.editActivityMemberRole(profileId, this.activity.id, newRole, localStorage.getItem("authToken"))
                         .then(() => {
-                            let index = this.members[oldRole].findIndex((item) => {return item === profile});
-                            if (index !== -1) {
-                                this.members[oldRole].splice(index, 1);
+                            let profile = this.members[oldRole].find((profile) => {return profile.id === profileId});
+                            this.members[oldRole] = this.members[oldRole].filter((profile) => profile.id !== profileId)
+                            if (profile != -null) {
                                 this.members[newRole].push(profile);
                             } else {
-                                console.log("Error updating members locally. The program will now reload data from server");
                                 this.getAllActivityMembers();
                             }
+                            if (profileId == this.store.getters.getUserId) {
+                                this.userRole = newRole
+                            }
+                            this.getRoleCounts();
                             this.successToast("Role successfully updated.")
                         }).catch((error) => {
-                        console.log(error)
+                        this.warningToast(error);
                     })
                 }
             },
-            deleteRole(profile, oldRole){
-                  api.deleteActivityMembership(profile.id, this.activity.id, localStorage.getItem("authToken"))
+
+            deleteRole(profileId, oldRole){
+                api.deleteActivityMembership(profileId, this.activity.id, localStorage.getItem("authToken"))
                     .then(() => {
-                        this.members[oldRole] = this.members[oldRole].filter(member => member.id !== profile.id);
+                        this.members[oldRole] = this.members[oldRole].filter(member => member.id !== profileId)
                         this.successToast("Removed user from activity!")
+                        if (parseInt(profileId) === parseInt(store.getters.getUserId)) {
+                            this.userRole = null
+                        }
+                        this.getRoleCounts();
                     })
                     .catch(() => this.warningToast("User could not be removed from the activity!"))
             },
             shareActivity() {
                 router.push("/ShareActivity/" + this.activity.id + "/" + this.privacy.toLowerCase())
             },
+            addRole(role) {
+                api.addActivityRole(this.store.getters.getUserId, this.$route.params.id, localStorage.getItem('authToken'), role)
+                    .then(() => {
+                        this.userRole = role
+                        this.getActivityMembers(role)
+                        this.successToast("Now a " + role)
+                        this.getRoleCounts();
+                    })
+                    .catch((error) => {
+                        this.warningToast(error);
+                    })
+            },
             dateFormat(date) {
-                let year = date.slice(0, 4);
-                let month = date.slice(5, 7);
-                let day = date.slice(8, 10);
-                let hour = date.slice(11, 13);
-                let min = date.slice(14, 16);
-                return hour + ":" + min + " " + day + "/" + month + "/" + year;
+                if (date) {
+                    let year = date.slice(0, 4);
+                    let month = date.slice(5, 7);
+                    let day = date.slice(8, 10);
+                    let hour = date.slice(11, 13);
+                    let min = date.slice(14, 16);
+                    return hour + ":" + min + " " + day + "/" + month + "/" + year;
+                }
+
+            },
+            getUserRole() {
+                api.getSingleUserActivityRole(localStorage.getItem('userId'), this.$route.params.id, localStorage.getItem('authToken'))
+                    .then(response => {
+                        this.userRole = response.data.role})
             },
             loadMoreProfiles(role) {
                 const pagingData = this.pagingData[role];
@@ -318,6 +393,9 @@
                     default:
                         return "Private";
                 }
+            },
+            hasShareAndEditPermissions: function () {
+                return ((this.activity && parseInt(this.activity.creatorId) === parseInt(this.store.getters.getUserId)) || this.store.getters.getAuthenticationLevel < 2);
             }
         },
         mounted() {
@@ -325,9 +403,10 @@
             this.getAllActivityMembers();
             this.getRoleCounts();
 
-            this.activity = {
-                continuous: false
-            };
+            setTimeout(() => {
+                this.getUserRole()
+            }, 400);
+
         }
     }
 </script>
@@ -341,7 +420,9 @@
     }
     .flex-item {
         margin: 20px 0;
-        width: 500px;
+        width: 490px;
+        align-items: center;
+        padding-right: 1rem;
     }
 
 </style>

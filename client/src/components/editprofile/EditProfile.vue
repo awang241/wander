@@ -88,8 +88,8 @@
                 }
                 api.getProfile(this.id, localStorage.getItem('authToken'))
                     .then(response => this.profile = response.data)
-                    .catch((error) => {
-                        console.log(error)
+                    .catch(() => {
+                        this.warningToast("Error occurred while getting Profile details.");
                         router.go(-1)
                     })
             },

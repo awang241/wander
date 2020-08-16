@@ -128,7 +128,7 @@ Feature: Creating modifying and deleting activities
     Then I am now a "PARTICIPANT" of the activity
 
   @U28F5-Editing-Participation
-  Scenario: I am unable to change my own role in an activity to organizer
+  Scenario: I am unable to change my own role in an activity to organiser
     Given I registered account with email "rick@gmail.com" and password "rick'sSecuredPwd"
     And I create a continuous activity with the title "Rick goes to space" and the location "Space"
     And I am a "FOLLOWER" of this activity
@@ -152,7 +152,7 @@ Feature: Creating modifying and deleting activities
     Then I am now a "PARTICIPANT" of the activity
 
   @U28F5-Editing-Participation
-  Scenario: I am unable to change my own role in an activity to organizer
+  Scenario: I am unable to change my own role in an activity to organiser
     Given I registered account with email "rick@gmail.com" and password "rick'sSecuredPwd"
     And I create a continuous activity with the title "Rick goes to space" and the location "Space"
     And I am a "FOLLOWER" of this activity
@@ -162,6 +162,32 @@ Feature: Creating modifying and deleting activities
   @U17F2-Getting-Users-With-Roles
   Scenario: I want to find users with a role in an activity
     Given I registered account with email "rick@gmail.com" and password "rick'sSecuredPwd"
-    And an activity exists in the database with 2 participants, 3 followers and 1 organizers
+    And an activity exists in the database with 2 participants, 3 followers and 1 organisers
     When I want to see who is following my activity
     Then The ID first name last name and role of All people with roles in the activity is returned
+
+  @U17F4-Clearing-Memberships-Of-An-Activity
+  Scenario: I am removing all the followers from my activity
+    Given I registered account with email "rick@gmail.com" and password "rick'sSecuredPwd"
+    And an activity exists in the database with 2 participants, 3 followers and 1 organisers
+    And I am the owner of the activity
+    When I remove all "FOLLOWER"s from the activity
+    Then The amount of "FOLLOWER"s of the activity is 0
+
+  @U17F4-Clearing-Memberships-Of-An-Activity
+  Scenario: I am removing all the participants from my activity
+    Given I registered account with email "rick@gmail.com" and password "rick'sSecuredPwd"
+    And an activity exists in the database with 2 participants, 3 followers and 1 organisers
+    And I am the owner of the activity
+    When I remove all "PARTICIPANT"s from the activity
+    Then The amount of "PARTICIPANT"s of the activity is 0
+
+  @U17F4-Clearing-Memberships-Of-An-Activity
+  Scenario: I am removing all the organisers from my activity
+    Given I registered account with email "rick@gmail.com" and password "rick'sSecuredPwd"
+    And an activity exists in the database with 2 participants, 3 followers and 1 organisers
+    And I am the owner of the activity
+    When I remove all "ORGANISER"s from the activity
+    Then The amount of "ORGANISER"s of the activity is 0
+
+

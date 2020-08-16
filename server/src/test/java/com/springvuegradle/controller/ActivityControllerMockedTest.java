@@ -1,5 +1,6 @@
 package com.springvuegradle.controller;
 
+import com.springvuegradle.dto.requests.ActivityRoleUpdateRequest;
 import com.springvuegradle.dto.responses.ActivityMemberRoleResponse;
 import com.springvuegradle.dto.responses.ProfileSummary;
 import com.springvuegradle.enums.ActivityResponseMessage;
@@ -14,6 +15,7 @@ import com.springvuegradle.model.Activity;
 import com.springvuegradle.model.ActivityTestUtils;
 import com.springvuegradle.repositories.ActivityRepository;
 import com.springvuegradle.service.ActivityService;
+import com.springvuegradle.service.SecurityService;
 import com.springvuegradle.utilities.FormatHelper;
 import com.springvuegradle.utilities.JwtUtil;
 import org.junit.jupiter.api.AfterEach;
@@ -55,12 +57,18 @@ class ActivityControllerMockedTest {
     ActivityController activityController;
     @Autowired
     ActivityRepository mockRepo;
+    @Autowired
+    SecurityService mockSecurity;
 
     @AfterEach
     private void tearDown() {
         mockRepo.deleteAll();
-        ;
+        Mockito.reset(mockService);
+        Mockito.reset(mockJwt);
+        Mockito.reset(mockSecurity);
     }
+
+
 
 
     @Test
@@ -261,6 +269,4 @@ class ActivityControllerMockedTest {
         ResponseEntity<SimplifiedActivitiesResponse> actualResponse = activityController.getUsersActivitiesByRole(mockToken, mockProfileId, 0, 0, "creator");
         assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
     }
-
-    //TODO Need test for invalid roles
 }
