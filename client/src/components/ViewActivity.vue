@@ -17,7 +17,7 @@
                         </div>
                         <div v-if="parseInt(activity.creatorId) !== parseInt(store.getters.getUserId)" class="buttons">
                             <div class="buttons">
-                                <b-button v-if="userRole !== 'follower'" style="float:right" @click="updateRole(store.getters.getUserId, 'follower')"
+                                <b-button v-if="userRole !== 'follower'" style="float:right" @click="updateRole(store.getters.getUserId,'follower')"
                                           id="followButton" type="is-primary">
                                     Follow
                                 </b-button>
@@ -295,10 +295,8 @@
                         this.warningToast("Error loading activity data.");
                     })
             },
-            hasShareAndEditPermissions() {
-                return ((this.activity && this.activity.creatorId === this.store.getters.getUserId) || this.store.getters.getAuthenticationLevel < 2);
-            },
             changeRole(profileId, oldRole, newRole) {
+
                 if (newRole !== oldRole) {
                     api.editActivityMemberRole(profileId, this.activity.id, newRole, localStorage.getItem("authToken"))
                         .then(() => {
@@ -309,7 +307,9 @@
                             } else {
                                 this.getAllActivityMembers();
                             }
-                            if (parseInt(profileId) === parseInt(store.getters.getUserId)) {
+                            console.log(profileId)
+                            console.log(this.store.getters.getUserId)
+                            if (profileId == this.store.getters.getUserId) {
                                 this.userRole = newRole
                             }
                             this.getRoleCounts();
@@ -339,6 +339,7 @@
                 api.addActivityRole(this.store.getters.getUserId, this.$route.params.id, localStorage.getItem('authToken'), role)
                     .then(() => {
                         this.userRole = role
+                        console.log(this.userRole)
                         this.getActivityMembers(role)
                         this.successToast("Now a " + role)
                         this.getRoleCounts();
