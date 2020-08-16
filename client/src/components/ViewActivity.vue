@@ -122,7 +122,7 @@
                                 <template v-if="hasShareAndEditPermissions" #options>
                                     <b-dropdown aria-role="list" class="is-pulled-right" position="is-bottom-left" v-if="store.getters.getAuthenticationLevel <= 1">
                                         <b-icon icon="ellipsis-v" slot="trigger"/>
-                                        <b-dropdown-item @click="changeRole(organiser, roles.ORGANISER, roles.PARTICIPANT)">Change to Participant</b-dropdown-item>
+                                        <b-dropdown-item @click="changeRole(organiser.id, roles.ORGANISER, roles.PARTICIPANT)">Change to Participant</b-dropdown-item>
                                         <b-dropdown-item @click="deleteRole(organiser.id, roles.ORGANISER)">Remove from activity</b-dropdown-item>
                                     </b-dropdown>
                                 </template>
@@ -150,8 +150,8 @@
                                     <template v-if="hasShareAndEditPermissions" #options>
                                         <b-dropdown aria-role="list" class="is-pulled-right" position="is-bottom-left">
                                             <b-icon icon="ellipsis-v" slot="trigger"/>
-                                            <b-dropdown-item @click="changeRole(participant, roles.PARTICIPANT, roles.ORGANISER)">Change to Organizer</b-dropdown-item>
-                                            <b-dropdown-item @click="deleteRole(participant, roles.PARTICIPANT)">Remove from activity</b-dropdown-item>
+                                            <b-dropdown-item @click="changeRole(participant.id, roles.PARTICIPANT, roles.ORGANISER)">Change to Organizer</b-dropdown-item>
+                                            <b-dropdown-item @click="deleteRole(participant.id, roles.PARTICIPANT)">Remove from activity</b-dropdown-item>
                                         </b-dropdown>
                                     </template>
                                     <template v-else-if="parseInt(participant.id) === parseInt(store.getters.getUserId)" #options>
@@ -275,9 +275,10 @@
             getAllActivityMembers() {
                 this.getActivityMembers(this.roles.PARTICIPANT);
                 this.getActivityMembers(this.roles.ORGANISER);
-                if (store.getters.getAuthenticationLevel <= 1) {
-                    this.getActivityMembers(this.roles.FOLLOWER);
-                }
+                    if (this.store.getters.getAuthenticationLevel <= 1) {
+                        this.getActivityMembers(this.roles.FOLLOWER);
+                    }
+
             },
             getActivityMembers(role) {
                 let searchParams = null;
@@ -307,8 +308,6 @@
                             } else {
                                 this.getAllActivityMembers();
                             }
-                            console.log(profileId)
-                            console.log(this.store.getters.getUserId)
                             if (profileId == this.store.getters.getUserId) {
                                 this.userRole = newRole
                             }
@@ -339,7 +338,6 @@
                 api.addActivityRole(this.store.getters.getUserId, this.$route.params.id, localStorage.getItem('authToken'), role)
                     .then(() => {
                         this.userRole = role
-                        console.log(this.userRole)
                         this.getActivityMembers(role)
                         this.successToast("Now a " + role)
                         this.getRoleCounts();
@@ -405,9 +403,6 @@
             this.getAllActivityMembers();
             this.getRoleCounts();
 
-            this.activity = {
-                continuous: false
-            };
             setTimeout(() => {
                 this.getUserRole()
             }, 400);
