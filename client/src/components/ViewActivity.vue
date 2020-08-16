@@ -205,11 +205,6 @@
                         <div class="table-profile"
                              v-for="participationResult in participationResults" :key="participationResult.id">
                             <ActivityParticipationSummary class="flex-item" :result="participationResult">
-<!--                                <template #options>-->
-<!--                                    <b-dropdown aria-role="list" class="is-pulled-right" position="is-bottom-left">-->
-<!--                                        <b-icon icon="ellipsis-v" slot="trigger"></b-icon>-->
-<!--                                    </b-dropdown>-->
-<!--                                </template>-->
                             </ActivityParticipationSummary>
                         </div>
                     </div>
