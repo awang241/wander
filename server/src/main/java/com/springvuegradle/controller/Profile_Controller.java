@@ -473,7 +473,13 @@ public class Profile_Controller {
      */
     protected ResponseEntity<Profile> getProfile(Long id) {
         Optional<Profile> profileWithId = repo.findById(id);
-        return profileWithId.map(profile -> new ResponseEntity<>(profile, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        if(profileWithId.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        else if (profileWithId.get().getAuthLevel() == 0) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(profileWithId.get(), HttpStatus.OK);
     }
 
     /**
