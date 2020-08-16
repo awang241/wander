@@ -94,7 +94,7 @@
             return {
                 privacy: "private",
                 userRoles: [],
-                originalPrivacy: "public",
+                originalPrivacy: this.activityPrivacy,
                 emails: {},
                 newEmail: "",
                 role: "",
@@ -105,11 +105,8 @@
             this.getMembers()
         },
         methods: {
-            printHelloWorld(rolesToRetain) {
-                this.successToast(rolesToRetain)
-            },
             onShareActivityClicked() {
-                if (this.isPrivacyMoreRestrictive()) {
+                if (this.isPrivacyMoreRestrictive() && this.userRoles.length > 0) {
                     this.$buefy.modal.open({
                         parent: this,
                         events: {
@@ -206,7 +203,9 @@
             },
             isPrivacyMoreRestrictive() {
                 const privacyDict = {"public": 1, "friends": 2, "private": 3}
-                return privacyDict[this.privacy] > privacyDict[this.originalPrivacy]
+                const decision = privacyDict[this.privacy] > privacyDict[this.originalPrivacy]
+                this.originalPrivacy = this.privacy
+                return decision
             },
 
             goBack() {
