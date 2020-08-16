@@ -39,8 +39,8 @@
                                     <table class="table-profile">
                                         <caption hidden>Displayed Activity Table</caption>
                                         <tr>
-                                            <th colspan="1" scope="col"></th>
-                                            <th colspan="2" scope="col"></th>
+                                            <th colspan="1" scope="col"/>
+                                            <th colspan="2" scope="col"/>
                                         </tr>
                                         <tr>
                                             <td>Description:</td>
@@ -83,7 +83,7 @@
         </div>
 
         <div>
-            <b-tabs v-model="roleIndex">
+            <b-tabs v-model="tabIndex">
                 <b-tab-item label="Organisers">
                     <div class="flex"
                          v-if="members[roles.ORGANISER].length > 0">
@@ -93,7 +93,7 @@
                             <ProfileSummary class="flex-item" :profile="organiser">
                                 <template #options>
                                     <b-dropdown aria-role="list" class="is-pulled-right" position="is-bottom-left" v-if="store.getters.getAuthenticationLevel <= 1">
-                                        <b-icon icon="ellipsis-v" slot="trigger"></b-icon>
+                                        <b-icon icon="ellipsis-v" slot="trigger"/>
                                         <b-dropdown-item @click="changeRole(organiser, roles.ORGANISER, roles.PARTICIPANT)">Change to Participant</b-dropdown-item>
                                         <b-dropdown-item @click="deleteRole(organiser, roles.ORGANISER)">Remove from activity</b-dropdown-item>
                                     </b-dropdown>
@@ -104,31 +104,29 @@
                     <div v-else>
                         <p>This activity has no organisers.</p>
                     </div>
-                    <observer v-on:intersect="loadMoreProfiles(roles.ORGANISER, moreOrganisersExist, organisersIndex)"></observer>
                 </b-tab-item>
 
                 <b-tab-item label="Participants">
-                    <div class="flex">
-                        <div v-if="members[roles.PARTICIPANT].length > 0">
+                    <div class="flex"
+                         v-if="members[roles.PARTICIPANT].length > 0">
                             <div class="table-profile"
                                  v-for="participant in members.participant"
                                  :key="participant.id">
                                 <ProfileSummary class="flex-item" :profile="participant">
                                     <template #options>
                                         <b-dropdown aria-role="list" class="is-pulled-right" position="is-bottom-left">
-                                            <b-icon icon="ellipsis-v" slot="trigger"></b-icon>
+                                            <b-icon icon="ellipsis-v" slot="trigger"/>
                                             <b-dropdown-item @click="changeRole(participant, roles.PARTICIPANT, roles.ORGANISER)">Change to Organizer</b-dropdown-item>
                                             <b-dropdown-item @click="deleteRole(participant, roles.PARTICIPANT)">Remove from activity</b-dropdown-item>
                                         </b-dropdown>
                                     </template>
                                 </ProfileSummary>
                             </div>
-                        </div>
-                        <div v-else>
-                            <p>This activity has no participants.</p>
-                        </div>
                     </div>
-                    <observer v-on:intersect="loadMoreProfiles(roles.PARTICIPANT, moreParticipantsExist, participantsIndex)"></observer>
+                    <div v-else>
+                        <p>This activity has no participants.</p>
+                    </div>
+                    <observer v-on:intersect="loadMoreProfiles(roles.PARTICIPANT)"/>
                 </b-tab-item>
 
                 <b-tab-item label="Followers"
@@ -141,7 +139,7 @@
                             <ProfileSummary class="flex-item" :profile="follower">
                                 <template #options>
                                     <b-dropdown aria-role="list" class="is-pulled-right" position="is-bottom-left">
-                                        <b-icon icon="ellipsis-v" slot="trigger"></b-icon>
+                                        <b-icon icon="ellipsis-v" slot="trigger"/>
                                     </b-dropdown>
                                 </template>
                             </ProfileSummary>
@@ -150,7 +148,7 @@
                     <div v-else>
                         <p>This activity has no followers.</p>
                     </div>
-                    <observer v-on:intersect="loadMoreProfiles(roles.FOLLOWER, moreFollowersExist, followersIndex)"></observer>
+                    <observer v-on:intersect="loadMoreProfiles(roles.FOLLOWER)"/>
                 </b-tab-item>
             </b-tabs>
         </div>
@@ -174,6 +172,11 @@
         FOLLOWER: "follower"
     });
 
+    function RolePagingData() {
+        this.startIndex = DEFAULT_RESULT_COUNT;
+        this.finished = false;
+    }
+
     export default {
         name: "ViewActivity",
         components: {ProfileSummary, Observer},
@@ -189,13 +192,16 @@
                     "participant": [],
                     "follower": [],
                 },
-                roleIndex: 0,
-                organisersIndex: 0,
-                participantsIndex: 0,
-                followersIndex: 0,
+                pagingData: {
+                    "organiser": new RolePagingData(),
+                    "participant": new RolePagingData(),
+                    "follower": new RolePagingData(),
+                },
+                tabIndex: 0,
                 store: store,
                 isCreatorOrOrganizer: false,
                 numFollowers: 0,
+                numParticipants: 0,
                 moreOrganisersExist: true,
                 moreParticipantsExist: true,
                 moreFollowersExist: true
@@ -228,7 +234,7 @@
                 let searchParams = null;
                 if (role === this.roles.PARTICIPANT && store.getters.getAuthenticationLevel > 1) {
                     searchParams = {
-                        count: 50,
+                        count: DEFAULT_RESULT_COUNT,
                         index: 0
                     };
                 }
@@ -241,21 +247,8 @@
                         this.warningToast("Error loading activity data");
                     })
             },
-            //I think unused method. If anyone else can confirm that this method is not needed, please delete.
-            getRoleName: function (roleIndex) {
-                switch (roleIndex) {
-                    case 0:
-                        return ROLES.ORGANISER;
-                    case 1:
-                        return ROLES.PARTICIPANT;
-                    case 2:
-                        return ROLES.FOLLOWER;
-                    default:
-                        return null
-                }
-            },
             hasShareAndEditPermissions() {
-                return ((this.activity && this.activity.creatorId == this.store.getters.getUserId) || this.store.getters.getAuthenticationLevel < 2);
+                return ((this.activity && this.activity.creatorId === this.store.getters.getUserId) || this.store.getters.getAuthenticationLevel < 2);
             },
             changeRole(profile, oldRole, newRole) {
                 if (newRole !== oldRole) {
@@ -278,7 +271,7 @@
             deleteRole(profile, oldRole){
                   api.deleteActivityMembership(profile.id, this.activity.id, localStorage.getItem("authToken"))
                     .then(() => {
-                        this.members[oldRole] = this.members[oldRole].filter(member => member.id !== profile.id)
+                        this.members[oldRole] = this.members[oldRole].filter(member => member.id !== profile.id);
                         this.successToast("Removed user from activity!")
                     })
                     .catch(() => this.warningToast("User could not be removed from the activity!"))
@@ -294,18 +287,18 @@
                 let min = date.slice(14, 16);
                 return hour + ":" + min + " " + day + "/" + month + "/" + year;
             },
-            loadMoreProfiles(role, moreProfilesExist, index) {
-                if (moreProfilesExist && this.store.getters.getAuthenticationLevel < 2) {
-                    const searchParameters = this.getSearchParameters(index, role)
+            loadMoreProfiles(role) {
+                const pagingData = this.pagingData[role];
+                if (!pagingData.finished && this.store.getters.getAuthenticationLevel < 2) {
+                    const searchParameters = this.getSearchParameters(pagingData.startIndex, role);
                     api.getActivityMembers(this.activityId, role, localStorage.getItem("authToken"), searchParameters)
                         .then(response => {
-                            if (response.data.results.length == 0) {
-                                this.moreOrganisersExist = false;
-                            } else {
-                                index += DEFAULT_RESULT_COUNT
-                                const profiles = response.data.summaries
-                                this.members[role] = [...this.members[role], ...profiles]
+                            if (response.data.summaries.length < DEFAULT_RESULT_COUNT) {
+                                pagingData.finished = true;
                             }
+                            pagingData.startIndex += DEFAULT_RESULT_COUNT;
+                            const profiles = response.data.summaries;
+                            this.members[role] = [...this.members[role], ...profiles]
                         })
                 }
             },
