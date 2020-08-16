@@ -53,9 +53,10 @@
                     <h2 class="subtitle is-5">
                         Created by: {{ activity.creator }}
                     </h2>
-                    <h2 class="subtitle is-5">
-                      My Role: {{myRole}}
-                    </h2>
+                        <h2 v-if="userRole != null" class="subtitle is-5">
+                            My Role: {{userRole}}
+                        </h2>
+
                     <div>
                         <h3 class="title is-5">{{privacy}}</h3>
                     </div>
@@ -226,9 +227,9 @@
     import router from "../router";
     import api from "../Api";
     import store from '../store';
-    import toastMixin from "../mixins/toastMixin";
     import Observer from "./Observer";
     import ActivityParticipationSummary from "./ActivityParticipationSummary";
+    import toastMixin from "../mixins/toastMixin";
 
 
     const DEFAULT_RESULT_COUNT = 50;
@@ -248,6 +249,7 @@
     export default {
         name: "ViewActivity",
         components: {ProfileSummary, ActivityParticipationSummary, Observer},
+        mixins: [toastMixin],
         data() {
             return {
                 roles: ROLES,
@@ -332,7 +334,7 @@
                         .then(() => {
                             let profile = this.members[oldRole].find((profile) => {return profile.id === profileId});
                             this.members[oldRole] = this.members[oldRole].filter((profile) => profile.id !== profileId)
-                            if (profile != -null) {
+                            if (profile != null) {
                                 this.members[newRole].push(profile);
                             } else {
                                 this.getAllActivityMembers();
