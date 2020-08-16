@@ -132,6 +132,7 @@
                                     <b-dropdown aria-role="list" class="is-pulled-right" position="is-bottom-left" v-if="store.getters.getAuthenticationLevel <= 1">
                                         <b-icon icon="ellipsis-v" slot="trigger"/>
                                         <b-dropdown-item @click="changeRole(organiser.id, roles.ORGANISER, roles.PARTICIPANT)">Change to Participant</b-dropdown-item>
+                                        <b-dropdown-item @click="changeRole(organiser.id, roles.ORGANISER, roles.FOLLOWER)">Change to Follower</b-dropdown-item>
                                         <b-dropdown-item @click="deleteRole(organiser.id, roles.ORGANISER)">Remove from activity</b-dropdown-item>
                                     </b-dropdown>
                                 </template>
@@ -160,6 +161,7 @@
                                         <b-dropdown aria-role="list" class="is-pulled-right" position="is-bottom-left">
                                             <b-icon icon="ellipsis-v" slot="trigger"/>
                                             <b-dropdown-item @click="changeRole(participant.id, roles.PARTICIPANT, roles.ORGANISER)">Change to Organizer</b-dropdown-item>
+                                            <b-dropdown-item @click="changeRole(participant.id, roles.PARTICIPANT, roles.FOLLOWER)">Change to Follower</b-dropdown-item>
                                             <b-dropdown-item @click="deleteRole(participant.id, roles.PARTICIPANT)">Remove from activity</b-dropdown-item>
                                         </b-dropdown>
                                     </template>
@@ -192,6 +194,9 @@
                                 <template #options>
                                     <b-dropdown aria-role="list" class="is-pulled-right" position="is-bottom-left">
                                         <b-icon icon="ellipsis-v" slot="trigger"/>
+                                        <b-dropdown-item @click="changeRole(follower.id, roles.FOLLOWER, roles.ORGANISER)">Change to Organizer</b-dropdown-item>
+                                        <b-dropdown-item @click="changeRole(follower.id, roles.FOLLOWER, roles.PARTICIPANT)">Change to Participant</b-dropdown-item>
+                                        <b-dropdown-item @click="deleteRole(follower.id, roles.FOLLOWER)">Remove from activity</b-dropdown-item>
                                     </b-dropdown>
                                 </template>
                             </ProfileSummary>
