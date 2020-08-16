@@ -151,7 +151,7 @@
 
                 <b-tab-item label="Participants">
                     <div class="flex"
-                         v-if="members[roles.PARTICIPANT].length > 0">
+                         v-if="members[roles.PARTICIPANT].length > 0 && members[roles.PARTICIPANT].length < 50">
                             <div class="table-profile"
                                  v-for="participant in members.participant"
                                  :key="participant.id">
@@ -171,6 +171,9 @@
                                     </template>
                                 </ProfileSummary>
                             </div>
+                    </div>
+                    <div v-else-if="members[roles.PARTICIPANT].length >= 50">
+                        <p>Total number of participants: {{members[roles.PARTICIPANT].length}}</p>
                     </div>
                     <div v-else>
                         <p>This activity has no participants.</p>
