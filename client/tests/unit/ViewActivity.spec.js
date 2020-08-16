@@ -39,11 +39,7 @@ afterEach(() => {
 });
 
 describe('ViewActivity.vue', () => {
-    test('Share and edit buttons are visible when user had admin permissions', () => {
-        expect(adminWrapper.find("#shareButton").exists()).toBe(true)
-        expect(adminWrapper.find("#editButton").exists()).toBe(true)
-    });
-    test('Share and edit buttons not visible when user is not a follower of the activity', () => {
+    test('Share and edit buttons are not visible when user does not have admin permissions', () => {
         expect(wrapper.find("#shareButton").exists()).toBe(false)
         expect(wrapper.find("#editButton").exists()).toBe(false)
     });
