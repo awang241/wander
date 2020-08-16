@@ -125,11 +125,14 @@
                 }
 
             },
-            updateActivityPrivacyAndRoles(rolesToRemove){
+            updateActivityPrivacyAndRoles(rolesToRemove) {
                 if (rolesToRemove) {
-                    rolesToRemove.forEach((role) => (Api.clearRoleOfActivity(localStorage.getItem('authToken'), this.id, role).catch(()=>this.warningToast(`Error deleting all ${role} roles from the activity.`))));
+                    rolesToRemove.forEach((role) => (Api.clearRoleOfActivity(localStorage.getItem('authToken'), this.id, role).catch(() => this.warningToast(`Error deleting all ${role} roles from the activity.`))));
                 }
-                Api.editActivityPrivacy(store.getters.getUserId, this.id, {privacy:this.privacy, members: this.userRoles}, localStorage.getItem('authToken'))
+                Api.editActivityPrivacy(store.getters.getUserId, this.id, {
+                    privacy: this.privacy,
+                    members: this.userRoles
+                }, localStorage.getItem('authToken'))
                     .then(() => {
                         this.successToast("Activity privacy updated");
                         router.go(-1)
