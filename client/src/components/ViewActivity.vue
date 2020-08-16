@@ -14,6 +14,8 @@
                                       type="is-primary">
                                 Edit Activity
                             </b-button>
+                        </div>
+                        <div v-if="hasShareAndEditPermissions || userRole === 'participant' || userRole === 'organiser'" class="buttons">
                             <b-button style="float:right" @click="createParticipation"
                                       type="is-primary">
                                 Create Participation
