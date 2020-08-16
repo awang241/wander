@@ -109,6 +109,7 @@
     import router from "../router";
     import toastMixin from "../mixins/toastMixin";
     import {ValidationProvider, ValidationObserver} from 'vee-validate'
+    import dateTimeMixin from "../mixins/dateTimeMixin";
 
 
     export default {
@@ -118,7 +119,7 @@
             ValidationProvider,
             ValidationObserver
         },
-        mixins: [toastMixin],
+        mixins: [toastMixin, dateTimeMixin],
         props: {
             //Activity the user is editing if one exists
             activityProp: {
@@ -146,31 +147,12 @@
             isContinuous: function () {
                 return this.activity.activityDuration === "Continuous"
             },
-            combinedStartDate: function () {
-                if (this.activity.startDate === null) {
-                    return null
-                }
-                let dateParts = this.activity.startDate.split('-')
-                let timeParts = this.activity.startTime.split(':')
 
-                if (dateParts && timeParts) {
-                    dateParts[1] -= 1;
-                    return new Date(Date.UTC.apply(undefined, dateParts.concat(timeParts))).toISOString();
-                }
-                return null;
+            combinedStartDate: function () {
+                return this.combineDateAndTime(this.activity.startDate, this.activity.startTime)
             },
             combinedEndDate: function () {
-                if (this.activity.endDate === null) {
-                    return null
-                }
-                let dateParts = this.activity.endDate.split('-')
-                let timeParts = this.activity.endTime.split(':')
-
-                if (dateParts && timeParts) {
-                    dateParts[1] -= 1;
-                    return new Date(Date.UTC.apply(undefined, dateParts.concat(timeParts))).toISOString();
-                }
-                return null;
+                return this.combineDateAndTime(this.activity.endDate, this.activity.endTime)
             }
         },
         data() {

@@ -44,17 +44,7 @@ class ProfileControllerMockedTest {
     @Autowired
     ProfileService mockService;
     @Autowired
-    ProfileRepository profileRepository;
-    @Autowired
     JwtUtil mockJwt;
-    @Autowired
-    PassportCountryRepository passportCountryRepository;
-    @Autowired
-    EmailRepository emailRepository;
-    @Autowired
-    ActivityRepository activityRepository;
-    @Autowired
-    ActivityTypeRepository activityTypeRepository;
     @Autowired
     Profile_Controller profileController;
 
@@ -71,6 +61,7 @@ class ProfileControllerMockedTest {
     private void tearDown() {
         jimmy = null;
         maurice = null;
+        Mockito.reset(mockService, mockJwt);
     }
 
     @Test

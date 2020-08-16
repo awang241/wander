@@ -2,7 +2,9 @@ package com.springvuegradle.service;
 
 import com.springvuegradle.controller.ActivityController;
 import com.springvuegradle.dto.ActivityRoleCountResponse;
+import com.springvuegradle.enums.ActivityMessage;
 import com.springvuegradle.enums.ActivityPrivacy;
+import com.springvuegradle.model.*;
 import com.springvuegradle.dto.responses.ActivityMemberProfileResponse;
 import com.springvuegradle.model.*;
 import com.springvuegradle.repositories.*;
@@ -44,6 +46,8 @@ class ActivityServiceTest {
     ActivityMembershipRepository activityMembershipRepository;
     @Autowired
     EmailRepository emailRepository;
+    @Autowired
+    ActivityParticipationRepository activityParticipationRepository;
 
     /**
      * Needs to be run before each test to create new test profiles and repositories.
@@ -988,10 +992,44 @@ class ActivityServiceTest {
         assertThrows(IllegalArgumentException.class, ()-> service.clearActivityRoleList(915730971l, "FOLLOWER"));
     }
 
+    /**
+     *  Tests you can get an participation object that exists in the database using the readParticipation method.
+     */
+    @Test
+    void successfullyReadParticipationWhereParticipationExistsTest() {
+        ActivityParticipation participation = createNormalParticipationWithoutProfileActivity();
+        activityParticipationRepository.save(participation);
+        assertEquals(participation, service.readParticipation(participation.getId()));
+    }
+
+    /**
+     *  Tests the readParticipation method that it throws an error when a participation with the given id does not exist
+     *  in the database.
+     */
+    @Test
+    void readParticipationWhereParticipationDoesNotExistThrowsError1Test() {
+        assertThrows(IllegalArgumentException.class, ()->service.readParticipation((long)1));
+    }
+    @Test
+    void readParticipationWhereParticipationDoesNotExistThrowsError2Test() {
+        ActivityParticipation participation = createNormalParticipationWithoutProfileActivity();
+        activityParticipationRepository.save(participation);
+        assertThrows(IllegalArgumentException.class, ()->service.readParticipation(participation.getId()+1));
+    }
+
+    /**
+     * Example participations to use in tests
+     */
+
+    static ActivityParticipation createNormalParticipationWithoutProfileActivity() {
+        return new ActivityParticipation("The final score was 2 - 1.", "University Wins", "2020-02-20T08:00:00+1300",
+                "2020-02-20T10:15:00+1300");
+    }
 
     /**
      * Example activities to use in tests
      **/
+
     static Activity createNormalActivity() {
         return new Activity("Kaikoura Coast Track race", "A big and nice race on a lovely peninsula",
                 new String[]{"Tramping", "Hiking"}, false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ");

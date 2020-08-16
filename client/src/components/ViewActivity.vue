@@ -14,6 +14,10 @@
                                       type="is-primary">
                                 Edit Activity
                             </b-button>
+                            <b-button style="float:right" @click="createParticipation"
+                                      type="is-primary">
+                                Create Participation
+                            </b-button>
                         </div>
                         <div v-if="parseInt(activity.creatorId) !== parseInt(store.getters.getUserId)" class="buttons">
                             <div class="buttons">
@@ -49,6 +53,10 @@
                     <h2 class="subtitle is-5">
                         Created by: {{ activity.creator }}
                     </h2>
+                        <h2 v-if="userRole != null" class="subtitle is-5">
+                            My Role: {{userRole}}
+                        </h2>
+
                     <div>
                         <h3 class="title is-5">{{privacy}}</h3>
                     </div>
@@ -63,12 +71,13 @@
                         <!-- Activities -->
                         <div class="card">
                             <div class="card-content">
+                                <h3 class="title is-4">{{activity.activity_name}}</h3>
                                 <div class="content">
                                     <table class="table-profile">
                                         <caption hidden>Displayed Activity Table</caption>
                                         <tr>
-                                            <th colspan="1" scope="col"/>
-                                            <th colspan="2" scope="col"/>
+                                            <th colspan="1" scope="col"></th>
+                                            <th colspan="2" scope="col"></th>
                                         </tr>
                                         <tr>
                                             <td>Description:</td>
@@ -82,11 +91,11 @@
 
                                         <tr v-if="!activity.continuous">
                                             <td>Start Time:</td>
-                                            <td>UTC {{dateFormat(activity.start_time)}}</td>
+                                            <td>{{dateFormat(activity.start_time)}}</td>
                                         </tr>
                                         <tr v-if="!activity.continuous">
                                             <td>End Time:</td>
-                                            <td>UTC {{dateFormat(activity.end_time)}}</td>
+                                            <td>{{dateFormat(activity.end_time)}}</td>
                                         </tr>
 
                                         <tr>
@@ -190,6 +199,19 @@
                     </div>
                     <observer v-on:intersect="loadMoreProfiles(roles.FOLLOWER)"/>
                 </b-tab-item>
+
+                <b-tab-item label="Results">
+                    <div class="flex" v-if="participationResults.length > 0">
+                        <div class="table-profile"
+                             v-for="participationResult in participationResults" :key="participationResult.id">
+                            <ActivityParticipationSummary class="flex-item" :result="participationResult">
+                            </ActivityParticipationSummary>
+                        </div>
+                    </div>
+                    <div v-else>
+                        <p>This activity has no participation results.</p>
+                    </div>
+                </b-tab-item>
             </b-tabs>
         </div>
     </div>
@@ -200,8 +222,10 @@
     import router from "../router";
     import api from "../Api";
     import store from '../store';
-    import toastMixin from "../mixins/toastMixin";
     import Observer from "./Observer";
+    import ActivityParticipationSummary from "./ActivityParticipationSummary";
+    import toastMixin from "../mixins/toastMixin";
+
 
     const DEFAULT_RESULT_COUNT = 50;
 
@@ -219,7 +243,7 @@
 
     export default {
         name: "ViewActivity",
-        components: {ProfileSummary, Observer},
+        components: {ProfileSummary, ActivityParticipationSummary, Observer},
         mixins: [toastMixin],
         data() {
             return {
@@ -246,7 +270,9 @@
                 numParticipants: 0,
                 moreOrganisersExist: true,
                 moreParticipantsExist: true,
-                moreFollowersExist: true
+                moreFollowersExist: true,
+                participationResults: [],
+                myRole: "None"
           }
         },
         methods: {
@@ -303,7 +329,7 @@
                         .then(() => {
                             let profile = this.members[oldRole].find((profile) => {return profile.id === profileId});
                             this.members[oldRole] = this.members[oldRole].filter((profile) => profile.id !== profileId)
-                            if (profile != -null) {
+                            if (profile != null) {
                                 this.members[newRole].push(profile);
                             } else {
                                 this.getAllActivityMembers();
@@ -346,6 +372,9 @@
                         this.warningToast(error);
                     })
             },
+            createParticipation() {
+                router.push('/Activities/' + this.activity.id + '/Participation')
+            },
             dateFormat(date) {
                 if (date) {
                     let year = date.slice(0, 4);
@@ -379,6 +408,18 @@
             },
             getSearchParameters(index, role) {
                 return {count: DEFAULT_RESULT_COUNT, index: index, role: role}
+            },
+            getParticipationResults() {
+                api.getAllActivityParticipations(this.$route.params.id, localStorage.getItem('authToken'))
+                    .then(response => {
+                        this.participationResults = response.data.results
+                        })
+            },
+            getMyRole(){
+              api.getMyActivityRole(this.$route.params.id, localStorage.getItem('authToken'))
+                  .then(response => {
+                    this.myRole = response.data.results
+                  })
             }
         },
         computed: {
@@ -399,13 +440,19 @@
             }
         },
         mounted() {
-            this.getActivity();
+            this.getActivity()
+            this.getRoleCounts()
+            this.getParticipationResults()
+            this.getMyRole()
             this.getAllActivityMembers();
-            this.getRoleCounts();
 
             setTimeout(() => {
                 this.getUserRole()
             }, 400);
+
+            this.activity = {
+                continuous: false
+            };
 
         }
     }

@@ -3,6 +3,9 @@ package com.springvuegradle.service;
 import com.springvuegradle.dto.ActivityRoleCountResponse;
 import com.springvuegradle.dto.MembersRequest;
 import com.springvuegradle.dto.SimplifiedActivity;
+import com.springvuegradle.enums.*;
+import com.springvuegradle.model.*;
+import com.springvuegradle.repositories.*;
 import com.springvuegradle.dto.requests.ActivityRoleUpdateRequest;
 import com.springvuegradle.dto.responses.ActivityMemberProfileResponse;
 import com.springvuegradle.enums.ActivityMessage;
@@ -40,6 +43,8 @@ public class ActivityService {
     private ActivityTypeRepository typeRepo;
     private ActivityMembershipRepository membershipRepo;
     private EmailRepository emailRepo;
+    private ActivityParticipationRepository participationRepo;
+
 
     /**
      * Autowired constructor for Spring to create an ActivityService and inject the correct dependencies.
@@ -51,11 +56,12 @@ public class ActivityService {
      */
     @Autowired
     public ActivityService(ProfileRepository profileRepo, ActivityRepository activityRepo, ActivityTypeRepository activityTypeRepo,
-                           ActivityMembershipRepository activityMembershipRepository) {
+                           ActivityMembershipRepository activityMembershipRepository, ActivityParticipationRepository participationRepo) {
         this.profileRepo = profileRepo;
         this.activityRepo = activityRepo;
         this.typeRepo = activityTypeRepo;
         this.membershipRepo = activityMembershipRepository;
+        this.participationRepo = participationRepo;
     }
 
     /**
@@ -66,7 +72,7 @@ public class ActivityService {
      */
     public void create(Activity activity, Long creatorId) {
         validateActivity(activity);
-        Optional<Profile> profileResult = profileRepo.findById(creatorId);
+        Optional<Profile> profileResult =  profileRepo.findById(creatorId);
         if (profileResult.isEmpty()) {
             throw new EntityNotFoundException(ActivityResponseMessage.INVALID_PROFILE.toString());
         }
@@ -378,10 +384,8 @@ public class ActivityService {
                 return activity.get();
             }
             else if (activityMembership.isPresent()) {
-                if (activity.get().getPrivacyLevel().equals(1)) {
-                    return activity.get();
-                }
-                else if (activityMembership.get().getRole().equals(ActivityMembership.Role.CREATOR)) {
+                boolean roleIsCreator = activityMembership.get().getRole().equals(ActivityMembership.Role.CREATOR);
+                if (activity.get().getPrivacyLevel().equals(1) || roleIsCreator) {
                     return activity.get();
                 }
             }
@@ -615,7 +619,7 @@ public class ActivityService {
      * @param activityId id referring to the activity.
      * @throws IllegalArgumentException when activity or email is not found.
      */
-    public void addMembers(List<MembersRequest> members, long activityId) throws IllegalArgumentException {
+    public void addMembers(List<MembersRequest> members, long activityId) {
         Optional<Activity> optionalActivity = activityRepo.findById(activityId);
         if (optionalActivity.isEmpty()) {
             throw new IllegalArgumentException(ActivityMessage.ACTIVITY_NOT_FOUND.getMessage());
@@ -623,16 +627,18 @@ public class ActivityService {
         Map<Profile, String> profiles = new HashMap<>();
         for (MembersRequest member: members) {
             List<Profile> profilesWithEmail = profileRepo.findByPrimaryEmail(member.getEmail());
-            if (profilesWithEmail.size() > 0) {
+            if (!profilesWithEmail.isEmpty()) {
                 profiles.put(profilesWithEmail.get(0), member.getRole());
             } else {
                 throw new IllegalArgumentException(ActivityResponseMessage.INVALID_EMAILS.toString());
             }
         }
         Activity activity = optionalActivity.get();
-        for (Profile profile: profiles.keySet()) {
+        for (Map.Entry<Profile, String> entry: profiles.entrySet()) {
+            Profile profile = entry.getKey();
+            String roleName = entry.getValue();
             Optional<ActivityMembership> optionalMembership = membershipRepo.findByActivity_IdAndProfile_Id(profile.getId(), activityId);
-            ActivityMembership.Role role = ActivityMembership.Role.valueOf(profiles.get(profile).toUpperCase());
+            ActivityMembership.Role role = ActivityMembership.Role.valueOf(roleName.toUpperCase());
             ActivityMembership membership;
             if (optionalMembership.isPresent()) {
                 membership = optionalMembership.get();
@@ -646,6 +652,125 @@ public class ActivityService {
             profileRepo.save(profile);
         }
     }
+
+    /**
+     * Saves the given participation details of a user who participated in a specific activity to the repository.
+     * @param activityId    The ID of the activity
+     * @param profileId     The ID of the profile
+     * @param participation The participation being saved. The participation's activity and profile fields will be
+     *                      replaced by ones with the given ID's.
+     */
+    public void createParticipation(long activityId, long profileId, ActivityParticipation participation) {
+        checkParticipationHelper(activityId, profileId);
+        Profile profile = profileRepo.getOne(profileId);
+        Activity activity = activityRepo.getOne(activityId);
+        participation.setProfile(profile);
+        participation.setActivity(activity);
+        participation = participationRepo.save(participation);
+        profile.addParticipation(participation);
+        profileRepo.save(profile);
+        activity.addParticipation(participation);
+        activityRepo.save(activity);
+    }
+
+    /**
+     * Updates the fields of an existing participation
+     * @param activityId      The ID of the activity
+     * @param profileId       The ID of the profile
+     * @param participationId The ID of the participation being changed
+     * @param participation   An ActivityParticipation object which contains the new fields to be changed
+     * @throws IllegalArgumentException if a participation does not exist
+     */
+    public void editParticipation(long activityId, long profileId, long participationId, ActivityParticipation participation) {
+        checkParticipationHelper(activityId, profileId);
+        Optional<ActivityParticipation> participationResult = participationRepo.findById(participationId);
+        if (participationResult.isEmpty()) {
+            throw new IllegalArgumentException(ActivityParticipationMessage.PARTICIPATION_NOT_FOUND.toString());
+        }
+        ActivityParticipation dbParticipation = participationResult.get();
+        dbParticipation.updateActivityParticipation(participation);
+        participationRepo.save(dbParticipation);
+    }
+
+    /**
+     * Checks if an activity and profile exists
+     * @param activityId The ID of the activity
+     * @param profileId The ID of the profile
+     * @throws IllegalArgumentException If no profile or activity with the given ID exists in the repository
+     */
+    public void checkParticipationHelper(long activityId, long profileId) {
+        Optional<Activity> activityResult = activityRepo.findById(activityId);
+        if (activityResult.isEmpty()) {
+            throw new IllegalArgumentException(ActivityResponseMessage.INVALID_ACTIVITY.toString());
+        }
+        Optional<Profile> profileResult = profileRepo.findById(profileId);
+        if (profileResult.isEmpty()) {
+            throw new IllegalArgumentException(ProfileErrorMessage.PROFILE_NOT_FOUND.toString());
+        }
+    }
+
+    /**
+     * Checks if a participation exists
+     * @param participationId the ID of the participation
+     * @throws IllegalArgumentException If no such participation exists
+     */
+    public void checkParticipationExists(long participationId) {
+        Optional<ActivityParticipation> participationResult = participationRepo.findById(participationId);
+        if (participationResult.isEmpty()) {
+            throw new IllegalArgumentException(ActivityParticipationMessage.PARTICIPATION_NOT_FOUND.toString());
+        }
+    }
+
+    /**
+     * Deletes the participation of a user in a particular activity
+     * @param activityId      The ID of the activity
+     * @param profileId       The ID of the profile
+     * @param participationId The ID of the participation being deleted
+     * @throws IllegalArgumentException if a participation does not exist
+     */
+    public boolean removeParticipation(long activityId, long profileId, long participationId) {
+        checkParticipationHelper(activityId, profileId);
+        checkParticipationExists(participationId);
+        ActivityParticipation participation = participationRepo.getOne(participationId);
+        Profile profile = participation.getProfile();
+        Activity activity = participation.getActivity();
+        if (activity.getId() == activityId && profile.getId() == profileId) {
+            participationRepo.delete(participation);
+            profile.removeParticipation(participation);
+            activity.removeParticipation(participation);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Checks the database to see if a participation with the given ID exists, returns the activity if it exists and
+     * throws an error otherwise.
+     *
+     * @param participationId the id of the participation
+     * @return the participation object.
+     */
+    public ActivityParticipation readParticipation(Long participationId) {
+        Optional<ActivityParticipation> optionalActivityParticipation = participationRepo.findById(participationId);
+        if (optionalActivityParticipation.isEmpty()) {
+            throw new IllegalArgumentException(ActivityParticipationMessage.PARTICIPATION_NOT_FOUND.toString());
+        }
+        return optionalActivityParticipation.get();
+    }
+
+    /**
+     * Retrieves a list of all participations for the given activity.
+     * @param activityId The ID of the activity.
+     * @throws IllegalArgumentException if no activity with that ID exists.
+     * @return A list of that activity's participations.
+     */
+    public List<ActivityParticipation> readParticipationsFromActivity(long activityId) {
+        if (!activityRepo.existsById(activityId)) {
+            throw new IllegalArgumentException(ActivityResponseMessage.INVALID_ACTIVITY.toString());
+        }
+        return participationRepo.findAllByActivityId(activityId);
+    }
+
 
     /**
      * Method to clear all memberships that have a specified role and return an appropriate http response
@@ -674,7 +799,5 @@ public class ActivityService {
         }
         return optionalActivityMembership.get().getRole().name().toLowerCase();
     }
-
-
 }
 

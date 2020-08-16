@@ -10,6 +10,7 @@ public enum ActivityMessage {
     MEMBERSHIP_NOT_FOUND("The profiles membership was not found for this activity"),
     INVALID_ROLE("Role type is invalid"),
     UNSUCCESSFUL("Unknown error occurred."),
+    PARTICIPATION_NOT_FOUND("No participation with that ID exists"),
     INVALID_PRIVACY("Invalid privacy level");
 
 

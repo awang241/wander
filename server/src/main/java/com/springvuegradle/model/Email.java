@@ -12,7 +12,7 @@ import java.util.Objects;
 @Entity
 public class Email {
 
-    public Email() {};
+    public Email() {}
 
     public Email(String address){
         this.address = address;
