@@ -74,7 +74,7 @@
                                     <b-dropdown-item v-if="profile.authLevel < 2" aria-role="listitem" @click="onChangeAdminRightsClicked(profile,'user')">Remove admin rights</b-dropdown-item>
                                     <b-dropdown-item v-else aria-role="listitem" @click="onChangeAdminRightsClicked(profile,'admin')">Make admin</b-dropdown-item>
                                 </b-dropdown>
-                                <b-button v-else type="is-text" @click="openProfileModal(profile.id)">View profile</b-button>
+                                <b-button v-else type="is-text" @click="openProfileModal(profile)">View profile</b-button>
                             </template>
                         </b-menu-item>
                     </template>
