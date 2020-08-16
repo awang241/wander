@@ -1,7 +1,6 @@
 package com.springvuegradle.controller;
 
-import com.springvuegradle.dto.EditAuthLevelRequest;
-import com.springvuegradle.enums.AuthLevel;
+import com.springvuegradle.dto.requests.EditAuthLevelRequest;
 import com.springvuegradle.enums.ProfileErrorMessage;
 import com.springvuegradle.model.Profile;
 import com.springvuegradle.model.ProfileSearchCriteria;
@@ -9,8 +8,8 @@ import com.springvuegradle.model.ProfileTestUtils;
 import com.springvuegradle.repositories.*;
 import com.springvuegradle.utilities.JwtUtil;
 import com.springvuegradle.config.MockServiceConfig;
-import com.springvuegradle.dto.ProfileSearchResponse;
-import com.springvuegradle.dto.ProfileSummary;
+import com.springvuegradle.dto.responses.ProfileSearchResponse;
+import com.springvuegradle.dto.responses.ProfileSummary;
 import com.springvuegradle.enums.AuthenticationErrorMessage;
 import com.springvuegradle.service.ProfileService;
 import org.junit.jupiter.api.*;

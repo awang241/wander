@@ -1,4 +1,4 @@
-package com.springvuegradle.dto;
+package com.springvuegradle.dto.responses;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.springvuegradle.model.Profile;

@@ -1,5 +1,9 @@
 package com.springvuegradle.controller;
 
+import com.springvuegradle.dto.requests.*;
+import com.springvuegradle.dto.responses.ActivityTypesResponse;
+import com.springvuegradle.dto.responses.ProfileSearchResponse;
+import com.springvuegradle.dto.responses.ProfileSummary;
 import com.springvuegradle.enums.AuthLevel;
 import com.springvuegradle.enums.AuthenticationErrorMessage;
 import com.springvuegradle.model.*;
@@ -7,7 +11,6 @@ import com.springvuegradle.repositories.*;
 import com.springvuegradle.utilities.FieldValidationHelper;
 import com.springvuegradle.utilities.JwtUtil;
 import com.springvuegradle.service.SecurityService;
-import com.springvuegradle.dto.*;
 import com.springvuegradle.enums.ProfileErrorMessage;
 import com.springvuegradle.service.ProfileService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -436,7 +439,6 @@ public class Profile_Controller {
             MessageDigest hashedPW = MessageDigest.getInstance("SHA-256");
             return DatatypeConverter.printHexBinary(hashedPW.digest(plainPassword.getBytes(StandardCharsets.UTF_8)));
         } catch (NoSuchAlgorithmException error) {
-            System.out.println(error);
             return "Hash Failed";
         }
     }

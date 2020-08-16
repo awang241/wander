@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class ActivityRoleCountResponse {
-    private long organizers;
+    private long organisers;
     private long participants;
     private long followers;
 

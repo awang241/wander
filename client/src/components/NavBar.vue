@@ -66,7 +66,7 @@
     import store from '../store';
     import Vuex from 'vuex';
     import Vue from "vue";
-    Vue.use(Vuex)
+    Vue.use(Vuex);
 
     export default {
         name: "NavBar",

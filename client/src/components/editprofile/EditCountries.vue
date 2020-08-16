@@ -69,7 +69,7 @@
                         }
                         this.possibleCountries = possibleCountries;
                     })
-                    .catch(error => console.log(error));
+                    .catch(() => this.warningToast("Error occured while fetching REST API countries."));
             }
         },
         mounted() {

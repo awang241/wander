@@ -15,11 +15,14 @@ export default {
   createActivity: (userId, data, token) => localAxiosInstance.post('/profiles/'+userId+'/activities', data, {headers: {"authorization":token}}),
   createProfile: (user) => localAxiosInstance.post('/profiles', user),
   createActivityParticipation: (userId, activityId, participation, token) => localAxiosInstance.post('/profiles/'+ userId + '/activities/' + activityId + '/participation', participation, {headers: {'authorization': token}}),
+  addActivityRole: (userId, activityId, token, role) => localAxiosInstance.post('/profiles/'+userId+'/activities/'+activityId+'/role', {role: role},{headers: {"authorization":token}}),
 
   // All delete API requests
   deleteActivity: (userId, token, activityId) => localAxiosInstance.delete('/profiles/'+userId+'/activities/'+activityId, {headers: {"authorization":token}}),
   deleteLocation: (userId, token) => localAxiosInstance.delete('/profiles/'+userId+'/location', {headers: {"authorization":token}}),
   deleteProfile: (userId, token) => localAxiosInstance.delete('/profiles/' + userId, {headers: {"authorization":token}}),
+  deleteActivityMembership: (userId, activityId, token) => localAxiosInstance.delete('/profiles/' + userId + "/activities/" + activityId + "/membership", {headers: {"authorization":token}}),
+  clearRoleOfActivity: (token, activityId, role) => localAxiosInstance.delete(`/activities/${activityId}/clearRole`, {headers: {"authorization": token}, params: {role: role}}),
   deleteActivityParticipation: (userId, activityId, token, participationId) => localAxiosInstance.delete('/profiles/'+ userId + '/activities/' + activityId + '/participation/' + participationId, {headers: {'authorization': token}}),
 
   // All edit API requests
@@ -28,12 +31,15 @@ export default {
   editProfile: (userId, newData, token) => localAxiosInstance.put('/profiles/' + userId, newData, {headers: {"authorization":token}}),
   editProfileLocation: (userId, location, token) => localAxiosInstance.put('/profiles/' + userId + '/location', location, {headers: {"authorization":token}}),
   editProfilePermissions: (userId, role, token) => localAxiosInstance.put('/profiles/' + userId + '/role', {role: role}, {headers: {"authorization":token}}),
+  editActivityMemberRole: (userId, activityId, newRole, token) => localAxiosInstance.put(`/profiles/${userId}/activities/${activityId}/role`, {role: newRole}, {headers: {"authorization": token}}),
   editActivityPrivacy: (userId, activityId, body, token) => localAxiosInstance.put('profiles/'+ userId + '/activities/' + activityId + '/privacy', {privacy: body.privacy, members: body.members}, {headers: {"authorization": token}}),
   editActivityRestrictedUsers: (userId, activityId, token, users) => localAxiosInstance.put('profiles/' + userId + '/activities/' + activityId + '/visibility', users, {headers: {"authorization":token}}),
 
 // All get API requests
   getActivity: (activityId, token) => localAxiosInstance.get('activities/' + activityId,{headers: {"authorization":token}}),
   getActivitiesList: () => localAxiosInstance.get('activities'),
+  getAllActivityMembers: (activityId, token) => localAxiosInstance.get(`/activities/${activityId}/members`, {headers: {"authorization": token}}),
+  getActivityMembers: (activityId, role, token, parameters={}) => localAxiosInstance.get(`activities/${activityId}/members/${role}`, {headers: {"authorization": token}, params: parameters}),
   getActivityTypesList: () => localAxiosInstance.get('/activityTypes'),
   getAuthLevel: (token) => localAxiosInstance.get('authLevel/', {headers: {"authorization":token}}),
   getProfile: (userId, token) => localAxiosInstance.get('profiles/'+userId, {headers: {"authorization":token}}),
@@ -44,6 +50,8 @@ export default {
   getActivityParticipation: (userId, activityId, token, participationId) => localAxiosInstance.get('/profiles/'+ userId + '/activities/' + activityId + '/participation/' + participationId, {headers: {'authorization': token}}),
   getAllActivityParticipations: (activityId, token) => localAxiosInstance.get('activities/' + activityId + '/participations', {headers: {'authorization': token}}),
   getMyActivityRole: (activityId, token) => localAxiosInstance.get('activities/' + activityId + '/myRole',{headers: {'authorization': token}}), //TODO hook this up to the endpoint in the other branch
+  getSingleUserActivityRole: (userId, activityId, token) => localAxiosInstance.get(`/profiles/${userId}/activities/${activityId}/role`, {headers: {"authorization":token}}),
+
 
   // All login/logout API requests
   login: (user) => localAxiosInstance.post('login', user),

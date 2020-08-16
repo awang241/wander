@@ -3,8 +3,6 @@ import com.springvuegradle.dto.SimplifiedActivitiesResponse;
 import com.springvuegradle.model.Activity;
 import com.springvuegradle.model.ActivityType;
 import com.springvuegradle.model.Profile;
-import com.springvuegradle.dto.LoginRequest;
-import com.springvuegradle.dto.LoginResponse;
 import com.springvuegradle.model.*;
 import com.springvuegradle.repositories.*;
 import com.springvuegradle.utilities.InitialDataHelper;
@@ -102,7 +100,6 @@ public class ActivityControllerTest {
         Profile profile = prepo.save(maurice);
         activityController.createActivity(profile.getId(), trackRace, null, true);
         Activity activity = arepo.findAll().get(0);
-        System.out.println(activity.retrieveActivityTypes());
 
         int expected_in_repo = 1;
         assertEquals(expected_in_repo, arepo.count());

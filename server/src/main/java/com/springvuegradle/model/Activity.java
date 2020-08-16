@@ -43,7 +43,7 @@ public class Activity {
     /**
      * Holds the privacy level of the activity.
      * level 0 - private - only the creator can view the activity.
-     * level 1 - share with friends - only the friends it is shared with can view the activity.
+     * level 1 - share with members - only the members it is shared with can view the activity.
      * level 2 - public - anyone can view the activity.
      */
     @NotNull @Column(name = "privacyLevel") @Min(value = 0) @Max(value = 2)
@@ -241,5 +241,46 @@ public class Activity {
 
     public boolean removeParticipation(ActivityParticipation participation) {
         return activityParticipations.remove(participation);
+    }
+
+    /**
+     * Finds and returns the creator of the profile from the members of the activity. If there is no creator,
+     * for whatever reason, null is returned.
+     * @return the profile of the creator of the activity.
+     */
+    @JsonIgnore
+    public Profile retrieveCreator() {
+        for (ActivityMembership am: members) {
+            if (am.getRole().equals(ActivityMembership.Role.CREATOR)) {
+                return am.getProfile();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Calls retrieveCreator to get the profile of the creator and returns the full name of the creator. Need the string
+     * to be returned in the json data that is send with each Activity object.
+     * @return creator name if creator exists, null otherwise.
+     */
+    public String getCreator() {
+        Profile creator = retrieveCreator();
+        if (creator != null) {
+            return creator.getFullName();
+        }
+        return null;
+    }
+
+    /**
+     * Calls retrieveCreator to get the profile of the creator and returns the id of the creator. Need the long to be
+     * returned in the json data that is sent with each activity object.
+     * @return creator id if the creator exists, null otherwise.
+     */
+    public Long getCreatorId() {
+        Profile creator = retrieveCreator();
+        if (creator != null) {
+            return creator.getId();
+        }
+        return null;
     }
 }

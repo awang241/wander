@@ -5,6 +5,8 @@ import com.springvuegradle.dto.ActivityRoleCountResponse;
 import com.springvuegradle.enums.ActivityMessage;
 import com.springvuegradle.enums.ActivityPrivacy;
 import com.springvuegradle.model.*;
+import com.springvuegradle.dto.responses.ActivityMemberProfileResponse;
+import com.springvuegradle.model.*;
 import com.springvuegradle.repositories.*;
 import com.springvuegradle.utilities.FormatHelper;
 import com.springvuegradle.utilities.InitialDataHelper;
@@ -14,9 +16,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.security.AccessControlException;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -42,8 +49,6 @@ class ActivityServiceTest {
     @Autowired
     ActivityParticipationRepository activityParticipationRepository;
 
-    private static final String MISSING_EXCEPTION = "Exception should have been thrown.";
-
     /**
      * Needs to be run before each test to create new test profiles and repositories.
      */
@@ -62,6 +67,7 @@ class ActivityServiceTest {
         profileRepository.deleteAll();
         activityRepository.deleteAll();
         typeRepository.deleteAll();
+
     }
 
     /**
@@ -244,10 +250,13 @@ class ActivityServiceTest {
     void removeActivityMemberShipSuccessTest() {
         Activity activity = activityRepository.save(createNormalActivityKaikoura());
         Profile bennyBoi = createNormalProfileBen();
+        Profile admin = createNormalProfileBen();
+        admin.setAuthLevel(1);
         profileRepository.save(bennyBoi);
+        profileRepository.save(admin);
         ActivityMembership testMemberShip = new ActivityMembership(activity, bennyBoi, ActivityMembership.Role.PARTICIPANT);
         activityMembershipRepository.save(testMemberShip);
-        service.removeMembership(bennyBoi.getId(), activity.getId());
+        service.removeUserRoleFromActivity(admin.getId(), bennyBoi.getId(), activity.getId());
         assertEquals(0, activityMembershipRepository.count());
     }
 
@@ -263,7 +272,7 @@ class ActivityServiceTest {
         profileRepository.save(johnnyBoi);
         ActivityMembership testMemberShip = new ActivityMembership(activity, bennyBoi, ActivityMembership.Role.PARTICIPANT);
         activityMembershipRepository.save(testMemberShip);
-        service.removeMembership(johnnyBoi.getId(), activity.getId());
+        assertThrows(AccessControlException.class, () -> service.removeUserRoleFromActivity(bennyBoi.getId(), johnnyBoi.getId(), activity.getId()));
         assertEquals(1, activityMembershipRepository.count());
     }
 
@@ -496,7 +505,7 @@ class ActivityServiceTest {
         Profile ben = createNormalProfileBen();
         Profile profile = profileRepository.save(ben);
         Activity failedResult = service.getActivityByActivityId(profile.getId(), activityId);
-        assertEquals(null, failedResult);
+        assertNull(failedResult);
     }
 
     /**
@@ -599,7 +608,7 @@ class ActivityServiceTest {
      * Public activities can be seen by all users with a role in the activity.
      */
     @Test
-    void getActivitiesByIdByRoleMemberOrganizerTest() {
+    void getActivitiesByIdByRoleMemberOrganiserTest() {
         Profile benny = createNormalProfileBen();
         profileRepository.save(benny);
         Profile johnny = createNormalProfileJohnny();
@@ -740,7 +749,7 @@ class ActivityServiceTest {
      * Throws an exception error
      */
     @Test
-    void setProfileRoleToOrganizerAsFollowerThrowsIllegalArgumentExceptionTest() {
+    void setProfileRoleToOrganiserAsFollowerThrowsIllegalArgumentExceptionTest() {
         Profile followerBen = profileRepository.save(createNormalProfileBen());
         Profile followerJohnny = profileRepository.save(createNormalProfileJohnny());
         Activity activity = activityRepository.save(createNormalActivityKaikoura());
@@ -786,7 +795,7 @@ class ActivityServiceTest {
      * Tests that setting a role to an ORGANISER as an ADMIN works.
      */
     @Test
-    void setProfileRoleToOrganizerAsAdmin() {
+    void setProfileRoleToOrganiserAsAdmin() {
         Profile admin = profileRepository.save(createNormalProfileBen());
         admin.setAuthLevel(1);
         Profile follower = profileRepository.save(createNormalProfileJohnny());
@@ -802,7 +811,7 @@ class ActivityServiceTest {
      * Tests that setting a role to an ORGANISER as a CREATOR works.
      */
     @Test
-    void setProfileRoleToOrganizerAsCreator() {
+    void setProfileRoleToOrganiserAsCreator() {
         Profile creator = profileRepository.save(createNormalProfileBen());
         Profile follower = profileRepository.save(createNormalProfileJohnny());
         Activity activity = activityRepository.save(createNormalActivityKaikoura());
@@ -842,6 +851,145 @@ class ActivityServiceTest {
         activityMembershipRepository.save(creatorMembership);
 
         assertThrows(IllegalArgumentException.class, ()-> service.setProfileRole(creator.getId(), creator.getId(), activity.getId(), ActivityMembership.Role.FOLLOWER));
+    }
+
+
+
+    @Test
+    void getProfilesFromActivityWithOnlyCreatorTest() {
+        Profile creator = profileRepository.save(createNormalProfileBen());
+        emailRepository.save(new Email("ben10@hotmail.com", true, creator));
+        Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        ActivityMembership creatorMembership = new ActivityMembership(activity, creator, ActivityMembership.Role.CREATOR);
+        activityMembershipRepository.save(creatorMembership);
+        List<ActivityMemberProfileResponse> response = Collections.singletonList(new ActivityMemberProfileResponse(creator.getId(), creator.getFirstname(), creator.getLastname(), creator.getPrimary_email(), ActivityMembership.Role.CREATOR));
+        assertEquals(response, service.getActivityMembers(activity.getId()));
+    }
+
+    /**
+     * Test the service method for getSingleActivityMembership
+     */
+    @Test
+    void getSingleActivityMembershipTest() {
+        Profile creator = profileRepository.save(createNormalProfileBen());
+        emailRepository.save(new Email("ben10@hotmail.com", true, creator));
+        Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        ActivityMembership creatorMembership = new ActivityMembership(activity, creator, ActivityMembership.Role.CREATOR);
+        activityMembershipRepository.save(creatorMembership);
+        String role = service.getSingleActivityMembership(creator.getId(), activity.getId());
+        assertEquals("creator", role);
+    }
+
+
+    /**
+     * Ensures getting multiple profiles linked to an activity works as expected
+     */
+    @Test
+    void getProfilesWithRolesFromActivityWithMultipleRolesTest() {
+        Profile creator = profileRepository.save(createNormalProfileBen());
+        Profile followerOne = profileRepository.save(createNormalProfileBen("ben11@hotmail.com"));
+        Profile followerTwo = profileRepository.save(createNormalProfileBen("ben12@hotmail.com"));
+        Profile organiser = profileRepository.save(createNormalProfileBen("ben13@hotmail.com"));
+        Profile participant = profileRepository.save(createNormalProfileBen("ben14@hotmail.com"));
+        Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        emailRepository.save(new Email("ben10@hotmail.com", true, creator));
+        emailRepository.save(new Email("ben11@hotmail.com", true, followerOne));
+        emailRepository.save(new Email("ben12@hotmail.com", true, followerTwo));
+        emailRepository.save(new Email("ben13@hotmail.com", true, organiser));
+        emailRepository.save(new Email("ben14@hotmail.com", true, participant));;
+        ActivityMembership creatorMembership = new ActivityMembership(activity, creator, ActivityMembership.Role.CREATOR);
+        ActivityMembership followerOneMembership = new ActivityMembership(activity, followerOne, ActivityMembership.Role.FOLLOWER);
+        ActivityMembership followerTwoMembership = new ActivityMembership(activity, followerTwo, ActivityMembership.Role.FOLLOWER);
+        ActivityMembership organiserMembership = new ActivityMembership(activity, organiser, ActivityMembership.Role.ORGANISER);
+        ActivityMembership participantMembership = new ActivityMembership(activity, participant, ActivityMembership.Role.PARTICIPANT);
+        List<ActivityMembership> memberships = Arrays.asList(creatorMembership, followerOneMembership, followerTwoMembership, organiserMembership, participantMembership);
+        activityMembershipRepository.saveAll(memberships);
+        List<ActivityMemberProfileResponse> response = new ArrayList<>();
+        for(ActivityMembership membership: memberships){
+            response.add(new ActivityMemberProfileResponse(membership.getProfile().getId(), membership.getProfile().getFirstname(), membership.getProfile().getLastname(), membership.getProfile().getPrimary_email(), membership.getRole()));
+        }
+        assertEquals(response, service.getActivityMembers(activity.getId()));
+    }
+
+    @Test
+    void getProfilesFromNonExistentActivityTest() {
+        assertThrows(IllegalArgumentException.class, () -> service.getActivityMembers(-1));
+    }
+
+    @Test
+    void getActivityMembersByRoleNormalTest() {
+        Profile creator = profileRepository.save(createNormalProfileBen());
+        Profile followerOne = profileRepository.save(createNormalProfileBen());
+        Profile followerTwo = profileRepository.save(createNormalProfileBen());
+        Profile organiser = profileRepository.save(createNormalProfileBen());
+        Profile participant = profileRepository.save(createNormalProfileBen());
+        Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        ActivityMembership creatorMembership = new ActivityMembership(activity, creator, ActivityMembership.Role.CREATOR);
+        ActivityMembership followerOneMembership = new ActivityMembership(activity, followerOne, ActivityMembership.Role.FOLLOWER);
+        ActivityMembership followerTwoMembership = new ActivityMembership(activity, followerTwo, ActivityMembership.Role.FOLLOWER);
+        ActivityMembership organiserMembership = new ActivityMembership(activity, organiser, ActivityMembership.Role.ORGANISER);
+        ActivityMembership participantMembership = new ActivityMembership(activity, participant, ActivityMembership.Role.PARTICIPANT);
+        List<ActivityMembership> memberships = Arrays.asList(creatorMembership, followerOneMembership, followerTwoMembership, organiserMembership, participantMembership);
+        activityMembershipRepository.saveAll(memberships);
+
+        Pageable pageable = PageRequest.of(0, 2);
+        List<Profile> expectedProfiles = new ArrayList<>();
+        expectedProfiles.add(followerOne);
+        expectedProfiles.add(followerTwo);
+        Page<Profile> actualProfiles = service.getActivityMembersByRole(activity.getId(), ActivityMembership.Role.FOLLOWER, pageable);
+        assertTrue(expectedProfiles.containsAll(actualProfiles.getContent()));
+        assertEquals(expectedProfiles.size(),actualProfiles.getSize());
+    }
+
+    @Test
+    void deleteMembersFromActivityAsAdminTest(){
+
+    }
+
+    @Test
+    void getActivityMembersByRoleWithPaginationNormalTest() {
+        Profile creator = profileRepository.save(createNormalProfileBen());
+        Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        ActivityMembership creatorMembership = new ActivityMembership(activity, creator, ActivityMembership.Role.CREATOR);
+
+        Map<Long, Profile> followers = new HashMap<>();
+        for (int i = 0; i < 10; i++) {
+            Profile follower = profileRepository.save(createNormalProfileBen());
+            ActivityMembership membership = new ActivityMembership(activity, follower, ActivityMembership.Role.FOLLOWER);
+            activityMembershipRepository.save(membership);
+            followers.put(follower.getId(), follower);
+        }
+        int pageSize = 2;
+        int index = 3;
+        Pageable pageable = PageRequest.of(index, pageSize);
+        Page<Profile> actual = service.getActivityMembersByRole(activity.getId(), ActivityMembership.Role.FOLLOWER, pageable);
+        assertEquals(pageSize, actual.getNumberOfElements());
+    }
+
+    @Test
+    void getActivityMembersByRoleWithNoMembersOfThatRoleTest() {
+        Profile creator = profileRepository.save(createNormalProfileBen());
+        Profile participant = profileRepository.save(createNormalProfileBen());
+        Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        ActivityMembership creatorMembership = new ActivityMembership(activity, creator, ActivityMembership.Role.CREATOR);
+        ActivityMembership participantMembership = new ActivityMembership(activity, participant, ActivityMembership.Role.PARTICIPANT);
+        List<ActivityMembership> memberships = Arrays.asList(creatorMembership, participantMembership);
+        activityMembershipRepository.saveAll(memberships);
+
+        Pageable pageable = PageRequest.of(0, 2);
+        Page<Profile> actual = service.getActivityMembersByRole(activity.getId(), ActivityMembership.Role.FOLLOWER, pageable);
+        assertTrue(actual.isEmpty());
+    }
+
+    @Test
+    void getActivityMembersWithRoleWithNonExistentActivityTest() {
+        assertThrows(IllegalArgumentException.class, () ->
+                service.getActivityMembersByRole(-1, ActivityMembership.Role.CREATOR, null));
+    }
+
+    @Test
+    void clearRolesOfActivityThatDoesntExistThrowsExceptionTest(){
+        assertThrows(IllegalArgumentException.class, ()-> service.clearActivityRoleList(915730971l, "FOLLOWER"));
     }
 
     /**
@@ -974,7 +1122,15 @@ class ActivityServiceTest {
 
 
     static Profile createNormalProfileBen() {
+
         return new Profile(null, "Ben", "Sales", "James", "Ben10", "ben10@hotmail.com", new String[]{"additional@email.com"}, "hushhush",
+                "Wooooooow", new GregorianCalendar(1999, Calendar.NOVEMBER,
+                28), "male", 1, new String[]{}, new String[]{});
+    }
+
+    static Profile createNormalProfileBen(String email) {
+
+        return new Profile(null, "Ben", "Sales", "James", "Ben10", email, new String[]{"additional@email.com"}, "hushhush",
                 "Wooooooow", new GregorianCalendar(1999, Calendar.NOVEMBER,
                 28), "male", 1, new String[]{}, new String[]{});
     }

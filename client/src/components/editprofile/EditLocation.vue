@@ -131,7 +131,7 @@
                     this.initAutoCompleteCities();
                     this.initAutoCompleteStates()
 
-                }).catch(error => console.log(error));
+                }).catch(() => this.warningToast("Error occurred while fetching countries for REST API."));
             },
             setAutoCompleteCountry() {
                 var country = document.getElementById('country').value;
