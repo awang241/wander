@@ -527,7 +527,7 @@ public class ActivityController {
             response = new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
                     HttpStatus.UNAUTHORIZED);
         }
-        if (!(securityService.checkEditPermission(token, activityId))) {
+        if (!(jwtUtil.extractPermission(token) > 2 || activityService.isProfileActivityCreator(jwtUtil.extractId(token), activityId))) {
             response = new ResponseEntity<>(ActivityMessage.INSUFFICIENT_PERMISSION.getMessage(), HttpStatus.FORBIDDEN);
         }
         if (response == null) {
