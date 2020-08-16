@@ -12,7 +12,7 @@
         <div v-else id="noMatches">
             <h1>No activities fetched!</h1>
         </div>
-        <observer v-on:intersect="loadMoreActivities"></observer>
+        <observer v-on:intersect="$emit('loadMoreActivities')"></observer>
     </div>
 </template>
 

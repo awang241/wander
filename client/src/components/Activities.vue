@@ -18,25 +18,35 @@
                 </div>
             </div>
         </section>
-        <br>
-        <br>
         <div class="has-same-height is-gapless">
             <div class="tabs is-centered">
 
-                <ul>
-                    <li><a v-on:click="changeToMyActivities">My Activities</a></li>
-                    <li><a v-on:click="changeToParticipatingActivities">Participating</a></li>
-                    <li><a v-on:click="changeToFollowingActivities">Following</a></li>
-                    <li><a v-on:click="changeToDiscoverActivities">Discover Activities</a></li>
+                <b-tabs v-model="tabIndex" expanded>
 
-                </ul>
+                    <b-tab-item label="My Activities">
+                        <ActivityList v-on:loadMoreActivities="loadMoreActivities('creatorOrOrganiser')"  v-bind:activities="myActivities" v-bind:role="'creatorOrOrganiser'"/>
+                    </b-tab-item>
+
+                    <b-tab-item label="Participating">
+                        <ActivityList v-bind:activities="participatingActivities" v-bind:role="'participant'"/>
+                    </b-tab-item>
+
+                    <b-tab-item label="Following">
+                        <ActivityList v-bind:activities="followingActivities" v-bind:role="'follower'"/>
+                    </b-tab-item>
+
+                    <b-tab-item label="Discover Activities">
+                        <ActivityList v-bind:activities="discoverActivities" v-bind:role="'discover'"/>
+                    </b-tab-item>
+
+
+                </b-tabs>
+
+
             </div>
         </div>
 
 
-        <div>
-            <component v-bind:is="component" v-bind:activities="activities" v-bind:role="role"/>
-        </div>
 
 
     </div>
@@ -47,17 +57,15 @@ import api from '../Api';
 import router from "../router";
 import store from "../store"
 import toastMixin from "../mixins/toastMixin";
-import Observer from "./Observer";
-import ActivitySummary from "./ActivitySummary";
-import activityList from "./ActivityList";
+import ActivityList from "./ActivityList";
 
-const DEFAULT_RESULT_COUNT = 10;
+const DEFAULT_RESULT_COUNT = 400;
 
 
     export default {
         name: "Activities",
         mixins: [toastMixin],
-        components: {Observer, ActivitySummary},
+        components: {ActivityList},
         data() {
             return {
                 store: store,
@@ -75,33 +83,11 @@ const DEFAULT_RESULT_COUNT = 10;
                 followingActivities: [],
                 discoverActivities: [],
                 activities: this.myActivities,
-                component: activityList,
-                role: "creatorOrOrganiser"
+                role: "creatorOrOrganiser",
+                tabIndex: 0
             }
         },
         methods: {
-            //once we can get different privacy levels
-            //just set the prop before method call to change component?
-            changeToDiscoverActivities() {
-                this.role = "discover";
-                this.activities = this.discoverActivities;
-                this.component = activityList;
-            },
-            changeToMyActivities() {
-                this.role = "creatorOrOrganiser";
-                this.activities = this.myActivities;
-                this.component = activityList;
-            },
-            changeToFollowingActivities() {
-                this.role = "follower";
-                this.activities = this.followingActivities;
-                this.component = activityList;
-            },
-            changeToParticipatingActivities() {
-                this.role = "participant";
-                this.activities = this.participatingActivities;
-                this.component = activityList;
-            },
             getActivities() {
                 api.getNextActivities(store.getters.getUserId, localStorage.getItem('authToken'), this.getParameters())
                     .then((response) => {
@@ -230,7 +216,6 @@ const DEFAULT_RESULT_COUNT = 10;
             this.loadMoreActivities("participant");
             this.loadMoreActivities("follower");
             this.loadMoreActivities("discover");
-            setTimeout(() => (this.changeToMyActivities()), 2200);
         }
     }
 

@@ -81,7 +81,9 @@
 
 <style scoped>
     .columns {
-        padding: 1rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
+        padding-bottom: 1rem;
     }
     li{
         list-style-type: none;
