@@ -338,6 +338,22 @@ class ActivityControllerMockedTest {
         assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
     }
 
+    /**
+     * Tests the getActivityRole method.
+     */
+    @Test
+    void getActivityRoleTest() {
+        ResponseEntity<String> expectedResponse = new ResponseEntity<>(HttpStatus.OK);
+        String mockToken = "54321";
+        long mockProfileId = 987;
+        long mockActivityID = 666;
+        Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
+        Mockito.when(mockJwt.extractId(mockToken)).thenReturn(54321l);
+        Mockito.when(mockService.isProfileActivityCreator(54321l, mockActivityID)).thenReturn(true);
+        ResponseEntity actualResponse = activityController.getActivityRole(mockToken, mockProfileId,mockActivityID);
+        assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
+    }
 
-    //TODO Need test for invalid roles
+
+//TODO Need test for invalid roles
 }

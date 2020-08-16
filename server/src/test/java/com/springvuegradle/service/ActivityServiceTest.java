@@ -862,6 +862,20 @@ class ActivityServiceTest {
         assertEquals(response, service.getActivityMembers(activity.getId()));
     }
 
+    /**
+     * Test the service method for getSingleActivityMembership
+     */
+    @Test
+    void getSingleActivityMembershipTest() {
+        Profile creator = profileRepository.save(createNormalProfileBen());
+        emailRepository.save(new Email("ben10@hotmail.com", true, creator));
+        Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        ActivityMembership creatorMembership = new ActivityMembership(activity, creator, ActivityMembership.Role.CREATOR);
+        activityMembershipRepository.save(creatorMembership);
+        String role = service.getSingleActivityMembership(creator.getId(), activity.getId());
+        assertEquals("creator", role);
+    }
+
 
     /**
      * Ensures getting multiple profiles linked to an activity works as expected
