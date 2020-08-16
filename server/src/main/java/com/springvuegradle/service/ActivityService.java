@@ -295,11 +295,12 @@ public class ActivityService {
 
     /**
      * Returns all the new activities for the user to discover.
-     * @param request contains the count and start index for pagination
      * @param profileId refers to id of the user we want to check
+     * @param startIndex used to sublist the activities returned such that the startIndex is the lower limit.
+     * @param count used to sublist the activities returned such that the startIndex+count is the upper limit.
      * @return list of activities the user has no current association with.
      */
-    public List<Activity> getNewActivities(PageRequest request, Long profileId) {
+    public List<Activity> getNewActivities(Long profileId, Integer startIndex, Integer count) {
         List<Activity> activities = new ArrayList<>();
         List<Activity> results = activityRepo.findAllByPrivacyLevel(2);
         if (results!= null) {
@@ -315,7 +316,7 @@ public class ActivityService {
                 }
             }
         }
-        return activities.subList(Math.min(activities.size(), request.getPageNumber()), Math.min(activities.size(), request.getPageSize()));
+        return activities.subList(Math.min(activities.size(), startIndex), Math.min(activities.size(), startIndex+count));
     }
 
 
