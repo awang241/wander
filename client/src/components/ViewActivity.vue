@@ -22,7 +22,7 @@
 
                                 </div>
                             </div>
-                            <b-dropdown v-if="userRole !== null" aria-role="list" class="is-pulled-right" position="is-bottom-left">
+                            <b-dropdown v-if="userRole !== null || hasCreatorPermissions" aria-role="list" class="is-pulled-right" position="is-bottom-left">
                                 <b-icon icon="ellipsis-v" slot="trigger"/>
                                 <b-dropdown-item id="shareButton" @click="shareActivity"
                                                  v-if="hasCreatorPermissions">
@@ -137,7 +137,7 @@
                              :key="organiser.id">
                             <ProfileSummary class="flex-item" :profile="organiser">
                                 <template v-if="hasCreatorPermissions" #options>
-                                    <b-dropdown aria-role="list" class="is-pulled-right" position="is-bottom-left" v-if="store.getters.getAuthenticationLevel <= 1">
+                                    <b-dropdown aria-role="list" class="is-pulled-right" position="is-bottom-left">
                                         <b-icon icon="ellipsis-v" slot="trigger"/>
                                         <b-dropdown-item @click="changeRole(organiser.id, roles.ORGANISER, roles.PARTICIPANT)">Change to Participant</b-dropdown-item>
                                         <b-dropdown-item @click="changeRole(organiser.id, roles.ORGANISER, roles.FOLLOWER)">Change to Follower</b-dropdown-item>
@@ -183,7 +183,7 @@
                             </div>
                     </div>
                     <div v-else-if="members[roles.PARTICIPANT].length >= 50">
-                        <p>Total number of participants: {{members[roles.PARTICIPANT].length}}</p>
+                        <p>Total number of participants: {{numParticipants}}</p>
                     </div>
                     <div v-else>
                         <p>This activity has no participants.</p>
@@ -301,7 +301,11 @@
             },
             getRoleCounts(){
                 api.getRoleCountsForActivity(this.$route.params.id, localStorage.getItem('authToken'))
-                    .then(response => this.numFollowers = response.data.followers)
+                    .then(response => {
+                        this.numFollowers = response.data.followers
+                        this.numParticipants = response.data.participants
+                    }
+                    )
             },
             deleteActivity() {
                 api.deleteActivity(this.store.getters.getUserId, localStorage.getItem('authToken'), this.$route.params.id)

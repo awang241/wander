@@ -320,9 +320,6 @@ public class ActivityController {
         if (token == null || token.isBlank()) {
             return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
                     HttpStatus.UNAUTHORIZED);
-        } else if (!securityService.checkEditPermission(token, profileId)) {
-            return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(),
-                    HttpStatus.FORBIDDEN);
         }
         try {
             activityService.setProfileRole(profileId, jwtUtil.extractId(token), activityId, ActivityMembership.Role.valueOf(role.getRole().toUpperCase()));
@@ -568,7 +565,7 @@ public class ActivityController {
         }
         try {
             activityService.editActivityPrivacy(privacyRequest.getPrivacy(), activityId);
-            if (privacyRequest.getPrivacy().toLowerCase().equals("friends") && privacyRequest.getMembers() != null) {
+            if (privacyRequest.getPrivacy().toLowerCase().equals("restricted") && privacyRequest.getMembers() != null) {
                 activityService.addMembers(privacyRequest.getMembers(), activityId);
             }
             return new ResponseEntity<>(ActivityResponseMessage.EDIT_SUCCESS.toString(), HttpStatus.OK);

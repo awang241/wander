@@ -296,7 +296,7 @@ public class ActivityTestSteps {
 
     @When("I change the privacy level to friends.")
     public void i_change_the_privacy_level_to_friends() {
-        assertEquals(200, activityController.editActivityPrivacy(new PrivacyRequest("friends"), loginResponse.getToken(), loginResponse.getUserId(), activityRepository.getLastInsertedId()).getStatusCodeValue());
+        assertEquals(200, activityController.editActivityPrivacy(new PrivacyRequest("restricted"), loginResponse.getToken(), loginResponse.getUserId(), activityRepository.getLastInsertedId()).getStatusCodeValue());
     }
 
     @Then("The activity privacy level is now {int}.")

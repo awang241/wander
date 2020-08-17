@@ -548,7 +548,7 @@ class ActivityServiceTest {
     @Test
     void editActivityPrivacyToFriendsTest() {
         Activity activity = activityRepository.save(createNormalActivity());
-        service.editActivityPrivacy("friends", activity.getId());
+        service.editActivityPrivacy("restricted", activity.getId());
         assertEquals(1, activity.getPrivacyLevel());
     }
 
@@ -685,7 +685,7 @@ class ActivityServiceTest {
     @Test
     void getFriendsActivitiesSuccessTest() {
         Activity activity = activityRepository.save(createNormalActivity());
-        service.editActivityPrivacy("friends", activity.getId());
+        service.editActivityPrivacy("restricted", activity.getId());
         assertEquals(1, service.getActivitiesWithPrivacyLevel(ActivityPrivacy.FRIENDS).size());
     }
 
