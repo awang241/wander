@@ -11,13 +11,13 @@
                         <template slot="label">Privacy<span class="requiredAsterisk">*</span></template>
                         <b-select v-model="privacy" placeholder="Choose privacy setting" expanded>
                             <option value="private">Private</option>
-                            <option value="friends">Restricted</option>
+                            <option value="restricted">Restricted</option>
                             <option value="public">Public</option>
                         </b-select>
                     </b-field>
                 </ValidationProvider>
 
-                <div v-if="privacy == 'friends'">
+                <div v-if="privacy == 'restricted'">
                     <ValidationProvider rules="email" name="Email" v-slot="{ errors, valid }" slim>
                         <b-field label="Add friend's emails"
                                  :type="{'is-danger': errors[0], 'is-success': valid}"
@@ -92,9 +92,9 @@
         },
         data() {
             return {
-                privacy: "private",
+                privacy: this.activityPrivacy,
                 userRoles: [],
-                originalPrivacy: "public",
+                originalPrivacy: this.activityPrivacy,
                 emails: {},
                 newEmail: "",
                 role: "",
@@ -105,11 +105,8 @@
             this.getMembers()
         },
         methods: {
-            printHelloWorld(rolesToRetain) {
-                this.successToast(rolesToRetain)
-            },
             onShareActivityClicked() {
-                if (this.isPrivacyMoreRestrictive()) {
+                if (this.isPrivacyMoreRestrictive() && this.userRoles.length > 0) {
                     this.$buefy.modal.open({
                         parent: this,
                         events: {
@@ -139,8 +136,17 @@
                     })
                     .catch(() => this.warningToast("Error updating activity privacy."));
             },
-            addEmail() {
+            async addEmail() {
                 let emailAlreadyAdded = false
+                let emailIsCreators = false
+                let response = await Api.getProfile(store.getters.getUserId, localStorage.getItem('authToken'))
+                if (response.data.primary_email === this.newEmail) {
+                    emailIsCreators = true
+                }
+                if (emailIsCreators) {
+                    this.warningToast("Cannot add yourself to an activity!")
+                    return;
+                }
                 this.userRoles.forEach(user => {
                     if (user.email === this.newEmail) {
                         emailAlreadyAdded = true
@@ -164,7 +170,6 @@
                         }
                     })
                     .catch(() => this.warningToast("Error verifying email."));
-
             },
             getRequestBody() {
                 let payload = {
@@ -197,8 +202,10 @@
                 this.userRoles = this.userRoles.filter(user => user.email != emailToDelete)
             },
             isPrivacyMoreRestrictive() {
-                const privacyDict = {"public": 1, "friends": 2, "private": 3}
-                return privacyDict[this.privacy] > privacyDict[this.originalPrivacy]
+                const privacyDict = {"public": 1, "restricted": 2, "private": 3}
+                const decision = privacyDict[this.privacy] > privacyDict[this.originalPrivacy]
+                this.originalPrivacy = this.privacy
+                return decision
             },
 
             goBack() {
@@ -209,7 +216,7 @@
                 if (!store.getters.getAuthenticationStatus) {
                     router.push({path: '/'})
                 }
-            },
+            }
         }
     }
 </script>

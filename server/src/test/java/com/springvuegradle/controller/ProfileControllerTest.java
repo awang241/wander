@@ -274,6 +274,20 @@ class ProfileControllerTest {
     }
 
     /**
+     * Tests that you cannot retrieve a profile for a default admin,
+     * as default admins do not have a profile.
+     */
+    @Test
+    void getDefaultAdminProfileFromDatabaseTest() {
+        Profile jimmy = createNormalProfileJimmy();
+        jimmy.setAuthLevel(0);
+        profileController.createProfile(jimmy);
+        long expected_id = repo.findAll().get(0).getId();
+        ResponseEntity<Profile> result = profileController.getProfile(expected_id);
+        assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
+    }
+
+    /**
      * Tests to see what response status code is when trying to get a profile that does not exist.
      */
     @Test
@@ -281,7 +295,6 @@ class ProfileControllerTest {
         ResponseEntity<Profile> response_entity = profileController.getProfile(1L);
         assertEquals(HttpStatus.NOT_FOUND, response_entity.getStatusCode());
     }
-
 
     /**
      * Tests that adding an email successfully returns the correct response
