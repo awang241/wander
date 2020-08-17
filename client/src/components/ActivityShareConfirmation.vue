@@ -1,7 +1,7 @@
 <template>
     <div class="container containerColor">
         <h1 class="title">Are you sure you want to change this activity to <b>{{activityPrivacy}}?</b></h1>
-        <h2 class="subtitle">This would remove these users access to the activity</h2>
+        <h2 class="subtitle">This would affect these users access to the activity</h2>
 
         <h2><b>{{numFollowers}}</b> Followers</h2>
         <h2><b>{{numParticipants}}</b> Participants</h2>
