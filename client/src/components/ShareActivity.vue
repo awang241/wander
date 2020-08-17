@@ -92,7 +92,7 @@
         },
         data() {
             return {
-                privacy: "private",
+                privacy: this.activityPrivacy,
                 userRoles: [],
                 originalPrivacy: this.activityPrivacy,
                 emails: {},
