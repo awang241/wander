@@ -695,7 +695,7 @@ class ActivityServiceTest {
     @Test
     void getActivitiesDifferentPrivacyLevelTest() {
         Activity activity = activityRepository.save(createNormalActivity());
-        service.editActivityPrivacy("friends", activity.getId());
+        service.editActivityPrivacy("restricted", activity.getId());
         assertTrue(service.getActivitiesWithPrivacyLevel(ActivityPrivacy.PUBLIC).isEmpty());
     }
 
