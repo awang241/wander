@@ -284,7 +284,7 @@ public class ActivityTestSteps {
         List<MembersRequest> membersRequests = new ArrayList<>();
         membersRequests.add(new MembersRequest(email, roleString));
         ActivityMembership.Role role = ActivityMembership.Role.valueOf(roleString.toUpperCase());
-        PrivacyRequest privacyRequest = new PrivacyRequest("friends", membersRequests);
+        PrivacyRequest privacyRequest = new PrivacyRequest("restricted", membersRequests);
         assertEquals(200, activityController.editActivityPrivacy(privacyRequest, loginResponse.getToken(), loginResponse.getUserId(), activityRepository.getLastInsertedId()).getStatusCodeValue());
     }
 
