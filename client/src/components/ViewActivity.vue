@@ -5,18 +5,16 @@
             <div id="activity-key-info">
                 <div>
                     <div style="float:right">
-                        <div v-if="hasShareAndEditPermissions" class="buttons">
-                            <b-button style="float:right;" id="shareButton" @click="shareActivity"
+                        <div class="buttons">
+                            <b-button v-if="hasShareAndEditPermissions" style="float:right;" id="shareButton" @click="shareActivity"
                                       type="is-primary">
                                 Share / Change Privacy Level
                             </b-button>
-                            <b-button id="editButton" style="float:bottom" @click="editActivity"
+                            <b-button v-if="hasShareAndEditPermissions" id="editButton" style="float:bottom" @click="editActivity"
                                       type="is-primary">
                                 Edit Activity
                             </b-button>
-                        </div>
-                        <div v-if="hasShareAndEditPermissions || userRole === 'participant' || userRole === 'organiser'" class="buttons">
-                            <b-button style="float:right" @click="createParticipation"
+                            <b-button v-if="hasShareAndEditPermissions || userRole === 'participant' || userRole === 'organiser'" style="float:right;" @click="createParticipation"
                                       type="is-primary">
                                 Create Participation
                             </b-button>
@@ -162,7 +160,7 @@
                                     <template v-if="hasShareAndEditPermissions" #options>
                                         <b-dropdown aria-role="list" class="is-pulled-right" position="is-bottom-left">
                                             <b-icon icon="ellipsis-v" slot="trigger"/>
-                                            <b-dropdown-item @click="changeRole(participant.id, roles.PARTICIPANT, roles.ORGANISER)">Change to Organizer</b-dropdown-item>
+                                            <b-dropdown-item @click="changeRole(participant.id, roles.PARTICIPANT, roles.ORGANISER)">Change to Organiser</b-dropdown-item>
                                             <b-dropdown-item @click="changeRole(participant.id, roles.PARTICIPANT, roles.FOLLOWER)">Change to Follower</b-dropdown-item>
                                             <b-dropdown-item @click="deleteRole(participant.id, roles.PARTICIPANT)">Remove from activity</b-dropdown-item>
                                         </b-dropdown>
@@ -196,7 +194,7 @@
                                 <template #options>
                                     <b-dropdown aria-role="list" class="is-pulled-right" position="is-bottom-left">
                                         <b-icon icon="ellipsis-v" slot="trigger"/>
-                                        <b-dropdown-item @click="changeRole(follower.id, roles.FOLLOWER, roles.ORGANISER)">Change to Organizer</b-dropdown-item>
+                                        <b-dropdown-item @click="changeRole(follower.id, roles.FOLLOWER, roles.ORGANISER)">Change to Organiser</b-dropdown-item>
                                         <b-dropdown-item @click="changeRole(follower.id, roles.FOLLOWER, roles.PARTICIPANT)">Change to Participant</b-dropdown-item>
                                         <b-dropdown-item @click="deleteRole(follower.id, roles.FOLLOWER)">Remove from activity</b-dropdown-item>
                                     </b-dropdown>
@@ -275,7 +273,7 @@
                 },
                 tabIndex: 0,
                 store: store,
-                isCreatorOrOrganizer: false,
+                isCreatorOrOrganiser: false,
                 numFollowers: 0,
                 numParticipants: 0,
                 moreOrganisersExist: true,

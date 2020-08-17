@@ -6,6 +6,9 @@
 
                 <p>{{activity.creatorName}}</p>
                 <p>{{activity.location}}</p>
+                <p v-if="activity.continuous">Continuous</p>
+                <p v-else>Duration</p>
+
             </div>
             <div v-if="activity.activityTypes.length > 0" class="column">
                 <strong>Activity Types</strong>
@@ -32,6 +35,7 @@
     import toastMixin from "../mixins/toastMixin";
     import store from "../store";
     import router from "../router";
+    import ViewActivity from "./ViewActivity";
 
     export default {
         name: "ActivitySummary",
@@ -75,6 +79,9 @@
                     })
                     .catch(() => this.warningToast("Error occurred while deleting Activity."));
             },
+            dateFormat(date) {
+                return ViewActivity.methods.dateFormat(date);
+            }
         }
     }
 </script>
