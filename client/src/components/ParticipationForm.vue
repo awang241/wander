@@ -103,9 +103,14 @@
         },
         methods: {
             submitParticipation() {
-                if (this.combinedStartDate !== null && this.validateDates()) {
-                    this.saveParticipation()
-                } else {
+                if (this.combinedStartDate !== null || this.combinedEndDate !== null){
+                    if(this.validateDates()){
+                        this.saveParticipation()
+                    } else{
+                        this.warningToast("Dates entered must be valid")
+                    }
+                }
+                else {
                     this.saveParticipation()
                 }
             },

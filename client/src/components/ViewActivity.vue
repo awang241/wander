@@ -39,7 +39,7 @@
                                     Delete Activity
                                 </b-dropdown-item>
 
-                                <b-dropdown-item id="addParticipationButton" @click="updateRole(store.getters.getUserId, roles.PARTICIPANT)"
+                                <b-dropdown-item id="addParticipationButton" @click="createParticipation"
                                                  v-if="hasOrganiserPermissions || userRole === roles.PARTICIPANT">
                                     Create Participation
                                 </b-dropdown-item>
