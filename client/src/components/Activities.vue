@@ -18,70 +18,30 @@
                 </div>
             </div>
         </section>
-        <br>
-        <br>
         <div class="has-same-height is-gapless">
-            <div v-if="activities.length">
-                <div v-for="activity in activities" v-bind:key="activity">
-                    <div class="column">
-                        <!-- Activities -->
-                        <div class="card">
-                            <div class="card-content">
-                                <h3 class="title is-4">{{activity.activity_name}}</h3>
-                                Role: CREATOR
-                                <div class="content">
-                                    <table class="table-profile">
-                                        <caption hidden>Displayed Activity Table</caption>
-                                        <tr>
-                                            <th colspan="1" scope="col"></th>
-                                            <th colspan="2" scope="col"></th>
-                                        </tr>
-                                        <tr>
-                                            <td>Description:</td>
-                                            <td>{{activity.description}}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Continous/Duration:</td>
-                                            <td v-if="activity.continuous">continuous</td>
-                                            <td v-else>duration</td>
-                                        </tr>
+            <b-tabs v-model="tabIndex" expanded>
 
-                                        <tr v-if="!activity.continuous">
-                                            <td>Start Time:</td>
-                                            <td>UTC {{dateFormat(activity.start_time)}}</td>
-                                        </tr>
-                                        <tr v-if="!activity.continuous">
-                                            <td>End Time:</td>
-                                            <td>UTC {{dateFormat(activity.end_time)}}</td>
-                                        </tr>
+                <b-tab-item label="My Activities">
+                    <ActivityList v-on:loadMoreActivities="loadMoreActivities('creatorOrOrganiser')"
+                                  v-bind:activities="myActivities" v-bind:role="'creatorOrOrganiser'"/>
+                </b-tab-item>
 
-                                        <tr>
-                                            <td>Location:</td>
-                                            <td>{{activity.location}}</td>
-                                        </tr>
-                                        <tr v-for="type in activity.activity_type" :key="type">
-                                            <td>Activity Type:</td>
-                                            <td>{{type}}</td>
-                                        </tr>
-                                    </table>
-                                    <b-button @click="deleteActivity(activity.id)"
-                                              type="is-danger">
-                                        Delete
-                                    </b-button>
-                                    <b-button class='px-3' id="editButton" @click="editActivity(activity)"
-                                              type="is-primary">
-                                        Edit
-                                    </b-button>
-                                </div>
-                                <br>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div v-else class="box">
-                <h1>No activities created</h1>
-            </div>
+                <b-tab-item label="Participating">
+                    <ActivityList v-on:loadMoreActivities="loadMoreActivities('participant')"
+                                  v-bind:activities="participatingActivities" v-bind:role="'participant'"/>
+                </b-tab-item>
+
+                <b-tab-item label="Following">
+                    <ActivityList v-on:loadMoreActivities="loadMoreActivities('follower')"
+                                  v-bind:activities="followingActivities" v-bind:role="'follower'"/>
+                </b-tab-item>
+
+                <b-tab-item label="Discover Activities">
+                    <ActivityList v-on:loadMoreActivities="loadMoreActivities('discover')"
+                                  v-bind:activities="discoverActivities" v-bind:role="'discover'"/>
+                </b-tab-item>
+
+            </b-tabs>
         </div>
     </div>
 </template>
@@ -91,42 +51,67 @@
     import router from "../router";
     import store from "../store"
     import toastMixin from "../mixins/toastMixin";
+    import ActivityList from "./ActivityList";
+
+    const DEFAULT_RESULT_COUNT = 5;
+
 
     export default {
         name: "Activities",
         mixins: [toastMixin],
+        components: {ActivityList},
         data() {
             return {
-                activities: null,
-                store: store
+                store: store,
+                discoverActivitiesStartIndex: 0,
+                myActivitiesStartIndex: 0,
+                participatingActivitiesStartIndex: 0,
+                followingActivitiesStartIndex: 0,
+                moreDiscoverActivitiesExist: true,
+                moreMyActivitiesExist: true,
+                moreFollowingActivitiesExist: true,
+                moreParticipatingActivitiesExist: true,
+                observer: null,
+                myActivities: [],
+                participatingActivities: [],
+                followingActivities: [],
+                discoverActivities: [],
+                activities: this.myActivities,
+                role: "creatorOrOrganiser",
+                tabIndex: 0
             }
         },
         methods: {
-            getActivities() {
-                api.getUserActivitiesList(store.getters.getUserId, localStorage.getItem('authToken'))
-                    .then((response) => {
-                        this.activities = response.data;
-                        this.activities.sort(function (a, b) {
-                                return a.continuous - b.continuous;
-                            }
-                        );
-                    })
-                    .catch(error => console.log(error));
+            removeActivityFromList(activityId) {
+                switch (this.role) {
+                    case "follower":
+                        this.followingActivities = this.followingActivities.filter((activity) => {
+                            return activity.id !== activityId;
+                        })
+                        this.activities = this.followingActivities;
+                        break;
+                    case "participant":
+                        this.participatingActivities = this.participatingActivities.filter((activity) => {
+                            return activity.id !== activityId;
+                        })
+                        this.activities = this.participatingActivities;
+                        break;
+                    case "discover":
+                        this.discoverActivities = this.discoverActivities.filter((activity) => {
+                            return activity.id !== activityId;
+                        })
+                        this.activities = this.discoverActivities;
+                        break;
+                    case "creatorOrOrganiser":
+                        this.myActivities = this.myActivities.filter((activity) => {
+                            return activity.id !== activityId;
+                        })
+                        this.activities = this.myActivities;
+                        break;
+                }
             },
             goToAddActivity() {
                 router.push({path: '/AddActivity'});
-            }, editActivity(activity) {
-                router.push({name: 'editActivity', params: {activityProp: activity}})
-            },
-            deleteActivity(id) {
-                console.log(id);
-                api.deleteActivity(store.getters.getUserId, localStorage.getItem('authToken'), id)
-                    .then((response) => {
-                        console.log(response);
-                        this.warningToast("Activity deleted")
-                        this.activities = this.activities.filter(activity => activity.id != id);
-                    })
-                    .catch(error => console.log(error));
             },
             dateFormat(date) {
                 let year = date.slice(0, 4);
@@ -140,11 +125,92 @@
                 if (!store.getters.getAuthenticationStatus) {
                     router.push({path: '/'})
                 }
+            },
+            getParameters(startIndex, role) {
+                return {count: DEFAULT_RESULT_COUNT, startIndex: startIndex, role: role};
+            },
+            loadMoreActivities(role) {
+                switch (role) {
+                    case "creatorOrOrganiser":
+                        if (this.moreMyActivitiesExist) {
+                            let searchParameters = { count: DEFAULT_RESULT_COUNT, startIndex: this.myActivitiesStartIndex, role: role };
+                            api.getNextActivities(this.store.getters.getUserId, localStorage.getItem("authToken"), searchParameters).then(response => {
+                                if (response.data.results.length == 0) {
+                                    this.moreMyActivitiesExist = false;
+                                } else {
+                                    this.myActivitiesStartIndex += DEFAULT_RESULT_COUNT;
+                                    const activities = response.data.results;
+                                    this.myActivities = [...this.myActivities, ...activities];
+                                    this.myActivities.sort(function (a, b) {
+                                            return a.continuous - b.continuous;
+                                        }
+                                    );
+                                }
+                            });
+                        }
+                        break;
+                    case "participant":
+                        if (this.moreParticipatingActivitiesExist) {
+                            let searchParameters = { count: DEFAULT_RESULT_COUNT, startIndex: this.participatingActivitiesStartIndex, role: role };
+                            api.getNextActivities(this.store.getters.getUserId, localStorage.getItem("authToken"), searchParameters).then(response => {
+                                if (response.data.results.length == 0) {
+                                    this.moreParticipatingActivitiesExist = false;
+                                } else {
+                                    this.participatingActivitiesStartIndex += DEFAULT_RESULT_COUNT;
+                                    const activities = response.data.results;
+                                    this.participatingActivities = [...this.participatingActivities, ...activities];
+                                    this.participatingActivities.sort(function (a, b) {
+                                            return a.continuous - b.continuous;
+                                        }
+                                    );
+                                }
+                            });
+                        }
+                        break;
+                    case "follower":
+                        if (this.moreFollowingActivitiesExist) {
+                            let searchParameters = { count: DEFAULT_RESULT_COUNT, startIndex: this.followingActivitiesStartIndex, role: role };
+                            api.getNextActivities(this.store.getters.getUserId, localStorage.getItem("authToken"), searchParameters).then(response => {
+                                if (response.data.results.length == 0) {
+                                    this.moreFollowingActivitiesExist = false;
+                                } else {
+                                    this.followingActivitiesStartIndex += DEFAULT_RESULT_COUNT;
+                                    const activities = response.data.results;
+                                    this.followingActivities = [...this.followingActivities, ...activities];
+                                    this.followingActivities.sort(function (a, b) {
+                                            return a.continuous - b.continuous;
+                                        }
+                                    );
+                                }
+                            });
+                        }
+                        break;
+                    case "discover":
+                        if (this.moreDiscoverActivitiesExist) {
+                            let searchParameters = { count: DEFAULT_RESULT_COUNT, startIndex: this.discoverActivitiesStartIndex, role: role };
+                            api.getNextActivities(this.store.getters.getUserId, localStorage.getItem("authToken"), searchParameters).then(response => {
+                                if (response.data.results.length == 0) {
+                                    this.moreDiscoverActivitiesExist = false;
+                                } else {
+                                    this.discoverActivitiesStartIndex += DEFAULT_RESULT_COUNT;
+                                    const activities = response.data.results;
+                                    this.discoverActivities = [...this.discoverActivities, ...activities];
+                                    this.discoverActivities.sort(function (a, b) {
+                                            return a.continuous - b.continuous;
+                                        }
+                                    );
+                                }
+                            });
+                        }
+                        break;
+                }
             }
         },
         mounted() {
             this.checkAuthenticationStatus();
-            this.getActivities();
+
+        },
+        beforeMount() {
         }
     }
 
@@ -171,10 +237,23 @@
         margin-left: 1rem;
     }
 
-    #activities-key-info{
+    #activities-key-info {
         display: flex;
         justify-content: space-between;
-        padding: 0rem 1rem;
+        padding: 0 1rem;
     }
+
+    .flex {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+
+    .flex-item {
+        margin: 20px 0;
+        width: 500px;
+    }
+
 
 </style>

@@ -9,6 +9,9 @@ import ActivitiesComponent from "./components/Activities";
 import AdminDashboardComponent from "./components/AdminDashboard";
 import AddActivityComponent from "./components/AddActivity";
 import ProfileSearchComponent from "./components/ProfileSearch"
+import ViewActivityComponent from "./components/ViewActivity.vue"
+import ShareActivityComponent from "./components/ShareActivity.vue";
+import ParticipationComponent from "./components/ParticipationForm.vue";
 import store from "./store";
 
 
@@ -18,8 +21,10 @@ const routes = [
     {path: "/Registration", name: "registration", component: RegistrationComponent},
     {path: "/NavBar", name: "navbar", component: NavBarComponent},
 
+    {path: "/Activities/:id/Participation", name: "participationForm", component: ParticipationComponent},
     {path: "/AddActivity", name: "addActivity", component: AddActivityComponent},
     {path: "/Activities", name: "activities", component:ActivitiesComponent},
+    {path: '/ShareActivity/:id/:activityPrivacy', name:"shareActivity", component: ShareActivityComponent, props: true},
     {path: "/ProfileSearch", name: "profileSearch", component:ProfileSearchComponent, beforeEnter: (to, from, next) => {
             if (store.getters.getAuthenticationStatus) {
                 next()
@@ -30,18 +35,11 @@ const routes = [
             }
     }},
     {path: "/EditActivity/:", name:"editActivity", component:AddActivityComponent, props: true},
-    {path: "/Profile/:id", name: "profile", component:ProfileComponent, beforeEnter: (to, from, next) => {
-            if (store.getters.getAuthenticationStatus) {
-                next()
-            } else {
-                next({
-                    name: "login"
-                })
-            }
-        }},
+    {path: "/Activities/:id", name:"viewActivity", component:ViewActivityComponent, props: true},
+    {path: "/Profile/:id", name: "profile", component:ProfileComponent, props: true},
     {
         //This route is only accessible if the user is authenticated, else it sends them back to the main page
-        path: "/EditProfile/:id", name: "editProfile", component: EditProfileComponent, beforeEnter: (to, from, next) => {
+        path: "/EditProfile/:id", name: "editProfile", props: true, component: EditProfileComponent, beforeEnter: (to, from, next) => {
             if (store.getters.getAuthenticationStatus) {
                 next()
             } else {
@@ -66,6 +64,7 @@ const routes = [
 ]
 
 const router = new VueRouter({
+    base: process.env.VUE_APP_BASE_URL,
     mode: 'history',
     scrollBehaviour(to, from, savedPosition) {
         if (savedPosition) {

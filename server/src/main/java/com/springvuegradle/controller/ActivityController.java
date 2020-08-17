@@ -1,20 +1,40 @@
 package com.springvuegradle.controller;
 
 
-import com.springvuegradle.enums.ActivityResponseMessage;
-import com.springvuegradle.enums.AuthenticationErrorMessage;
+import com.springvuegradle.dto.SimplifiedActivitiesResponse;
+import com.springvuegradle.dto.SimplifiedActivity;
+import com.springvuegradle.dto.requests.ActivityRoleUpdateRequest;
+import com.springvuegradle.dto.responses.ActivityMemberProfileResponse;
+import com.springvuegradle.dto.*;
+import com.springvuegradle.enums.*;
+import com.springvuegradle.dto.responses.ActivityMemberRoleResponse;
+import com.springvuegradle.dto.responses.ProfileSummary;
+import com.springvuegradle.enums.*;
 import com.springvuegradle.model.Activity;
-import com.springvuegradle.repositories.ActivityRepository;
-import com.springvuegradle.utilities.FieldValidationHelper;
-import com.springvuegradle.utilities.JwtUtil;
+import com.springvuegradle.model.ActivityMembership;
+import com.springvuegradle.model.Profile;
 import com.springvuegradle.service.ActivityService;
 import com.springvuegradle.service.SecurityService;
+import com.springvuegradle.model.ActivityParticipation;
+import com.springvuegradle.repositories.ActivityRepository;
+import com.springvuegradle.utilities.FieldValidationHelper;
+import com.springvuegradle.utilities.FormatHelper;
+import com.springvuegradle.utilities.JwtUtil;
+import javassist.NotFoundException;
+import org.hibernate.annotations.NotFound;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.AccessControlException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 /**
  * Class containing REST endpoints for activities
@@ -30,12 +50,6 @@ public class ActivityController {
 
     @Autowired
     private ActivityService activityService;
-
-    /**
-     * Way to access Activity Repository (Activity table in db).
-     */
-    @Autowired
-    private ActivityRepository aRepo;
 
     @Autowired
     public ActivityController(ActivityService activityService, JwtUtil jwtUtil) {
@@ -91,19 +105,18 @@ public class ActivityController {
                                                  @RequestHeader("authorization") String token,
                                                  @PathVariable Long profileId,
                                                  @PathVariable Long activityId) {
-        if (token == null || token.isBlank()) {
-            return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
-                    HttpStatus.UNAUTHORIZED);
-        } else if (!securityService.checkEditPermission(token, profileId)) {
-            return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(),
-                    HttpStatus.FORBIDDEN);
+
+        ResponseEntity<String> errorOccurred = checkActivityModifyPermissions(token, profileId, activityId);
+        if (errorOccurred != null) {
+            return errorOccurred;
         }
+
 
         try {
             activityService.update(request, activityId);
             return new ResponseEntity<>(ActivityResponseMessage.EDIT_SUCCESS.toString(), HttpStatus.OK);
         } catch (IllegalArgumentException e) {
-            HttpStatus status = HttpStatus.BAD_REQUEST;
+            HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
             if (ActivityResponseMessage.SEMANTIC_ERRORS.contains(e.getMessage())) {
                 status = HttpStatus.FORBIDDEN;
             } else if (ActivityResponseMessage.SYNTAX_ERRORS.contains(e.getMessage())) {
@@ -116,40 +129,260 @@ public class ActivityController {
     }
 
     /**
-     * Queries the Database to find all the activities.
+     * Checks validity of token, as well as if the user can edit or delete the activity.
      *
-     * @return a response with all the activities in the database.
+     * @param token      authentication token
+     * @param profileId  The id of the user
+     * @param activityId The id the activity
+     * @return response entity with error message if unauthorised or forbidden. Null otherwise.
+     */
+    private ResponseEntity<String> checkActivityModifyPermissions(String token, Long profileId, Long activityId) {
+        if (token == null || token.isBlank()) {
+            return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
+                    HttpStatus.UNAUTHORIZED);
+        } else if (!securityService.checkEditPermission(token, profileId) || !activityService.isProfileActivityCreator(jwtUtil.extractId(token), activityId)) {
+            return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(),
+                    HttpStatus.FORBIDDEN);
+        }
+        return null;
+    }
+
+    /**
+     * Gets a simplified list of users including their basic info and role in the activity
+     *
+     * @param token      the authorization token of the user
+     * @param activityId the ID of the activity we are getting users with roles from
+     * @return a simplified list of users including basic info and their role in the activity
+     */
+    @GetMapping("/activities/{activityId}/members")
+    public ResponseEntity<List<ActivityMemberProfileResponse>> getActivityMembers(@RequestHeader("authorization") String token,
+                                                                                  @PathVariable long activityId) {
+        if (!jwtUtil.validateToken(token)) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        try {
+            return new ResponseEntity<>(activityService.getActivityMembers(activityId), HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    /**
+     * Given an activity ID, returns an HTTP response containing a list of summaries of all members of that activity
+     * with the given role. If count and index are supplied in the query string, the result is paginated.
+     *
+     * @param token      The provided authorisation token
+     * @param activityId The ID of the activity the members belong to
+     * @param roleName   The name of the role being searched for. This must match one of the roles specified in
+     *                   ActivityMemberships.
+     * @param count      Optional parameter for specifying page size. This parameter must either be included with index
+     *                   or not at all.
+     * @param index      Optional parameter for specifying a member index; the server will return the page that contains
+     *                   that item. This parameter must either be included with count or not at all.
+     * @return An HTTP response containing the list of members with that role if the request was successful. Otherwise,
+     * an error message is returned instead.
+     */
+    @GetMapping("/activities/{activityId}/members/{role}")
+    public ResponseEntity<ActivityMemberRoleResponse> getActivityMembers(@RequestHeader("authorization") String token,
+                                                                         @PathVariable long activityId,
+                                                                         @PathVariable(name = "role") String roleName,
+                                                                         @RequestParam(name = "count", required = false) Integer count,
+                                                                         @RequestParam(name = "index", required = false) Integer index) {
+        ActivityMemberRoleResponse body;
+        HttpStatus status;
+        if (!jwtUtil.validateToken(token)) {
+            body = new ActivityMemberRoleResponse(AuthenticationErrorMessage.INVALID_CREDENTIALS);
+            return new ResponseEntity<>(body, HttpStatus.UNAUTHORIZED);
+        }
+
+        Pageable pageable;
+        if (count == null && index == null) {
+            pageable = PageRequest.of(0, 10000);
+        } else if (count == null || index == null || count < 1 || index < 0) {
+            body = new ActivityMemberRoleResponse(ProfileErrorMessage.INVALID_SEARCH_COUNT);
+            return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+        } else {
+            pageable = PageRequest.of(index / count, count);
+        }
+
+        try {
+            ActivityMembership.Role role = ActivityMembership.Role.valueOf(roleName.toUpperCase());
+            Page<Profile> profiles = activityService.getActivityMembersByRole(activityId, role, pageable);
+            List<ProfileSummary> summaries = FormatHelper.createProfileSummaries(profiles.getContent());
+            body = new ActivityMemberRoleResponse(summaries);
+            status = HttpStatus.OK;
+        } catch (IllegalArgumentException e) {
+            body = new ActivityMemberRoleResponse(e.getMessage());
+            if (e.getMessage().equals(ActivityResponseMessage.INVALID_ACTIVITY.toString())) {
+                status = HttpStatus.NOT_FOUND;
+            } else {
+                status = HttpStatus.BAD_REQUEST;
+            }
+        } catch (Exception e) {
+            body = new ActivityMemberRoleResponse(e.getMessage());
+            status = HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+        return new ResponseEntity<>(body, status);
+    }
+
+    /**
+     * Gets a list of activities with the given privacy
+     *
+     * @param privacyString the privacy level of the activities
+     * @param token         The users authentication token
+     * @return a list of activities
      */
     @GetMapping("/activities")
-    public ResponseEntity<List<Activity>> getActivitiesList() {
-        List<Activity> allActivities = aRepo.findAll();
-        return new ResponseEntity<>(allActivities, HttpStatus.OK);
+    public ResponseEntity<List<Activity>> getActivities(@RequestParam String privacyString,
+                                                        @RequestHeader("authorization") String token) {
+        if (Boolean.TRUE.equals(FieldValidationHelper.isNullOrEmpty(privacyString))) {
+            return new ResponseEntity<>(activityService.getAllActivities(), HttpStatus.OK);
+        } else {
+            if ((token == null || token.isBlank())) {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+
+            ActivityPrivacy privacy;
+            try {
+                privacy = ActivityPrivacy.valueOf(privacyString.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+
+            List<Activity> publicActivityList = activityService.getActivitiesWithPrivacyLevel(privacy);
+            return new ResponseEntity<>(publicActivityList, HttpStatus.OK);
+        }
+    }
+
+    /**
+     * REST endpoint to return the activity with the given ID
+     *
+     * @param token      authentication token
+     * @param activityId the id of the activity
+     * @return A response containing the requested activity if successful, or a empty response with the appropriate
+     * error code otherwise.
+     */
+    @GetMapping("/activities/{activityId}")
+    public ResponseEntity<Activity> getActivity(@RequestHeader("authorization") String token,
+                                                @PathVariable long activityId) {
+        if (token == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        } else if (!jwtUtil.validateToken(token)) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        Activity activity = activityService.getActivityByActivityId(jwtUtil.extractId(token), activityId, jwtUtil.extractPermission(token));
+        if (activity == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(activity, HttpStatus.OK);
+    }
+
+
+
+    /**
+     * Gets the number of people for each role in an activity
+     *
+     * @param token      the authentication token of the user
+     * @param activityId the ID of the activity we are checking roles for
+     * @return the count of people who have a role in an activity
+     */
+    @GetMapping("/activities/{activityId}/rolecount")
+    public ResponseEntity<ActivityRoleCountResponse> getActivityRoleCount(@RequestHeader("authorization") String token,
+                                                                          @PathVariable long activityId
+    ) {
+        if (!jwtUtil.validateToken(token)) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        try {
+            return new ResponseEntity<>(activityService.getRoleCounts(activityId), HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
 
     /**
+     * Allows the changing of a profiles role within an activity memebership
+     *
+     * @param role       the role the user wants to change to
+     * @param token      the users authentication token
+     * @param profileId  the ID of the profile whose membership we are changing
+     * @param activityId the ID of the activity the profile is a part of
+     * @return an HTTP status code indicating the result of the operation
+     */
+    @PutMapping("/profiles/{profileId}/activities/{activityId}/role")
+    public ResponseEntity<String> changeProfilesActivityRole(@RequestBody ActivityRoleUpdateRequest role,
+                                                             @RequestHeader("authorization") String token,
+                                                             @PathVariable Long profileId,
+                                                             @PathVariable Long activityId) {
+        if (token == null || token.isBlank()) {
+            return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
+                    HttpStatus.UNAUTHORIZED);
+        }
+        try {
+            activityService.setProfileRole(profileId, jwtUtil.extractId(token), activityId, ActivityMembership.Role.valueOf(role.getRole().toUpperCase()));
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    /**
      * Queries the Database to find all the activities of a user with their profile id.
      *
+     * @param token      the users authentication token
+     * @param profileId  the users ID
+     * @param count      an integer for the amount of activities to be returned by the database
+     * @param startIndex an integer for the starting index of activities to search from
+     * @param role       the role of the user. Used to filter the activities. In this case, to prevent more duplication,
+     *                   "public" can also come through as a role to get all the public activities.
+     *                   "creatorOrOrganiser" can also come through as a role to get all the activities the user created
+     *                   and activities the organiser created.
+     *                   "discover" can also come through as a role to get all the activities that a public and the user
+     *                   does not have an associated role with.
      * @return a response with all the activities of the user in the database.
      */
     @GetMapping("/profiles/{profileId}/activities")
-    public ResponseEntity<List<Activity>> getAllUsersActivities(@RequestHeader("authorization") String token,
-                                                                @PathVariable Long profileId) {
-
-        return getAllUsersActivities(token, profileId, false);
-    }
-
-    public ResponseEntity<List<Activity>> getAllUsersActivities(String token, Long profileId, Boolean testing) {
-        if (!testing && !jwtUtil.validateToken(token)) {
-            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
-        }
-        List<Activity> result;
-        if (!testing && (jwtUtil.extractPermission(token) == 0 || jwtUtil.extractPermission(token) == 1)) {
-            result = aRepo.findAll();
+    public ResponseEntity<SimplifiedActivitiesResponse> getUsersActivitiesByRole(@RequestHeader("authorization") String token,
+                                                                                 @PathVariable Long profileId,
+                                                                                 @RequestParam("count") int count,
+                                                                                 @RequestParam("startIndex") int startIndex,
+                                                                                 @RequestParam("role") String role) {
+        SimplifiedActivitiesResponse activitiesResponse;
+        HttpStatus status;
+        if (token == null) {
+            status = HttpStatus.UNAUTHORIZED;
+            activitiesResponse = new SimplifiedActivitiesResponse(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage());
+        } else if (Boolean.FALSE.equals(jwtUtil.validateToken(token))) {
+            status = HttpStatus.FORBIDDEN;
+            activitiesResponse = new SimplifiedActivitiesResponse(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage());
+        } else if (count <= 0) {
+            status = HttpStatus.BAD_REQUEST;
+            activitiesResponse = new SimplifiedActivitiesResponse(ProfileErrorMessage.INVALID_SEARCH_COUNT.getMessage());
         } else {
-            result = activityService.getActivitiesByProfileId(profileId);
+            int pageIndex = startIndex / count;
+            PageRequest request = PageRequest.of(pageIndex, count);
+            List<Activity> activities;
+            if (role.equals("public")) {
+                activities = activityService.getPublicActivities(request);
+            } else if (role.equals("creatorOrOrganiser")) {
+                activities = activityService.getActivitiesUserCanModify(profileId, startIndex, count, jwtUtil.extractPermission(token));
+            } else if (role.equals("discover")) {
+                activities = activityService.getNewActivities(profileId, startIndex, count, jwtUtil.extractPermission(token));
+            } else {
+                try {
+                    activities = activityService.getActivitiesByProfileIdByRole(profileId, ActivityMembership.Role.valueOf(role.toUpperCase()), startIndex, count, jwtUtil.extractPermission(token));
+                } catch (IllegalArgumentException e) {
+                    return new ResponseEntity<>(new SimplifiedActivitiesResponse(e.getMessage()), HttpStatus.BAD_REQUEST);
+                }
+            }
+            List<SimplifiedActivity> simplifiedActivities = activityService.createSimplifiedActivities(activities);
+            activitiesResponse = new SimplifiedActivitiesResponse(simplifiedActivities);
+            status = HttpStatus.OK;
         }
-        return new ResponseEntity<>(result, HttpStatus.OK);
+        return new ResponseEntity<>(activitiesResponse, status);
     }
 
     /**
@@ -170,18 +403,329 @@ public class ActivityController {
 
     public ResponseEntity<String> deleteActivity(String token, Long profileId, Long activityId, Boolean testing) {
         if (!testing) {
-            if (token == null || token.isBlank()) {
-                return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
-                        HttpStatus.UNAUTHORIZED);
-            } else if (!securityService.checkEditPermission(token, profileId)) {
-                return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(),
-                        HttpStatus.FORBIDDEN);
+            ResponseEntity<String> errorOccurred = checkActivityModifyPermissions(token, profileId, activityId);
+            if (errorOccurred != null) {
+                return errorOccurred;
             }
         }
-
         if (activityService.delete(activityId)) {
             return new ResponseEntity<>("The activity has been deleted from the database.", HttpStatus.OK);
         }
         return new ResponseEntity<>("The activity does not exist in the database.", HttpStatus.NOT_FOUND);
+    }
+
+    /**
+     * Assigns an activityRole to a user for a specific activity.
+     *
+     * @param token      the user's authentication token.
+     * @param profileId  the id of the user we want to assign the role to.
+     * @param activityId the id of the activity we want to add the user's role to.
+     * @param newRole    the role we want to give to the user for that specific activity. Represented as ActivityUpdateRequest
+     * @return response entity with message detailing whether it was a success or not.
+     */
+    @PostMapping("/profiles/{profileId}/activities/{activityId}/role")
+    public ResponseEntity<String> addActivityRole(@RequestHeader("authorization") String token,
+                                                  @PathVariable Long profileId,
+                                                  @PathVariable Long activityId,
+                                                  @RequestBody ActivityRoleUpdateRequest newRole) {
+        if (token == null || token.isBlank()) {
+            return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
+                    HttpStatus.UNAUTHORIZED);
+        }
+        String role = newRole.getRole();
+        List<String> possibleRoles = new ArrayList<>(Arrays.asList("participant", "follower"));
+        Boolean checkFollowerOrParticipant = securityService.checkEditPermission(token, profileId) && possibleRoles.contains(role);
+        possibleRoles.add("organiser");
+        Boolean checkCreatorOrAdmin = activityService.isProfileActivityCreator(jwtUtil.extractId(token), activityId) && possibleRoles.contains(role);
+        try {
+            if (checkFollowerOrParticipant || checkCreatorOrAdmin) {
+                activityService.addActivityRole(activityId, profileId, role);
+            } else {
+                return new ResponseEntity<>(ActivityMessage.INVALID_ROLE.getMessage(), HttpStatus.BAD_REQUEST);
+            }
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<>(ActivityMessage.SUCCESSFUL_CREATION.getMessage(), HttpStatus.CREATED);
+    }
+
+
+    /**
+     * Gets a user's role for a particular activity if a role exists.
+     *
+     * @param token      the token of the user making the request.
+     * @param profileId  the id of the profile we want to get the associated role for.
+     * @param activityId the id of the activity we want to get the user's role in.
+     * @return the role of the user in the particular activity.
+     */
+    @GetMapping("/profiles/{profileId}/activities/{activityId}/role")
+    public ResponseEntity<ActivityRoleUpdateRequest> getActivityRole(@RequestHeader("authorization") String token,
+                                                                     @PathVariable Long profileId,
+                                                                     @PathVariable Long activityId) {
+        if (token == null || token.isBlank()) {
+            return new ResponseEntity<>(null,
+                    HttpStatus.UNAUTHORIZED);
+        } else if (!securityService.checkEditPermission(token, profileId)) {
+            return new ResponseEntity<>(null,
+                    HttpStatus.FORBIDDEN);
+        }
+        try {
+            String currentRole = activityService.getSingleActivityMembership(profileId, activityId);
+            return new ResponseEntity<>(new ActivityRoleUpdateRequest(currentRole), HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+
+    }
+
+    /**
+     * Removes a profiles activity membership from a specified activity
+     *
+     * @param profileId  the id of the profile that has membership with the activity
+     * @param activityId the id of the specified activity
+     * @return http response code and feedback message on the result of the delete operation
+     */
+    @DeleteMapping("/profiles/{profileId}/activities/{activityId}/membership")
+    public @ResponseBody
+    ResponseEntity<String> deleteActivityMembership(@RequestHeader("authorization") String token,
+                                                    @PathVariable Long profileId,
+                                                    @PathVariable Long activityId) {
+        if (token == null || token.isBlank()) {
+            return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
+                    HttpStatus.UNAUTHORIZED);
+        }
+        try {
+            activityService.removeUserRoleFromActivity(jwtUtil.extractId(token), profileId, activityId);
+            return new ResponseEntity<>(ActivityMessage.SUCCESSFUL_DELETION.getMessage(), HttpStatus.OK);
+        } catch (AccessControlException e) {
+            return new ResponseEntity<>(ActivityMessage.INSUFFICIENT_PERMISSION.getMessage(), HttpStatus.FORBIDDEN);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(ActivityMessage.EDITING_CREATOR.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>(ActivityMessage.MEMBERSHIP_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
+
+
+    /**
+     * Removes all member roles of a specified level from a specified activity
+     *
+     * @param token       the auth token of the request
+     * @param activityId  The ID of the activity to have a role cleared
+     * @param roleToClear A string of "organiser", "participant" or "follower" to clear
+     * @return http response code for the outcome of the delete
+     */
+    @DeleteMapping("/activities/{activityId}/clearRole")
+    public @ResponseBody
+    ResponseEntity<String> clearRoleOfActivity(@RequestHeader("authorization") String token,
+                                               @PathVariable Long activityId,
+                                               @RequestParam("role") String roleToClear) {
+        ResponseEntity response = null;
+        if (token == null || token.isBlank()) {
+            response = new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
+                    HttpStatus.UNAUTHORIZED);
+        } else if (!jwtUtil.validateToken(token)) {
+            response = new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
+                    HttpStatus.UNAUTHORIZED);
+        }
+        if (!(jwtUtil.extractPermission(token) > 2 || activityService.isProfileActivityCreator(jwtUtil.extractId(token), activityId))) {
+            response = new ResponseEntity<>(ActivityMessage.INSUFFICIENT_PERMISSION.getMessage(), HttpStatus.FORBIDDEN);
+        }
+        if (response == null) {
+            String roleString = roleToClear.toUpperCase();
+            try {
+                Arrays.asList(ActivityRoleLevel.values()).contains(ActivityRoleLevel.valueOf(roleString));
+                activityService.clearActivityRoleList(activityId, roleString);
+                response = new ResponseEntity<>(ActivityMessage.SUCCESSFUL_DELETION.getMessage(), HttpStatus.OK);
+            } catch (IllegalArgumentException e) {
+                response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            } catch (NoSuchElementException e) {
+                response = new ResponseEntity<>(e, HttpStatus.NOT_FOUND);
+            }
+        }
+        return response;
+    }
+
+    /**
+     * REST endpoint for editing the privacy level of an existing activity. Given a HTTP request containing a correctly formatted JSON file,
+     * updates the given database entry. For more information on the JSON format, see the @JsonCreator-tagged constructor
+     * in the Activity class. The endpoint now also adds new members to the activity.
+     *
+     * @param privacyRequest The contents of HTTP request body, mapped to a privacy request.
+     * @return A HTTP response notifying the sender whether the edit was successful
+     */
+    @PutMapping("/profiles/{profileId}/activities/{activityId}/privacy")
+    public ResponseEntity<String> editActivityPrivacy(@RequestBody PrivacyRequest privacyRequest,
+                                                      @RequestHeader("authorization") String token,
+                                                      @PathVariable Long profileId,
+                                                      @PathVariable Long activityId) {
+
+        if (token == null || token.isBlank() || !activityService.isProfileActivityCreator(jwtUtil.extractId(token), activityId)) {
+            return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(), HttpStatus.UNAUTHORIZED);
+        }
+        try {
+            activityService.editActivityPrivacy(privacyRequest.getPrivacy(), activityId);
+            if (privacyRequest.getPrivacy().toLowerCase().equals("restricted") && privacyRequest.getMembers() != null) {
+                activityService.addMembers(privacyRequest.getMembers(), activityId);
+            }
+            return new ResponseEntity<>(ActivityResponseMessage.EDIT_SUCCESS.toString(), HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    /**
+     * Posts a users participation details in a particular activity
+     *
+     * @param request                      DTO containing participation details
+     * @param token                        the token of the user making the request.
+     * @param profileId                    the id of the user posting their activity participation
+     * @param activityId                   the activity the user participated in
+     * @return a response entity containing an appropriate status code
+     */
+    @PostMapping("/profiles/{profileId}/activities/{activityId}/participation")
+    public ResponseEntity<String> addActivityParticipation(@RequestBody ActivityParticipationRequest request,
+                                                           @RequestHeader("authorization") String token,
+                                                           @PathVariable long profileId,
+                                                           @PathVariable long activityId) {
+        if (token == null || token.isBlank()) {
+            return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
+                    HttpStatus.UNAUTHORIZED);
+        }
+        if (!jwtUtil.validateToken(token)) {
+            return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(),
+                    HttpStatus.FORBIDDEN);
+        }
+        try {
+            ActivityParticipation participation = new ActivityParticipation(request.getDetails(), request.getOutcome(), request.getStartTime(), request.getEndTime());
+            activityService.createParticipation(activityId, profileId, participation);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
+        }
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    /**
+     * Updates the ActivityParticipation object containing a set of participation details, given a participation id.
+     *
+     * @param token             the token of the user, which must be valid.
+     * @param profileId         the id of the user.
+     * @param activityId        the id of the activity.
+     * @param participationId   the id of the participation.
+     * @return an ActivityParticipationResponse containing the ActivityParticipation object is successful, or an error
+     * message if unsuccessful.
+     */
+    @PutMapping("/profiles/{profileId}/activities/{activityId}/participation/{participationId}")
+    public ResponseEntity<String> updateParticipation (@RequestBody ActivityParticipationRequest request,
+                                                       @RequestHeader("authorization") String token,
+                                                       @PathVariable long profileId,
+                                                       @PathVariable long activityId,
+                                                       @PathVariable long participationId)
+    {
+        if (token == null || token.isBlank()) {
+            return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
+                    HttpStatus.UNAUTHORIZED);
+        }
+        if (!jwtUtil.validateToken(token)) {
+            return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(),
+                    HttpStatus.FORBIDDEN);
+        }
+        try {
+            ActivityParticipation updatedParticipation = new ActivityParticipation(request.getDetails(), request.getOutcome(), request.getStartTime(), request.getEndTime());
+            activityService.editParticipation(activityId, profileId, participationId, updatedParticipation);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
+        }
+        return new ResponseEntity<>(ActivityParticipationMessage.EDIT_SUCCESS.getMessage(), HttpStatus.OK);
+    }
+
+    /**
+     * Deletes a users participation from an activity
+     * @param token                        the token of the user making the request.
+     * @param profileId                    the id of the user deleting their activity participation
+     * @param activityId                   the activity the user participated in
+     * @param participationId              the participation the user wants to delete
+     */
+    @DeleteMapping("/profiles/{profileId}/activities/{activityId}/participation/{participationId}")
+    public @ResponseBody
+    ResponseEntity<String> deleteParticipation(@RequestHeader("authorization") String token,
+                                               @PathVariable long profileId,
+                                               @PathVariable long activityId,
+                                               @PathVariable long participationId) {
+
+        if (token == null || token.isBlank()) {
+            return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
+                    HttpStatus.UNAUTHORIZED);
+        } else if (!securityService.checkEditPermission(token, profileId)) {
+            return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(),
+                    HttpStatus.FORBIDDEN);
+        }
+        if (activityService.removeParticipation(activityId, profileId, participationId)) {
+            return new ResponseEntity<>(ActivityParticipationMessage.SUCCESSFUL_DELETION.getMessage(), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(ActivityParticipationMessage.PARTICIPATION_NOT_FOUND.getMessage(), HttpStatus.NOT_FOUND);
+    }
+    /**
+     * Gets and returns an ActivityParticipation object containing a set of participation details, given a participation
+     * id.
+     *
+     * @param token             the token of the user, which must be valid.
+     * @param profileId         the id of the user.
+     * @param activityId        the id of the activity.
+     * @param participationId   the id of the participation.
+     * @return an ActivityParticipationResponse containing the ActivityParticipation object is successful, or an error
+     * message if unsuccessful.
+     */
+    @GetMapping("/profiles/{profileId}/activities/{activityId}/participation/{participationId}")
+    public ResponseEntity<ActivityParticipationResponse> getParticipation (@RequestHeader("authorization") String token,
+                                                                      @PathVariable long profileId,
+                                                                      @PathVariable long activityId,
+                                                                      @PathVariable long participationId)
+    {
+        if (token == null || token.isBlank()) {
+            return new ResponseEntity<>(new ActivityParticipationResponse(
+                    AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage()),
+                    HttpStatus.UNAUTHORIZED);
+        }
+        if (!jwtUtil.validateToken(token)) {
+            return new ResponseEntity<>(new ActivityParticipationResponse(
+                    AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage()),
+                    HttpStatus.FORBIDDEN);
+        }
+        try {
+            ActivityParticipation participation = activityService.readParticipation(participationId);
+            return new ResponseEntity<>(new ActivityParticipationResponse(
+                    participation), HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(new ActivityParticipationResponse(
+                    e.getMessage()), HttpStatus.NOT_FOUND);
+        }
+
+    }
+
+    /**
+     *
+     * @param token The token of the user
+     * @param activityId ID of the activity all the participations belong to
+     * @return an ActivityParticipationSummariesResponse that contains a list of participations if successful.
+     * Otherwise returns an error message.
+     */
+    @GetMapping("/activities/{activityId}/participations")
+    public ResponseEntity<ActivityParticipationSummariesResponse> getParticipationSummaries (@RequestHeader("authorization") String token,
+                                                                                             @PathVariable long activityId)
+    {
+        if (token == null || token.isBlank()) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        else if (!jwtUtil.validateToken(token)) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        try {
+            List<ActivityParticipation> activityParticipationSummaries = activityService.readParticipationsFromActivity(activityId);
+            return new ResponseEntity<>(new ActivityParticipationSummariesResponse(
+                    activityParticipationSummaries), HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 }

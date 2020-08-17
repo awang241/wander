@@ -3,6 +3,8 @@
         <div class="columns">
             <div class="column">
                 <h4><strong>{{name}}</strong></h4>
+                <div v-if="this.profileIsAdmin" class="color-primary">Admin</div>
+
                 <p>{{profile.gender}}</p>
                 <p>{{profile.email}}</p>
             </div>
@@ -12,48 +14,55 @@
                     <p> {{activity}}</p>
                 </div>
             </div>
-            <b-button type="is-text" @click="gotoProfile(profile.id)">View profile</b-button>
+            <slot name="options">
+            </slot>
         </div>
     </div>
 </template>
 
 <script>
-    import Profile from "./Profile.vue";
+
+    import toastMixin from "../mixins/toastMixin";
+    import store from "../store";
 
     export default {
         name: "ProfileSummary",
+        mixins: [toastMixin],
         data() {
             return {
-                profileData: {}
+                profileData: {},
+                store: store
             }
         },
         mounted() {
-            this.profileData = this.props.profile;
+            this.profileData = this.$props.profile;
         },
         computed: {
             name() {
                 return `${this.profile.firstname}  ${this.profile.lastname}`
+            },
+            profileIsAdmin(){
+                return this.profile.authLevel < 2
             }
         },
         props: {
-            profile: Object
-        },
-        methods: {
-            gotoProfile() {
-                this.$buefy.modal.open({
-                    parent: this,
-                    props: {id:this.profile.id},
-                    component: Profile,
-                    trapFocus: true,
-                    scroll: "clip"
-                })
+            profile: {
+                type: Object,
+                required: true
             }
-        }
+        },
     }
 </script>
 
 <style scoped>
-    .columns{
+    .columns {
         padding: 1rem;
+    }
+    li{
+        list-style-type: none;
+    }
+
+    .color-primary {
+        color: #4099FF
     }
 </style>

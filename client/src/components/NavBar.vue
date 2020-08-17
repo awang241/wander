@@ -25,11 +25,12 @@
                     <b-button v-if="!store.getters.getAuthenticationStatus"
                               tag="router-link"
                               to="/Registration"
-                              type="is-light">
+                              type="is-light"
+                              id="registrationButton">
                         Register
                     </b-button>
                     <b-button  @click="goToProfileSearch"
-                               v-if="store.getters.getAuthenticationStatus && store.getters.getAuthenticationLevel > 0"
+                               v-if="store.getters.getAuthenticationStatus && store.getters.getAuthenticationLevel > 1"
                                type="is-light">
                         Search for a Profile
                     </b-button>
@@ -65,7 +66,7 @@
     import store from '../store';
     import Vuex from 'vuex';
     import Vue from "vue";
-    Vue.use(Vuex)
+    Vue.use(Vuex);
 
     export default {
         name: "NavBar",

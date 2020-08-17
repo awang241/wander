@@ -1,12 +1,16 @@
 package com.springvuegradle.controller;
 
+import com.springvuegradle.dto.requests.*;
+import com.springvuegradle.dto.responses.ActivityTypesResponse;
+import com.springvuegradle.dto.responses.ProfileSearchResponse;
+import com.springvuegradle.dto.responses.ProfileSummary;
+import com.springvuegradle.enums.AuthLevel;
 import com.springvuegradle.enums.AuthenticationErrorMessage;
 import com.springvuegradle.model.*;
 import com.springvuegradle.repositories.*;
 import com.springvuegradle.utilities.FieldValidationHelper;
 import com.springvuegradle.utilities.JwtUtil;
 import com.springvuegradle.service.SecurityService;
-import com.springvuegradle.dto.*;
 import com.springvuegradle.enums.ProfileErrorMessage;
 import com.springvuegradle.service.ProfileService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -168,7 +172,6 @@ public class Profile_Controller {
             return getProfile(id);
         } else {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-
         }
     }
 
@@ -191,24 +194,25 @@ public class Profile_Controller {
     }
 
     /**
-     * Deletes a profile from the repository given that it exists in the database. The method was initially used for
-     * testing but might be useful for a later story.
+     * Checks for the permission of the user and calls the protected deleteProfile method.
      * @param id the id of the profile to be deleted
      * @return http response code and feedback message on the result of the delete operation
      */
     @DeleteMapping(value="/profiles/{id}")
-    public @ResponseBody ResponseEntity<String> deleteProfile(@PathVariable Long id) {
-        Optional<Profile> result = repo.findById(id);
-        if (Boolean.TRUE.equals(result.isPresent())) {
-            Profile profileToDelete = result.get();
-            for (Email email: profileToDelete.retrieveEmails()) {
-                eRepo.delete(email);
-            }
-            repo.delete(profileToDelete);
-            return new ResponseEntity<>("The Profile does exist in the database.", HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("The profile does not exist in the database.", HttpStatus.NOT_FOUND);
+    public @ResponseBody ResponseEntity<String> deleteProfile(@RequestHeader("authorization") String token, @PathVariable Long id) {
+        if(!securityService.checkEditPermission(token, id)){
+            return new ResponseEntity<>("Permission denied", HttpStatus.FORBIDDEN);
         }
+        return deleteProfile(id);
+    }
+
+    /**
+     * Called by the other deleteProfile method. Calls the deleteProfile method in ProfileService class.
+     * @param id the id of the profile to be deleted
+     * @return http response code and feedback message on the result of the delete operation
+     */
+    protected ResponseEntity<String> deleteProfile(@PathVariable Long id) {
+        return profileService.deleteProfile(id);
     }
 
     /**
@@ -412,7 +416,7 @@ public class Profile_Controller {
         String dbhashedPW = dbProfile.getPassword();
 
         if (!hashPassword(newPasswordRequest.getCurrentPassword()).equals(dbhashedPW) &&
-                (testing || jwtUtil.extractPermission(token) != 0)) {
+                (testing || jwtUtil.extractPermission(token) != 0 && jwtUtil.extractPermission(token) != 1)) {
             return new ResponseEntity<>("Entered incorrect password.", HttpStatus.BAD_REQUEST);
         }
 
@@ -435,7 +439,6 @@ public class Profile_Controller {
             MessageDigest hashedPW = MessageDigest.getInstance("SHA-256");
             return DatatypeConverter.printHexBinary(hashedPW.digest(plainPassword.getBytes(StandardCharsets.UTF_8)));
         } catch (NoSuchAlgorithmException error) {
-            System.out.println(error);
             return "Hash Failed";
         }
     }
@@ -470,11 +473,13 @@ public class Profile_Controller {
      */
     protected ResponseEntity<Profile> getProfile(Long id) {
         Optional<Profile> profileWithId = repo.findById(id);
-        if (profileWithId.isPresent()) {
-            return new ResponseEntity<>(profileWithId.get(), HttpStatus.OK);
-        } else {
+        if(profileWithId.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+        else if (profileWithId.get().getAuthLevel() == 0) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(profileWithId.get(), HttpStatus.OK);
     }
 
     /**
@@ -703,6 +708,17 @@ public class Profile_Controller {
     }
 
     /**
+     * The method verifies that the given email exists in the database and returns true if it does.
+     *
+     * @param email object that contains the string email address
+     * @return boolean whether email exists in the database or not
+     */
+    @GetMapping("/email/{email}")
+    public boolean verifyEmailExists(@PathVariable String email) {
+        return profileService.checkEmailExistsInDB(email);
+    }
+
+    /**
      * Checks if a token is expired for the front end
      * @param token the token to be checked
      * @return An HTTP response with appropriate status code and a string to tell the front end that a token is expired or not
@@ -716,4 +732,26 @@ public class Profile_Controller {
         }
     }
 
+    /**
+     * Updates the auth level of a user
+     * @param editAuthLevelRequest Contains the new auth level for the user
+     * @param id the profile id of the user that's auth level is being edited
+     * @param token the jwt token stored on the client
+     * @return response entity which can return a string if there is an error, all cases will return status code
+     */
+    @PutMapping("/profiles/{id}/role")
+    public @ResponseBody ResponseEntity<String> editAuthLevel(@RequestBody EditAuthLevelRequest editAuthLevelRequest, @PathVariable long id, @RequestHeader("authorization") String token) {
+        if (token == null) {
+            return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(), HttpStatus.UNAUTHORIZED);
+        }
+        else if (!jwtUtil.validateToken(token)) {
+            return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(), HttpStatus.FORBIDDEN);
+        }
+        else if (editAuthLevelRequest.getRole().equals("admin") || editAuthLevelRequest.getRole().equals("user")) {
+            profileService.setUserAuthLevel(id, AuthLevel.valueOf(editAuthLevelRequest.getRole().toUpperCase()));
+            return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(ProfileErrorMessage.INVALID_ROLE.getMessage(), HttpStatus.FORBIDDEN);
+        }
+    }
 }

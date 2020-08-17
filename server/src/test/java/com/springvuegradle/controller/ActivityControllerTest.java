@@ -1,7 +1,9 @@
 package com.springvuegradle.controller;
+import com.springvuegradle.dto.SimplifiedActivitiesResponse;
 import com.springvuegradle.model.Activity;
 import com.springvuegradle.model.ActivityType;
 import com.springvuegradle.model.Profile;
+import com.springvuegradle.model.*;
 import com.springvuegradle.repositories.*;
 import com.springvuegradle.utilities.InitialDataHelper;
 import com.springvuegradle.service.ActivityService;
@@ -15,6 +17,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.*;
 
+import static com.springvuegradle.controller.Profile_Controller.hashPassword;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -38,6 +41,9 @@ public class ActivityControllerTest {
 
     @Autowired
     private ActivityController activityController;
+
+    @Autowired
+    private LoginController loginController;
 
     private ActivityService mockService;
 
@@ -94,7 +100,6 @@ public class ActivityControllerTest {
         Profile profile = prepo.save(maurice);
         activityController.createActivity(profile.getId(), trackRace, null, true);
         Activity activity = arepo.findAll().get(0);
-        System.out.println(activity.retrieveActivityTypes());
 
         int expected_in_repo = 1;
         assertEquals(expected_in_repo, arepo.count());
@@ -134,8 +139,8 @@ public class ActivityControllerTest {
         int i = 0;
         arepo.save(createNormalActivity());
         arepo.save(createNormalActivity1());
-        ResponseEntity<List<Activity>> response_entity = activityController.getActivitiesList();
-        for (Activity activity: response_entity.getBody()) {
+        ResponseEntity<List<Activity>> responseEntity = activityController.getActivities(null, null);
+        for (Activity activity: responseEntity.getBody()) {
             assertEquals(testActivities.get(i++), activity.getActivityName());
         }
     }
@@ -196,8 +201,8 @@ public class ActivityControllerTest {
     void getActivitiesResponseTest() {
         arepo.save(createNormalActivity());
         arepo.save(createNormalActivity1());
-        ResponseEntity<List<Activity>> responseEntity = activityController.getActivitiesList();
-        assertEquals(responseEntity.getStatusCode(), HttpStatus.OK);
+        ResponseEntity<List<Activity>> responseEntity = activityController.getActivities(null, null);
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
     }
 
     /**
@@ -207,44 +212,8 @@ public class ActivityControllerTest {
     void getActivitiesTest() {
         arepo.save(createNormalActivity());
         arepo.save(createNormalActivity1());
-        ResponseEntity<List<Activity>> responseEntity = activityController.getActivitiesList();
-        assertEquals(responseEntity.getBody().size(), 2);
-    }
-
-    /**
-     * Tests response of the getUsersActivities endpoint
-     */
-    @Test
-    void getUsersActivitiesResponseTest() {
-        Activity trackRace = createNormalActivity();
-        ActivityType hiking = createActivityType();
-        Profile maurice = createNormalProfileMaurice();
-        Profile profile = prepo.save(maurice);
-        arepo.save(createNormalActivity1());
-        activityTypeRepo.save(hiking);
-
-        activityController.createActivity(profile.getId(), trackRace, null, true);
-        ResponseEntity<List<Activity>> responseEntity = activityController.getAllUsersActivities(null,
-                profile.getId(), true);
-        assertEquals(responseEntity.getStatusCode(), HttpStatus.OK);
-    }
-
-    /**
-     * Tests that the getUsersActivities endpoint retrieves the activities associated with a specific profile
-     */
-    @Test
-    void getUsersActivitiesTest() {
-        Activity trackRace = createNormalActivity();
-        ActivityType hiking = createActivityType();
-        Profile maurice = createNormalProfileMaurice();
-        Profile profile = prepo.save(maurice);
-        arepo.save(createNormalActivity1());
-        activityTypeRepo.save(hiking);
-
-        activityController.createActivity(profile.getId(), trackRace, null, true);
-        ResponseEntity<List<Activity>> responseEntity = activityController.getAllUsersActivities(null,
-                profile.getId(), true);
-        assertEquals(responseEntity.getBody().get(0).getActivityName(), "Kaikoura Coast Track race");
+        ResponseEntity<List<Activity>> responseEntity = activityController.getActivities(null, null);
+        assertEquals(2, responseEntity.getBody().size());
     }
 
     /* Below are a set of ready-made Activity objects which can be used for various tests. */
@@ -275,5 +244,15 @@ public class ActivityControllerTest {
         return new Profile(null, "Maurice", "Benson", "Jack", "Jacky", "jacky@google.com", new String[]{"additionaldoda@email.com"}, "jacky'sSecuredPwd",
                 "Jacky loves to ride his bike on crazy mountains.", new GregorianCalendar(1985, Calendar.DECEMBER,
                 20), "male", 1, new String[]{}, new String[]{});
+    }
+    static Profile createNormalProfileMauriceWithHashedPassword() {
+        return new Profile(null, "Maurice", "Benson", "Jack", "Jacky", "jacky@google.com", new String[]{"additionaldoda@email.com"}, hashPassword("jacky'sSecuredPwd"),
+                "Jacky loves to ride his bike on crazy mountains.", new GregorianCalendar(1985, Calendar.DECEMBER,
+                20), "male", 1, new String[]{}, new String[]{});
+    }
+    static Profile createNormalProfileJohnny() {
+        return new Profile(null, "Johnny", "Quick", "Jones", "Jim-Jam", "jimjam@hotmail.com", new String[]{"additional@email.com"}, "hushhush",
+                "The quick brown fox jumped over the lazy dog.", new GregorianCalendar(1999, Calendar.NOVEMBER,
+                28), "male", 1, new String[]{}, new String[]{});
     }
 }

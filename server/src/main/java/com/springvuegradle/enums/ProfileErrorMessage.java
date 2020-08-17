@@ -1,9 +1,12 @@
 package com.springvuegradle.enums;
 
 public enum ProfileErrorMessage {
-    INVALID_SEARCH_COUNT("Count must be a positive integer");
+    INVALID_SEARCH_COUNT("Count must be a positive integer"),
+    INVALID_AUTH_LEVEL("Auth level must be between 1 and 5"),
+    PROFILE_NOT_FOUND("No profile with that ID exists"),
+    INVALID_ROLE("Role type is invalid");
 
-    private String message;
+    private final String message;
     ProfileErrorMessage(String message) {
         this.message = message;
     }
@@ -14,8 +17,6 @@ public enum ProfileErrorMessage {
 
     @Override
     public String toString() {
-        return "ProfileErrorMessage{" +
-                "message='" + message + '\'' +
-                '}';
+        return message;
     }
 }

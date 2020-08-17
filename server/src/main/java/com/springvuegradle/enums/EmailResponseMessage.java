@@ -9,7 +9,7 @@ public enum EmailResponseMessage {
     TOO_MANY_EMAILS("Cannot have more than 5 emails associated to a profile."),
     EDIT_SUCCESS("Profile emails edited successfully.");
 
-    private String message;
+    private final String message;
 
     private EmailResponseMessage(String message){
         this.message = message;
@@ -21,8 +21,6 @@ public enum EmailResponseMessage {
 
     @Override
     public String toString() {
-        return "EmailResponseMessage{" +
-                "message='" + message + '\'' +
-                '}';
+        return message;
     }
 }

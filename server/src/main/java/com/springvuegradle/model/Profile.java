@@ -122,17 +122,12 @@ public class Profile {
     @JoinColumn(name = "location_id", referencedColumnName = "id")
     private ProfileLocation location;
 
-    @JsonIgnore
-    public Set<ActivityMembership> getActivities() {
-        return activities;
-    }
-
-    public void setActivities(Set<ActivityMembership> activities) {
-        this.activities = activities;
-    }
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "profile")
     private Set<ActivityMembership> activities = new HashSet<>();
+
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "profile")
+    private Set<ActivityParticipation> activityParticipations = new HashSet<>();
 
     /**
      * No argument constructor for Profile, can be used for creating new profiles directly from JSON data.
@@ -402,7 +397,6 @@ public class Profile {
 
     public void setFitness(int fitness_level){this.fitness = fitness_level;}
 
-    @JsonIgnore
     public int getAuthLevel(){return authLevel;}
 
     public void setAuthLevel(int authLevel){this.authLevel = authLevel;}
@@ -501,11 +495,33 @@ public class Profile {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public ProfileLocation getProfileLocation(){return this.location;}
 
+    @JsonIgnore
+    public Set<ActivityMembership> getActivities() {
+        return Collections.unmodifiableSet(activities);
+    }
+
+    public void setActivities(Set<ActivityMembership> activities) {
+        this.activities = activities;
+    }
+
     public boolean addActivity(ActivityMembership membership) {
         return this.activities.add(membership);
     }
 
     public boolean removeActivity(ActivityMembership membership) {
         return this.activities.remove(membership);
+    }
+
+    @JsonIgnore
+    public Set<ActivityParticipation> getParticipations() {
+        return Collections.unmodifiableSet(activityParticipations);
+    }
+
+    public boolean addParticipation(ActivityParticipation participation) {
+        return activityParticipations.add(participation);
+    }
+
+    public boolean removeParticipation(ActivityParticipation participation) {
+        return activityParticipations.remove(participation);
     }
 }

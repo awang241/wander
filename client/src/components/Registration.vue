@@ -6,7 +6,7 @@
             <form @submit.prevent="handleSubmit(createUser)">
 
                 <b-field group-multiline grouped>
-                    <ValidationProvider rules="required|minName" name="First Name" v-slot="{ errors, valid }" slim>
+                    <ValidationProvider rules="required|minName|alphabeticCharsOrSpaces" name="First Name" v-slot="{ errors, valid }" slim>
                         <b-field label="First Name"
                                  :type="{ 'is-danger': errors[0], 'is-success': valid }"
                                  :message="errors"
@@ -15,7 +15,7 @@
                             <b-input v-model="firstName" placeholder="First Name"></b-input>
                         </b-field>
                     </ValidationProvider>
-                    <ValidationProvider rules="required|minName" name="Last Name" v-slot="{ errors, valid }" slim>
+                    <ValidationProvider rules="required|minName|alphabeticCharsOrSpaces" name="Last Name" v-slot="{ errors, valid }" slim>
                         <b-field label="Last Name"
                                  :type="{ 'is-danger': errors[0], 'is-success': valid }"
                                  :message="errors"
@@ -32,7 +32,7 @@
                              :message="errors"
                              expanded>
                         <template slot="label">Email <span>*</span></template>
-                        <b-input type="email" v-model="email" placeholder="Email">
+                        <b-input type="email" @keydown.native.space.prevent v-model="email" placeholder="Email">
                         </b-input>
                     </b-field>
                 </ValidationProvider>
@@ -60,30 +60,16 @@
 
 
                 <b-field group-multiline grouped>
-                    <ValidationProvider rules="required|maxBirthDate" name="Date of Birth" v-slot="{ errors, valid }" slim>
-                        <b-field label="Date of Birth"
+                    <ValidationProvider rules="required" name="Date of Birth" v-slot="{ errors, valid }">
+                        <b-field label="Date of birth"
                                  :type="{ 'is-danger': errors[0], 'is-success': valid }"
-                                 :message="errors"
-                                 expanded>
+                                 :message="errors" expanded>
                             <template slot="label">Date of Birth <span>*</span></template>
-                            <b-datepicker
-                                    editable
-                                    :use-html5-validation="false"
-                                    placeholder="Select Date of Birth"
-                                    :date-formatter="dateFormatter"
-                                    :min-date="minDate"
-                                    :max-date="maxDate"
-                                    ref="dateOfBirth"
-                                    v-model="dateOfBirth"
-                                    type="date"
-                                    validation-message="Please enter a valid date"
-
-                                    pattern="^(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]))\1|(?:(?:29|30)(\/|-|\.)(?:0?[13-9]|1[0-2])\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/|-|\.)0?2\3(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\d|2[0-8])(\/|-|\.)(?:(?:0?[1-9])|(?:1[0-2]))\4(?:(?:1[6-9]|[2-9]\d)?\d{2})$">
-                                >
-                            </b-datepicker>
+                            <input v-model="dateOfBirth" class="input" type="date"
+                                   :max="maxDate.toISOString().split('T')[0]"
+                                    :min="minDate.toISOString().split('T')[0]">
                         </b-field>
                     </ValidationProvider>
-
                     <ValidationProvider rules="requiredGender" name="Gender" v-slot="{ errors, valid }" slim>
                         <b-field label="Gender"
                                  :type="{ 'is-danger': errors[0], 'is-success': valid }"
@@ -135,6 +121,7 @@
     import router from '../router.js'
     import toastMixin from '../mixins/toastMixin'
     import {ValidationProvider, ValidationObserver} from 'vee-validate'
+    import store from "../store";
 
 
     export default {
@@ -145,7 +132,7 @@
         },
         mixins: [toastMixin],
         data() {
-            const today = new Date()
+            const today = new Date();
             return {
                 firstName: "",
                 lastName: "",
@@ -161,7 +148,7 @@
                 allUsers: null,
                 date: new Date(),
                 maxDate: new Date(today.getFullYear(), today.getMonth(), today.getDate()),
-                minDate: new Date(today.getFullYear() -100, today.getMonth(), today.getDate())
+                minDate: new Date(today.getFullYear() -120, today.getMonth(), today.getDate())
 
 
             }
@@ -188,7 +175,7 @@
                 if (this.password.length < 8) {
                     this.warningToast("Password must be 8 characters long")
                 } else {
-                    this.dateOfBirth.setHours(23)
+                    // this.dateOfBirth.setHours(23)
                     api.createProfile({
                         lastname: this.lastName,
                         firstname: this.firstName,
@@ -198,7 +185,7 @@
                         additional_email: [],
                         password: this.password,
                         bio: this.bio,
-                        date_of_birth: this.dateOfBirth,
+                        date_of_birth: Date.parse(this.dateOfBirth),
                         gender: this.gender,
                         fitness: this.fitness,
                         passports: [],
@@ -207,10 +194,24 @@
                     })
                         .then(() => {
                             this.successToast("Account created!")
-                            router.push('Login')
+                            this.login(this.email, this.password)
                         })
                         .catch(error => this.warningToast(error.response.data))
                 }
+            },
+
+
+            login(email, password) {
+                api.login({
+                    email, password
+                }).then((response => {
+                    localStorage.setItem('authToken', response.data.token)
+                    localStorage.setItem('userId', response.data.userId)
+                    let payload = {'token': response.data.token, 'userId': response.data.userId}
+                    store.dispatch('validateByTokenAndUserId', payload).then()
+                    router.push({path: '/Profile/' + store.getters.getUserId})
+                }))
+                    .catch(error => this.warningToast(this.getErrorMessageFromStatusCode(error.response.status)))
             },
 
             validateEmail(email) {

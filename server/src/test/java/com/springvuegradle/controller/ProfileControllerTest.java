@@ -6,9 +6,9 @@ import com.springvuegradle.model.Profile;
 
 import com.springvuegradle.model.ProfileLocation;
 import com.springvuegradle.repositories.*;
-import com.springvuegradle.dto.ChangePasswordRequest;
-import com.springvuegradle.dto.EmailAddRequest;
-import com.springvuegradle.dto.EmailUpdateRequest;
+import com.springvuegradle.dto.requests.ChangePasswordRequest;
+import com.springvuegradle.dto.requests.EmailAddRequest;
+import com.springvuegradle.dto.requests.EmailUpdateRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -128,7 +128,6 @@ class ProfileControllerTest {
         Profile testProfile = createProfileWithMinimalFields();
         ResponseEntity<String> responseEntity = profileController.createProfile(testProfile);
 
-        System.out.println(responseEntity.getBody());
 
         List<Profile> result = repo.findAll();
         assertTrue(result.contains(testProfile));
@@ -166,7 +165,6 @@ class ProfileControllerTest {
         Profile dummy_maurice = createInvalidFieldsProfileMaurice();
 
         ResponseEntity<String> response_entity = profileController.createProfile(dummy_maurice);
-        System.out.println(response_entity.getBody());
         String actual_error_message = response_entity.getBody();
         String expected_error_message = "The email field is blank.\n" +
                 "The First Name field is blank.\n" +
@@ -276,6 +274,20 @@ class ProfileControllerTest {
     }
 
     /**
+     * Tests that you cannot retrieve a profile for a default admin,
+     * as default admins do not have a profile.
+     */
+    @Test
+    void getDefaultAdminProfileFromDatabaseTest() {
+        Profile jimmy = createNormalProfileJimmy();
+        jimmy.setAuthLevel(0);
+        profileController.createProfile(jimmy);
+        long expected_id = repo.findAll().get(0).getId();
+        ResponseEntity<Profile> result = profileController.getProfile(expected_id);
+        assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
+    }
+
+    /**
      * Tests to see what response status code is when trying to get a profile that does not exist.
      */
     @Test
@@ -283,7 +295,6 @@ class ProfileControllerTest {
         ResponseEntity<Profile> response_entity = profileController.getProfile(1L);
         assertEquals(HttpStatus.NOT_FOUND, response_entity.getStatusCode());
     }
-
 
     /**
      * Tests that adding an email successfully returns the correct response
@@ -839,6 +850,19 @@ class ProfileControllerTest {
 
         Profile updatedProfile = repo.findById(testProfile.getId()).get();
         assertEquals(expectedProfile.getProfileLocation(), updatedProfile.getProfileLocation(), "Check profile updated");
+    }
+
+    /**
+     * Tests the get method for a valid Profile returns the right response with a valid auth level
+     */
+    @Test
+    void getProfileNormalResponseTestWithAuthLevel() {
+        Profile jimmy = createNormalProfileJimmy();
+        profileController.createProfile(jimmy);
+        long expected_id = repo.findAll().get(0).getId();
+        ResponseEntity<Profile> response_entity_new = profileController.getProfile(expected_id);
+        assertEquals(HttpStatus.OK, response_entity_new.getStatusCode());
+        assertEquals(5, response_entity_new.getBody().getAuthLevel());
     }
 
 

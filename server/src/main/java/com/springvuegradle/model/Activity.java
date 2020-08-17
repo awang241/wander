@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.springvuegradle.utilities.FormatHelper;
 
 import javax.persistence.*;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
 import java.util.*;
@@ -38,6 +40,16 @@ public class Activity {
 
     private String location;
 
+    /**
+     * Holds the privacy level of the activity.
+     * level 0 - private - only the creator can view the activity.
+     * level 1 - share with members - only the members it is shared with can view the activity.
+     * level 2 - public - anyone can view the activity.
+     */
+    @NotNull @Column(name = "privacyLevel") @Min(value = 0) @Max(value = 2)
+    private Integer privacyLevel = 0;
+
+
 
     /**
      * Each activity object can have multiple activities.
@@ -48,8 +60,12 @@ public class Activity {
             joinColumns = @JoinColumn(name = "activity_id", referencedColumnName = "id"))
     private Set<ActivityType> activityTypes;
 
+
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "activity")
     private Set<ActivityMembership> members;
+
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "activity")
+    private Set<ActivityParticipation> activityParticipations = new HashSet<>();
 
     public Activity(){}
 
@@ -173,6 +189,11 @@ public class Activity {
         this.location = location;
     }
 
+    @JsonIgnore
+    public Set<ActivityMembership> getMembers() {
+        return this.members;
+    }
+
     public List<String> getActivityTypes() {
         List<String> result = new ArrayList<>();
         for (ActivityType activityType: activityTypes) {
@@ -204,5 +225,62 @@ public class Activity {
 
     public void setActivityTypes(Set<ActivityType> updatedActivityType) {
         this.activityTypes = updatedActivityType;
+    }
+
+    public Integer getPrivacyLevel() { return privacyLevel; }
+
+    public void setPrivacyLevel(Integer privacyLevel) { this.privacyLevel = privacyLevel; }
+
+    public Set<ActivityParticipation> getParticipations() {
+        return Collections.unmodifiableSet(activityParticipations);
+    }
+
+    public boolean addParticipation(ActivityParticipation participation) {
+        return activityParticipations.add(participation);
+    }
+
+    public boolean removeParticipation(ActivityParticipation participation) {
+        return activityParticipations.remove(participation);
+    }
+
+    /**
+     * Finds and returns the creator of the profile from the members of the activity. If there is no creator,
+     * for whatever reason, null is returned.
+     * @return the profile of the creator of the activity.
+     */
+    @JsonIgnore
+    public Profile retrieveCreator() {
+        for (ActivityMembership am: members) {
+            if (am.getRole().equals(ActivityMembership.Role.CREATOR)) {
+                return am.getProfile();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Calls retrieveCreator to get the profile of the creator and returns the full name of the creator. Need the string
+     * to be returned in the json data that is send with each Activity object.
+     * @return creator name if creator exists, null otherwise.
+     */
+    public String getCreator() {
+        Profile creator = retrieveCreator();
+        if (creator != null) {
+            return creator.getFullName();
+        }
+        return null;
+    }
+
+    /**
+     * Calls retrieveCreator to get the profile of the creator and returns the id of the creator. Need the long to be
+     * returned in the json data that is sent with each activity object.
+     * @return creator id if the creator exists, null otherwise.
+     */
+    public Long getCreatorId() {
+        Profile creator = retrieveCreator();
+        if (creator != null) {
+            return creator.getId();
+        }
+        return null;
     }
 }

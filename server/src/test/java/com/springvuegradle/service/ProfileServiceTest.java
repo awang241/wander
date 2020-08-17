@@ -1,6 +1,8 @@
 package com.springvuegradle.service;
 
 import com.springvuegradle.controller.Profile_Controller;
+import com.springvuegradle.enums.AuthLevel;
+import com.springvuegradle.enums.ProfileErrorMessage;
 import com.springvuegradle.model.Email;
 import com.springvuegradle.model.Profile;
 import com.springvuegradle.model.ProfileLocation;
@@ -11,6 +13,7 @@ import com.springvuegradle.repositories.ProfileRepository;
 import org.junit.jupiter.api.BeforeEach;
 import com.springvuegradle.repositories.*;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,11 +24,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.Set;
-import java.util.HashSet;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -289,7 +288,7 @@ class ProfileServiceTest {
         profileRepository.save(profile);
         ProfileLocation newLocation = new ProfileLocation("Australia", "Sydney", "NSW");
         profileService.updateProfileLocation(newLocation, profile.getId());
-        assertTrue(profile.getProfileLocation().equals(newLocation));
+        assertEquals(profile.getProfileLocation(), newLocation);
     }
 
     /**
@@ -312,6 +311,78 @@ class ProfileServiceTest {
         assertEquals(0L, profileLocationRepository.count());
     }
 
+    @Test
+    void setUserAuthLevelAsAdminTest(){
+        steven.setAuthLevel(5);
+        steven = profileRepository.save(steven);
+        long id = steven.getId();
+        assertNotEquals(1, steven.getAuthLevel(), "Sanity check: Profile is not an admin");
+        testService.setUserAuthLevel(id, AuthLevel.ADMIN);
+        Optional<Profile> updated =  profileRepository.findById(id);
+        if (updated.isEmpty()) {
+            fail("Error: Updated profile does not exist in repository");
+        } else {
+            assertEquals(1, updated.get().getAuthLevel());
+        }
+    }
+
+    @Test
+    void setUserAuthLevelAsNormalTest(){
+        steven.setAuthLevel(1);
+        steven = profileRepository.save(steven);
+        long id = steven.getId();
+        assertEquals(1, steven.getAuthLevel(), "Sanity check: Profile is an admin");
+        testService.setUserAuthLevel(id, AuthLevel.USER);
+        Optional<Profile> updated =  profileRepository.findById(id);
+        if (updated.isEmpty()) {
+            fail("Error: Updated profile does not exist in repository");
+        } else {
+            assertEquals(5, updated.get().getAuthLevel());
+        }
+    }
+
+    @Test
+    void setUserAuthLevelWithTooLowAuthLevelTest(){
+        steven.setAuthLevel(1);
+        steven = profileRepository.save(steven);
+        long id = steven.getId();
+        try {
+            testService.setUserAuthLevel(id, AuthLevel.DEFAULT_ADMIN);
+            fail("Should have thrown an IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            assertEquals(ProfileErrorMessage.INVALID_AUTH_LEVEL.getMessage(), e.getMessage());
+        } catch (Exception e) {
+            fail("Should have thrown an IllegalArgumentException");
+        }
+    }
+
+    @Test
+    void setUserAuthLevelWhereUserDoesNotExistTest(){
+        long badId = 0;
+        assertFalse(profileRepository.existsById(badId));
+        try {
+            testService.setUserAuthLevel(badId, AuthLevel.USER);
+            fail("Should have thrown an IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            assertEquals(ProfileErrorMessage.PROFILE_NOT_FOUND.getMessage(), e.getMessage());
+        } catch (Exception e) {
+            fail("Should have thrown an IllegalArgumentException");
+        }
+    }
+
+    @Test
+    void checkValidEmailExistsInDatabaseTest(){
+        saveWithEmails(steven);
+        String email = steven.getPrimary_email();
+        assertTrue(testService.checkEmailExistsInDB(email));
+    }
+
+    @Test
+    void checkInvalidEmailExistsInDatabaseTest(){
+        String email = "doesNotExistInDatabase@gmail.com";
+        assertFalse(testService.checkEmailExistsInDB(email));
+    }
+
     /**
      * Example test profile to use in tests
      **/
@@ -328,4 +399,5 @@ class ProfileServiceTest {
         }
         return  updated;
     }
+
 }

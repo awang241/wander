@@ -36,6 +36,7 @@
     </div>
 </template>
 
+
 <script>
 
     import toastMixin from "../../mixins/toastMixin";
@@ -44,7 +45,9 @@
     //Important notes about the API
     //The variables autocompleteCity and autocompleteState are here since Google Maps Places API isn't really compatible with Vue
     //Referencing the DOM via document.getElementById since that's the only way that I found which could extract
-    //a Google Maps Places API auto-completed value in an input form
+    //a Google Maps Places API auto-completed value from an input form
+    //Because the API isn't compatible with Vue it isn't compatible with Vee-Validate
+    //since the API auto-completed values aren't compatible with v-models
 
     let autocompleteCity;
     let autocompleteState;
@@ -116,9 +119,9 @@
                     this.possibleCountries = possibleCountries;
                     this.possibleCountriesAlpha2Code = possibleCountriesAlpha2Code;
                     if (this.location.country == "") {
-                        this.restrictionCountryAlphaCode = 'NZ';
-                        this.DropdownCountry = 'New Zealand';
-                        this.location.country = 'New Zealand';
+                        this.restrictionCountryAlphaCode = '';
+                        this.DropdownCountry = '';
+                        this.location.country = '';
                     } else {
                         var countryIndex = this.possibleCountries.indexOf(this.location.country);
                         this.DropdownCountry = this.possibleCountries[countryIndex];
@@ -128,7 +131,7 @@
                     this.initAutoCompleteCities();
                     this.initAutoCompleteStates()
 
-                }).catch(error => console.log(error));
+                }).catch(() => this.warningToast("Error occurred while fetching countries for REST API."));
             },
             setAutoCompleteCountry() {
                 var country = document.getElementById('country').value;
@@ -144,9 +147,8 @@
                 this.successToast("Location removed")
                 document.getElementById("autocompleteCities").value = null;
                 document.getElementById("autocompleteStates").value = null;
-                document.getElementById("country").value = 'New Zealand';
-                this.location = {country: "New Zealand", city: "", state: ""}
-                console.log(this.location)
+                document.getElementById("country").value = '';
+                this.location = {country: "", city: "", state: ""}
             },
             submitLocation(){
                 //Using JSON methods to make a constant and compare two JSON objects
@@ -155,7 +157,7 @@
                 this.location.city = document.getElementById("autocompleteCities").value;
                 this.location.state = document.getElementById("autocompleteStates").value;
                 if(this.location.country === ""){
-                    this.warningToast("Please enter a country")
+                    this.warningToast("Please select a country")
                 } else if(this.location.city === ""){
                     this.warningToast("Please enter a city")
                 } else if (JSON.stringify((this.location)) === original) {

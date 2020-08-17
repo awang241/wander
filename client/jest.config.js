@@ -5,9 +5,13 @@ module.exports = {
         "json",
         "vue"
     ],
+    transformIgnorePatterns: [
+        '<rootDir>/node_modules/(?!vee-validate/dist/rules)',
+    ],
     transform: {
         ".*\\.(vue)$": "vue-jest",
-        "^.+\\.js$": "<rootDir>/node_modules/babel-jest"
+        "^.+\\.js$": "<rootDir>/node_modules/babel-jest",
+        'vee-validate/dist/rules': 'babel-jest',
     },
     collectCoverage: true,
     collectCoverageFrom: [
@@ -21,5 +25,5 @@ module.exports = {
         "json"
     ],
     setupFilesAfterEnv: ['<rootDir>/tests/unit/setup.js'],
-    testResultsProcessor: "jest-sonar-reporter"
+    testResultsProcessor: "jest-sonar-reporter",
 }

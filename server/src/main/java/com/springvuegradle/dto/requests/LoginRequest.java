@@ -1,4 +1,4 @@
-package com.springvuegradle.dto;
+package com.springvuegradle.dto.requests;
 
 /**
  * Model Class for incoming email/password requests used for logging in

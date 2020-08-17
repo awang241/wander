@@ -3,10 +3,10 @@ package gradle.cucumber.steps;
 import com.springvuegradle.Application;
 import com.springvuegradle.controller.LoginController;
 import com.springvuegradle.controller.Profile_Controller;
-import com.springvuegradle.dto.LoginRequest;
-import com.springvuegradle.dto.LoginResponse;
-import com.springvuegradle.dto.ProfileSearchResponse;
-import com.springvuegradle.dto.ProfileSummary;
+import com.springvuegradle.dto.requests.LoginRequest;
+import com.springvuegradle.dto.responses.LoginResponse;
+import com.springvuegradle.dto.responses.ProfileSearchResponse;
+import com.springvuegradle.dto.responses.ProfileSummary;
 import com.springvuegradle.enums.EmailResponseMessage;
 import com.springvuegradle.model.PassportCountry;
 import com.springvuegradle.model.Profile;
@@ -26,7 +26,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.web.WebAppConfiguration;
 
-import java.security.Security;
 import java.sql.SQLException;
 import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -66,6 +65,9 @@ public class ProfileTestSteps{
     private ActivityTypeRepository aRepo;
     @Autowired
     private ActivityRepository activityRepo;
+
+    @Autowired
+    private ActivityMembershipRepository membershipRepo;
     @Autowired
     private ProfileLocationRepository profileLocationRepository;
     @Autowired
@@ -82,7 +84,9 @@ public class ProfileTestSteps{
         searchResponse = null;
         dbPassword = null;
         eRepo.deleteAll();
+        membershipRepo.deleteAll();
         activityRepo.deleteAll();
+
         aRepo.deleteAll();
         repo.deleteAll();
         Profile steve = createProfileSteve("steve@google.com", "12345678");
@@ -227,25 +231,20 @@ public class ProfileTestSteps{
 
     @When("I register an account with email {string} and password {string} and fitness level {int} and the following passport countries are added")
     public void i_register_an_account_with_email_and_password_and_fitness_level_and_the_following_passport_countries_are_added(String email, String password, Integer fitness_level, io.cucumber.datatable.DataTable dataTable) {
-        System.out.println(pcRepo.count());
         ArrayList<String> passport_countries = new ArrayList<>();
         for (String name : dataTable.asList()) {
             if (!name.equals("name")) {
                 passport_countries.add(name);
-                System.out.println(name);
-                System.out.println(pcRepo.existsByCountryName(name));
             }
         }
         String[] myArray = new String[passport_countries.size()];
         passport_countries.toArray(myArray);
         Profile jacky = createNormalProfileJackyWithFitnessLevelPassportCountries(email, password, fitness_level, myArray);
         createProfileResponse = profileController.createProfile(jacky);
-        System.out.println(createProfileResponse.getBody());
     }
 
     @Then("An account with email {string} exists with fitness level {int} and the following passport countries")
     public void an_account_with_email_exists_with_fitness_level_and_the_following_passport_countries(String email, Integer fitness_level, io.cucumber.datatable.DataTable dataTable) {
-        System.out.println(repo.count());
         Profile profile = repo.findByEmail(email).get(0);
         assertNotNull(profile);
         assertEquals(fitness_level, profile.getFitness());

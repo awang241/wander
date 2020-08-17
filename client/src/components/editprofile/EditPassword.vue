@@ -4,22 +4,39 @@
 
         <h1 class="title is-5">Change Password</h1>
 
-        <form @submit.prevent="updatePassword">
-            <b-field v-if="store.getters.getAuthenticationLevel > 1"
-                     label="Current Password" expanded>
-                <b-input v-model="currentPassword" type="password" placeholder="Current Password" ></b-input>
-            </b-field>
-            <b-field label="New Password" expanded>
-                <b-input v-model="password" type="password" placeholder="New Password" ></b-input>
-            </b-field>
-            <b-field label="Confirm Password" id="errorMessage" :message="[{'Passwords do not match':isDisabled}]"
-                     expanded>
-                <b-input v-model="confPassword" type="password" placeholder="Confirm Password" ></b-input>
-            </b-field>
-            <br>
-            <b-button style="float:right" type="is-primary" native-type="submit" :disabled="isDisabled">Save</b-button>
-            <br>
-        </form>
+        <ValidationObserver v-slot="{ handleSubmit }">
+            <form @submit.prevent="handleSubmit(updatePassword)">
+                <ValidationProvider :rules="!checkLoggedInUserIsAdmin()" name="Current Password" v-slot="{ errors, valid }">
+                    <b-field v-if="store.getters.getAuthenticationLevel > 1"
+                             :type="{ 'is-danger': errors[0], 'is-success': valid }"
+                             :message="errors"
+                             expanded>
+                        <template slot="label">Current Password <span>*</span></template>
+                        <b-input v-model="currentPassword" type="password" placeholder="Current Password"></b-input>
+                    </b-field>
+                </ValidationProvider>
+
+                <ValidationProvider rules="required|minPassword" name="New Password" v-slot="{ errors, valid }" vid="password">
+                    <b-field :type="{ 'is-danger': errors[0], 'is-success': valid }"
+                             :message="errors"
+                             expanded>
+                        <template slot="label">New Password <span>*</span></template>
+                        <b-input v-model="password" type="password" placeholder="New Password"></b-input>
+                    </b-field>
+                </ValidationProvider>
+                <ValidationProvider rules="requiredConfirm|confirmed:password" name="Confirm Password" v-slot="{ errors, valid }">
+                    <b-field :type="{ 'is-danger': errors[0], 'is-success': valid }"
+                             :message="errors"
+                             expanded>
+                        <template slot="label">Confirm Password <span>*</span></template>
+                        <b-input v-model="confPassword" type="password" placeholder="Confirm Password" ></b-input>
+                    </b-field>
+                </ValidationProvider>
+                <br>
+                <b-button style="float:right" type="is-primary" native-type="submit" :disabled="isDisabled">Save</b-button>
+                <br>
+            </form>
+        </ValidationObserver>
     </div>
 
 </template>
@@ -28,10 +45,16 @@
     import api from "../../Api";
     import store from "../../store";
     import toastMixin from "../../mixins/toastMixin";
+    import {ValidationProvider, ValidationObserver} from 'vee-validate';
 
     export default {
         name: "EditPassword",
         mixins: [toastMixin],
+        props: ["profile"],
+        components: {
+            ValidationProvider,
+            ValidationObserver
+        },
         data() {
             return {
                 currentPassword: "",
@@ -43,13 +66,13 @@
 
         computed: {
             isDisabled() {
-                return (this.password != this.confPassword);
+                return (this.password !== this.confPassword);
             }
         },
         methods: {
             updatePassword() {
 
-                if (this.password == this.currentPassword) {
+                if (this.password === this.currentPassword) {
                     this.warningToast("No changes made")
                 } else if(this.password.length < 8) {
                     this.warningToast("Password must be at least 8 characters long")
@@ -61,7 +84,11 @@
                         "newPassword": this.password,
                         "confPassword": this.confPassword
                     }
-                    api.editPassword(passwordDetails, this.$route.params.id, localStorage.getItem('authToken'))
+                    let userId = this.$route.params.id;
+                    if (userId === undefined) {
+                        userId = this.profile.id;
+                    }
+                    api.editPassword(passwordDetails, userId, localStorage.getItem('authToken'))
                         .catch(error => this.warningToast(this.getErrorMessageFromStatusCode(error.response.status)))
                         .then(response => this.successToast(this.getErrorMessageFromStatusCode(response.status)))
                 }
@@ -74,6 +101,14 @@
                     message = "Incorrect details entered"
                 }
                 return message;
+            },
+            checkLoggedInUserIsAdmin() {
+                if (!store.getters.getAuthenticationLevel === 0 ||
+                    !store.getters.getAuthenticationLevel === 1) {
+                    return null;
+                } else {
+                    return "required|minPassword";
+                }
             }
         }
     }
@@ -88,7 +123,7 @@
         padding: 0px;
     }
 
-    #errorMessage {
+    span {
         color: red;
     }
 

@@ -1,4 +1,4 @@
-package com.springvuegradle.dto;
+package com.springvuegradle.dto.requests;
 
 public class LogoutRequest {
     private Long userId;
