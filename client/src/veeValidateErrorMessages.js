@@ -60,8 +60,10 @@ extend("requiredConfirm", {
 
 extend("email", {
     ...email,
-    message: "This field must be a valid email (contains an @)"
+    message: "This field must be a valid email (contains an @, a fullstop, then some more characters)"
 });
+
+
 
 extend("confirmed", {
     ...confirmed,

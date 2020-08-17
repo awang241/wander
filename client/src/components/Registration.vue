@@ -32,7 +32,7 @@
                              :message="errors"
                              expanded>
                         <template slot="label">Email <span>*</span></template>
-                        <b-input type="email" v-model="email" placeholder="Email">
+                        <b-input type="email" @keydown.native.space.prevent v-model="email" placeholder="Email">
                         </b-input>
                     </b-field>
                 </ValidationProvider>
