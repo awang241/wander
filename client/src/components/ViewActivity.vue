@@ -447,7 +447,7 @@
                     case 0 :
                         return "Private";
                     case 1 :
-                        return "Friends";
+                        return "Restricted";
                     case 2 :
                         return "Public";
                     default:

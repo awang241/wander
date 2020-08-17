@@ -11,13 +11,13 @@
                         <template slot="label">Privacy<span class="requiredAsterisk">*</span></template>
                         <b-select v-model="privacy" placeholder="Choose privacy setting" expanded>
                             <option value="private">Private</option>
-                            <option value="friends">Restricted</option>
+                            <option value="restricted">Restricted</option>
                             <option value="public">Public</option>
                         </b-select>
                     </b-field>
                 </ValidationProvider>
 
-                <div v-if="privacy == 'friends'">
+                <div v-if="privacy == 'restricted'">
                     <ValidationProvider rules="email" name="Email" v-slot="{ errors, valid }" slim>
                         <b-field label="Add friend's emails"
                                  :type="{'is-danger': errors[0], 'is-success': valid}"
@@ -202,7 +202,7 @@
                 this.userRoles = this.userRoles.filter(user => user.email != emailToDelete)
             },
             isPrivacyMoreRestrictive() {
-                const privacyDict = {"public": 1, "friends": 2, "private": 3}
+                const privacyDict = {"public": 1, "restricted": 2, "private": 3}
                 const decision = privacyDict[this.privacy] > privacyDict[this.originalPrivacy]
                 this.originalPrivacy = this.privacy
                 return decision
