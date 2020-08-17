@@ -12,13 +12,17 @@
                                               id="followButton" type="is-primary">
                                         Follow
                                     </b-button>
+
+
                                     <b-button id="participateButton" v-if="userRole !== 'participant'" style="float:right" @click="updateRole(store.getters.getUserId, roles.PARTICIPANT)"
                                               type="is-primary">
                                         Participate
                                     </b-button>
+
+
                                 </div>
                             </div>
-                            <b-dropdown aria-role="list" class="is-pulled-right" position="is-bottom-left">
+                            <b-dropdown v-if="userRole !== null" aria-role="list" class="is-pulled-right" position="is-bottom-left">
                                 <b-icon icon="ellipsis-v" slot="trigger"/>
                                 <b-dropdown-item id="shareButton" @click="shareActivity"
                                                  v-if="hasCreatorPermissions">
@@ -141,7 +145,7 @@
                                     </b-dropdown>
                                 </template>
                                 <template v-else-if="parseInt(organiser.id) === parseInt(store.getters.getUserId)" #options>
-                                    <b-button @click="deleteRole(organiser.id, roles.PARTICIPANT)"
+                                    <b-button @click="deleteRole(organiser.id, roles.ORGANISER)"
                                               type="is-danger">
                                         Remove role
                                     </b-button>

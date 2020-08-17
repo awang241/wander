@@ -48,30 +48,14 @@
 
 
                 <b-field group-multiline grouped>
-                    <ValidationProvider rules="required|maxBirthDate" name="Date of Birth" v-slot="{ errors, valid }"
-                                        slim>
-
-                        <b-field label="Date of Birth"
+                    <ValidationProvider rules="required" name="Date of Birth" v-slot="{ errors, valid }">
+                        <b-field label="Date of birth"
                                  :type="{ 'is-danger': errors[0], 'is-success': valid }"
-                                 :message="errors"
-                                 expanded>
+                                 :message="errors" expanded>
                             <template slot="label">Date of Birth <span>*</span></template>
-
-                            <b-datepicker
-                                    editable
-                                    :use-html5-validation="false"
-                                    placeholder="Select Date of Birth"
-                                    :date-formatter="dateFormatter"
-                                    :min-date="minDate"
-                                    :max-date="maxDate"
-                                    ref="dateOfBirth"
-                                    v-model="dateOfBirth"
-                                    type="date"
-                                    required
-                                    validation-message="Please enter a valid date"
-                                    pattern="^(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]))\1|(?:(?:29|30)(\/|-|\.)(?:0?[13-9]|1[0-2])\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/|-|\.)0?2\3(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\d|2[0-8])(\/|-|\.)(?:(?:0?[1-9])|(?:1[0-2]))\4(?:(?:1[6-9]|[2-9]\d)?\d{2})$">
-                                >
-                            </b-datepicker>
+                            <input v-model="dateOfBirth" class="input" type="date"
+                                   :max="maxDate.toISOString().split('T')[0]"
+                                   :min="minDate.toISOString().split('T')[0]">
                         </b-field>
                     </ValidationProvider>
 
@@ -153,12 +137,12 @@
                 middleName: this.profile.middlename,
                 nickName: this.profile.nickname,
                 bio: this.profile.bio,
-                dateOfBirth: new Date(this.profile.date_of_birth),
+                dateOfBirth: this.profile.date_of_birth,
                 gender: this.profile.gender,
                 fitness_level: this.profile.fitness,
                 date: this.profile.date_of_birth,
                 maxDate: new Date(today.getFullYear(), today.getMonth(), today.getDate()),
-                minDate: new Date(today.getFullYear() - 100, today.getMonth(), today.getDate())
+                minDate: new Date(today.getFullYear() - 120, today.getMonth(), today.getDate())
             }
         },
         mounted() {
@@ -204,7 +188,7 @@
                         "middlename": this.middleName,
                         "nickname": this.nickName,
                         "bio": this.bio,
-                        "date_of_birth": this.dateOfBirth,
+                        "date_of_birth": Date.parse(this.dateOfBirth),
                         "gender": this.gender,
                         "fitness": this.fitness_level
                     }
