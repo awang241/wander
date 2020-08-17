@@ -124,13 +124,15 @@ class ActivityControllerMockedTest {
         long mockActivityId = 10;
         String mockToken = "token";
         long mockProfileId = 25;
+        int mockAuthLevel = 5;
         Activity mockActivity = ActivityTestUtils.createNormalActivity();
         ResponseEntity<String> expectedResponse = new ResponseEntity<>(HttpStatus.OK);
 
         mockRepo.save(mockActivity);
         Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
         Mockito.when(mockJwt.extractId(mockToken)).thenReturn(mockProfileId);
-        Mockito.when(mockService.getActivityByActivityId(mockProfileId, mockActivityId)).thenReturn(mockActivity);
+        Mockito.when(mockJwt.extractPermission(mockToken)).thenReturn(mockAuthLevel);
+        Mockito.when(mockService.getActivityByActivityId(mockProfileId, mockActivityId, mockAuthLevel)).thenReturn(mockActivity);
         ResponseEntity<Activity> actualResponse = activityController.getActivity(mockToken, mockActivityId);
 
         assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
@@ -141,10 +143,12 @@ class ActivityControllerMockedTest {
         long mockActivityId = 10;
         String mockToken = "token";
         long mockProfileId = 25;
+        int mockAuthLevel = 5;
         ResponseEntity<String> expectedResponse = new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
         Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
-        Mockito.when(mockService.getActivityByActivityId(mockProfileId, mockActivityId)).thenReturn(null);
+        Mockito.when(mockJwt.extractPermission(mockToken)).thenReturn(mockAuthLevel);
+        Mockito.when(mockService.getActivityByActivityId(mockProfileId, mockActivityId, mockAuthLevel)).thenReturn(null);
         ResponseEntity<Activity> actualResponse = activityController.getActivity(mockToken, mockActivityId);
 
         assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());

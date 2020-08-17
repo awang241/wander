@@ -297,7 +297,8 @@
                 api.getActivity(this.activityId, localStorage.getItem('authToken'))
                     .then(response => this.activity = response.data)
                     .catch(() => {
-                        this.warningToast("Error occurred.");
+
+                        this.warningToast("Error occurred. blah");
                         router.go(-1);
                     })
             },

@@ -252,16 +252,15 @@ public class ActivityService {
      * @param role      The role of the user in the activity.
      * @return A list of the given profile's activities by role.
      */
-    public List<Activity> getActivitiesByProfileIdByRole(PageRequest request, Long profileId, ActivityMembership.Role role) {
+    public List<Activity> getActivitiesByProfileIdByRole(Long profileId, ActivityMembership.Role role, Integer startIndex, Integer count, Integer authLevel) {
         List<Activity> userActivities = new ArrayList<>();
-        Page<ActivityMembership> memberships = membershipRepo.findAllByProfileId(profileId, request);
+        List<ActivityMembership> memberships = membershipRepo.findAllByProfileId(profileId);
         for (ActivityMembership membership : memberships) {
-            if (role.equals(ActivityMembership.Role.CREATOR)
-                    || (membership.getRole().equals(role) && membership.getActivity().getPrivacyLevel() > 0)) {
+            if ((membership.getRole().equals(role) && (membership.getRole().equals(ActivityMembership.Role.CREATOR) || membership.getActivity().getPrivacyLevel() > 0 || authLevel < 2))) {
                 userActivities.add(membership.getActivity());
             }
         }
-        return userActivities;
+        return userActivities.subList(Math.min(userActivities.size(), startIndex), Math.min(userActivities.size(), count + startIndex));
     }
 
     /**
@@ -276,22 +275,30 @@ public class ActivityService {
 
     /**
      * Returns all the activities that the user is a creator or organiser of.
-     * @param request contains the count and start index for pagination
+//     * @param request contains the count and start index for pagination
      * @param profileId the id of the user we want to check is the creator or organiser of an activity
      * @return list of activities
      */
-    public List<Activity> getActivitiesUserCanModify(PageRequest request, Long profileId) {
+    public List<Activity> getActivitiesUserCanModify(Long profileId, Integer startIndex, Integer count, Integer authLevel) {
         List<Activity> userActivities = new ArrayList<>();
-        Page<ActivityMembership> memberships = membershipRepo.findAllByProfileId(profileId, request);
+        List<ActivityMembership> memberships = membershipRepo.findAllByProfileId(profileId);
         for (ActivityMembership membership : memberships) {
             if (membership.getRole().equals(ActivityMembership.Role.CREATOR) ||
-                    (membership.getRole().equals(ActivityMembership.Role.ORGANISER) && membership.getActivity().getPrivacyLevel() > 0)) {
+                    (membership.getRole().equals(ActivityMembership.Role.ORGANISER) &&
+                            (membership.getActivity().getPrivacyLevel() > 0 || authLevel < 2))) {
                 userActivities.add(membership.getActivity());
             }
         }
-        return userActivities;
+        return userActivities.subList(Math.min(userActivities.size(), startIndex), Math.min(userActivities.size(), count + startIndex));
     }
 
+//    List<Activity> userActivities = new ArrayList<>();
+//    Page<ActivityMembership> memberships = membershipRepo.findMyActivityMembershipsByProfileId(profileId, request);
+//        for (ActivityMembership membership: memberships) {
+//        userActivities.add(membership.getActivity());
+//    }
+//        return userActivities;
+//
 
     /**
      * Returns all the new activities for the user to discover.
@@ -300,9 +307,9 @@ public class ActivityService {
      * @param count used to sublist the activities returned such that the startIndex+count is the upper limit.
      * @return list of activities the user has no current association with.
      */
-    public List<Activity> getNewActivities(Long profileId, Integer startIndex, Integer count) {
+    public List<Activity> getNewActivities(Long profileId, Integer startIndex, Integer count, Integer authLevel) {
         List<Activity> activities = new ArrayList<>();
-        List<Activity> results = activityRepo.findAllByPrivacyLevel(2);
+        List<Activity> results = authLevel < 2 ? activityRepo.findAll() : activityRepo.findAllByPrivacyLevel(2);
         if (results!= null) {
             for (Activity activity: results) {
                 boolean profileAssociated = false;
@@ -377,9 +384,12 @@ public class ActivityService {
      * @param activityId The ID of the activity that is being retrieved
      * @return An activity object. If it does not exist or the user is not authorized returns null.
      */
-    public Activity getActivityByActivityId(Long profileId, Long activityId) {
+    public Activity getActivityByActivityId(Long profileId, Long activityId, Integer authLevel) {
         Optional<Activity> activity = activityRepo.findById(activityId);
         if (activity.isPresent()) {
+            if (authLevel < 2) {
+                return activity.get();
+            }
             Optional<ActivityMembership> activityMembership = membershipRepo.findByActivity_IdAndProfile_Id(activityId, profileId);
             if (activity.get().getPrivacyLevel().equals(2)){
                 return activity.get();

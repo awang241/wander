@@ -271,10 +271,11 @@ public class ActivityController {
         } else if (!jwtUtil.validateToken(token)) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
-        Activity activity = activityService.getActivityByActivityId(jwtUtil.extractId(token), activityId);
+        Activity activity = activityService.getActivityByActivityId(jwtUtil.extractId(token), activityId, jwtUtil.extractPermission(token));
         if (activity == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+
         return new ResponseEntity<>(activity, HttpStatus.OK);
     }
 
@@ -370,12 +371,12 @@ public class ActivityController {
             if (role.equals("public")) {
                 activities = activityService.getPublicActivities(request);
             } else if (role.equals("creatorOrOrganiser")) {
-                activities = activityService.getActivitiesUserCanModify(request, profileId);
+                activities = activityService.getActivitiesUserCanModify(profileId, startIndex, count, jwtUtil.extractPermission(token));
             } else if (role.equals("discover")) {
-                activities = activityService.getNewActivities(profileId, startIndex, count);
+                activities = activityService.getNewActivities(profileId, startIndex, count, jwtUtil.extractPermission(token));
             } else {
                 try {
-                    activities = activityService.getActivitiesByProfileIdByRole(request, profileId, ActivityMembership.Role.valueOf(role.toUpperCase()));
+                    activities = activityService.getActivitiesByProfileIdByRole(profileId, ActivityMembership.Role.valueOf(role.toUpperCase()), startIndex, count, jwtUtil.extractPermission(token));
                 } catch (IllegalArgumentException e) {
                     return new ResponseEntity<>(new SimplifiedActivitiesResponse(e.getMessage()), HttpStatus.BAD_REQUEST);
                 }

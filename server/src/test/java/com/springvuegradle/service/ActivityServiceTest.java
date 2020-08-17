@@ -295,7 +295,7 @@ class ActivityServiceTest {
         Activity activity = activityRepository.save(createNormalActivity());
         activity.setPrivacyLevel(0);
         service.addActivityRole(activity.getId(), profile.getId(), "CREATOR");
-        Activity activityResult = service.getActivityByActivityId(profile.getId(), activity.getId());
+        Activity activityResult = service.getActivityByActivityId(profile.getId(), activity.getId(), profile.getAuthLevel());
         assertEquals(activity, activityResult);
     }
 
@@ -310,7 +310,7 @@ class ActivityServiceTest {
         Activity activity = activityRepository.save(createNormalActivity());
         activity.setPrivacyLevel(0);
         service.addActivityRole(activity.getId(), profile.getId(), "ORGANISER");
-        Activity activityResult = service.getActivityByActivityId(profile.getId(), activity.getId());
+        Activity activityResult = service.getActivityByActivityId(profile.getId(), activity.getId(), profile.getAuthLevel());
         assertEquals(null, activityResult);
     }
 
@@ -325,7 +325,7 @@ class ActivityServiceTest {
         Activity activity = activityRepository.save(createNormalActivity());
         activity.setPrivacyLevel(0);
         service.addActivityRole(activity.getId(), profile.getId(), "PARTICIPANT");
-        Activity activityResult = service.getActivityByActivityId(profile.getId(), activity.getId());
+        Activity activityResult = service.getActivityByActivityId(profile.getId(), activity.getId(), profile.getAuthLevel());
         assertEquals(null, activityResult);
     }
 
@@ -340,7 +340,7 @@ class ActivityServiceTest {
         Activity activity = activityRepository.save(createNormalActivity());
         activity.setPrivacyLevel(0);
         service.addActivityRole(activity.getId(), profile.getId(), "FOLLOWER");
-        Activity activityResult = service.getActivityByActivityId(profile.getId(), activity.getId());
+        Activity activityResult = service.getActivityByActivityId(profile.getId(), activity.getId(), profile.getAuthLevel());
         assertEquals(null, activityResult);
     }
 
@@ -354,7 +354,7 @@ class ActivityServiceTest {
         Profile profile = profileRepository.save(ben);
         Activity activity = activityRepository.save(createNormalActivity());
         activity.setPrivacyLevel(0);
-        Activity activityResult = service.getActivityByActivityId(profile.getId(), activity.getId());
+        Activity activityResult = service.getActivityByActivityId(profile.getId(), activity.getId(), profile.getAuthLevel());
         assertEquals(null, activityResult);
     }
 
@@ -367,7 +367,7 @@ class ActivityServiceTest {
         Profile profile = profileRepository.save(ben);
         Activity activity = activityRepository.save(createNormalActivity());
         activity.setPrivacyLevel(2);
-        Activity activityResult = service.getActivityByActivityId(profile.getId(), activity.getId());
+        Activity activityResult = service.getActivityByActivityId(profile.getId(), activity.getId(), profile.getAuthLevel());
         assertEquals(activity, activityResult);
     }
 
@@ -381,7 +381,7 @@ class ActivityServiceTest {
         Activity activity = activityRepository.save(createNormalActivity());
         activity.setPrivacyLevel(2);
         service.addActivityRole(activity.getId(), profile.getId(), "CREATOR");
-        Activity activityResult = service.getActivityByActivityId(profile.getId(), activity.getId());
+        Activity activityResult = service.getActivityByActivityId(profile.getId(), activity.getId(), profile.getAuthLevel());
         assertEquals(activity, activityResult);
     }
 
@@ -395,7 +395,7 @@ class ActivityServiceTest {
         Activity activity = activityRepository.save(createNormalActivity());
         activity.setPrivacyLevel(2);
         service.addActivityRole(activity.getId(), profile.getId(), "ORGANISER");
-        Activity activityResult = service.getActivityByActivityId(profile.getId(), activity.getId());
+        Activity activityResult = service.getActivityByActivityId(profile.getId(), activity.getId(), profile.getAuthLevel());
         assertEquals(activity, activityResult);
     }
 
@@ -409,7 +409,7 @@ class ActivityServiceTest {
         Activity activity = activityRepository.save(createNormalActivity());
         activity.setPrivacyLevel(2);
         service.addActivityRole(activity.getId(), profile.getId(), "PARTICIPANT");
-        Activity activityResult = service.getActivityByActivityId(profile.getId(), activity.getId());
+        Activity activityResult = service.getActivityByActivityId(profile.getId(), activity.getId(), profile.getAuthLevel());
         assertEquals(activity, activityResult);
     }
 
@@ -423,7 +423,7 @@ class ActivityServiceTest {
         Activity activity = activityRepository.save(createNormalActivity());
         activity.setPrivacyLevel(2);
         service.addActivityRole(activity.getId(), profile.getId(), "FOLLOWER");
-        Activity activityResult = service.getActivityByActivityId(profile.getId(), activity.getId());
+        Activity activityResult = service.getActivityByActivityId(profile.getId(), activity.getId(), profile.getAuthLevel());
         assertEquals(activity, activityResult);
     }
 
@@ -436,7 +436,7 @@ class ActivityServiceTest {
         Profile profile = profileRepository.save(ben);
         Activity activity = activityRepository.save(createNormalActivity());
         activity.setPrivacyLevel(1);
-        Activity activityResult = service.getActivityByActivityId(profile.getId(), activity.getId());
+        Activity activityResult = service.getActivityByActivityId(profile.getId(), activity.getId(), profile.getAuthLevel());
         assertEquals(null, activityResult);
     }
 
@@ -450,7 +450,7 @@ class ActivityServiceTest {
         Activity activity = activityRepository.save(createNormalActivity());
         activity.setPrivacyLevel(1);
         service.addActivityRole(activity.getId(), profile.getId(), "CREATOR");
-        Activity activityResult = service.getActivityByActivityId(profile.getId(), activity.getId());
+        Activity activityResult = service.getActivityByActivityId(profile.getId(), activity.getId(), profile.getAuthLevel());
         assertEquals(activity, activityResult);
     }
 
@@ -464,7 +464,7 @@ class ActivityServiceTest {
         Activity activity = activityRepository.save(createNormalActivity());
         activity.setPrivacyLevel(1);
         service.addActivityRole(activity.getId(), profile.getId(), "ORGANISER");
-        Activity activityResult = service.getActivityByActivityId(profile.getId(), activity.getId());
+        Activity activityResult = service.getActivityByActivityId(profile.getId(), activity.getId(), profile.getAuthLevel());
         assertEquals(activity, activityResult);
     }
 
@@ -478,7 +478,7 @@ class ActivityServiceTest {
         Activity activity = activityRepository.save(createNormalActivity());
         activity.setPrivacyLevel(1);
         service.addActivityRole(activity.getId(), profile.getId(), "PARTICIPANT");
-        Activity activityResult = service.getActivityByActivityId(profile.getId(), activity.getId());
+        Activity activityResult = service.getActivityByActivityId(profile.getId(), activity.getId(), profile.getAuthLevel());
         assertEquals(activity, activityResult);
     }
 
@@ -492,7 +492,7 @@ class ActivityServiceTest {
         Activity activity = activityRepository.save(createNormalActivity());
         activity.setPrivacyLevel(1);
         service.addActivityRole(activity.getId(), profile.getId(), "FOLLOWER");
-        Activity activityResult = service.getActivityByActivityId(profile.getId(), activity.getId());
+        Activity activityResult = service.getActivityByActivityId(profile.getId(), activity.getId(), profile.getAuthLevel());
         assertEquals(activity, activityResult);
     }
 
@@ -504,7 +504,7 @@ class ActivityServiceTest {
         long activityId = 10;
         Profile ben = createNormalProfileBen();
         Profile profile = profileRepository.save(ben);
-        Activity failedResult = service.getActivityByActivityId(profile.getId(), activityId);
+        Activity failedResult = service.getActivityByActivityId(profile.getId(), activityId, profile.getAuthLevel());
         assertNull(failedResult);
     }
 
@@ -569,6 +569,8 @@ class ActivityServiceTest {
      */
     @Test
     void getActivitiesByProfileIdByRolePrivateParticipantTest() {
+        int startIndex = 0;
+        int count = 5;
         Profile benny = createNormalProfileBen();
         profileRepository.save(benny);
         Profile johnny = createNormalProfileJohnny();
@@ -577,8 +579,7 @@ class ActivityServiceTest {
         activity.setPrivacyLevel(0);
         controller.createActivity(benny.getId(), activity, null, true);
         service.addActivityRole(activity.getId(), johnny.getId(), "participant");
-        PageRequest request = PageRequest.of(0, 5);
-        List<Activity> list = service.getActivitiesByProfileIdByRole(request, johnny.getId(), ActivityMembership.Role.PARTICIPANT);
+        List<Activity> list = service.getActivitiesByProfileIdByRole(johnny.getId(), ActivityMembership.Role.PARTICIPANT, startIndex, count, johnny.getAuthLevel());
         assertEquals(0, list.size());
     }
 
@@ -589,6 +590,8 @@ class ActivityServiceTest {
      */
     @Test
     void getActivitiesByIdByRolePublicParticipantTest() {
+        int startIndex = 0;
+        int count = 5;
         Profile benny = createNormalProfileBen();
         profileRepository.save(benny);
         Profile johnny = createNormalProfileJohnny();
@@ -597,8 +600,7 @@ class ActivityServiceTest {
         activity.setPrivacyLevel(2);
         controller.createActivity(johnny.getId(), activity, null, true);
         service.addActivityRole(activity.getId(), johnny.getId(), "participant");
-        PageRequest request = PageRequest.of(0, 5);
-        List<Activity> list = service.getActivitiesByProfileIdByRole(request, johnny.getId(), ActivityMembership.Role.PARTICIPANT);
+        List<Activity> list = service.getActivitiesByProfileIdByRole(johnny.getId(), ActivityMembership.Role.PARTICIPANT, startIndex, count, johnny.getAuthLevel());
         assertEquals(1, list.size());
     }
 
@@ -609,6 +611,8 @@ class ActivityServiceTest {
      */
     @Test
     void getActivitiesByIdByRoleMemberOrganiserTest() {
+        int startIndex = 0;
+        int count = 5;
         Profile benny = createNormalProfileBen();
         profileRepository.save(benny);
         Profile johnny = createNormalProfileJohnny();
@@ -617,8 +621,7 @@ class ActivityServiceTest {
         activity.setPrivacyLevel(1);
         controller.createActivity(benny.getId(), activity, null, true);
         service.addActivityRole(activity.getId(), johnny.getId(), "organiser");
-        PageRequest request = PageRequest.of(0, 5);
-        List<Activity> list = service.getActivitiesByProfileIdByRole(request, johnny.getId(), ActivityMembership.Role.ORGANISER);
+        List<Activity> list = service.getActivitiesByProfileIdByRole(johnny.getId(), ActivityMembership.Role.ORGANISER, startIndex, count, johnny.getAuthLevel());
         assertEquals(1, list.size());
     }
 
@@ -628,13 +631,14 @@ class ActivityServiceTest {
      */
     @Test
     void getActivitiesByIdByRolePrivateCreatorTest() {
+        int startIndex = 0;
+        int count = 5;
         Profile benny = createNormalProfileBen();
         profileRepository.save(benny);
         Activity activity = createNormalActivity();
         activity.setPrivacyLevel(0);
-        controller.createActivity(benny.getId(), activity, null, true);
-        PageRequest request = PageRequest.of(0, 5);
-        List<Activity> list = service.getActivitiesByProfileIdByRole(request, benny.getId(), ActivityMembership.Role.CREATOR);
+        controller.createActivity(benny.getId(), activity, null, true);;
+        List<Activity> list = service.getActivitiesByProfileIdByRole(benny.getId(), ActivityMembership.Role.CREATOR, startIndex, count, benny.getAuthLevel());
         assertEquals(1, list.size());
     }
 
@@ -644,13 +648,14 @@ class ActivityServiceTest {
      */
     @Test
     void getActivitiesByIdByRolePublicCreatorTest() {
+        int startIndex = 0;
+        int count = 5;
         Profile benny = createNormalProfileBen();
         profileRepository.save(benny);
         Activity activity = createNormalActivity();
         activity.setPrivacyLevel(2);
         controller.createActivity(benny.getId(), activity, null, true);
-        PageRequest request = PageRequest.of(0, 5);
-        List<Activity> list = service.getActivitiesByProfileIdByRole(request, benny.getId(), ActivityMembership.Role.CREATOR);
+        List<Activity> list = service.getActivitiesByProfileIdByRole(benny.getId(), ActivityMembership.Role.CREATOR, startIndex, count, benny.getAuthLevel());
         assertEquals(1, list.size());
     }
 
