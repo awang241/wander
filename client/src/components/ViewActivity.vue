@@ -5,95 +5,50 @@
             <div id="activity-key-info">
                 <div>
                     <div style="float:right">
-                        <b-dropdown aria-role="list" class="is-pulled-right" position="is-bottom-left">
-                            <b-icon icon="ellipsis-v" slot="trigger"/>
-                            <b-dropdown-item id="shareButton" @click="shareActivity"
-                                             v-if="hasCreatorPermissions">
-                                Share/Set Privacy
-                            </b-dropdown-item>
-
-                            <b-dropdown-item id="editButton" @click="editActivity"
-                                             v-if="hasOrganiserPermissions">
-                                Edit Activity
-                            </b-dropdown-item>
-
-                            <b-dropdown-item id="deleteButton" @click="deleteActivity"
-                                             v-if="hasCreatorPermissions">
-                                Delete Activity
-                            </b-dropdown-item>
-
-                            <b-dropdown-item id="addParticipationButton" @click="updateRole(store.getters.getUserId, roles.PARTICIPANT)"
-                                             v-if="hasOrganiserPermissions || userRole === roles.PARTICIPANT">
-                                Create Participation
-                            </b-dropdown-item>
-                            <div v-if="userRole !== roles.CREATOR">
-                                <b-dropdown-item id="followButton" @click="updateRole(store.getters.getUserId, roles.FOLLOWER)"
-                                                 v-if="userRole !== roles.FOLLOWER">
-                                    Follow
-                                </b-dropdown-item>
-
-                                <b-dropdown-item id="participateButton" @click="updateRole(store.getters.getUserId, roles.PARTICIPANT)"
-                                                 v-if="userRole !== roles.PARTICIPANT">
-                                    Participate
-                                </b-dropdown-item>
-                                <b-dropdown-item id="leaveButton" @click="deleteRole(store.getters.getUserId, userRole)"
-                                                 v-if="userRole === roles.FOLLOWER || userRole === roles.PARTICIPANT || userRole === roles.ORGANISER">
-                                    Leave Activity
-                                </b-dropdown-item>
+                        <div>
+                            <div v-if="parseInt(activity.creatorId) !== parseInt(store.getters.getUserId) && userRole !== 'organiser'" class="buttons">
+                                <div class="buttons">
+                                    <b-button v-if="userRole !== 'follower'" style="float:right" @click="updateRole(store.getters.getUserId,roles.FOLLOWER)"
+                                              id="followButton" type="is-primary">
+                                        Follow
+                                    </b-button>
+                                    <b-button id="participateButton" v-if="userRole !== 'participant'" style="float:right" @click="updateRole(store.getters.getUserId, roles.PARTICIPANT)"
+                                              type="is-primary">
+                                        Participate
+                                    </b-button>
+                                </div>
                             </div>
+                            <b-dropdown aria-role="list" class="is-pulled-right" position="is-bottom-left">
+                                <b-icon icon="ellipsis-v" slot="trigger"/>
+                                <b-dropdown-item id="shareButton" @click="shareActivity"
+                                                 v-if="hasCreatorPermissions">
+                                    Share/Set Privacy
+                                </b-dropdown-item>
+
+                                <b-dropdown-item id="editButton" @click="editActivity"
+                                                 v-if="hasOrganiserPermissions">
+                                    Edit Activity
+                                </b-dropdown-item>
+
+                                <b-dropdown-item id="deleteButton" @click="deleteActivity"
+                                                 v-if="hasCreatorPermissions">
+                                    Delete Activity
+                                </b-dropdown-item>
+
+                                <b-dropdown-item id="addParticipationButton" @click="updateRole(store.getters.getUserId, roles.PARTICIPANT)"
+                                                 v-if="hasOrganiserPermissions || userRole === roles.PARTICIPANT">
+                                    Create Participation
+                                </b-dropdown-item>
+                                <div v-if="userRole !== roles.CREATOR">
+                                    <b-dropdown-item id="leaveButton" @click="deleteRole(store.getters.getUserId, userRole)"
+                                                     v-if="userRole === roles.FOLLOWER || userRole === roles.PARTICIPANT || userRole === roles.ORGANISER">
+                                        Leave Activity
+                                    </b-dropdown-item>
+                                </div>
 
 
-                        </b-dropdown>
-                        <!--
-                        <div v-if="hasCreatorPermissions" class="buttons">
-                            <b-button style="float:right;" id="shareButton" @click="shareActivity"
-                                      type="is-primary">
-                                Share
-                            </b-button>
-                            <b-button style="float:right;" id="deleteButton"
-                                      type="is-danger">
-                                Delete Activity
-                            </b-button>
+                            </b-dropdown>
                         </div>
-                        <div v-if="hasOrganiserPermissions">
-                            <b-button id="editButton" style="float:bottom" @click="editActivity"
-                                      type="is-primary">
-                                Edit Activity
-                            </b-button>
-                        </div>
-                        <div v-if="hasShareAndEditPermissions || userRole === 'participant' || userRole === 'organiser'" class="buttons">
-                            <b-button style="float:right" @click="createParticipation"
-                                      type="is-primary">
-                                Create Participation
-                            </b-button>
-                        </div>
-                        <div v-if="parseInt(activity.creatorId) !== parseInt(store.getters.getUserId) && userRole !== 'organiser'" class="buttons">
-                            <div class="buttons">
-                                <b-button v-if="userRole !== 'follower'" style="float:right" @click="updateRole(store.getters.getUserId,'follower')"
-                                          id="followButton" type="is-primary">
-                                    Follow
-                                </b-button>
-                                <b-button id="unfollowButton" v-if="userRole === 'follower'" style="float:right" @click="deleteRole(store.getters.getUserId, 'follower')"
-                                          type="is-danger">
-                                    Unfollow
-                                </b-button>
-                                <b-button id="participateButton" v-if="userRole !== 'participant'" style="float:right" @click="updateRole(store.getters.getUserId, 'participant')"
-                                          type="is-primary">
-                                    Participate
-                                </b-button>
-                                <b-button id="unparticipateButton" v-if="userRole === 'participant'" style="float:right" @click="deleteRole(store.getters.getUserId, 'participant')"
-                                          type="is-danger">
-                                    Unparticipate
-                                </b-button>
-                            </div>
-                        </div>
-                        <div v-if="userRole === 'organiser'" style="margin-right: 0.5rem;" class="buttons">
-                            <b-button v-if="userRole === 'organiser'" style="float:right" @click="deleteRole(store.getters.getUserId,'organiser')"
-                                      type="is-danger">
-                                Remove self as organiser
-                            </b-button>
-                        </div>
-                        -->
                     </div>
 
                     <h1 class="title is-1">
@@ -125,8 +80,8 @@
                                     <table class="table-profile">
                                         <caption hidden>Displayed Activity Table</caption>
                                         <tr>
-                                            <th colspan="1" scope="col"></th>
-                                            <th colspan="2" scope="col"></th>
+                                            <th colspan="1" scope="col"/>
+                                            <th colspan="2" scope="col"/>
                                         </tr>
                                         <tr>
                                             <td>Description:</td>
@@ -392,7 +347,7 @@
                     api.editActivityMemberRole(profileId, this.activity.id, newRole, localStorage.getItem("authToken"))
                         .then(() => {
                             let profile = this.members[oldRole].find((profile) => {return profile.id === profileId});
-                            this.members[oldRole] = this.members[oldRole].filter((profile) => profile.id !== profileId)
+                            this.members[oldRole] = this.members[oldRole].filter((profile) => profile.id !== profileId);
                             if (profile != null) {
                                 this.members[newRole].push(profile);
                             } else {
@@ -412,8 +367,8 @@
             deleteRole(profileId, oldRole){
                 api.deleteActivityMembership(profileId, this.activity.id, localStorage.getItem("authToken"))
                     .then(() => {
-                        this.members[oldRole] = this.members[oldRole].filter(member => member.id !== profileId)
-                        this.successToast("Removed user from activity!")
+                        this.members[oldRole] = this.members[oldRole].filter(member => member.id !== profileId);
+                        this.successToast("Removed user from activity!");
                         if (parseInt(profileId) === parseInt(store.getters.getUserId)) {
                             this.userRole = null
                         }
@@ -427,9 +382,9 @@
             addRole(role) {
                 api.addActivityRole(this.store.getters.getUserId, this.$route.params.id, localStorage.getItem('authToken'), role)
                     .then(() => {
-                        this.userRole = role
-                        this.getActivityMembers(role)
-                        this.successToast("Now a " + role)
+                        this.userRole = role;
+                        this.getActivityMembers(role);
+                        this.successToast("Now a " + role);
                         this.getRoleCounts();
                     })
                     .catch((error) => {
@@ -511,10 +466,10 @@
 
         },
         mounted() {
-            this.getActivity()
-            this.getRoleCounts()
-            this.getParticipationResults()
-            this.getMyRole()
+            this.getActivity();
+            this.getRoleCounts();
+            this.getParticipationResults();
+            this.getMyRole();
             this.getAllActivityMembers();
 
             setTimeout(() => {
