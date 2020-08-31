@@ -67,6 +67,9 @@ public class Activity {
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "activity")
     private Set<ActivityParticipation> activityParticipations = new HashSet<>();
 
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "activity")
+    private Set<Notification> notifications = new HashSet<>();
+
     public Activity(){}
 
     @JsonCreator
