@@ -129,6 +129,9 @@ public class Profile {
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "profile")
     private Set<ActivityParticipation> activityParticipations = new HashSet<>();
 
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "profile")
+    private Set<Notification> notifications = new HashSet<>();
+
     /**
      * No argument constructor for Profile, can be used for creating new profiles directly from JSON data.
      */
