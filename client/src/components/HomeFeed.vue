@@ -48,7 +48,7 @@ export default {
   },
   mounted() {
     for (let i = 0; i < 50; i++) {
-      let notification = {text: `This is dummy notification #${i}`};
+      let notification = {text: `This is dummy notification #${i}`, type: i};
       this.notifications.push(notification);
     }
   }

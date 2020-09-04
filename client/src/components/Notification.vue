@@ -1,5 +1,5 @@
 <template>
-  <div class="card">
+  <div class="card" :style="cardStyle">
     <p>{{notification.text}}</p>
   </div>
 </template>
@@ -14,7 +14,10 @@ export default {
   data() {
     return {
       NotificationData: {},
-      store: store
+      store: store,
+      cardStyle: {
+        backgroundColor: "#ffffff"
+      }
     }
   },
   props: {
@@ -27,6 +30,15 @@ export default {
     if (this.props != undefined) {
       this.notificationData = this.props.notification;
     }
+      if (this.notificationData.type >= 0 && this.notificationData.type <3){
+        this.cardStyle.backgroundColor == "#a6b5ff";
+      }
+      if (this.notificationData.type >= 3 && this.notificationData.type <9){
+        this.cardStyle.backgroundColor == "#ffb0b0";
+      }
+      if (this.notificationData.type >= 9 && this.notificationData.type <15){
+        this.cardStyle.backgroundColor == "#99ff94";
+      }
 
   }
 }
@@ -38,3 +50,4 @@ export default {
   }
 
 </style>
+
