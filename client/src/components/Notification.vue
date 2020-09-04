@@ -1,6 +1,6 @@
 <template>
   <div class="card" :style="cardStyle">
-    <p>{{notification.text}}</p>
+    <p>{{notification.message}}</p>
   </div>
 </template>
 
@@ -13,10 +13,9 @@ export default {
   mixins: [toastMixin],
   data() {
     return {
-      NotificationData: {},
       store: store,
       cardStyle: {
-        backgroundColor: "#ffffff"
+        backgroundColor: null
       }
     }
   },
@@ -27,19 +26,15 @@ export default {
     }
   },
   mounted() {
-    if (this.props != undefined) {
-      this.notificationData = this.props.notification;
-    }
-      if (this.notificationData.type >= 0 && this.notificationData.type <3){
-        this.cardStyle.backgroundColor == "#a6b5ff";
+      if (this.$props.notification.notificationType >= 0 && this.$props.notification.notificationType < 3) {
+        this.cardStyle.backgroundColor = "#a6b5ff";
+      } else if (this.$props.notification.notificationType >= 3 && this.$props.notification.notificationType < 9) {
+        this.cardStyle.backgroundColor = "#ffb0b0";
+      } else if (this.$props.notification.notificationType >= 9 && this.$props.notification.notificationType < 15) {
+        this.cardStyle.backgroundColor = "#99ff94";
+      } else {
+        this.cardStyle.backgroundColor = "#ffffff"
       }
-      if (this.notificationData.type >= 3 && this.notificationData.type <9){
-        this.cardStyle.backgroundColor == "#ffb0b0";
-      }
-      if (this.notificationData.type >= 9 && this.notificationData.type <15){
-        this.cardStyle.backgroundColor == "#99ff94";
-      }
-
   }
 }
 </script>
