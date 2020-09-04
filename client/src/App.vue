@@ -11,10 +11,13 @@
 <script>
   import NavBar from './components/NavBar';
   import ProfileSearch from "./components/ProfileSearch";
+  import router from "@/router";
+  import HomeFeed from "@/components/HomeFeed";
 
   const app = {
       name: 'app',
       components: {
+        HomeFeed,
           ProfileSearch,
           NavBar
       },
@@ -23,6 +26,9 @@
               NavBar
           }
       },
+    mounted() {
+        router.push()
+    }
   }
   export default app
 </script>
