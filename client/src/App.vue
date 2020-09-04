@@ -2,7 +2,6 @@
     <div id="app">
         <NavBar/>
         <div id="nav">
-
         </div>
         <router-view/>
     </div>
@@ -11,13 +10,11 @@
 <script>
   import NavBar from './components/NavBar';
   import ProfileSearch from "./components/ProfileSearch";
-  import router from "@/router";
-  import HomeFeed from "@/components/HomeFeed";
+  import router from "./router";
 
   const app = {
       name: 'app',
       components: {
-        HomeFeed,
           ProfileSearch,
           NavBar
       },

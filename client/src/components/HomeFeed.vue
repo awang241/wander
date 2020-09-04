@@ -20,8 +20,8 @@
 import store from "../store";
 import toastMixin from "../mixins/toastMixin";
 import Observer from "./Observer";
-import api from "@/Api";
-import Notification from "@/components/Notification";
+import api from "../Api";
+import Notification from "../components/Notification";
 
 export default {
   name: "HomeFeed",

@@ -5,8 +5,8 @@
 </template>
 
 <script>
-import toastMixin from "@/mixins/toastMixin";
-import store from "@/store";
+import toastMixin from "../mixins/toastMixin";
+import store from "../store";
 
 export default {
   name: "Notification",
