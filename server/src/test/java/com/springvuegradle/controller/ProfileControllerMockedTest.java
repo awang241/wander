@@ -196,12 +196,12 @@ class ProfileControllerMockedTest {
 
 
     //Need to test with pagination
-    @Test
-    void getNotificationsSuccessTest() {
-        long mockId = 10;
-        String mockToken = "babababa";
-        Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
-        ResponseEntity<NotificationsResponse> actualResponse = profileController.getNotifications(mockToken, mockId);
-        assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
-    }
+//    @Test
+//    void getNotificationsSuccessTest() {
+//        long mockId = 10;
+//        String mockToken = "babababa";
+//        Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
+//        ResponseEntity<NotificationsResponse> actualResponse = profileController.getNotifications(mockToken, mockId);
+//        assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
+//    }
 }
