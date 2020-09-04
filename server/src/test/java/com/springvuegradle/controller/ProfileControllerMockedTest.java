@@ -1,6 +1,8 @@
 package com.springvuegradle.controller;
 
+import com.springvuegradle.dto.SimplifiedActivitiesResponse;
 import com.springvuegradle.dto.requests.EditAuthLevelRequest;
+import com.springvuegradle.dto.responses.NotificationsResponse;
 import com.springvuegradle.enums.ProfileErrorMessage;
 import com.springvuegradle.model.Profile;
 import com.springvuegradle.model.ProfileSearchCriteria;
@@ -12,6 +14,7 @@ import com.springvuegradle.dto.responses.ProfileSearchResponse;
 import com.springvuegradle.dto.responses.ProfileSummary;
 import com.springvuegradle.enums.AuthenticationErrorMessage;
 import com.springvuegradle.service.ProfileService;
+import org.aspectj.weaver.ast.Not;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -28,6 +31,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -188,5 +192,16 @@ class ProfileControllerMockedTest {
         Mockito.when(mockService.checkEmailExistsInDB(mockEmail)).thenReturn(false);
         boolean actualResponse = profileController.verifyEmailExists(mockEmail);
         assertEquals(false, actualResponse);
+    }
+
+
+    //Need to test with pagination
+    @Test
+    void getNotificationsSuccessTest() {
+        long mockId = 10;
+        String mockToken = "babababa";
+        Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
+        ResponseEntity<NotificationsResponse> actualResponse = profileController.getNotifications(mockToken, mockId);
+        assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
     }
 }

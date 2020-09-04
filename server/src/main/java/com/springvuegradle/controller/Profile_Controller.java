@@ -1,7 +1,10 @@
 package com.springvuegradle.controller;
 
+import com.springvuegradle.dto.ActivityParticipationResponse;
+import com.springvuegradle.dto.SimplifiedActivitiesResponse;
 import com.springvuegradle.dto.requests.*;
 import com.springvuegradle.dto.responses.ActivityTypesResponse;
+import com.springvuegradle.dto.responses.NotificationsResponse;
 import com.springvuegradle.dto.responses.ProfileSearchResponse;
 import com.springvuegradle.dto.responses.ProfileSummary;
 import com.springvuegradle.enums.AuthLevel;
@@ -14,6 +17,7 @@ import com.springvuegradle.service.SecurityService;
 import com.springvuegradle.enums.ProfileErrorMessage;
 import com.springvuegradle.service.ProfileService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.auditing.AuditingHandler;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -311,6 +315,41 @@ public class Profile_Controller {
         return simplifiedProfiles;
     }
 
+    /**
+     * Gets all of the notifications related to the user. This relation is determined by the users profile ID
+     *
+     * @param token the users validation token
+     * @param count an integer that determines the amount of notifications to be returned from the database
+     * @param startIndex an integer for the starting index of notifications to search/obtain from
+     * @param id the users profile ID
+     * @return a response entity containing a NotificationsResponse object or an error message
+     */
+    @GetMapping("/profiles/{id}/notifications")
+    public @ResponseBody ResponseEntity<NotificationsResponse> getNotifications(@RequestHeader("authorization") String token,
+                                                                                @PathVariable Long id,
+                                                                                @RequestParam("count") int count,
+                                                                                @RequestParam("startIndex") int startIndex)
+    {
+        if (token == null || token.isBlank()) {
+            return new ResponseEntity<>(new NotificationsResponse(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage()),
+                    HttpStatus.UNAUTHORIZED);
+        }
+        if (!jwtUtil.validateToken(token)) {
+            return new ResponseEntity<>(new NotificationsResponse(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage()),
+                    HttpStatus.FORBIDDEN);
+        }
+        if (count <= 0 ) {
+            return new ResponseEntity<>(new NotificationsResponse(ProfileErrorMessage.INVALID_SEARCH_COUNT.getMessage()),
+                    HttpStatus.BAD_REQUEST);
+        }
+        try {
+            List<Notification> notificationsList = profileService.getNotifications(id);
+            return new ResponseEntity<>(new NotificationsResponse(notificationsList), HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(new NotificationsResponse(e.getMessage()), HttpStatus.NOT_FOUND);
+        }
+    }
+
 
     /**
      * Called by the endpoint defined above
@@ -442,8 +481,6 @@ public class Profile_Controller {
             return "Hash Failed";
         }
     }
-
-
 
     /**
      * This method adds a new email to a given profile, isPrimary set to false by default. This method will be called directly for testing,
