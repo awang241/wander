@@ -11,6 +11,7 @@ import com.springvuegradle.repositories.spec.ProfileSpecifications;
 import com.springvuegradle.utilities.FieldValidationHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
@@ -207,7 +208,7 @@ public class ProfileService {
      * @param profileId
      * @return a list of notifications sorted by time (first notification is latest notification, etc)
      */
-    public List<Notification> getNotifications(Long profileId) {
+    public List<Notification> getNotifications(Long profileId, PageRequest request) {
         return null;
     }
 }

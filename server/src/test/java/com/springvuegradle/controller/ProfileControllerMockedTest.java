@@ -194,14 +194,47 @@ class ProfileControllerMockedTest {
         assertEquals(false, actualResponse);
     }
 
+    @Test
+    void getNotificationsSuccessTest() {
+        long mockId = 10;
+        int mockCount = 10;
+        int mockStartIndex = 0;
+        String mockToken = "babababa";
+        Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
+        ResponseEntity<NotificationsResponse> actualResponse = profileController.getNotifications(mockToken, mockId, mockCount, mockStartIndex);
+        assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
+    }
 
-    //Need to test with pagination
-//    @Test
-//    void getNotificationsSuccessTest() {
-//        long mockId = 10;
-//        String mockToken = "babababa";
-//        Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
-//        ResponseEntity<NotificationsResponse> actualResponse = profileController.getNotifications(mockToken, mockId);
-//        assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
-//    }
+    @Test
+    void getNotificationsInvalidCountTest() {
+        long mockId = 10;
+        int mockCount = 0;
+        int mockStartIndex = 0;
+        String mockToken = "babababa";
+        Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
+        ResponseEntity<NotificationsResponse> actualResponse = profileController.getNotifications(mockToken, mockId, mockCount, mockStartIndex);
+        assertEquals(HttpStatus.BAD_REQUEST, actualResponse.getStatusCode());
+    }
+
+    @Test
+    void getNotificationsInvalidTokenTest() {
+        long mockId = 10;
+        int mockCount = 10;
+        int mockStartIndex = 0;
+        String mockToken = "invalud";
+        Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(false);
+        ResponseEntity<NotificationsResponse> actualResponse = profileController.getNotifications(mockToken, mockId, mockCount, mockStartIndex);
+        assertEquals(HttpStatus.FORBIDDEN, actualResponse.getStatusCode());
+    }
+
+    @Test
+    void getNotificationsBlankTokenTest() {
+        long mockId = 10;
+        int mockCount = 10;
+        int mockStartIndex = 0;
+        String mockToken = "";
+        Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
+        ResponseEntity<NotificationsResponse> actualResponse = profileController.getNotifications(mockToken, mockId, mockCount, mockStartIndex);
+        assertEquals(HttpStatus.UNAUTHORIZED, actualResponse.getStatusCode());
+    }
 }
