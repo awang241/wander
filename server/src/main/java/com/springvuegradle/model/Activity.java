@@ -286,4 +286,21 @@ public class Activity {
         }
         return null;
     }
+
+    @JsonIgnore
+    public Set<Notification> getNotifications() {
+        return Collections.unmodifiableSet(notifications);
+    }
+
+    public void setNotifications(Set<Notification> notifications) {
+        this.notifications = notifications;
+    }
+
+    public void addNotification(Notification notification) {
+        this.notifications.add(notification);
+    }
+
+    public void removeNotification(Notification notification) {
+        this.notifications.remove(notification);
+    }
 }
