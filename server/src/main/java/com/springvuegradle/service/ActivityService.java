@@ -45,6 +45,7 @@ public class ActivityService {
     private EmailRepository emailRepo;
     private ActivityParticipationRepository participationRepo;
     private NotificationRepository notificationRepo;
+    private NotificationService notificationService;
 
 
     /**
@@ -58,13 +59,14 @@ public class ActivityService {
     @Autowired
     public ActivityService(ProfileRepository profileRepo, ActivityRepository activityRepo, ActivityTypeRepository activityTypeRepo,
                            ActivityMembershipRepository activityMembershipRepository, ActivityParticipationRepository participationRepo,
-                           NotificationRepository notificationRepo) {
+                           NotificationRepository notificationRepo, NotificationService notificationService) {
         this.profileRepo = profileRepo;
         this.activityRepo = activityRepo;
         this.typeRepo = activityTypeRepo;
         this.membershipRepo = activityMembershipRepository;
         this.participationRepo = participationRepo;
         this.notificationRepo = notificationRepo;
+        this.notificationService = notificationService;
     }
 
     /**
@@ -96,15 +98,7 @@ public class ActivityService {
         activity.addMember(activityMembership);
 
         String message = "You created a new activity called " + activity.getActivityName() + ".";
-        Notification notification = new Notification(message, activity, profile, NotificationType.ActivityCreated);
-
-        for (ActivityMembership member: activity.getMembers()) {
-            notification.addRecipient(member.getProfile());
-        }
-
-        notificationRepo.save(notification);
-        profile.addNotification(notification);
-        activity.addNotification(notification);
+        notificationService.create(profile, activity, message);
 
         profileRepo.save(profile);
     }
