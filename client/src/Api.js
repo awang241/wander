@@ -36,6 +36,7 @@ export default {
   editActivityRestrictedUsers: (userId, activityId, token, users) => localAxiosInstance.put('profiles/' + userId + '/activities/' + activityId + '/visibility', users, {headers: {"authorization":token}}),
 
 // All get API requests
+    getNotifications: (profileId, token) => localAxiosInstance.get(`profiles/${profileId}/notifications`, {headers: {"authorization":token}}),
   getActivity: (activityId, token) => localAxiosInstance.get('activities/' + activityId,{headers: {"authorization":token}}),
   getActivitiesList: () => localAxiosInstance.get('activities'),
   getAllActivityMembers: (activityId, token) => localAxiosInstance.get(`/activities/${activityId}/members`, {headers: {"authorization": token}}),

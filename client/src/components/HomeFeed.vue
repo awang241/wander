@@ -47,10 +47,31 @@ export default {
       }
   },
   mounted() {
-    for (let i = 0; i < 50; i++) {
-      let notification = {message: `This is dummy notification #${i}`, notificationType: i};
-      this.notifications.push(notification);
-    }
+
+      //TODO Testing data here. Replace with real data when backend is sorted out
+      console.log(store.getters.getUserId);
+      for (let i = 1; i < 5; i++) {
+          let notification = {
+              message: `This is my own dummy notification #${i}`,
+              notificationType: i,
+              dateTime: "2020-09-05T08:00:00+1300",
+              activityId: 45011,
+              profileId: null
+          };
+          this.notifications.push(notification);
+      }
+      for (let i = 0; i < 11; i++) {
+          let notification = {
+              message: `This is dummy notification #${i}`,
+              notificationType: i,
+              dateTime: "2020-09-05T08:00:00+1300",
+              activityId: 45011,
+              profileId: 0
+          };
+          this.notifications.push(notification);
+      }
+
+    //End of test data
   }
 }
 </script>

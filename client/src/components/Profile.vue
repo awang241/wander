@@ -114,7 +114,7 @@
         //Used to ensure the component updates to the new profile when the id is changed
         watch: {
             '$route.params.id': function (id) {
-                this.id = id
+                this.id = id;
                 this.getProfile()
             }
         },
@@ -139,7 +139,7 @@
         },
         computed: {
             viewingOwnProfile() {
-                return this.profile.id == store.getters.getUserId
+                return this.profile.id === store.getters.getUserId;
             },
             fitnessStatement: function () {
                 switch (this.profile.fitness) {
@@ -158,11 +158,11 @@
                 }
             },
             fullLocation: function () {
-                let locationString = this.profile.location.city + ", "
+                let locationString = this.profile.location.city + ", ";
                 if (this.profile.location.state) {
                     locationString += this.profile.location.state + ", "
                 }
-                locationString += this.profile.location.country
+                locationString += this.profile.location.country;
                 return locationString
             }
         },
