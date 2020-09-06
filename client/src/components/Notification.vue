@@ -2,10 +2,11 @@
   <div class="card" :style="cardStyle">
       <div class="columns">
           <div class="column">
-              <p>{{notification.message}}</p>
-              <p>{{dateFormat(notification.dateTime)}}</p>
+              <p id="message">{{notification.message}}</p>
+              <p id="date">{{dateFormat(notification.dateTime)}}</p>
           </div>
-          <b-button class="is-pulled-right"
+          <b-button id="viewButton"
+                    class="is-pulled-right"
                     @click="goToActivity(notification.activityId)">
               View Activity
           </b-button>
@@ -90,7 +91,7 @@ export default {
          * Returns true if the notification was created by the currently logged in user; false otherwise
          */
         isOwnNotification() {
-            return this.$props.notification.profileId === store.getters.getUserId
+            return this.$props.notification.profileId === this.$store.getters.getUserId
         }
     }
 }

@@ -63,7 +63,7 @@ const routes = [
         }
     },
     {path: "/home", name: "homeFeed", component: HomeFeed}
-]
+];
 
 const router = new VueRouter({
     base: process.env.VUE_APP_BASE_URL,
@@ -76,6 +76,6 @@ const router = new VueRouter({
         }
     },
     routes
-})
+});
 
 export default router;

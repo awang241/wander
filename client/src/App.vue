@@ -26,7 +26,7 @@
     mounted() {
         router.push()
     }
-  }
+  };
   export default app
 </script>
 
