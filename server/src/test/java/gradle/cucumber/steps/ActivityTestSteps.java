@@ -24,10 +24,13 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.junit.jupiter.api.AfterEach;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.awt.print.Pageable;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -114,7 +117,10 @@ public class ActivityTestSteps {
     @When("I choose to delete the activity")
     public void i_choose_to_delete_the_activity() {
         Long activityId = activityRepository.getLastInsertedId();
-        responseEntity = activityController.deleteActivity(loginResponse.getToken(), jwtUtil.extractId(loginResponse.getToken()), activityId);
+        PageRequest pageable = PageRequest.of(0, 1);
+        Page<ActivityMembership> page = membershipRepository.findByActivityAndRole(activityId, ActivityMembership.Role.CREATOR, pageable);
+        Profile creator = page.getContent().get(0).getProfile();
+        responseEntity = activityController.deleteActivity(loginResponse.getToken(), creator.getId(), activityId);
     }
 
     @Then("The activity no longer exists")
@@ -139,7 +145,11 @@ public class ActivityTestSteps {
     @When("I choose to edit the activity by changing the title to {string}")
     public void i_choose_to_edit_the_activity_by_changing_the_title_to(String title) {
         activity.setActivityName(title);
-        responseEntity = activityController.updateActivity(activity, loginResponse.getToken(), jwtUtil.extractId(loginResponse.getToken()), activityRepository.getLastInsertedId());
+        Long activityId = activityRepository.getLastInsertedId();
+        PageRequest pageable = PageRequest.of(0, 1);
+        Page<ActivityMembership> page = membershipRepository.findByActivityAndRole(activityId, ActivityMembership.Role.CREATOR, pageable);
+        Profile creator = page.getContent().get(0).getProfile();
+        responseEntity = activityController.updateActivity(activity, loginResponse.getToken(), creator.getId(), activityId);
 
     }
 
