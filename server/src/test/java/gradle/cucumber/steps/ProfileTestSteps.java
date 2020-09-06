@@ -72,6 +72,8 @@ public class ProfileTestSteps{
     private ProfileLocationRepository profileLocationRepository;
     @Autowired
     private SecurityService securityService;
+    @Autowired
+    private NotificationRepository notificationRepo;
 
     @Before
     public void setUp() {
@@ -84,10 +86,12 @@ public class ProfileTestSteps{
         searchResponse = null;
         dbPassword = null;
         eRepo.deleteAll();
+        notificationRepo.deleteAll();
         membershipRepo.deleteAll();
         activityRepo.deleteAll();
 
         aRepo.deleteAll();
+
         repo.deleteAll();
         Profile steve = createProfileSteve("steve@google.com", "12345678");
         profileController.createProfile(steve);
