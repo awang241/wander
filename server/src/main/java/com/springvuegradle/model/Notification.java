@@ -1,6 +1,7 @@
 package com.springvuegradle.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.springvuegradle.enums.NotificationType;
 
 import javax.persistence.*;
@@ -28,13 +29,23 @@ public class Notification {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "activity_id")
-    @JsonBackReference(value = "profile")
+    @JsonBackReference(value = "activity")
     private Activity activity;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "profile_id")
-    @JsonBackReference(value = "activity")
+    @JsonBackReference(value = "profile")
     private Profile profile;
+
+    /**
+     * Holds the user's notifications and estabishes a Many to Many relationship as a Profile object can be associated with
+     * multiple Notifications.
+     */
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "profile_notification",
+            inverseJoinColumns = @JoinColumn(name = "notification_id", referencedColumnName = "id"),
+            joinColumns = @JoinColumn(name = "profile_id", referencedColumnName = "id"))
+    private Set<Profile> recipients = new HashSet<>();
 
     @Column
     private OffsetDateTime timeStamp = OffsetDateTime.now();
@@ -52,20 +63,47 @@ public class Notification {
         this.notificationType = notificationType;
     };
 
+    public Notification() {}
+
     @Override
     public int hashCode() {
-        return Objects.hash(message, notificationType);
+        return Objects.hash(id, message, activity, profile, notificationType);
     }
 
     public String getMessage() { return message; }
 
     public void setMessage(String message) { this.message = message; }
 
-    public long getActivityId() { return activity.getId(); }
+    @JsonIgnore
+    public Activity getActivity() { return activity; }
+
+    public void setActivity(Activity activity) { this.activity = activity; }
+
+    public Long getActivityId() {
+        return activity != null ? activity.getId() : null;
+    }
 
     public long getEditorId() { return profile.getId(); }
 
     public NotificationType getNotificationType() {
         return notificationType;
     }
+
+    @JsonIgnore
+    public Set<Profile> getRecipients() {
+        return Collections.unmodifiableSet(recipients);
+    }
+
+    public void setRecipients(Set<Profile> recipients) {
+        this.recipients = recipients;
+    }
+
+    public boolean addRecipient(Profile recipient) {
+        return recipients.add(recipient);
+    }
+
+    public boolean removeRecipient(Profile recipient) {
+        return recipients.remove(recipient);
+    }
+
 }
