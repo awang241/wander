@@ -200,22 +200,16 @@ class ProfileControllerMockedTest {
         assertEquals(false, actualResponse);
     }
 
-//    @Test
-//    void getNotificationsWithPaginationSuccessTest() {
-//        long mockId = 10;
-//        int mockCount = 10;
-//        int mockStartIndex = 0;
-//        String mockToken = "babababa";
-//        Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
-//        int mockPageIndex = mockStartIndex / mockCount;
-//        PageRequest mockPageRequest = PageRequest.of(mockPageIndex, mockCount);
-//        List<Notification> mockNotifications = ProfileTestUtils.createListOfNormalNotifications();
-//
-//        Mockito.when(notificationService.getSortedNotifications(mockId, mockPageRequest)).thenReturn(null);
-//        ResponseEntity<NotificationsResponse> actualResponse = profileController.getNotifications(mockToken, mockId, mockCount, mockStartIndex);
-//
-//        assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
-//    }
+    @Test
+    void getNotificationsWithPaginationSuccessTest() {
+        long mockId = 10;
+        int mockCount = 10;
+        int mockStartIndex = 0;
+        String mockToken = "babababa";
+        Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
+        ResponseEntity<NotificationsResponse> actualResponse = profileController.getNotifications(mockToken, mockId, mockCount, mockStartIndex);
+        assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
+    }
 
     @Test
     void getNotificationsInvalidCountTest() {
