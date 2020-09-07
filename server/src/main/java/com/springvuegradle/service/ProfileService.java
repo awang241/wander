@@ -203,12 +203,4 @@ public class ProfileService {
         return true;
     }
 
-    /**
-     * Gets all notifications related to the user
-     * @param profileId
-     * @return a list of notifications sorted by time (first notification is latest notification, etc)
-     */
-    public List<Notification> getNotifications(Long profileId, PageRequest request) {
-        return null;
-    }
 }

@@ -11,6 +11,7 @@ import com.springvuegradle.enums.AuthLevel;
 import com.springvuegradle.enums.AuthenticationErrorMessage;
 import com.springvuegradle.model.*;
 import com.springvuegradle.repositories.*;
+import com.springvuegradle.service.NotificationService;
 import com.springvuegradle.utilities.FieldValidationHelper;
 import com.springvuegradle.utilities.JwtUtil;
 import com.springvuegradle.service.SecurityService;
@@ -82,6 +83,9 @@ public class Profile_Controller {
     @Autowired
     private ActivityRepository activityRepo;
 
+    @Autowired
+    private NotificationService notificationService;
+
 
     public Profile_Controller(ProfileService profileService,
                               ProfileRepository profileRepository,
@@ -90,9 +94,11 @@ public class Profile_Controller {
                               ActivityTypeRepository activityTypeRepository,
                               ActivityRepository activityRepository,
                               ProfileLocationRepository profileLocationRepository,
+                              NotificationService notificationService,
                               JwtUtil jwtUtil,
                               SecurityService securityService) {
         this.profileService = profileService;
+        this.notificationService = notificationService;
         repo = profileRepository;
         pcRepo = pcRepository;
         eRepo = emailRepository;
@@ -345,7 +351,7 @@ public class Profile_Controller {
         try {
             int pageIndex = startIndex / count;
             PageRequest request = PageRequest.of(pageIndex, count);
-            List<Notification> notificationsList = profileService.getNotifications(id, request);
+            List<Notification> notificationsList = notificationService.getSortedNotifications(id, request);
             return new ResponseEntity<>(new NotificationsResponse(notificationsList), HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(new NotificationsResponse(e.getMessage()), HttpStatus.NOT_FOUND);
