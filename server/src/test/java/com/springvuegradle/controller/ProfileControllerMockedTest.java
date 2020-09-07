@@ -71,7 +71,7 @@ class ProfileControllerMockedTest {
     private void tearDown() {
         jimmy = null;
         maurice = null;
-        Mockito.reset(mockService, mockJwt, notificationService, mockProfileRepo);
+        Mockito.reset(mockService, mockJwt);
     }
 
     @Test
