@@ -36,9 +36,9 @@ public class NotificationService {
     /**
      * Create a notification with the given message, share it with the activity's current profiles.
      *
-     * @param spawner
-     * @param activity
-     * @param message
+     * @param spawner the user who made the changes or followed the activity, "spawner" of the notification.
+     * @param activity references activity that has been edited.
+     * @param message to be displayed on the notification.
      */
     public void create(Profile spawner, Activity activity, String message) {
         Notification notification = new Notification(message, activity, spawner, NotificationType.ActivityCreated);

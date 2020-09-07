@@ -1035,12 +1035,12 @@ class ActivityServiceTest {
      * Example activities to use in tests
      **/
 
-    static Activity createNormalActivity() {
+    public static Activity createNormalActivity() {
         return new Activity("Kaikoura Coast Track race", "A big and nice race on a lovely peninsula",
                 new String[]{"Tramping", "Hiking"}, false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ");
     }
 
-    private Activity createNormalActivityKaikoura() {
+    public Activity createNormalActivityKaikoura() {
         Activity activity =  new Activity("Kaikoura Coast Track race", "A big and nice race on a lovely peninsula",
                 new String[]{"Hiking"}, false, "2020-02-20T08:00:00+1300",
                 "2020-02-20T08:00:00+1300", "Kaikoura, NZ");
@@ -1126,21 +1126,21 @@ class ActivityServiceTest {
     }
 
 
-    static Profile createNormalProfileBen() {
+    public static Profile createNormalProfileBen() {
 
         return new Profile(null, "Ben", "Sales", "James", "Ben10", "ben10@hotmail.com", new String[]{"additional@email.com"}, "hushhush",
                 "Wooooooow", new GregorianCalendar(1999, Calendar.NOVEMBER,
                 28), "male", 1, new String[]{}, new String[]{});
     }
 
-    static Profile createNormalProfileBen(String email) {
+    public static Profile createNormalProfileBen(String email) {
 
         return new Profile(null, "Ben", "Sales", "James", "Ben10", email, new String[]{"additional@email.com"}, "hushhush",
                 "Wooooooow", new GregorianCalendar(1999, Calendar.NOVEMBER,
                 28), "male", 1, new String[]{}, new String[]{});
     }
 
-    static Profile createNormalProfileJohnny() {
+    public static Profile createNormalProfileJohnny() {
         return new Profile(null, "Johnny", "Quick", "Jones", "Jim-Jam", "jimjam@hotmail.com", new String[]{"additional@email.com"}, "hushhush",
                 "The quick brown fox jumped over the lazy dog.", new GregorianCalendar(1999, Calendar.NOVEMBER,
                 28), "male", 1, new String[]{}, new String[]{});
@@ -1149,7 +1149,7 @@ class ActivityServiceTest {
     /**
      * @return a valid profile object.
      */
-    static Profile createNormalProfileMim() {
+    public static Profile createNormalProfileMim() {
         return new Profile(null, "Mim", "Benson", "Jack", "Jacky", "jacky@google.com", new String[]{"additionaldoda@email.com"}, "jacky'sSecuredPwd",
                 "Jacky loves to ride his bike on crazy mountains.", new GregorianCalendar(1985, Calendar.DECEMBER,
                 20), "male", 1, new String[]{}, new String[]{});
