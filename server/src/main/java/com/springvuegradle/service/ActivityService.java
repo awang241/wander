@@ -100,7 +100,7 @@ public class ActivityService {
         notificationService.createNotification(NotificationType.ActivityCreated,
                 activity,
                 profile,
-                "You created a new activity called " + activity.getActivityName() + ".");
+                profile.getFullName() + " created a new activity called " + activity.getActivityName() + ".");
 
         profileRepo.save(profile);
     }
@@ -135,7 +135,7 @@ public class ActivityService {
      * @param activityId the activity to delete.
      * @return if activity exists then it deletes it and returns true. False otherwise.
      */
-    public boolean delete(Long activityId) {
+    public boolean delete(Long activityId, Long profileId) {
         if (activityRepo.existsById(activityId)) {
             for (ActivityMembership membership : membershipRepo.findAll()) {
                 if (membership.getActivity().getId() == activityId) {
@@ -144,20 +144,18 @@ public class ActivityService {
                     profile.removeActivity(membership);
                 }
             }
+            Profile profile = profileRepo.findById(profileId).get();
             Activity activity = activityRepo.findById(activityId).get();
-            for (Notification notification: activity.getNotifications()) {
-                if (notification.getActivityId().equals(activityId)) {
-                    notification.setActivity(null);
-                    notificationRepo.save(notification);
-                }
-            }
+            notificationService.createNotification(NotificationType.ActivityRemoved, activity, profile,
+                    profile.getFullName() + " deleted an activity called " + activity.getActivityName() + ".");
+            notificationService.detachActivityFromNotifications(activity);
             for (ActivityType activityType : typeRepo.findAll()) {
                 if (activityType.getActivities().contains(activity)) {
                     activityType.removeActivity(activity);
                 }
             }
-            activityRepo.deleteById(activityId);
 
+            activityRepo.deleteById(activityId);
             return true;
         }
         return false;

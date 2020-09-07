@@ -408,7 +408,7 @@ public class ActivityController {
                 return errorOccurred;
             }
         }
-        if (activityService.delete(activityId)) {
+        if (activityService.delete(activityId, profileId)) {
             return new ResponseEntity<>("The activity has been deleted from the database.", HttpStatus.OK);
         }
         return new ResponseEntity<>("The activity does not exist in the database.", HttpStatus.NOT_FOUND);

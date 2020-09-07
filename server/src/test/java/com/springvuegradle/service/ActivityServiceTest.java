@@ -48,6 +48,8 @@ class ActivityServiceTest {
     EmailRepository emailRepository;
     @Autowired
     ActivityParticipationRepository activityParticipationRepository;
+    @Autowired
+    NotificationRepository notificationRepository;
 
     /**
      * Needs to be run before each test to create new test profiles and repositories.
@@ -63,6 +65,7 @@ class ActivityServiceTest {
     @AfterEach
     void tearDown() {
         activityMembershipRepository.deleteAll();
+        notificationRepository.deleteAll();
         emailRepository.deleteAll();
         profileRepository.deleteAll();
         activityRepository.deleteAll();
@@ -238,8 +241,10 @@ class ActivityServiceTest {
      **/
     @Test
     void deleteActivitySuccessTest() {
+        Profile profile = profileRepository.save(createNormalProfileBen());
         Activity activity = activityRepository.save(createNormalActivityKaikoura());
-        service.delete(activity.getId());
+        activityMembershipRepository.save(new ActivityMembership(activity, profile, ActivityMembership.Role.CREATOR));
+        service.delete(activity.getId(), profile.getId());
         assertEquals(0, activityRepository.count());
     }
 
@@ -281,7 +286,7 @@ class ActivityServiceTest {
      **/
     @Test
     void deleteActivityDoesNotExistTest() {
-        assertFalse(service.delete((long) 1));
+        assertFalse(service.delete((long) 1, (long) 2));
     }
 
     /**

@@ -74,6 +74,25 @@ class ActivityNotificationServiceTest {
         aService.create(createNormalActivity(), profile.getId());
         assertEquals(1, nRepo.count());
         String message = "Ben James Sales created a new activity called Kaikoura Coast Track race.";
-        assertEquals(message, nRepo.findAll().get(0).getMessage());
+        Notification notification = nRepo.findAll().get(0);
+        assertEquals(message, notification.getMessage());
+        assertNotNull(notification.getActivity());
+        assertEquals(1, profile.getNotifications().size());
+        assertEquals(1, notification.getActivity().getNotifications().size());
+        assertEquals(1, notification.getRecipients().size());
+    }
+
+    /**
+     * Test to create a basic new activity
+     **/
+    @Test
+    void deleteActivityPostsNotificationTest() {
+        Profile profile = pRepo.save(createNormalProfileBen());
+        aService.create(createNormalActivity(), profile.getId());
+        assertEquals(1, nRepo.count());
+        aService.delete(aRepo.getLastInsertedId(), profile.getId());
+        assertEquals(2, nRepo.count());
+        String message = "Ben James Sales deleted an activity called Kaikoura Coast Track race.";
+        assertEquals(message, nRepo.findAll().get(1).getMessage());
     }
 }
