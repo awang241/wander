@@ -44,6 +44,8 @@ public class ActivityService {
     private ActivityMembershipRepository membershipRepo;
     private EmailRepository emailRepo;
     private ActivityParticipationRepository participationRepo;
+    private NotificationRepository notificationRepo;
+    private NotificationService notificationService;
 
 
     /**
@@ -56,12 +58,15 @@ public class ActivityService {
      */
     @Autowired
     public ActivityService(ProfileRepository profileRepo, ActivityRepository activityRepo, ActivityTypeRepository activityTypeRepo,
-                           ActivityMembershipRepository activityMembershipRepository, ActivityParticipationRepository participationRepo) {
+                           ActivityMembershipRepository activityMembershipRepository, ActivityParticipationRepository participationRepo,
+                           NotificationRepository notificationRepo, NotificationService notificationService) {
         this.profileRepo = profileRepo;
         this.activityRepo = activityRepo;
         this.typeRepo = activityTypeRepo;
         this.membershipRepo = activityMembershipRepository;
         this.participationRepo = participationRepo;
+        this.notificationRepo = notificationRepo;
+        this.notificationService = notificationService;
     }
 
     /**
@@ -86,10 +91,17 @@ public class ActivityService {
         activity.setActivityTypes(updatedActivityType);
 
         Activity result = activityRepo.save(activity);
+
         ActivityMembership activityMembership = new ActivityMembership(result, profile, ActivityMembership.Role.CREATOR);
         membershipRepo.save(activityMembership);
         profile.addActivity(activityMembership);
         activity.addMember(activityMembership);
+
+        notificationService.createNotification(NotificationType.ActivityCreated,
+                activity,
+                profile,
+                "You created a new activity called " + activity.getActivityName() + ".");
+
         profileRepo.save(profile);
     }
 
@@ -132,10 +144,16 @@ public class ActivityService {
                     profile.removeActivity(membership);
                 }
             }
-            Optional<Activity> activity = activityRepo.findById(activityId);
+            Activity activity = activityRepo.findById(activityId).get();
+            for (Notification notification: activity.getNotifications()) {
+                if (notification.getActivityId().equals(activityId)) {
+                    notification.setActivity(null);
+                    notificationRepo.save(notification);
+                }
+            }
             for (ActivityType activityType : typeRepo.findAll()) {
-                if (activity.isPresent() && activityType.getActivities().contains(activity.get())) {
-                    activityType.removeActivity(activity.get());
+                if (activityType.getActivities().contains(activity)) {
+                    activityType.removeActivity(activity);
                 }
             }
             activityRepo.deleteById(activityId);
