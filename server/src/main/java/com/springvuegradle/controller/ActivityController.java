@@ -564,7 +564,7 @@ public class ActivityController {
             return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(), HttpStatus.UNAUTHORIZED);
         }
         try {
-            activityService.editActivityPrivacy(privacyRequest.getPrivacy(), activityId);
+            activityService.editActivityPrivacy(privacyRequest.getPrivacy(), activityId, jwtUtil.extractId(token));
             if (privacyRequest.getPrivacy().toLowerCase().equals("restricted") && privacyRequest.getMembers() != null) {
                 activityService.addMembers(privacyRequest.getMembers(), activityId);
             }
