@@ -15,40 +15,28 @@ import org.springframework.stereotype.Service;
 @Service(value = "notificationService")
 public class NotificationService {
 
-    private ProfileRepository profileRepo;
-    private ActivityRepository activityRepo;
     private NotificationRepository notificationRepo;
 
     /**
      * Autowired constructor for Spring to create an ActivityService and inject the correct dependencies.
-     *
-     * @param profileRepo                  the profile repository being injected.
-     * @param activityRepo                 the activity repository being injected.
      * @param notificationRepo             the notification repository being injected.
      */
     @Autowired
-    public NotificationService(ProfileRepository profileRepo, ActivityRepository activityRepo, NotificationRepository notificationRepo) {
-        this.profileRepo = profileRepo;
-        this.activityRepo = activityRepo;
+    public NotificationService(NotificationRepository notificationRepo) {
         this.notificationRepo = notificationRepo;
     }
 
-    /**
-     * Create a notification with the given message, share it with the activity's current profiles.
-     *
-     * @param spawner the user who made the changes or followed the activity, "spawner" of the notification.
-     * @param activity references activity that has been edited.
-     * @param message to be displayed on the notification.
+    /** Inserts the given Notification into the database
+     * @param notificationType the type of notification
+     * @param activity the activity the notification belongs to
+     * @param notificationCreator the profile the notification is for
+     * @param message string message the contains the content of the notification
      */
-    public void create(Profile spawner, Activity activity, String message) {
-        Notification notification = new Notification(message, activity, spawner, NotificationType.ActivityCreated);
-        for (ActivityMembership member: activity.getMembers()) {
-            notification.addRecipient(member.getProfile());
+    public void createNotification(NotificationType notificationType, Activity activity, Profile notificationCreator, String message){
+        Notification notification = new Notification(message, activity, notificationCreator, notificationType);
+        for(ActivityMembership membership: activity.getMembers()){
+            notification.addRecipient(membership.getProfile());
         }
         notificationRepo.save(notification);
-        spawner.addNotification(notification);
-        activity.addNotification(notification);
-        profileRepo.save(spawner);
-
     }
 }

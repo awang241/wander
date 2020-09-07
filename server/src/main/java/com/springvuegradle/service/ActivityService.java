@@ -97,8 +97,11 @@ public class ActivityService {
         profile.addActivity(activityMembership);
         activity.addMember(activityMembership);
 
-        String message = profile.getFullName() + " created a new activity called " + activity.getActivityName() + ".";
-        notificationService.create(profile, activity, message);
+        notificationService.createNotification(NotificationType.ActivityCreated,
+                activity,
+                profile,
+                "You created a new activity called " + activity.getActivityName() + ".");
+
         profileRepo.save(profile);
     }
 
