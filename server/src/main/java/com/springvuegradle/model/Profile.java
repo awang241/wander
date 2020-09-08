@@ -122,12 +122,15 @@ public class Profile {
     @JoinColumn(name = "location_id", referencedColumnName = "id")
     private ProfileLocation location;
 
-
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "profile")
     private Set<ActivityMembership> activities = new HashSet<>();
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "profile")
     private Set<ActivityParticipation> activityParticipations = new HashSet<>();
+
+    @ManyToMany(mappedBy = "recipients")
+    @JsonIgnore
+    private Set<Notification> notifications = new HashSet<>();
 
     /**
      * No argument constructor for Profile, can be used for creating new profiles directly from JSON data.
@@ -262,13 +265,14 @@ public class Profile {
     }
 
 
+    /**
+     * @return the correctly formatted date.
+     */
     public String getDateOfBirth() {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         format.setCalendar(dateOfBirth);
         return format.format(dateOfBirth.getTime());
     }
-
-
 
     /**
      * Gets the passport countries as a string of names instead of objects
@@ -282,6 +286,10 @@ public class Profile {
         return countryNames;
     }
 
+    /**
+     * Gets the activity types as a string of names instead of objects
+     * @return list of activity type name strings
+     */
     public List<String> getActivityTypes() {
         List<String> activityTypeNames = new ArrayList<>();
         for (ActivityType activityType : activityTypes){
@@ -522,6 +530,23 @@ public class Profile {
     }
 
     public boolean removeParticipation(ActivityParticipation participation) {
+        return activityParticipations.remove(participation);
+    }
+
+    @JsonIgnore
+    public Set<Notification> getNotifications() {
+        return Collections.unmodifiableSet(notifications);
+    }
+
+    public void setNotifications(Set<Notification> notifications) {
+        this.notifications = notifications;
+    }
+
+    public boolean addNotification(Notification notification) {
+        return notifications.add(notification);
+    }
+
+    public boolean removeNotification(Notification participation) {
         return activityParticipations.remove(participation);
     }
 }

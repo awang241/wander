@@ -48,6 +48,8 @@ class ActivityServiceTest {
     EmailRepository emailRepository;
     @Autowired
     ActivityParticipationRepository activityParticipationRepository;
+    @Autowired
+    NotificationRepository notificationRepository;
 
     /**
      * Needs to be run before each test to create new test profiles and repositories.
@@ -63,6 +65,7 @@ class ActivityServiceTest {
     @AfterEach
     void tearDown() {
         activityMembershipRepository.deleteAll();
+        notificationRepository.deleteAll();
         emailRepository.deleteAll();
         profileRepository.deleteAll();
         activityRepository.deleteAll();
@@ -238,8 +241,10 @@ class ActivityServiceTest {
      **/
     @Test
     void deleteActivitySuccessTest() {
+        Profile profile = profileRepository.save(createNormalProfileBen());
         Activity activity = activityRepository.save(createNormalActivityKaikoura());
-        service.delete(activity.getId());
+        activityMembershipRepository.save(new ActivityMembership(activity, profile, ActivityMembership.Role.CREATOR));
+        service.delete(activity.getId(), profile.getId());
         assertEquals(0, activityRepository.count());
     }
 
@@ -281,7 +286,7 @@ class ActivityServiceTest {
      **/
     @Test
     void deleteActivityDoesNotExistTest() {
-        assertFalse(service.delete((long) 1));
+        assertFalse(service.delete((long) 1, (long) 2));
     }
 
     /**
@@ -538,7 +543,8 @@ class ActivityServiceTest {
     @Test
     void editActivityPrivacyToPublicTest() {
         Activity activity = activityRepository.save(createNormalActivity());
-        service.editActivityPrivacy("public", activity.getId());
+        Profile profile = profileRepository.save(createNormalProfileBen());
+        service.editActivityPrivacy("public", activity.getId(), profile.getId());
         assertEquals(2, activity.getPrivacyLevel());
     }
 
@@ -548,7 +554,8 @@ class ActivityServiceTest {
     @Test
     void editActivityPrivacyToFriendsTest() {
         Activity activity = activityRepository.save(createNormalActivity());
-        service.editActivityPrivacy("restricted", activity.getId());
+        Profile profile = profileRepository.save(createNormalProfileBen());
+        service.editActivityPrivacy("restricted", activity.getId(), profile.getId());
         assertEquals(1, activity.getPrivacyLevel());
     }
 
@@ -558,7 +565,8 @@ class ActivityServiceTest {
     @Test
     void editActivityPrivacyToPrivateTest() {
         Activity activity = activityRepository.save(createNormalActivity());
-        service.editActivityPrivacy("private", activity.getId());
+        Profile profile = profileRepository.save(createNormalProfileBen());
+        service.editActivityPrivacy("private", activity.getId(), profile.getId());
         assertEquals(0, activity.getPrivacyLevel());
     }
 
@@ -665,7 +673,8 @@ class ActivityServiceTest {
     @Test
     void getPublicActivitiesSuccessTest() {
         Activity activity = activityRepository.save(createNormalActivity());
-        service.editActivityPrivacy("public", activity.getId());
+        Profile profile = profileRepository.save(createNormalProfileBen());
+        service.editActivityPrivacy("public", activity.getId(), profile.getId());
         assertEquals(1, service.getActivitiesWithPrivacyLevel(ActivityPrivacy.PUBLIC).size());
     }
 
@@ -675,7 +684,8 @@ class ActivityServiceTest {
     @Test
     void getPrivateActivitiesSuccessTest() {
         Activity activity = activityRepository.save(createNormalActivity());
-        service.editActivityPrivacy("private", activity.getId());
+        Profile profile = profileRepository.save(createNormalProfileBen());
+        service.editActivityPrivacy("private", activity.getId(), profile.getId());
         assertEquals(1, service.getActivitiesWithPrivacyLevel(ActivityPrivacy.PRIVATE).size());
     }
 
@@ -685,9 +695,11 @@ class ActivityServiceTest {
     @Test
     void getFriendsActivitiesSuccessTest() {
         Activity activity = activityRepository.save(createNormalActivity());
-        service.editActivityPrivacy("restricted", activity.getId());
+        Profile profile = profileRepository.save(createNormalProfileBen());
+        service.editActivityPrivacy("restricted", activity.getId(), profile.getId());
         assertEquals(1, service.getActivitiesWithPrivacyLevel(ActivityPrivacy.FRIENDS).size());
     }
+
 
     /**
      * Test getting all activities that are shared with friends only.
@@ -695,7 +707,8 @@ class ActivityServiceTest {
     @Test
     void getActivitiesDifferentPrivacyLevelTest() {
         Activity activity = activityRepository.save(createNormalActivity());
-        service.editActivityPrivacy("restricted", activity.getId());
+        Profile profile = profileRepository.save(createNormalProfileBen());
+        service.editActivityPrivacy("restricted", activity.getId(), profile.getId());
         assertTrue(service.getActivitiesWithPrivacyLevel(ActivityPrivacy.PUBLIC).isEmpty());
     }
 
@@ -705,7 +718,8 @@ class ActivityServiceTest {
     @Test
     void editInvalidPrivacyActivitiesTest() {
         Activity activity = activityRepository.save(createNormalActivity());
-        assertThrows(IllegalArgumentException.class, ()->service.editActivityPrivacy("everyone", activity.getId()));
+        Profile profile = profileRepository.save(createNormalProfileBen());
+        assertThrows(IllegalArgumentException.class, ()->service.editActivityPrivacy("everyone", activity.getId(),profile.getId()));
     }
     /**
      * Ensures an activity with no relationships throws an exception
@@ -1035,12 +1049,12 @@ class ActivityServiceTest {
      * Example activities to use in tests
      **/
 
-    static Activity createNormalActivity() {
+    public static Activity createNormalActivity() {
         return new Activity("Kaikoura Coast Track race", "A big and nice race on a lovely peninsula",
                 new String[]{"Tramping", "Hiking"}, false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ");
     }
 
-    private Activity createNormalActivityKaikoura() {
+    public Activity createNormalActivityKaikoura() {
         Activity activity =  new Activity("Kaikoura Coast Track race", "A big and nice race on a lovely peninsula",
                 new String[]{"Hiking"}, false, "2020-02-20T08:00:00+1300",
                 "2020-02-20T08:00:00+1300", "Kaikoura, NZ");
@@ -1126,21 +1140,21 @@ class ActivityServiceTest {
     }
 
 
-    static Profile createNormalProfileBen() {
+    public static Profile createNormalProfileBen() {
 
         return new Profile(null, "Ben", "Sales", "James", "Ben10", "ben10@hotmail.com", new String[]{"additional@email.com"}, "hushhush",
                 "Wooooooow", new GregorianCalendar(1999, Calendar.NOVEMBER,
                 28), "male", 1, new String[]{}, new String[]{});
     }
 
-    static Profile createNormalProfileBen(String email) {
+    public static Profile createNormalProfileBen(String email) {
 
         return new Profile(null, "Ben", "Sales", "James", "Ben10", email, new String[]{"additional@email.com"}, "hushhush",
                 "Wooooooow", new GregorianCalendar(1999, Calendar.NOVEMBER,
                 28), "male", 1, new String[]{}, new String[]{});
     }
 
-    static Profile createNormalProfileJohnny() {
+    public static Profile createNormalProfileJohnny() {
         return new Profile(null, "Johnny", "Quick", "Jones", "Jim-Jam", "jimjam@hotmail.com", new String[]{"additional@email.com"}, "hushhush",
                 "The quick brown fox jumped over the lazy dog.", new GregorianCalendar(1999, Calendar.NOVEMBER,
                 28), "male", 1, new String[]{}, new String[]{});
@@ -1149,7 +1163,7 @@ class ActivityServiceTest {
     /**
      * @return a valid profile object.
      */
-    static Profile createNormalProfileMim() {
+    public static Profile createNormalProfileMim() {
         return new Profile(null, "Mim", "Benson", "Jack", "Jacky", "jacky@google.com", new String[]{"additionaldoda@email.com"}, "jacky'sSecuredPwd",
                 "Jacky loves to ride his bike on crazy mountains.", new GregorianCalendar(1985, Calendar.DECEMBER,
                 20), "male", 1, new String[]{}, new String[]{});
