@@ -209,7 +209,7 @@
                     localStorage.setItem('userId', response.data.userId)
                     let payload = {'token': response.data.token, 'userId': response.data.userId}
                     store.dispatch('validateByTokenAndUserId', payload).then()
-                    router.push({path: '/Home'})
+                    router.push({path: '/Profile/' + store.getters.getUserId})
                 }))
                     .catch(error => this.warningToast(this.getErrorMessageFromStatusCode(error.response.status)))
             },
