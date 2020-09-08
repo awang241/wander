@@ -1,4 +1,4 @@
-<template>
+ActivityList.vue<template>
     <div v-if="store.getters.getAuthenticationStatus" class="container containerColor">
         <div id="results" class="column" v-if="activities.length">
             <div

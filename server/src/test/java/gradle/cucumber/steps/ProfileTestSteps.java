@@ -89,9 +89,7 @@ public class ProfileTestSteps{
         notificationRepo.deleteAll();
         membershipRepo.deleteAll();
         activityRepo.deleteAll();
-
         aRepo.deleteAll();
-
         repo.deleteAll();
         Profile steve = createProfileSteve("steve@google.com", "12345678");
         profileController.createProfile(steve);
