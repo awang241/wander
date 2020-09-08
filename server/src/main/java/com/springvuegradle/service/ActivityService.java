@@ -126,8 +126,8 @@ public class ActivityService {
             activityRepo.save(dbActivity);
             Optional<Profile> editor = profileRepo.findById(profileId);
             if (editor.isPresent()) {
-                notificationService.createNotification(NotificationType.ActivityEdited, activity, editor.get(),
-                        editor.get().getFullName() + " edited an activity called " + activity.getActivityName() + ".");
+                notificationService.createNotification(NotificationType.ActivityEdited, dbActivity, editor.get(),
+                        editor.get().getFullName() + " edited an activity called " + dbActivity.getActivityName() + ".");
             }
         } else {
             throw new IllegalArgumentException(ActivityResponseMessage.INVALID_ACTIVITY.toString());

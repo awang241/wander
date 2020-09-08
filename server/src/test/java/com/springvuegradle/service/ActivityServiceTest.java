@@ -64,13 +64,13 @@ class ActivityServiceTest {
      */
     @AfterEach
     void tearDown() {
-        activityMembershipRepository.deleteAll();
-        notificationRepository.deleteAll();
         emailRepository.deleteAll();
+        notificationRepository.deleteAll();
+        activityMembershipRepository.deleteAll();
         profileRepository.deleteAll();
         activityRepository.deleteAll();
-        typeRepository.deleteAll();
 
+        typeRepository.deleteAll();
     }
 
     /**
