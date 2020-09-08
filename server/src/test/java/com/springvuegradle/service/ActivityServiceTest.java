@@ -1040,7 +1040,7 @@ class ActivityServiceTest {
      * Example participations to use in tests
      */
 
-    static ActivityParticipation createNormalParticipationWithoutProfileActivity() {
+    public static ActivityParticipation createNormalParticipationWithoutProfileActivity() {
         return new ActivityParticipation("The final score was 2 - 1.", "University Wins", "2020-02-20T08:00:00+1300",
                 "2020-02-20T10:15:00+1300");
     }

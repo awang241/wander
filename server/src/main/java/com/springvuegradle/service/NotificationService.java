@@ -24,6 +24,7 @@ public class NotificationService {
     @Autowired
     public NotificationService(NotificationRepository notificationRepo) {
         this.notificationRepo = notificationRepo;
+
     }
 
     /** Inserts the given Notification into the database

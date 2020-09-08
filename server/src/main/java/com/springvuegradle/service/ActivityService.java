@@ -711,10 +711,10 @@ public class ActivityService {
         profile.addParticipation(participation);
         profileRepo.save(profile);
         activity.addParticipation(participation);
-        activityRepo.save(activity);
         notificationService.createNotification(NotificationType.ParticipantCreated, activity, profile,
                 profile.getFullName() + " added participation results to an activity called " + activity.getActivityName() + "./n " +
                         "Outcome:" + participation.getOutcome() + "/n Details: " + participation.getDetails());
+        activityRepo.save(activity);
     }
 
     /**

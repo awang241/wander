@@ -56,12 +56,12 @@ class ActivityNotificationServiceTest {
     @AfterEach
     void tearDown() {
         amRepo.deleteAll();
+        apRepo.deleteAll();
         eRepo.deleteAll();
         nRepo.deleteAll();
         pRepo.deleteAll();
         aRepo.deleteAll();
         tRepo.deleteAll();
-
     }
 
     /**
@@ -95,4 +95,36 @@ class ActivityNotificationServiceTest {
         String message = "Ben James Sales deleted an activity called Kaikoura Coast Track race.";
         assertEquals(message, nRepo.findAll().get(1).getMessage());
     }
+
+
+    /**
+     *  Tests that when creating an activity's participation, a notification is successfully created
+     */
+    @Test
+    void createParticipationPostsNotificationTest() {
+        long profileId = pRepo.getLastInsertedId();
+        aService.create(ActivityTestUtils.createNormalActivity(), profileId);
+        long activityId = aRepo.getLastInsertedId();
+        ActivityParticipation participation = ActivityTestUtils.createNormalParticipation();
+        aService.createParticipation(activityId, profileId, participation);
+        assertEquals(2, nRepo.count());
+    }
+
+    /**
+     *  Tests that when editing an activity's participation, a notification is successfully created
+     */
+    @Test
+    void editParticipationPostsNotificationTest() {
+        long profileId = pRepo.getLastInsertedId();
+        aService.create(ActivityTestUtils.createNormalActivity(), profileId);
+        long activityId = aRepo.getLastInsertedId();
+
+        ActivityParticipation activityParticipation = ActivityTestUtils.createNormalParticipation();
+        aService.createParticipation(activityId, profileId, activityParticipation);
+        long participationId = activityParticipation.getId();
+        ActivityParticipation editedParticipation = ActivityTestUtils.createEditedNormalParticipation();
+        aService.editParticipation(activityId, profileId, participationId, editedParticipation);
+        assertEquals(3, nRepo.count());
+    }
+
 }
