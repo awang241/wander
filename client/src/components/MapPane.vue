@@ -1,11 +1,10 @@
 <template>
     <VueResizable
             style="border: 2px solid black;"
-            fit-parent="true"
             :width=width
             :height=height
     >
-        <b-button @click="resizePane">{{isMinimized ? "Restore Map" : "Minimize Map"}}</b-button>
+        <b-button id="resizeButton" @click="resizePane">{{isMinimized ? "Restore Map" : "Minimize Map"}}</b-button>
         <iframe
                 id="map"
                 src="https://www.google.com/maps/embed/v1/place?key=AIzaSyAWLmvfFRHMuF-D9nmVTAQUYASaUtQoPqQ
