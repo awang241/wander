@@ -74,6 +74,8 @@ public class Notification {
 
     public void setMessage(String message) { this.message = message; }
 
+    public OffsetDateTime getTimeStamp() {return timeStamp;}
+
     @JsonIgnore
     public Activity getActivity() { return activity; }
 

@@ -1,5 +1,6 @@
 package com.springvuegradle.config;
 
+import com.springvuegradle.service.NotificationService;
 import com.springvuegradle.service.SecurityService;
 import com.springvuegradle.utilities.JwtUtil;
 import com.springvuegradle.service.ActivityService;
@@ -30,6 +31,12 @@ public class MockServiceConfig {
     @Primary
     public ProfileService mockProfileService() {
         return Mockito.mock(ProfileService.class);
+    }
+
+    @Bean
+    @Primary
+    public NotificationService mockNotificationService() {
+        return  Mockito.mock(NotificationService.class);
     }
 
     @Bean
