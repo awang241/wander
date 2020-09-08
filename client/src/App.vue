@@ -4,14 +4,12 @@
         <div id="nav">
 
         </div>
-<!--        <MapPane/>-->
         <router-view/>
     </div>
 </template>
 
 <script>
   import NavBar from './components/NavBar';
-  // import MapPane from './components/MapPane'
   import ProfileSearch from "./components/ProfileSearch";
 
   const app = {
@@ -19,7 +17,6 @@
       components: {
           ProfileSearch,
           NavBar
-          //MapPane
       },
       data: () => {
           return {
