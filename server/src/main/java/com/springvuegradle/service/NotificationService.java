@@ -44,7 +44,24 @@ public class NotificationService {
         for(ActivityMembership membership: activity.getMembers()){
             notification.addRecipient(membership.getProfile());
         }
+        activity.addNotification(notification);
+        notificationCreator.addNotification(notification);
         notificationRepo.save(notification);
+    }
+
+    /**
+     * Removes the activity from all the notifications connected to the given activity, required in order to delete the
+     * activity.
+     *
+     * @param activity contains a reference to all the notifications it is connected to.
+     */
+    public void detachActivityFromNotifications(Activity activity) {
+        for (Notification notification: activity.getNotifications()) {
+            if (notification.getActivityId().equals(activity.getId())) {
+                notification.setActivity(null);
+                notificationRepo.save(notification);
+            }
+        }
     }
 
     /**
