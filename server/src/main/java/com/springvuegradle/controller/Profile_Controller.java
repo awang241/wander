@@ -106,6 +106,7 @@ public class Profile_Controller {
     @Autowired
     private ProfileLocationRepository profileLocationRepository;
 
+    //TODO - Javadoc this method and the one below it
     @PutMapping("/profiles/{id}/location")
     public ResponseEntity<String> updateProfileLocation(@RequestBody ProfileLocation newLocation,  @RequestHeader("authorization") String token, @PathVariable Long id){
         if(!securityService.checkEditPermission(token, id)){

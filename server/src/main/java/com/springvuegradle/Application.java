@@ -36,8 +36,8 @@ public class Application {
                 System.out.println("Default admin created with password: " + password);
             }
             System.out.println("-----Update Complete-----");
-            System.out.println("-----Updating Passport Country Repository-----");
-            ValidationHelper.updatePassportCountryRepository(pcRepo, pRepo);
+            //System.out.println("-----Updating Passport Country Repository-----");
+            //ValidationHelper.updatePassportCountryRepository(pcRepo, pRepo);
             System.out.println("-----Update Complete-----");
             System.out.println("-----Program should be running now-----");
         };
