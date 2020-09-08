@@ -106,6 +106,13 @@ public class Profile_Controller {
     @Autowired
     private ProfileLocationRepository profileLocationRepository;
 
+    /**
+     * Endpoint for setting the location of a profile to the new location
+     * @param newLocation The location that is being set on the profile
+     * @param token The authentication token of the user performing the update
+     * @param id the ID of the profile being updated
+     * @return HTTP response based on the outcome of the call
+     */
     @PutMapping("/profiles/{id}/location")
     public ResponseEntity<String> updateProfileLocation(@RequestBody ProfileLocation newLocation,  @RequestHeader("authorization") String token, @PathVariable Long id){
         if(!securityService.checkEditPermission(token, id)){
@@ -114,6 +121,12 @@ public class Profile_Controller {
         return profileService.updateProfileLocation(newLocation, id);
     }
 
+    /**
+     * Endpoint for deleting the location attribute of a profile
+     * @param token The authentication token of the user performing the update
+     * @param id the ID of the profile being updated
+     * @return HTTP Response based on whether the deletion was successful or not
+     */
     @DeleteMapping("/profiles/{id}/location")
     public @ResponseBody ResponseEntity<String> deleteLocation(@RequestHeader("authorization") String token, @PathVariable Long id) {
         if(!securityService.checkEditPermission(token, id)){

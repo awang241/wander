@@ -13,6 +13,7 @@ import ViewActivityComponent from "./components/ViewActivity.vue"
 import ShareActivityComponent from "./components/ShareActivity.vue";
 import ParticipationComponent from "./components/ParticipationForm.vue";
 import store from "./store";
+import HomeFeed from "./components/HomeFeed";
 
 
 const routes = [
@@ -60,8 +61,9 @@ const routes = [
                 })
             }
         }
-    }
-]
+    },
+    {path: "/home", name: "homeFeed", component: HomeFeed}
+];
 
 const router = new VueRouter({
     base: process.env.VUE_APP_BASE_URL,
@@ -74,6 +76,6 @@ const router = new VueRouter({
         }
     },
     routes
-})
+});
 
 export default router;
