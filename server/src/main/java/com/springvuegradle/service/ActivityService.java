@@ -110,8 +110,13 @@ public class ActivityService {
      *
      * @param activity   the new activity object
      * @param activityId the id of the activity to update
+     * @param profileId the id of the profile updating the activity
      */
-    public void update(Activity activity, Long activityId) {
+    public void update(Activity activity, Long activityId, Long profileId) {
+        Optional<Profile> editor = profileRepo.findById(profileId);
+        if (editor.isEmpty()) {
+            throw new IllegalArgumentException(ProfileErrorMessage.PROFILE_NOT_FOUND.toString());
+        }
         validateActivity(activity);
         Optional<Activity> result = activityRepo.findById(activityId);
         if (result.isPresent()) {
@@ -124,6 +129,8 @@ public class ActivityService {
             dbActivity.setActivityTypes(updatedActivityTypes);
             dbActivity.update(activity);
             activityRepo.save(dbActivity);
+            notificationService.createNotification(NotificationType.ActivityEdited, dbActivity, editor.get(),
+                    editor.get().getFullName() + " edited an activity called " + dbActivity.getActivityName() + ".");
         } else {
             throw new IllegalArgumentException(ActivityResponseMessage.INVALID_ACTIVITY.toString());
         }

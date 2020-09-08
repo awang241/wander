@@ -64,13 +64,13 @@ class ActivityServiceTest {
      */
     @AfterEach
     void tearDown() {
-        activityMembershipRepository.deleteAll();
-        notificationRepository.deleteAll();
         emailRepository.deleteAll();
+        notificationRepository.deleteAll();
+        activityMembershipRepository.deleteAll();
         profileRepository.deleteAll();
         activityRepository.deleteAll();
-        typeRepository.deleteAll();
 
+        typeRepository.deleteAll();
     }
 
     /**
@@ -115,7 +115,8 @@ class ActivityServiceTest {
         Long activityId = activityRepository.getLastInsertedId();
         Activity expectedActivity = createNormalActivityKaikoura(), actualActivity = null;
         Activity activityBefore = activityRepository.findById(activityId).get();
-        service.update(expectedActivity, activityId);
+        Profile profile = profileRepository.save(createNormalProfileBen());
+        service.update(expectedActivity, activityId, profile.getId());
         Optional<Activity> result = activityRepository.findById(activityId);
         if (result.isPresent()) {
             actualActivity = result.get();
@@ -131,7 +132,8 @@ class ActivityServiceTest {
      **/
     @Test
     void updateActivityNotInDatabaseThrowsException() {
-        assertThrows(IllegalArgumentException.class, ()-> service.update(createNormalActivityKaikoura(), 0L));
+        Profile profile = profileRepository.save(createNormalProfileBen());
+        assertThrows(IllegalArgumentException.class, ()-> service.update(createNormalActivityKaikoura(), 0L, profile.getId()));
     }
 
     /**
@@ -1128,8 +1130,9 @@ class ActivityServiceTest {
         activityRepository.save(original);
         Long activityId = activityRepository.getLastInsertedId();
         Activity actualActivity = null;
+        Profile profile = profileRepository.save(createNormalProfileBen());
 
-        service.update(update, activityId);
+        service.update(update, activityId, profile.getId());
         Optional<Activity> result = activityRepository.findById(activityId);
         if (result.isPresent()) {
             actualActivity = result.get();
