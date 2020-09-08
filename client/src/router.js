@@ -74,7 +74,8 @@ const routes = [
                 })
             }
         }
-    }
+    },
+    {path: "/home", name: "homeFeed", component: HomeFeed}
 ];
 
 const router = new VueRouter({

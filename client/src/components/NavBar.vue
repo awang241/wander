@@ -2,15 +2,14 @@
     <b-navbar>
         <template slot="start">
             <b-navbar-item tag="router-link"
-                           to="/home"
-                           href="#"
-                           v-on:click="goToPage('/home')" >
+                           to="/"
+                           href="#">
                 Home
             </b-navbar-item>
 
         </template>
 
-        <template slot="brand" @click="goToPage('/')">
+        <template slot="brand">
             <img class="crop-banner" src="../../images/WANDER-day-navbar.png" alt="Wander Logo in Navigation Bar"/>
         </template>
 
@@ -78,14 +77,10 @@
         },
         methods: {
             logout(){
-                localStorage.clear();
-                let payload = {'token': null, 'userId': null, 'authenticationStatus': false, 'authenticationLevel': 5};
+                localStorage.clear()
+                let payload = {'token': null, 'userId': null, 'authenticationStatus': false, 'authenticationLevel': 5}
                 store.dispatch('resetUserData', payload, {root:true});
                 router.push({path: '/Login'});
-            },
-            goToPage(url) {
-                const location = {path: url};
-                router.push(location);
             },
             goToProfile(){
                 router.push({path: '/Profile/' + store.getters.getUserId})
@@ -104,6 +99,18 @@
 </script>
 
 <style>
+    #main-navbar{
+        display: flex;
+        flex-wrap: wrap;
+        height: 30px;
+        padding: 1rem;
+        justify-content: space-between;
+    }
+
+    .container{
+        width: 100%;
+    }
+
     buttons{
         padding: 10px;
     }
@@ -120,6 +127,7 @@
     .crop-banner img {
         width: 200px;
         height: 50px;
+        /*margin: -75px 0 0 -100px;*/
         margin-left: auto;
         margin-right: auto;
         display: block;
