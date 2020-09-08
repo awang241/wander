@@ -225,7 +225,20 @@ public class NotificationServiceTest {
         assertTrue(compareNotificationArray(notificationsList, expectedNotificationsList));
     }
 
+    @Test
+    void getNotificationsStartIndexMoreThanTotalNotificationsSuccessTest() {
+        Profile profile = ProfileTestUtils.createProfileJimmyAlternate();
+        Activity activity = ActivityTestUtils.createNormalActivity();
+        activityRepository.save(activity);
+        profileRepository.save(profile);
+        saveNotifications(profile, activity);
 
+        int count = 5;
+        int startIndex = 5;
+        long profileId = profile.getId();
+        List<Notification> notificationsList = notificationService.getSortedNotifications(profileId, count, startIndex);
+        assertEquals(0, notificationsList.size());
+    }
 
 
 }
