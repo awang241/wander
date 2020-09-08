@@ -57,7 +57,6 @@
         },
         methods: {
             confirmPrivacyChange() {
-                console.log(this.rolesToRemove)
                 this.$emit('confirmPrivacyChange', this.rolesToRemove)
                 this.$parent.close();
             },
