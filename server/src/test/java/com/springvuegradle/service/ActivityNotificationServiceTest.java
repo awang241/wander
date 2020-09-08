@@ -1,6 +1,7 @@
 package com.springvuegradle.service;
 
 import com.springvuegradle.controller.ActivityController;
+import com.springvuegradle.enums.NotificationType;
 import com.springvuegradle.model.*;
 import com.springvuegradle.repositories.*;
 import com.springvuegradle.utilities.InitialDataHelper;
@@ -111,6 +112,19 @@ class ActivityNotificationServiceTest {
     }
 
     /**
+     *  Tests that when creating an activity's participation, a notification is successfully created and has correct type.
+     */
+    @Test
+    void createParticipationHasCorrectNotificationTypeTest() {
+        long profileId = pRepo.getLastInsertedId();
+        aService.create(ActivityTestUtils.createNormalActivity(), profileId);
+        long activityId = aRepo.getLastInsertedId();
+        ActivityParticipation participation = ActivityTestUtils.createNormalParticipation();
+        aService.createParticipation(activityId, profileId, participation);
+        assertEquals(NotificationType.ParticipantCreated, nRepo.findAll().get(1).getNotificationType());
+    }
+
+    /**
      *  Tests that when editing an activity's participation, a notification is successfully created
      */
     @Test
@@ -125,6 +139,23 @@ class ActivityNotificationServiceTest {
         ActivityParticipation editedParticipation = ActivityTestUtils.createEditedNormalParticipation();
         aService.editParticipation(activityId, profileId, participationId, editedParticipation);
         assertEquals(3, nRepo.count());
+    }
+
+    /**
+     *  Tests that when editing an activity's participation, a notification is successfully created and and has correct type.
+     */
+    @Test
+    void editParticipationHasCorrectNotificationTypeTest() {
+        long profileId = pRepo.getLastInsertedId();
+        aService.create(ActivityTestUtils.createNormalActivity(), profileId);
+        long activityId = aRepo.getLastInsertedId();
+
+        ActivityParticipation activityParticipation = ActivityTestUtils.createNormalParticipation();
+        aService.createParticipation(activityId, profileId, activityParticipation);
+        long participationId = activityParticipation.getId();
+        ActivityParticipation editedParticipation = ActivityTestUtils.createEditedNormalParticipation();
+        aService.editParticipation(activityId, profileId, participationId, editedParticipation);
+        assertEquals(NotificationType.ParticipationEdited, nRepo.findAll().get(2).getNotificationType());
     }
 
 }
