@@ -2,7 +2,6 @@
     <div id="app">
         <NavBar/>
         <div id="nav">
-
         </div>
         <router-view/>
     </div>
@@ -11,6 +10,7 @@
 <script>
   import NavBar from './components/NavBar';
   import ProfileSearch from "./components/ProfileSearch";
+  import router from "./router";
 
   const app = {
       name: 'app',
@@ -23,7 +23,10 @@
               NavBar
           }
       },
-  }
+    mounted() {
+        router.push()
+    }
+  };
   export default app
 </script>
 
