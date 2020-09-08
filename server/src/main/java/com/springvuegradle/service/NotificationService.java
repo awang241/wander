@@ -1,6 +1,8 @@
 package com.springvuegradle.service;
 
+import com.springvuegradle.enums.ActivityMessage;
 import com.springvuegradle.enums.NotificationType;
+import com.springvuegradle.enums.ProfileErrorMessage;
 import com.springvuegradle.model.Activity;
 import com.springvuegradle.model.ActivityMembership;
 import com.springvuegradle.model.Notification;
@@ -69,32 +71,28 @@ public class NotificationService {
      * @param profileId the users ID which is used to get the notifications
      * @return a list of notifications sorted by time (latest first, earliest last)
      */
-    public List<Notification> getSortedNotifications(Long profileId, PageRequest request) {
+    public List<Notification> getSortedNotifications(Long profileId, int count, int startIndex) {
         Optional<Profile> result = profileRepository.findById(profileId);
         if (result.isPresent()) {
             Profile targetProfile = result.get();
             Set<Notification> notificationSet = targetProfile.getNotifications();
             List<Notification> notificationList = new ArrayList<>(notificationSet);
             sortNotifications(notificationList);
-            return notificationList;
+            return notificationList.subList(Math.min(notificationList.size(), startIndex), Math.min(notificationList.size(), count + startIndex));
         }
-        return null;
-//        Profile targetProfile = result.get();
-//        Set<Notification> notificationSet = targetProfile.getNotifications();
-//        List<Notification> notificationList = new ArrayList<>(notificationSet);
-//        sortNotifications(notificationList);
-//        return notificationList;
+        throw new IllegalArgumentException(ProfileErrorMessage.PROFILE_NOT_FOUND.getMessage());
     }
 
     /**
-     * Customer sorter that sorts a list of notifications by date (latest first, earliest last)
+     * Customer sorter which sorts a list of notifications by date (latest first, earliest last)
      * @param notificationsList the list of notifications to be sorted
      */
     private void sortNotifications(List<Notification> notificationsList) {
         Collections.sort(notificationsList, new Comparator<Notification>() {
             @Override
-            public int compare(Notification o1, Notification o2) {
-                return 0;
+            public int compare(Notification o1, Notification o2)
+            {
+                return o2.getTimeStamp().compareTo(o1.getTimeStamp());
             }
         });
     }

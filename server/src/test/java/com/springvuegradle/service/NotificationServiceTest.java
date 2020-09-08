@@ -5,13 +5,19 @@ import com.springvuegradle.enums.NotificationType;
 import com.springvuegradle.model.*;
 import com.springvuegradle.repositories.*;
 import org.junit.jupiter.api.AfterEach;
+import com.springvuegradle.repositories.ActivityMembershipRepository;
+import com.springvuegradle.repositories.ActivityRepository;
+import com.springvuegradle.repositories.NotificationRepository;
+import com.springvuegradle.repositories.ProfileRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 public class NotificationServiceTest {
@@ -95,4 +101,131 @@ public class NotificationServiceTest {
                 notificationOne.getEditorId() == (notificationTwo.getEditorId());
 
     }
+
+    void saveNotifications(Profile profile, Activity activity) {
+        Notification notification1 = new Notification("activity created", activity, profile, NotificationType.ActivityCreated);
+        notificationRepository.save(notification1);
+        profile.addNotification(notification1);
+        Notification notification2 = new Notification("activity has new follower", activity, profile, NotificationType.ActivityFollowerAdded);
+        notificationRepository.save(notification2);
+        profile.addNotification(notification2);
+        Notification notification3 = new Notification("activity has removed a follower", activity, profile, NotificationType.ActivityFollowerRemoved);
+        notificationRepository.save(notification3);
+        profile.addNotification(notification3);
+    }
+
+    @Test
+    void getNotificationsSuccessTest() {
+        Profile profile = ProfileTestUtils.createProfileJimmyAlternate();
+        Activity activity = ActivityTestUtils.createNormalActivity();
+        activityRepository.save(activity);
+        profileRepository.save(profile);
+        saveNotifications(profile, activity);
+
+        int count = 5;
+        int startIndex = 0;
+        long profileId = profile.getId();
+        List<Notification> notificationsList = notificationService.getSortedNotifications(profileId, count, startIndex);
+        assertEquals(3, notificationsList.size());
+    }
+
+    @Test
+    void getNotificationsInvalidProfileErrorTest() {
+        int count = 5;
+        int startIndex = 0;
+        long profileId = 420;
+        assertThrows(IllegalArgumentException.class, ()->notificationService.getSortedNotifications(profileId, count, startIndex));
+    }
+
+    @Test
+    void getNotificationsWithPaginationSuccessCountLimitingTest() {
+        Profile profile = ProfileTestUtils.createProfileJimmyAlternate();
+        Activity activity = ActivityTestUtils.createNormalActivity();
+        activityRepository.save(activity);
+        profileRepository.save(profile);
+        saveNotifications(profile, activity);
+
+        int count = 2;
+        int startIndex = 0;
+        long profileId = profile.getId();
+        List<Notification> notificationsList = notificationService.getSortedNotifications(profileId, count, startIndex);
+        assertEquals(2, notificationsList.size());
+    }
+
+    @Test
+    void getNotificationsWithPaginationSuccessStartIndexLimitingTest() {
+        Profile profile = ProfileTestUtils.createProfileJimmyAlternate();
+        Activity activity = ActivityTestUtils.createNormalActivity();
+        activityRepository.save(activity);
+        profileRepository.save(profile);
+        saveNotifications(profile, activity);
+
+        int count = 2;
+        int startIndex = 2;
+        long profileId = profile.getId();
+        List<Notification> notificationsList = notificationService.getSortedNotifications(profileId, count, startIndex);
+        assertEquals(1, notificationsList.size());
+    }
+
+    /**
+     * Helper function to compare two notifications based on their activity, message and notificationType
+     * @param notificationOne
+     * @param notificationTwo
+     * @return true if they're the same, false otherwise
+     */
+    boolean compareNotification (Notification notificationOne, Notification notificationTwo) {
+        return notificationOne.getActivity().equals(notificationTwo.getActivity())
+                && notificationOne.getMessage().equals(notificationTwo.getMessage())
+                && notificationOne.getNotificationType().equals(notificationTwo.getNotificationType());
+    }
+
+    /**
+     * Helper function to compare two lists of notifications
+     * @param notificationListOne
+     * @param notificationListTwo
+     * @return true if the two lists are the same, false otherwise
+     */
+    boolean compareNotificationArray(List<Notification> notificationListOne, List<Notification> notificationListTwo) {
+        for (int i = 0; i < Math.min(notificationListOne.size(), notificationListTwo.size()); i++) {
+            if (!compareNotification(notificationListOne.get(i), notificationListTwo.get(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Test
+    void getNotificationsSortedByDateTest() {
+        Profile profile = ProfileTestUtils.createProfileJimmyAlternate();
+        Activity activity = ActivityTestUtils.createNormalActivity();
+        activityRepository.save(activity);
+        profileRepository.save(profile);
+
+        Notification notification1 = new Notification("activity created", activity, profile, NotificationType.ActivityCreated);
+        notificationRepository.save(notification1);
+        profile.addNotification(notification1);
+        Notification notification2 = new Notification("activity has new follower", activity, profile, NotificationType.ActivityFollowerAdded);
+        notificationRepository.save(notification2);
+        profile.addNotification(notification2);
+        Notification notification3 = new Notification("activity has removed a follower", activity, profile, NotificationType.ActivityFollowerRemoved);
+        notificationRepository.save(notification3);
+        profile.addNotification(notification3);
+
+
+        List<Notification> expectedNotificationsList = new ArrayList<>();
+        expectedNotificationsList.add(notification3);
+        expectedNotificationsList.add(notification2);
+        expectedNotificationsList.add(notification1);
+
+        int count = 3;
+        int startIndex = 0;
+        long profileId = profile.getId();
+        List<Notification> notificationsList = notificationService.getSortedNotifications(profileId, count, startIndex);
+
+        assertTrue(compareNotificationArray(notificationsList, expectedNotificationsList));
+    }
+
+
+
+
 }

@@ -349,9 +349,7 @@ public class Profile_Controller {
                     HttpStatus.BAD_REQUEST);
         }
         try {
-            int pageIndex = startIndex / count;
-            PageRequest request = PageRequest.of(pageIndex, count);
-            List<Notification> notificationsList = notificationService.getSortedNotifications(id, request);
+            List<Notification> notificationsList = notificationService.getSortedNotifications(id, count, startIndex);
             return new ResponseEntity<>(new NotificationsResponse(notificationsList), HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(new NotificationsResponse(e.getMessage()), HttpStatus.NOT_FOUND);
