@@ -697,7 +697,8 @@ public class ActivityService {
     }
 
     /**
-     * Saves the given participation details of a user who participated in a specific activity to the repository.
+     * Saves the given participation details of a user who participated in a specific activity to the repository and
+     * creates notification of this new participation result.
      *
      * @param activityId    The ID of the activity
      * @param profileId     The ID of the profile
@@ -715,10 +716,13 @@ public class ActivityService {
         profileRepo.save(profile);
         activity.addParticipation(participation);
         activityRepo.save(activity);
+        notificationService.createNotification(NotificationType.ParticipantCreated, activity, profile,
+                profile.getFullName() + " added participation results to an activity called " + activity.getActivityName() + "./n " +
+                        "Outcome:" + participation.getOutcome() + "/n Details: " + participation.getDetails());
     }
 
     /**
-     * Updates the fields of an existing participation
+     * Updates the fields of an existing participation and creates notification that participation result was edited.
      *
      * @param activityId      The ID of the activity
      * @param profileId       The ID of the profile
@@ -732,9 +736,14 @@ public class ActivityService {
         if (participationResult.isEmpty()) {
             throw new IllegalArgumentException(ActivityParticipationMessage.PARTICIPATION_NOT_FOUND.toString());
         }
+        Profile profile = profileRepo.getOne(profileId);
+        Activity activity = activityRepo.getOne(activityId);
         ActivityParticipation dbParticipation = participationResult.get();
         dbParticipation.updateActivityParticipation(participation);
         participationRepo.save(dbParticipation);
+        notificationService.createNotification(NotificationType.ParticipationEdited, activity, profile,
+                profile.getFullName() + " edited participation results of activity called " + activity.getActivityName() + "./n " +
+                        "Outcome:" + participation.getOutcome() + "/n Details: " + participation.getDetails());
     }
 
     /**
