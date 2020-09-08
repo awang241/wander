@@ -113,7 +113,7 @@ public class ActivityController {
 
 
         try {
-            activityService.update(request, activityId);
+            activityService.update(request, activityId, profileId);
             return new ResponseEntity<>(ActivityResponseMessage.EDIT_SUCCESS.toString(), HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;

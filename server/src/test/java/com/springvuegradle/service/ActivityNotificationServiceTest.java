@@ -181,4 +181,16 @@ class ActivityNotificationServiceTest {
         aService.addActivityRole(activity.getId(), profile.getId(), "follower");
         assertEquals(NotificationType.ActivityFollowerAdded, nRepo.findAll().get(0).getNotificationType());
     }
+
+    /**
+     * Test to create a notification for editing or updating an activity
+     */
+    @Test
+    void editActivityPostsNotificationTest() {
+        Profile profile = pRepo.save(createNormalProfileBen());
+        aService.create(createNormalActivity(), profile.getId());
+        aService.update(aRepo.getOne(aRepo.getLastInsertedId()), aRepo.getLastInsertedId(), profile.getId());
+        String message = "Ben James Sales edited an activity called Kaikoura Coast Track race.";
+        assertEquals(message, nRepo.findAll().get(1).getMessage());
+    }
 }
