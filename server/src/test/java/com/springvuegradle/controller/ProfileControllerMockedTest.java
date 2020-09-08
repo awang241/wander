@@ -37,6 +37,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -200,19 +201,17 @@ class ProfileControllerMockedTest {
         assertEquals(false, actualResponse);
     }
 
-//    @Test
-//    void getNotificationsWithPaginationSuccessTest() {
-//        long mockId = 10;
-//        int mockCount = 10;
-//        int mockStartIndex = 0;
-//        String mockToken = "babababa";
-//        Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
-//        ResponseEntity<NotificationsResponse> expcetedResponse = new ResponseEntity<>(HttpStatus.OK);
-//        //Mockito.when(profileController.getNotifications(mockToken, mockId, mockCount, mockStartIndex)).thenReturn(expcetedResponse);
-//        Mockito.when(notificationService.getSortedNotifications(mockId, mockCount, mockStartIndex)).thenReturn(null);
-//        ResponseEntity<NotificationsResponse> actualResponse = profileController.getNotifications(mockToken, mockId, mockCount, mockStartIndex);
-//        assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
-//    }
+    @Test
+    void getNotificationsWithPaginationSuccessTest() {
+        long mockId = 10;
+        int mockCount = 10;
+        int mockStartIndex = 0;
+        String mockToken = "babababa";
+        Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
+        Mockito.when(notificationService.getSortedNotifications(mockId, mockCount, mockStartIndex)).thenReturn(null);
+        ResponseEntity<NotificationsResponse> actualResponse = profileController.getNotifications(mockToken, mockId, mockCount, mockStartIndex);
+        assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
+    }
 
     @Test
     void getNotificationsInvalidCountTest() {
