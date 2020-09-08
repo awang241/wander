@@ -1,7 +1,10 @@
 package com.springvuegradle.controller;
 
+import com.springvuegradle.dto.ActivityParticipationResponse;
+import com.springvuegradle.dto.SimplifiedActivitiesResponse;
 import com.springvuegradle.dto.requests.*;
 import com.springvuegradle.dto.responses.ActivityTypesResponse;
+import com.springvuegradle.dto.responses.NotificationsResponse;
 import com.springvuegradle.dto.responses.ProfileSearchResponse;
 import com.springvuegradle.dto.responses.ProfileSummary;
 import com.springvuegradle.enums.AuthLevel;
@@ -14,6 +17,7 @@ import com.springvuegradle.service.SecurityService;
 import com.springvuegradle.enums.ProfileErrorMessage;
 import com.springvuegradle.service.ProfileService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.auditing.AuditingHandler;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -102,6 +106,13 @@ public class Profile_Controller {
     @Autowired
     private ProfileLocationRepository profileLocationRepository;
 
+    /**
+     * Endpoint for setting the location of a profile to the new location
+     * @param newLocation The location that is being set on the profile
+     * @param token The authentication token of the user performing the update
+     * @param id the ID of the profile being updated
+     * @return HTTP response based on the outcome of the call
+     */
     @PutMapping("/profiles/{id}/location")
     public ResponseEntity<String> updateProfileLocation(@RequestBody ProfileLocation newLocation,  @RequestHeader("authorization") String token, @PathVariable Long id){
         if(!securityService.checkEditPermission(token, id)){
@@ -110,6 +121,12 @@ public class Profile_Controller {
         return profileService.updateProfileLocation(newLocation, id);
     }
 
+    /**
+     * Endpoint for deleting the location attribute of a profile
+     * @param token The authentication token of the user performing the update
+     * @param id the ID of the profile being updated
+     * @return HTTP Response based on whether the deletion was successful or not
+     */
     @DeleteMapping("/profiles/{id}/location")
     public @ResponseBody ResponseEntity<String> deleteLocation(@RequestHeader("authorization") String token, @PathVariable Long id) {
         if(!securityService.checkEditPermission(token, id)){
@@ -311,6 +328,43 @@ public class Profile_Controller {
         return simplifiedProfiles;
     }
 
+    /**
+     * Gets all of the notifications related to the user. This relation is determined by the users profile ID
+     *
+     * @param token the users validation token
+     * @param count an integer that determines the amount of notifications to be returned from the database
+     * @param startIndex an integer for the starting index of notifications to search/obtain from
+     * @param id the users profile ID
+     * @return a response entity containing a NotificationsResponse object or an error message
+     */
+    @GetMapping("/profiles/{id}/notifications")
+    public @ResponseBody ResponseEntity<NotificationsResponse> getNotifications(@RequestHeader("authorization") String token,
+                                                                                @PathVariable Long id,
+                                                                                @RequestParam("count") int count,
+                                                                                @RequestParam("startIndex") int startIndex)
+    {
+        if (token == null || token.isBlank()) {
+            return new ResponseEntity<>(new NotificationsResponse(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage()),
+                    HttpStatus.UNAUTHORIZED);
+        }
+        if (!jwtUtil.validateToken(token)) {
+            return new ResponseEntity<>(new NotificationsResponse(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage()),
+                    HttpStatus.FORBIDDEN);
+        }
+        if (count <= 0 ) {
+            return new ResponseEntity<>(new NotificationsResponse(ProfileErrorMessage.INVALID_SEARCH_COUNT.getMessage()),
+                    HttpStatus.BAD_REQUEST);
+        }
+        try {
+            int pageIndex = startIndex / count;
+            PageRequest request = PageRequest.of(pageIndex, count);
+            List<Notification> notificationsList = profileService.getNotifications(id, request);
+            return new ResponseEntity<>(new NotificationsResponse(notificationsList), HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(new NotificationsResponse(e.getMessage()), HttpStatus.NOT_FOUND);
+        }
+    }
+
 
     /**
      * Called by the endpoint defined above
@@ -442,8 +496,6 @@ public class Profile_Controller {
             return "Hash Failed";
         }
     }
-
-
 
     /**
      * This method adds a new email to a given profile, isPrimary set to false by default. This method will be called directly for testing,

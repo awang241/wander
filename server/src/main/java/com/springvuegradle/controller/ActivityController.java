@@ -408,7 +408,7 @@ public class ActivityController {
                 return errorOccurred;
             }
         }
-        if (activityService.delete(activityId)) {
+        if (activityService.delete(activityId, profileId)) {
             return new ResponseEntity<>("The activity has been deleted from the database.", HttpStatus.OK);
         }
         return new ResponseEntity<>("The activity does not exist in the database.", HttpStatus.NOT_FOUND);
@@ -564,7 +564,7 @@ public class ActivityController {
             return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(), HttpStatus.UNAUTHORIZED);
         }
         try {
-            activityService.editActivityPrivacy(privacyRequest.getPrivacy(), activityId);
+            activityService.editActivityPrivacy(privacyRequest.getPrivacy(), activityId, jwtUtil.extractId(token));
             if (privacyRequest.getPrivacy().toLowerCase().equals("restricted") && privacyRequest.getMembers() != null) {
                 activityService.addMembers(privacyRequest.getMembers(), activityId);
             }

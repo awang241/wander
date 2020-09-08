@@ -67,6 +67,9 @@ public class Activity {
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "activity")
     private Set<ActivityParticipation> activityParticipations = new HashSet<>();
 
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "activity")
+    private Set<Notification> notifications = new HashSet<>();
+
     public Activity(){}
 
     @JsonCreator
@@ -282,5 +285,22 @@ public class Activity {
             return creator.getId();
         }
         return null;
+    }
+
+    @JsonIgnore
+    public Set<Notification> getNotifications() {
+        return Collections.unmodifiableSet(notifications);
+    }
+
+    public void setNotifications(Set<Notification> notifications) {
+        this.notifications = notifications;
+    }
+
+    public void addNotification(Notification notification) {
+        this.notifications.add(notification);
+    }
+
+    public void removeNotification(Notification notification) {
+        this.notifications.remove(notification);
     }
 }
