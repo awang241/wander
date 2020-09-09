@@ -3,7 +3,7 @@
       <div class="columns">
           <div class="column">
               <p id="message">{{notification.message}}</p>
-              <p id="date">{{dateFormat(notification.dateTime)}}</p>
+              <p id="date">{{dateFormat(notification.timeStamp)}}</p>
           </div>
           <b-button id="viewButton"
                     class="is-pulled-right"
