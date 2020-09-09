@@ -719,8 +719,8 @@ public class ActivityService {
         profileRepo.save(profile);
         activity.addParticipation(participation);
         notificationService.createNotification(NotificationType.ParticipantCreated, activity, profile,
-                profile.getFullName() + " added participation results to an activity called " + activity.getActivityName() + "./n " +
-                        "Outcome:" + participation.getOutcome() + "/n Details: " + participation.getDetails());
+                profile.getFullName() + " added participation results to an activity called " + activity.getActivityName() + ".\n" +
+                        "Outcome: " + participation.getOutcome() + "\nDetails: " + participation.getDetails());
         activityRepo.save(activity);
     }
 
@@ -745,8 +745,8 @@ public class ActivityService {
         dbParticipation.updateActivityParticipation(participation);
         participationRepo.save(dbParticipation);
         notificationService.createNotification(NotificationType.ParticipationEdited, activity, profile,
-                profile.getFullName() + " edited participation results of activity called " + activity.getActivityName() + "./n " +
-                        "Outcome:" + participation.getOutcome() + "/n Details: " + participation.getDetails());
+                profile.getFullName() + " edited participation results of activity called " + activity.getActivityName() + ".\n" +
+                        "Outcome:" + participation.getOutcome() + "\nDetails: " + participation.getDetails());
     }
 
     /**

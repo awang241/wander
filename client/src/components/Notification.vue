@@ -2,7 +2,7 @@
   <div class="card" :style="cardStyle">
       <div class="columns">
           <div class="column">
-              <p id="message">{{notification.message}}</p>
+              <p style="white-space: pre-wrap" id="message">{{notification.message}}</p>
               <p id="date">{{dateFormat(notification.timeStamp)}}</p>
           </div>
           <b-button
