@@ -50,7 +50,6 @@ export default {
   getNextActivities: (userId, token, parameters = {}) => localAxiosInstance.get('/profiles/' + userId + '/activities', {headers: {"authorization":token}, params: parameters}),
   getActivityParticipation: (userId, activityId, token, participationId) => localAxiosInstance.get('/profiles/'+ userId + '/activities/' + activityId + '/participation/' + participationId, {headers: {'authorization': token}}),
   getAllActivityParticipations: (activityId, token) => localAxiosInstance.get('activities/' + activityId + '/participations', {headers: {'authorization': token}}),
-  getMyActivityRole: (activityId, token) => localAxiosInstance.get('activities/' + activityId + '/myRole',{headers: {'authorization': token}}),
   getSingleUserActivityRole: (userId, activityId, token) => localAxiosInstance.get(`/profiles/${userId}/activities/${activityId}/role`, {headers: {"authorization":token}}),
 
 

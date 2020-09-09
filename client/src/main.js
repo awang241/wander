@@ -12,7 +12,7 @@ import {library} from '@fortawesome/fontawesome-svg-core'
 import {faEllipsisV} from '@fortawesome/free-solid-svg-icons'
 import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
 
-library.add(faEllipsisV)
+library.add(faEllipsisV);
 Vue.component('vue-fontawesome', FontAwesomeIcon);
 
 Vue.use(Buefy, {
@@ -23,13 +23,14 @@ Vue.use(VueRouter);
 Vue.config.productionTip = false;
 
 Vue.use(Vuex);
+
 //Check if a token is expired or null, if so it will redirect a user to the homepage
 if (localStorage.getItem('authToken') != null) {
+    let payload = {'token': localStorage.getItem('authToken'), 'userId': parseInt(localStorage.getItem('userId'))};
+    store.dispatch('validateByTokenAndUserId', payload).then();
     api.verifyToken(localStorage.getItem('authToken'))
-        .then(r => {
-            let payload = {'token': localStorage.getItem('authToken'), 'userId': localStorage.getItem('userId')}
-            store.dispatch('validateByTokenAndUserId', payload).then();
-            return r
+        .then(res => {
+            return res
         })
         .catch((error) => {
             let payload = {'token': null, 'userId': null, 'authenticationStatus': false, 'authenticationLevel': 5};
@@ -54,12 +55,13 @@ const options = {
 
 Vue.use(VueLogger, options);
 
-export const eventBus = new Vue({})
+export const eventBus = new Vue({});
 
 /* eslint-disable no-new */
 new Vue({
     el: '#app',
     template: '<App/>',
     components: {App},
-    router
+    router,
+    store
 });

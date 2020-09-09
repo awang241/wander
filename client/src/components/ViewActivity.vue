@@ -6,7 +6,7 @@
                 <div>
                     <div style="float:right">
                         <div>
-                            <div v-if="parseInt(activity.creatorId) !== parseInt(store.getters.getUserId) && userRole !== 'organiser'" class="buttons">
+                            <div v-if="parseInt(activity.creatorId) !== parseInt(store.getters.getUserId) && userRole !== roles.ORGANISER" class="buttons">
                                 <div class="buttons">
                                     <b-button v-if="userRole !== 'follower'" style="float:right" @click="updateRole(store.getters.getUserId,roles.FOLLOWER)"
                                               id="followButton" type="is-primary">
@@ -264,9 +264,7 @@
         data() {
             return {
                 roles: ROLES,
-
                 userRole: null,
-
                 activityId: this.$route.params.id,
                 activity: null,
                 members: {
@@ -288,7 +286,6 @@
                 moreParticipantsExist: true,
                 moreFollowersExist: true,
                 participationResults: [],
-                myRole: "None"
           }
         },
         methods: {
@@ -302,7 +299,7 @@
             getRoleCounts(){
                 api.getRoleCountsForActivity(this.$route.params.id, localStorage.getItem('authToken'))
                     .then(response => {
-                        this.numFollowers = response.data.followers
+                        this.numFollowers = response.data.followers;
                         this.numParticipants = response.data.participants
                     }
                     )
@@ -440,14 +437,8 @@
             getParticipationResults() {
                 api.getAllActivityParticipations(this.$route.params.id, localStorage.getItem('authToken'))
                     .then(response => {
-                        this.participationResults = response.data.results
+                        this.participationResults = response.data.results;
                         })
-            },
-            getMyRole(){
-              api.getMyActivityRole(this.$route.params.id, localStorage.getItem('authToken'))
-                  .then(response => {
-                    this.myRole = response.data.results
-                  })
             }
         },
         computed: {
@@ -467,10 +458,7 @@
                 return ((this.activity && parseInt(this.activity.creatorId) === parseInt(this.store.getters.getUserId)) || this.store.getters.getAuthenticationLevel < 2);
             },
             hasOrganiserPermissions: function () {
-                let test = function (element) {
-                    return element.id === this.store.getters.getUserId();
-                };
-                return (this.hasCreatorPermissions || this.members.organiser.find(test) !== undefined)
+                return (this.hasCreatorPermissions || this.userRole === this.roles.ORGANISER)
             }
 
         },
@@ -478,7 +466,6 @@
             this.getActivity();
             this.getRoleCounts();
             this.getParticipationResults();
-            this.getMyRole();
             this.getAllActivityMembers();
 
             setTimeout(() => {

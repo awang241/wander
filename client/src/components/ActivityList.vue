@@ -1,4 +1,4 @@
-ActivityList.vue<template>
+<template>
     <div v-if="store.getters.getAuthenticationStatus" class="container containerColor">
         <div id="results" class="column" v-if="activities.length">
             <div
@@ -12,7 +12,7 @@ ActivityList.vue<template>
         <div v-else id="noMatches">
             <h1>No activities fetched!</h1>
         </div>
-        <observer v-on:intersect="$emit('loadMoreActivities')"></observer>
+        <observer v-on:intersect="$emit('loadMoreActivities')"/>
     </div>
 </template>
 

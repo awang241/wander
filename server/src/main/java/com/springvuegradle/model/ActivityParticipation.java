@@ -40,7 +40,7 @@ public class ActivityParticipation {
     @ManyToOne(fetch = FetchType.EAGER)
     private ActivityMembership activityMembership;
 
-    private String details;
+    private String details = "No details added";
 
     @NotNull
     private String outcome;

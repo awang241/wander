@@ -1,19 +1,18 @@
 <template>
-  <div class="container containerColor">
-    <div id="results" class="column" v-if="notifications.length">
-      <div
-          v-for="notification in notifications"
-          :key="notification.time">
-        <Notification :notification="notification">
-        </Notification>
-        <br>
-      </div>
+    <div class="container containerColor">
+        <h1 class="title">Home</h1>
+        <div id="results" class="column" v-if="notifications.length">
+            <div v-for="notification in notifications"
+                :key="notification.time">
+            <Notification :notification="notification"/>
+            <br>
+            </div>
+        </div>
+        <div v-else id="noMatches">
+            <h1>You have no notifications.</h1>
+        </div>
+        <observer v-on:intersect="$emit('loadMoreNotifications')"/>
     </div>
-    <div v-else id="noMatches">
-      <h1>No Notifications found!</h1>
-    </div>
-    <observer v-on:intersect="$emit('loadMoreNotifications')"></observer>
-  </div>
 </template>
 
 <script>
@@ -44,7 +43,7 @@ export default {
             if(response.data.notifications.length > 0){
               this.notifications = response.data.notifications;
             }
-        })
+          })
       }
   },
   mounted() {

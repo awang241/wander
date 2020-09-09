@@ -1,13 +1,19 @@
 package com.springvuegradle.service;
 
+import com.springvuegradle.enums.ActivityMessage;
 import com.springvuegradle.enums.NotificationType;
+import com.springvuegradle.enums.ProfileErrorMessage;
 import com.springvuegradle.model.Activity;
 import com.springvuegradle.model.ActivityMembership;
 import com.springvuegradle.model.Notification;
 import com.springvuegradle.model.Profile;
 import com.springvuegradle.repositories.*;
+import org.aspectj.weaver.ast.Not;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+
+import java.util.*;
 
 /**
  * Service-layer class containing business logic handling notifications.
@@ -16,14 +22,17 @@ import org.springframework.stereotype.Service;
 public class NotificationService {
 
     private NotificationRepository notificationRepo;
+    private ProfileRepository profileRepository;
 
     /**
      * Autowired constructor for Spring to create an ActivityService and inject the correct dependencies.
      * @param notificationRepo             the notification repository being injected.
      */
     @Autowired
-    public NotificationService(NotificationRepository notificationRepo) {
+    public NotificationService(NotificationRepository notificationRepo,
+                               ProfileRepository profileRepo) {
         this.notificationRepo = notificationRepo;
+        this.profileRepository = profileRepo;
     }
 
     /** Inserts the given Notification into the database
@@ -55,5 +64,36 @@ public class NotificationService {
                 notificationRepo.save(notification);
             }
         }
+    }
+
+    /**
+     * Gets all notifications related to the user
+     * @param profileId the users ID which is used to get the notifications
+     * @return a list of notifications sorted by time (latest first, earliest last)
+     */
+    public List<Notification> getSortedNotifications(Long profileId, int count, int startIndex) {
+        Optional<Profile> result = profileRepository.findById(profileId);
+        if (result.isPresent()) {
+            Profile targetProfile = result.get();
+            Set<Notification> notificationSet = targetProfile.getNotifications();
+            List<Notification> notificationList = new ArrayList<>(notificationSet);
+            sortNotifications(notificationList);
+            return notificationList.subList(Math.min(notificationList.size(), startIndex), Math.min(notificationList.size(), count + startIndex));
+        }
+        throw new IllegalArgumentException(ProfileErrorMessage.PROFILE_NOT_FOUND.getMessage());
+    }
+
+    /**
+     * Customer sorter which sorts a list of notifications by date (latest first, earliest last)
+     * @param notificationsList the list of notifications to be sorted
+     */
+    private void sortNotifications(List<Notification> notificationsList) {
+        Collections.sort(notificationsList, new Comparator<Notification>() {
+            @Override
+            public int compare(Notification o1, Notification o2)
+            {
+                return o2.getTimeStamp().compareTo(o1.getTimeStamp());
+            }
+        });
     }
 }

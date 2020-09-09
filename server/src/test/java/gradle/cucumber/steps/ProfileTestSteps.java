@@ -11,6 +11,7 @@ import com.springvuegradle.enums.EmailResponseMessage;
 import com.springvuegradle.model.PassportCountry;
 import com.springvuegradle.model.Profile;
 import com.springvuegradle.repositories.*;
+import com.springvuegradle.service.NotificationService;
 import com.springvuegradle.service.SecurityService;
 import com.springvuegradle.service.ProfileService;
 import com.springvuegradle.utilities.*;
@@ -74,12 +75,14 @@ public class ProfileTestSteps{
     private SecurityService securityService;
     @Autowired
     private NotificationRepository notificationRepo;
+    @Autowired
+    private NotificationService notificationService;
 
     @Before
     public void setUp() {
         loginController = new LoginController(jwtUtil, eRepo);
         profileController = new Profile_Controller(profileService, repo, pcRepo, eRepo, aRepo, activityRepo, profileLocationRepository,
-                jwtUtil, securityService);
+                notificationService, jwtUtil, securityService);
         createProfileResponse = null;
         loginResponse = null;
         responses = new HashMap<>();
