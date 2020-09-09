@@ -113,7 +113,7 @@ public class ActivityController {
 
 
         try {
-            activityService.update(request, activityId);
+            activityService.update(request, activityId, profileId);
             return new ResponseEntity<>(ActivityResponseMessage.EDIT_SUCCESS.toString(), HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -140,7 +140,7 @@ public class ActivityController {
         if (token == null || token.isBlank()) {
             return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
                     HttpStatus.UNAUTHORIZED);
-        } else if (!securityService.checkEditPermission(token, profileId) || !activityService.isProfileActivityCreator(jwtUtil.extractId(token), activityId)) {
+        } else if (!securityService.checkEditPermission(token, profileId) && !activityService.isProfileActivityCreator(jwtUtil.extractId(token), activityId)) {
             return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(),
                     HttpStatus.FORBIDDEN);
         }

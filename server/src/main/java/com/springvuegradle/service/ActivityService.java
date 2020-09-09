@@ -110,8 +110,13 @@ public class ActivityService {
      *
      * @param activity   the new activity object
      * @param activityId the id of the activity to update
+     * @param profileId the id of the profile updating the activity
      */
-    public void update(Activity activity, Long activityId) {
+    public void update(Activity activity, Long activityId, Long profileId) {
+        Optional<Profile> editor = profileRepo.findById(profileId);
+        if (editor.isEmpty()) {
+            throw new IllegalArgumentException(ProfileErrorMessage.PROFILE_NOT_FOUND.toString());
+        }
         validateActivity(activity);
         Optional<Activity> result = activityRepo.findById(activityId);
         if (result.isPresent()) {
@@ -124,6 +129,8 @@ public class ActivityService {
             dbActivity.setActivityTypes(updatedActivityTypes);
             dbActivity.update(activity);
             activityRepo.save(dbActivity);
+            notificationService.createNotification(NotificationType.ActivityEdited, dbActivity, editor.get(),
+                    editor.get().getFullName() + " edited an activity called " + dbActivity.getActivityName() + ".");
         } else {
             throw new IllegalArgumentException(ActivityResponseMessage.INVALID_ACTIVITY.toString());
         }
@@ -693,7 +700,8 @@ public class ActivityService {
     }
 
     /**
-     * Saves the given participation details of a user who participated in a specific activity to the repository.
+     * Saves the given participation details of a user who participated in a specific activity to the repository and
+     * creates notification of this new participation result.
      *
      * @param activityId    The ID of the activity
      * @param profileId     The ID of the profile
@@ -710,11 +718,14 @@ public class ActivityService {
         profile.addParticipation(participation);
         profileRepo.save(profile);
         activity.addParticipation(participation);
+        notificationService.createNotification(NotificationType.ParticipantCreated, activity, profile,
+                profile.getFullName() + " added participation results to an activity called " + activity.getActivityName() + "./n " +
+                        "Outcome:" + participation.getOutcome() + "/n Details: " + participation.getDetails());
         activityRepo.save(activity);
     }
 
     /**
-     * Updates the fields of an existing participation
+     * Updates the fields of an existing participation and creates notification that participation result was edited.
      *
      * @param activityId      The ID of the activity
      * @param profileId       The ID of the profile
@@ -728,9 +739,14 @@ public class ActivityService {
         if (participationResult.isEmpty()) {
             throw new IllegalArgumentException(ActivityParticipationMessage.PARTICIPATION_NOT_FOUND.toString());
         }
+        Profile profile = profileRepo.getOne(profileId);
+        Activity activity = activityRepo.getOne(activityId);
         ActivityParticipation dbParticipation = participationResult.get();
         dbParticipation.updateActivityParticipation(participation);
         participationRepo.save(dbParticipation);
+        notificationService.createNotification(NotificationType.ParticipationEdited, activity, profile,
+                profile.getFullName() + " edited participation results of activity called " + activity.getActivityName() + "./n " +
+                        "Outcome:" + participation.getOutcome() + "/n Details: " + participation.getDetails());
     }
 
     /**

@@ -1,9 +1,26 @@
 package com.springvuegradle.model;
 
+import com.springvuegradle.enums.NotificationType;
+
 import java.util.*;
 
 public class ProfileTestUtils {
     /* Below are a set of ready-made Profile objects which can be used for various tests. */
+
+    public static Notification createNormalNotificationWithTypeBeing0() {
+        return new Notification("Activity: bobbing in bobbington, has been created hooray", null, null, NotificationType.ActivityCreated);
+    }
+
+    public static Notification createNormalNotificationWithTypeBeing2() {
+        return new Notification("Activity: bobbing in bobbington, has been edited, name is now gobbing in gobbington", null, null, NotificationType.ActivityEdited);
+    }
+
+    public static List<Notification> createListOfNormalNotifications() {
+        List<Notification> notificationsList = new ArrayList<>();
+        notificationsList.add(createNormalNotificationWithTypeBeing0());
+        notificationsList.add(createNormalNotificationWithTypeBeing2());
+        return notificationsList;
+    }
 
     /**
      * @return a valid profile object.

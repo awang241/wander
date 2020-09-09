@@ -74,14 +74,14 @@
                     password: this.password,
                 }).then((response => {
 
-                    localStorage.setItem('authToken', response.data.token)
-                    localStorage.setItem('userId', response.data.userId)
+                    localStorage.setItem('authToken', response.data.token);
+                    localStorage.setItem('userId', response.data.userId);
 
-                    let payload = {'token': response.data.token, 'userId': response.data.userId}
-                    store.dispatch('validateByTokenAndUserId', payload).then()
-                    const decoded = jwt_decode(response.data.token)
-                    const authenticationLevel = decoded.authLevel
-                    if (authenticationLevel == 0) {
+                    let payload = {'token': response.data.token, 'userId': response.data.userId};
+                    store.dispatch('validateByTokenAndUserId', payload).then();
+                    const decoded = jwt_decode(response.data.token);
+                    const authenticationLevel = decoded.authLevel;
+                    if (authenticationLevel === 0) {
                         router.push({path: '/AdminDashboard'});
                     }
                     else{
@@ -92,9 +92,9 @@
             },
 
             getErrorMessageFromStatusCode(statusCode){
-                let message = "Incorrect email or password"
-                if(statusCode === 401){
-                    message = "Incorrect email or password"
+                let message = "Incorrect email or password";
+                if (statusCode === 401){
+                    message = "Incorrect email or password";
                 }
                 return message;
             }

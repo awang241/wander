@@ -31,7 +31,7 @@ const routes = [
                 next()
             } else {
                 next({
-                    name: "login"
+                    name: "mainpage"
                 })
             }
     }},
@@ -53,6 +53,19 @@ const routes = [
     {
         //This route is only accessible if the user is authenticated, else it sends them back to the main page
         path: "/AdminDashboard", name: "adminDashboard", component: AdminDashboardComponent, beforeEnter: (to, from, next) => {
+            if (!store.getters.getAuthenticationStatus) {
+                next({
+                    name: "mainpage"
+                });
+            } else if (store.getters.getAuthenticationLevel > 1){
+                next({path: `/Profile/${store.getters.getUserId}`});
+            } else {
+                next();
+            }
+        }
+    },
+    {
+        path: "/home", name: "homeFeed", component: HomeFeed, beforeEnter: (to, from, next) => {
             if (store.getters.getAuthenticationStatus) {
                 next()
             } else {
