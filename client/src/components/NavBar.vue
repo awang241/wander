@@ -29,6 +29,11 @@
                               id="registrationButton">
                         Register
                     </b-button>
+                    <b-button  @click="goToHomeFeed"
+                               v-if="store.getters.getAuthenticationStatus"
+                               type="is-light">
+                       Feed
+                    </b-button>
                     <b-button  @click="goToProfileSearch"
                                v-if="store.getters.getAuthenticationStatus && store.getters.getAuthenticationLevel > 1"
                                type="is-light">
@@ -93,6 +98,9 @@
             },
             goToProfileSearch() {
                 router.push({path: '/ProfileSearch'})
+            },
+            goToHomeFeed() {
+                router.push({path: '/Home'})
             }
         }
     }

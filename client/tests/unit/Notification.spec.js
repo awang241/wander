@@ -11,7 +11,7 @@ const dataTemplate = {
     "notificationType": 3,
     "activityId": 20,
     "profileId": 0,
-    "dateTime": "2020-09-05T08:00:00+1300"
+    "timeStamp": "2020-09-05T08:00:00+1300"
 };
 
 describe('Notification.vue', () => {
@@ -42,7 +42,7 @@ describe('Notification.vue', () => {
             store, localVue, propsData: {notification: dataTemplate}
         });
         const date = wrapper.find("#date");
-        expect(date.text()).toBe(dateTimeMixin.methods.dateFormat(dataTemplate.dateTime));
+        expect(date.text()).toBe(dateTimeMixin.methods.dateFormat(dataTemplate.timeStamp));
     });
 
     it('Loads a self-triggered notification with the right colour', () => {
@@ -79,6 +79,26 @@ describe('Notification.vue', () => {
         });
 
         expect(wrapper.vm.$data.cardStyle.backgroundColor).toBe("#99ff94");
+    });
+    it('Displays the view activity button if the notification has an activity ID', () => {
+        let data = {};
+        Object.assign(data, dataTemplate);
+        data.activityId = 7
+        const wrapper = shallowMount(Notification, {
+            store, localVue, propsData: {notification: data}
+        });
+
+        expect(wrapper.find("#viewButton").exists()).toBeTruthy();
+    });
+    it('Does not displays the view activity button if the notification does not have an activity ID', () => {
+        let data = {};
+        Object.assign(data, dataTemplate);
+        data.activityId = null
+        const wrapper = shallowMount(Notification, {
+            store, localVue, propsData: {notification: data}
+        });
+
+        expect(wrapper.find("#viewButton").exists()).toBeFalsy();
     });
     //Can't figure out how to check routing rn
     /*
