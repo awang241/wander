@@ -158,6 +158,29 @@ class ActivityNotificationServiceTest {
         assertEquals(NotificationType.ParticipationEdited, nRepo.findAll().get(2).getNotificationType());
     }
 
+    /**
+     *  Tests that changing a user role on an activity creates a notification
+     */
+    @Test
+    void addRoleToActivityPostsNotificationTest() {
+        Profile ben = createNormalProfileBen();
+        Profile profile = pRepo.save(ben);
+        Activity activity = aRepo.save(createNormalActivity());
+        aService.addActivityRole(activity.getId(), profile.getId(), "participant");
+        assertEquals(1, nRepo.count());
+    }
+
+    /**
+     *  Tests that notification type is correct when changing a user role on an activity
+     */
+    @Test
+    void addRoleToActivityCorrectNotificationTest() {
+        Profile ben = createNormalProfileBen();
+        Profile profile = pRepo.save(ben);
+        Activity activity = aRepo.save(createNormalActivity());
+        aService.addActivityRole(activity.getId(), profile.getId(), "follower");
+        assertEquals(NotificationType.ActivityFollowerAdded, nRepo.findAll().get(0).getNotificationType());
+    }
 
     /**
      * Test to create a notification for editing or updating an activity
