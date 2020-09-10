@@ -11,6 +11,7 @@
 
 <script>
     import VueResizable from 'vue-resizable'
+    import googleMapsInit from '../utils/googlemaps'
     //Fake data until API endpoint is set up
     const locations = [
         {
@@ -38,10 +39,12 @@
                 height: 500,
                 width: 500,
                 myLocationMarker: null,
-                map: null
+                map: null,
+                google: null
             }
         },
-        mounted() {
+        async mounted() {
+            this.google = await googleMapsInit()
             this.createMap()
             this.createMarkers()
         },
@@ -62,7 +65,7 @@
                 if(this.myLocationMarker){
                     this.myLocationMarker.setPosition(position)
                 } else {
-                    this.myLocationMarker = new window.google.maps.Marker({
+                    this.myLocationMarker = new this.google.maps.Marker({
                         position: position,
                         label: {text: "My location"},
                     });
@@ -72,11 +75,11 @@
             //Dynamically creates the google map
             createMap(){
                 const initialLocation = {lat: -25.363, lng: 13.044}
-                this.map = new window.google.maps.Map(document.getElementById('map'), {
+                this.map = new this.google.maps.Map(document.getElementById('map'), {
                     zoom: 4,
                     center: initialLocation,
                 });
-                window.google.maps.event.addListener(this.map, 'click', e => {
+                this.google.maps.event.addListener(this.map, 'click', e => {
                     this.setLocationWithMarker(e.latLng);
                 })
             },
@@ -87,7 +90,7 @@
             },
             //Creates a singular marker on the map
             createSingleMarker({position, text, id}){
-                const marker = new window.google.maps.Marker({
+                const marker = new this.google.maps.Marker({
                     position: position,
                     map: this.map,
                     label: {text: text},
