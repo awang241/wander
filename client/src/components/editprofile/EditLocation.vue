@@ -33,6 +33,9 @@
             <br>
         </div>
         <br/>
+
+        <MapPane/>
+
     </div>
 </template>
 
@@ -41,6 +44,7 @@
 
     import toastMixin from "../../mixins/toastMixin";
     import axios from "axios";
+    import MapPane from "../MapPane";
 
     //Important notes about the API
     //The variables autocompleteCity and autocompleteState are here since Google Maps Places API isn't really compatible with Vue
@@ -56,6 +60,9 @@
     export default {
         name: "EditLocation",
         props: ["profile"],
+        components: {
+            MapPane
+        },
         mixins: [toastMixin],
         data() {
             return {
