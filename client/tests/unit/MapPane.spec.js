@@ -1,11 +1,15 @@
-import { shallowMount } from '@vue/test-utils'
+import {shallowMount} from '@vue/test-utils'
 import MapPane from "../../src/components/MapPane";
 
 let wrapper;
 
 beforeEach(() => {
-    wrapper = shallowMount(MapPane);
-});
+    wrapper = shallowMount(MapPane, {
+        mocks: {
+            google: jest.fn()
+        }
+    });
+})
 
 afterEach(() => {
     wrapper.destroy();
