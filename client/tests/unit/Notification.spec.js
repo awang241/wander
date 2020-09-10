@@ -11,7 +11,7 @@ const dataTemplate = {
     "notificationType": 3,
     "activityId": 20,
     "profileId": 0,
-    "dateTime": "2020-09-05T08:00:00+1300"
+    "timeStamp": "2020-09-05T08:00:00+1300"
 };
 
 describe('Notification.vue', () => {
@@ -42,7 +42,7 @@ describe('Notification.vue', () => {
             store, localVue, propsData: {notification: dataTemplate}
         });
         const date = wrapper.find("#date");
-        expect(date.text()).toBe(dateTimeMixin.methods.dateFormat(dataTemplate.dateTime));
+        expect(date.text()).toBe(dateTimeMixin.methods.dateFormat(dataTemplate.timeStamp));
     });
 
     it('Loads a self-triggered notification with the right colour', () => {
