@@ -19,6 +19,22 @@ public class ProfileLocation {
     public ProfileLocation(
             @JsonProperty("country") String country,
             @JsonProperty("city") String city,
+            @JsonProperty("state") String state,
+            @JsonProperty("longitude") Long longitude,
+            @JsonProperty("latitude") Long latitude,
+            @JsonProperty("address") String address) {
+        this.country = country;
+        this.city = city;
+        this.state = state;
+        this.longitude = longitude;
+        this.latitude = latitude;
+        this.address = address;
+    }
+
+    @JsonCreator
+    public ProfileLocation(
+            @JsonProperty("country") String country,
+            @JsonProperty("city") String city,
             @JsonProperty("state") String state) {
         this.country = country;
         this.city = city;
@@ -57,6 +73,21 @@ public class ProfileLocation {
      */
     @Column()
     private String state;
+
+    /**
+     * Holds the longitude and latitude coordinates used to point to the exact location on the map.
+     */
+    @Column()
+    private Long longitude;
+
+    @Column()
+    private Long latitude;
+
+    /**
+     * Holds the address as a string.
+     */
+    @Column()
+    private String address;
 
     public Profile getProfile() {
         return profile;
@@ -104,13 +135,40 @@ public class ProfileLocation {
         this.state = state;
     }
 
+    public Long getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(Long longitude) {
+        this.longitude = longitude;
+    }
+
+    public Long getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(Long latitude) {
+        this.latitude = latitude;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o instanceof ProfileLocation) {
             ProfileLocation other = (ProfileLocation) o;
             return this.city.equals(other.city) &&
                     this.state.equals(other.state) &&
-                    this.country.equals(other.country);
+                    this.country.equals(other.country) &&
+                    this.longitude.equals(other.longitude) &&
+                    this.latitude.equals(other.latitude) &&
+                    this.address.equals(other.address);
 
         }
         return false;
