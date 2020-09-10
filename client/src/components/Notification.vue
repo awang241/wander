@@ -40,7 +40,6 @@ const ACTIVITY_REMOVALS = {
   colour: "#f56e7a"
 };
 
-
 /**
  * Notification types that are classed as member changes in colour yellow.
  * @type {{types: number[], colour: string}}
@@ -49,7 +48,6 @@ const ACTIVITY_CHANGES = {
   types: ['ActivityEdited', 'ActivityPrivacyChanged', 'ParticipationEdited'],
   colour: "#faf689"
 };
-
 
 /**
  * The colour for notifications caused by the currently logged in user.
@@ -132,4 +130,5 @@ export default {
   margin: 0.5rem;
 }
 </style>
+
 
