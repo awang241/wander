@@ -1,5 +1,5 @@
 <template>
-  <div class="card" :style="cardStyle">
+  <div class="card colouredBorder" :style="cardStyle">
     <div class="columns">
       <div class="column">
         <p style="white-space: pre-wrap" id="message">{{ notification.message }}</p>
@@ -73,7 +73,7 @@ export default {
     return {
       store: store,
       cardStyle: {
-        backgroundColor: null
+        borderColor: null
       }
     }
   },
@@ -88,15 +88,15 @@ export default {
    */
   mounted() {
     if (this.isOwnNotification) {
-      this.cardStyle.backgroundColor = OWN_CHANGE_COLOUR;
+      this.cardStyle.borderColor = OWN_CHANGE_COLOUR;
     } else if (ACTIVITY_ADDITIONS.types.includes(this.$props.notification.notificationType)) {
-      this.cardStyle.backgroundColor = ACTIVITY_ADDITIONS.colour;
+      this.cardStyle.borderColor = ACTIVITY_ADDITIONS.colour;
     } else if (ACTIVITY_REMOVALS.types.includes(this.$props.notification.notificationType)) {
-      this.cardStyle.backgroundColor = ACTIVITY_REMOVALS.colour;
+      this.cardStyle.borderColor = ACTIVITY_REMOVALS.colour;
     } else if (ACTIVITY_CHANGES.types.includes(this.$props.notification.notificationType)) {
-      this.cardStyle.backgroundColor = ACTIVITY_CHANGES.colour;
+      this.cardStyle.borderColor = ACTIVITY_CHANGES.colour;
     } else {
-      this.cardStyle.backgroundColor = DEFAULT_COLOUR
+      this.cardStyle.borderColor = DEFAULT_COLOUR
     }
   },
   methods: {
@@ -120,10 +120,9 @@ export default {
   padding: 1rem;
 }
 
-.is-vertical-center {
-  display: flex;
-  align-items: center;
-  padding-right: 1rem;
+.colouredBorder{
+  border: 2px solid black;
+  border-radius: 10px;
 }
 
 #viewButton {
