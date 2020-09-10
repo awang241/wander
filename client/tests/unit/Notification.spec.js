@@ -80,24 +80,25 @@ describe('Notification.vue', () => {
 
         expect(wrapper.vm.$data.cardStyle.backgroundColor).toBe("#99ff94");
     });
-    //Can't figure out how to check routing rn
-    /*
-    it('Routes to the activity when selecting the "View Activity" button', () => {
-        const $router = {
-            push: jest.fn()
-        };
+    it('Displays the view activity button if the notification has an activity ID', () => {
+        let data = {};
+        Object.assign(data, dataTemplate);
+        data.activityId = 7
         const wrapper = shallowMount(Notification, {
-            store, localVue,
-            propsData: {notification: dataTemplate},
-            mocks: {
-                $router
-            }
+            store, localVue, propsData: {notification: data}
         });
 
-        const button = wrapper.find("#viewButton");
-        button.trigger("click");
-
-        expect($router.push).toHaveBeenCalled();
+        expect(wrapper.find("#viewButton").exists()).toBeTruthy();
     });
-     */
+    it('Does not displays the view activity button if the notification does not have an activity ID', () => {
+        let data = {};
+        Object.assign(data, dataTemplate);
+        data.activityId = null
+        const wrapper = shallowMount(Notification, {
+            store, localVue, propsData: {notification: data}
+        });
+
+        expect(wrapper.find("#viewButton").exists()).toBeFalsy();
+    });
+
 });
