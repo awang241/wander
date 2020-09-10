@@ -1,11 +1,19 @@
 <template>
     <b-navbar>
         <template slot="start">
-            <b-navbar-item tag="router-link"
-                           to="/"
-                           href="#">
-                Home
-            </b-navbar-item>
+            <div class="buttons">
+                <b-button v-if="!store.getters.getAuthenticationStatus"
+                          tag="router-link"
+                          to="/"
+                          type="is-light">
+                  Home
+                </b-button>
+                <b-button @click=goToHomeFeed
+                          v-if="store.getters.getAuthenticationStatus"
+                          type="is-light">
+                  Home Feed
+                </b-button>
+            </div>
 
         </template>
 
@@ -93,6 +101,9 @@
             },
             goToProfileSearch() {
                 router.push({path: '/ProfileSearch'})
+            },
+            goToHomeFeed() {
+              router.push({path: '/Home'})
             }
         }
     }

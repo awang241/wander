@@ -2,10 +2,12 @@
   <div class="card" :style="cardStyle">
       <div class="columns">
           <div class="column">
-              <p id="message">{{notification.message}}</p>
-              <p id="date">{{dateFormat(notification.dateTime)}}</p>
+              <p style="white-space: pre-wrap" id="message">{{notification.message}}</p>
+              <p id="date">{{dateFormat(notification.timeStamp)}}</p>
           </div>
-          <b-button id="viewButton"
+          <b-button
+                  v-if="notification.activityId !== null"
+                  id="viewButton"
                     class="is-pulled-right"
                     @click="goToActivity(notification.activityId)">
               View Activity
@@ -107,6 +109,8 @@ export default {
       align-items: center;
       padding-right: 1rem;
   }
-
+    #viewButton{
+        margin: 0.5rem;
+    }
 </style>
 

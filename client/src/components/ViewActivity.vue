@@ -41,7 +41,7 @@
 
                                 <b-dropdown-item id="addParticipationButton" @click="createParticipation"
                                                  v-if="hasOrganiserPermissions || userRole === roles.PARTICIPANT">
-                                    Create Participation
+                                    Record Participation
                                 </b-dropdown-item>
                                 <div v-if="userRole !== roles.CREATOR">
                                     <b-dropdown-item id="leaveButton" @click="deleteRole(store.getters.getUserId, userRole)"

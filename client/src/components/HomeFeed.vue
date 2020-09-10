@@ -3,7 +3,7 @@
         <h1 class="title">Home</h1>
         <div id="results" class="column" v-if="notifications.length">
             <div v-for="notification in notifications"
-                :key="notification.time">
+                :key="notification.timeStamp">
             <Notification :notification="notification"/>
             <br>
             </div>
