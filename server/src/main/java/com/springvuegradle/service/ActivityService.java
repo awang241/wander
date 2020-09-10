@@ -463,7 +463,7 @@ public class ActivityService {
     }
 
     /**
-     * Assigns the given role to the user for an activity.
+     * Assigns the given role to the user for an activity and creates notification for role change.
      *
      * @param activityId   the id of the activity we want to assign the role for.
      * @param profileId    the id of the user we want to assign the role to.
@@ -484,8 +484,30 @@ public class ActivityService {
         membershipRepo.save(activityMembership);
         profile.addActivity(activityMembership);
         activity.addMember(activityMembership);
+
+        NotificationType notificationType;
+        switch (activityRole.toUpperCase()) {
+            case "FOLLOWER":
+                notificationType = NotificationType.ActivityFollowerAdded;
+                break;
+            case "ORGANISER":
+                notificationType = NotificationType.ActivityOrganiserAdded;
+                break;
+            case "PARTICIPANT":
+                notificationType = NotificationType.ActivityParticipantAdded;
+                break;
+            case "CREATOR":
+                notificationType = NotificationType.ActivityCreatorAdded;
+                break;
+            default:
+                throw new IllegalArgumentException(ActivityMessage.INVALID_ROLE.getMessage());
+        }
+        notificationService.createNotification(notificationType, activity, profile,
+                profile.getFullName() + " changed role to " + activityRole + " for activity " + activity.getActivityName() + ".");
+
         profileRepo.save(profile);
     }
+
 
     /**
      * Returns a simplified list of users with roles in an activity
