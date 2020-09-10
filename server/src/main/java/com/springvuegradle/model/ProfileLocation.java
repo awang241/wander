@@ -31,11 +31,10 @@ public class ProfileLocation {
         this.address = address;
     }
 
-    @JsonCreator
     public ProfileLocation(
-            @JsonProperty("country") String country,
-            @JsonProperty("city") String city,
-            @JsonProperty("state") String state) {
+            String country,
+            String city,
+            String state) {
         this.country = country;
         this.city = city;
         this.state = state;
