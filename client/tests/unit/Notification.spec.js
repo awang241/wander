@@ -100,24 +100,5 @@ describe('Notification.vue', () => {
 
         expect(wrapper.find("#viewButton").exists()).toBeFalsy();
     });
-    //Can't figure out how to check routing rn
-    /*
-    it('Routes to the activity when selecting the "View Activity" button', () => {
-        const $router = {
-            push: jest.fn()
-        };
-        const wrapper = shallowMount(Notification, {
-            store, localVue,
-            propsData: {notification: dataTemplate},
-            mocks: {
-                $router
-            }
-        });
 
-        const button = wrapper.find("#viewButton");
-        button.trigger("click");
-
-        expect($router.push).toHaveBeenCalled();
-    });
-     */
 });
