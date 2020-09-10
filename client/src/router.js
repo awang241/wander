@@ -65,7 +65,7 @@ const routes = [
         }
     },
     {
-        path: "/home", name: "homeFeed", component: HomeFeed, beforeEnter: (to, from, next) => {
+        path: "/Home", name: "homeFeed", component: HomeFeed, beforeEnter: (to, from, next) => {
             if (store.getters.getAuthenticationStatus) {
                 next()
             } else {
@@ -75,7 +75,6 @@ const routes = [
             }
         }
     },
-    {path: "/Home", name: "homeFeed", component: HomeFeed}
 ];
 
 const router = new VueRouter({

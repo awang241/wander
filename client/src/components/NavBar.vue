@@ -1,11 +1,19 @@
 <template>
     <b-navbar>
         <template slot="start">
-            <b-navbar-item tag="router-link"
-                           to="/"
-                           href="#">
-                Home
-            </b-navbar-item>
+            <div class="buttons">
+                <b-button v-if="!store.getters.getAuthenticationStatus"
+                          tag="router-link"
+                          to="/"
+                          type="is-light">
+                  Home
+                </b-button>
+                <b-button @click=goToHomeFeed
+                          v-if="store.getters.getAuthenticationStatus"
+                          type="is-light">
+                  Home Feed
+                </b-button>
+            </div>
 
         </template>
 
@@ -28,11 +36,6 @@
                               type="is-light"
                               id="registrationButton">
                         Register
-                    </b-button>
-                    <b-button  @click="goToHomeFeed"
-                               v-if="store.getters.getAuthenticationStatus"
-                               type="is-light">
-                       Feed
                     </b-button>
                     <b-button  @click="goToProfileSearch"
                                v-if="store.getters.getAuthenticationStatus && store.getters.getAuthenticationLevel > 1"
@@ -100,7 +103,7 @@
                 router.push({path: '/ProfileSearch'})
             },
             goToHomeFeed() {
-                router.push({path: '/Home'})
+              router.push({path: '/Home'})
             }
         }
     }
