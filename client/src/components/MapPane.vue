@@ -22,7 +22,7 @@
         data() {
             return {
                 height: 500,
-                width: 500
+                width: 1075
             }
         },
         computed: {
@@ -44,7 +44,7 @@
 <style scoped>
     #map {
         width: 100%;
-        height: 100%;
+        height: 90%;
         position: relative;
     }
 </style>

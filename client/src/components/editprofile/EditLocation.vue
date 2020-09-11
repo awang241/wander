@@ -2,6 +2,10 @@
     <div class="container">
         <h1 class="title is-5">Edit Your Location </h1>
 
+        <MapPane/>
+
+        <br>
+
         <form>
 
             <div class="select" id="countrySelectMenu">
@@ -33,8 +37,6 @@
             <br>
         </div>
         <br/>
-
-        <MapPane/>
 
     </div>
 </template>
