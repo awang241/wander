@@ -41,10 +41,8 @@ public class Activity {
     @NotNull
     private String location;
 
-    @NotNull
     private Double latitude;
 
-    @NotNull
     private Double longitude;
 
 
