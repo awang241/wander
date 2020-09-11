@@ -8,7 +8,7 @@ localVue.use(Vuex);
 
 const dataTemplate = {
     "message": "John Smith started following the activity 'Fun Run.'",
-    "notificationType": 3,
+    "notificationType": 'ActivityFollowerAdded',
     "activityId": 20,
     "profileId": 0,
     "timeStamp": "2020-09-05T08:00:00+1300"
@@ -54,31 +54,43 @@ describe('Notification.vue', () => {
             store, localVue, propsData: {notification: data}
         });
 
-        expect(wrapper.vm.$data.cardStyle.backgroundColor).toBe("#ffffb0");
+        expect(wrapper.vm.$data.cardStyle.borderColor).toBe("#ffffb0");
+    });
+
+    it('Loads an activity addition notification with the right colour', () => {
+        let data = {};
+        Object.assign(data, dataTemplate);
+
+        data.notificationType = 'ActivityFollowerAdded';
+        const wrapper = shallowMount(Notification, {
+            store, localVue, propsData: {notification: data}
+        });
+
+        expect(wrapper.vm.$data.cardStyle.borderColor).toBe("#99ff94");
+    });
+
+    it('Loads an activity removal notification with the right colour', () => {
+        let data = {};
+        Object.assign(data, dataTemplate);
+
+        data.notificationType = 'ActivityFollowerRemoved';
+        const wrapper = shallowMount(Notification, {
+            store, localVue, propsData: {notification: data}
+        });
+
+        expect(wrapper.vm.$data.cardStyle.borderColor).toBe("#f56e7a");
     });
 
     it('Loads an activity change notification with the right colour', () => {
         let data = {};
         Object.assign(data, dataTemplate);
 
-        data.notificationType = 0;
+        data.notificationType = 'ActivityEdited';
         const wrapper = shallowMount(Notification, {
             store, localVue, propsData: {notification: data}
         });
 
-        expect(wrapper.vm.$data.cardStyle.backgroundColor).toBe("#a6b5ff");
-    });
-
-    it('Loads an member change notification with the right colour', () => {
-        let data = {};
-        Object.assign(data, dataTemplate);
-
-        data.notificationType = 3;
-        const wrapper = shallowMount(Notification, {
-            store, localVue, propsData: {notification: data}
-        });
-
-        expect(wrapper.vm.$data.cardStyle.backgroundColor).toBe("#99ff94");
+        expect(wrapper.vm.$data.cardStyle.borderColor).toBe("#faf689");
     });
     it('Displays the view activity button if the notification has an activity ID', () => {
         let data = {};
