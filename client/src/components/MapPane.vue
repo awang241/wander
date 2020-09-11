@@ -58,7 +58,7 @@
             //Restores the pane to its default size if it is minimized
             resizePane() {
                 this.height = this.height === 0 ? 500 : 0
-                this.width = this.width === 0 ? 500 : 0
+                this.width = this.width === 0 ? 1075 : 0
             },
             //Allows user to choose their location by clicking on the map
             setLocationWithMarker(position){
