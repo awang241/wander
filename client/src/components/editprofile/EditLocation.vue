@@ -24,6 +24,7 @@
 <script>
 
 import toastMixin from "../../mixins/toastMixin";
+import googleMapsInit from '../../utils/googlemaps'
 
 let autocompleteLocation;
 
@@ -33,7 +34,8 @@ export default {
   mixins: [toastMixin],
   data() {
     return {
-      location: ""
+      location: "",
+      google: null
     }
   },
   methods: {
@@ -41,16 +43,15 @@ export default {
     /** This method sets up the autocomplete. It takes the location from the input field and reformats it to a single string.
         This string is saved to the DOM and will be sent to the backend
         There is a lot of logic within the add listener because Google Maps is not in the same scope as Vue. **/
-    initAutoCompleteLocation: function () {
+    initAutoCompleteLocation() {
       let options = {
         types: ['geocode'],
       }
       // eslint-disable-next-line no-undef
-      autocompleteLocation = new google.maps.places.Autocomplete(document.getElementById("autocompleteLocation"), options)
+      autocompleteLocation = new this.google.maps.places.Autocomplete(document.getElementById("autocompleteLocation"), options)
       autocompleteLocation.setFields(['address_components'])
       autocompleteLocation.addListener('place_changed', function () {
         var locationArray = autocompleteLocation.getPlace();
-        console.log(locationArray);
 
         let locationString = "";
         for (let i = 0; i < (locationArray.address_components).length; i++) {
@@ -92,8 +93,8 @@ export default {
       }
     }
   },
-  mounted() {
-    // this.getAllCountries();
+  async mounted() {
+    this.google = await googleMapsInit();
     this.setLocation();
     this.initAutoCompleteLocation();
   }
@@ -108,14 +109,4 @@ export default {
   margin-top: 0px;
   padding: 0px;
 }
-
-.button-right {
-  align: right;
-}
-
-#countrySelectMenu, #country {
-  width: 100%;
-}
-
-
 </style>
