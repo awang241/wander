@@ -38,7 +38,13 @@ public class Activity {
 
     private OffsetDateTime endTime;
 
+    @NotNull
     private String location;
+
+    private Double latitude;
+
+    private Double longitude;
+
 
     /**
      * Holds the privacy level of the activity.
