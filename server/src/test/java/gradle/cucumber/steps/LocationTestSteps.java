@@ -128,6 +128,20 @@ public class LocationTestSteps {
         assertNull(profile.getProfileLocation());
     }
 
+    @When("I select the address {string}, longitude {string} and latitude {string}")
+    public void iSelectTheAddressLongitudeAndLatitude(String address, String str_longitude, String str_latitude) {
+        ProfileLocation location = new ProfileLocation(Double.parseDouble(str_longitude), Double.parseDouble(str_latitude), address);
+        profileService.updateProfileLocation(location, profile.getId());
+    }
+
+    @Then("the profile has the address {string}, longitude {string} and latitude {string}")
+    public void the_profile_has_the_address_longitude_and_latitude(String address, String str_longitude, String str_latitude) {
+        ProfileLocation location = profileRepository.getOne(profile.getId()).getProfileLocation();
+        assertEquals(location.getAddress(), address);
+        assertEquals(location.getLongitude(), Double.parseDouble(str_longitude));
+        assertEquals(location.getLatitude(), Double.parseDouble(str_latitude));
+    }
+
     private Profile createNormalProfileJacky(String email, String password) {
         return new Profile(1L, "Jacky", "Jones", "J", "Jac", email, new String[]{}, password,
                 "The quick brown fox jumped over the lazy dog.", new GregorianCalendar(1999, Calendar.NOVEMBER,
