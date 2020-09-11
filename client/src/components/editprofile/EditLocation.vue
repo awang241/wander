@@ -1,208 +1,121 @@
 <template>
-    <div class="container">
-        <h1 class="title is-5">Edit Your Location </h1>
+  <div class="container">
+    <h1 class="title is-5">Edit Your Location </h1>
 
-        <form>
+    <form>
+      <input class="input" type="text" placeholder="Enter a location" id="autocompleteLocation"/>
+    </form>
 
-            <div class="select" id="countrySelectMenu">
-                <select v-model="DropdownCountry" id="country" v-on:change="setAutoCompleteCountry" required expanded>
-                    <option value="" disabled selected> Must select a country</option>
-                    <option v-for="country in possibleCountries" :key="country">
-                        {{country}}
-                    </option>
-                </select>
-            </div>
-            <br>
-            <br>
-
-            <input class="input" type="text" placeholder="Enter a city (required)" id="autocompleteCities"/>
-            <br>
-            <br>
-            <input onkeypress="return /[a-z ]/i.test(event.key)" class="input" type="text" placeholder="Enter a state (optional)" id="autocompleteStates"/>
-
-        </form>
-
-        <div class="row">
-            <br>
-            <b-field style="float:left">
-                <b-button type="is-danger" @click="clearLocation()">Clear fields</b-button>
-            </b-field>
-            <b-field style="float:right">
-                <b-button type="is-primary" @click="submitLocation()">Save</b-button>
-            </b-field>
-            <br>
-        </div>
-        <br/>
+    <div class="row">
+      <br>
+      <b-field style="float:left">
+        <b-button type="is-danger" @click="clearLocation()">Clear fields</b-button>
+      </b-field>
+      <b-field style="float:right">
+        <b-button type="is-primary" @click="submitLocation()">Save</b-button>
+      </b-field>
+      <br>
     </div>
+    <br/>
+  </div>
 </template>
 
 
 <script>
 
-    import toastMixin from "../../mixins/toastMixin";
-    import axios from "axios";
+import toastMixin from "../../mixins/toastMixin";
 
-    //Important notes about the API
-    //The variables autocompleteCity and autocompleteState are here since Google Maps Places API isn't really compatible with Vue
-    //Referencing the DOM via document.getElementById since that's the only way that I found which could extract
-    //a Google Maps Places API auto-completed value from an input form
-    //Because the API isn't compatible with Vue it isn't compatible with Vee-Validate
-    //since the API auto-completed values aren't compatible with v-models
+let autocompleteLocation;
 
-    let autocompleteCity;
-    let autocompleteState;
-
-
-    export default {
-        name: "EditLocation",
-        props: ["profile"],
-        mixins: [toastMixin],
-        data() {
-            return {
-                possibleCountries : "",
-                possibleCountriesAlpha2Code : "",
-                restrictionCountryAlphaCode: "",
-                DropdownCountry: "",
-                location : {
-                    country: "",
-                    city: "",
-                    state: "",
-                }
-            }
-        },
-        methods: {
-            initAutoCompleteCities : function() {
-                let options = {
-                    types: ['(cities)'],
-                    componentRestrictions: {'country' : this.restrictionCountryAlphaCode}
-                }
-
-                // eslint-disable-next-line no-undef
-                autocompleteCity = new google.maps.places.Autocomplete(document.getElementById("autocompleteCities"), options)
-                autocompleteCity.setFields(['address_components'])
-                autocompleteCity.addListener('place_changed', function() {
-                    var city = autocompleteCity.getPlace();
-                    document.getElementById("autocompleteCities").value = city.address_components[0].long_name;
-                })
-
-
-            },
-            initAutoCompleteStates : function() {
-                let options = {
-                    types: ['(regions)'],
-                    componentRestrictions: {'country' : this.restrictionCountryAlphaCode}
-                }
-                //eslint-disable-next-line no-undef
-                autocompleteState = new google.maps.places.Autocomplete(document.getElementById("autocompleteStates"), options)
-                autocompleteState.setFields(['address_components'])
-                autocompleteState.addListener('place_changed', function() {
-                    let result = autocompleteState.getPlace();
-                    let state = result.address_components[0].long_name;
-                    for (let addressComponentIndex in result.address_components) {
-                        if (result.address_components[addressComponentIndex].types.includes("administrative_area_level_1")) {
-                            state = result.address_components[addressComponentIndex].long_name
-                        }
-                    }
-                    document.getElementById("autocompleteStates").value = state
-                })
-
-            },
-            getAllCountries(){
-                axios.get("https://restcountries.eu/rest/v2/all").then(response => {
-                    const data = response.data
-                    const possibleCountries = []
-                    const possibleCountriesAlpha2Code = []
-                    for (let country in data){
-                        possibleCountries.push(data[country].name)
-                        possibleCountriesAlpha2Code.push(data[country].alpha2Code)
-                    }
-                    this.possibleCountries = possibleCountries;
-                    this.possibleCountriesAlpha2Code = possibleCountriesAlpha2Code;
-                    if (this.location.country == "") {
-                        this.restrictionCountryAlphaCode = '';
-                        this.DropdownCountry = '';
-                        this.location.country = '';
-                    } else {
-                        var countryIndex = this.possibleCountries.indexOf(this.location.country);
-                        this.DropdownCountry = this.possibleCountries[countryIndex];
-                        this.restrictionCountryAlphaCode = this.possibleCountriesAlpha2Code[countryIndex];
-                    }
-
-                    this.initAutoCompleteCities();
-                    this.initAutoCompleteStates()
-
-                }).catch(() => this.warningToast("Error occurred while fetching countries for REST API."));
-            },
-            setAutoCompleteCountry() {
-                var country = document.getElementById('country').value;
-                this.location.country = country;
-                var countryIndex = this.possibleCountries.indexOf(country)
-                document.getElementById("autocompleteCities").value = null;
-                document.getElementById("autocompleteStates").value = null;
-                autocompleteCity.setComponentRestrictions({'country': this.possibleCountriesAlpha2Code[countryIndex]});
-                autocompleteState.setComponentRestrictions({'country': this.possibleCountriesAlpha2Code[countryIndex]});
-            },
-            clearLocation(){
-                this.$parent.clearLocation()
-                this.successToast("Location removed")
-                document.getElementById("autocompleteCities").value = null;
-                document.getElementById("autocompleteStates").value = null;
-                document.getElementById("country").value = '';
-                this.location = {country: "", city: "", state: ""}
-            },
-            submitLocation(){
-                //Using JSON methods to make a constant and compare two JSON objects
-                const original = JSON.stringify(this.profile.location)
-
-                this.location.city = document.getElementById("autocompleteCities").value;
-                this.location.state = document.getElementById("autocompleteStates").value;
-                if(this.location.country === ""){
-                    this.warningToast("Please select a country")
-                } else if(this.location.city === ""){
-                    this.warningToast("Please enter a city")
-                } else if (JSON.stringify((this.location)) === original) {
-                    this.warningToast("No changes made")
-                }
-                else {
-                    this.$parent.updateLocation(this.location)
-                    this.successToast("New location saved")
-                }
-            },
-            setLocation(){
-                if(this.profile.location != null){
-                    this.location = this.profile.location;
-                    document.getElementById("country").value = this.location.country;
-                    document.getElementById("autocompleteCities").value = this.location.city;
-                    document.getElementById("autocompleteStates").value = this.location.state;
-                }
-            }
-        },
-        mounted() {
-            this.getAllCountries();
-            this.setLocation();
-        }
-
+export default {
+  name: "EditLocation",
+  props: ["profile"],
+  mixins: [toastMixin],
+  data() {
+    return {
+      location: ""
     }
+  },
+  methods: {
+
+    /** This method sets up the autocomplete. It takes the location from the input field and reformats it to a single string.
+        This string is saved to the DOM and will be sent to the backend
+        There is a lot of logic within the add listener because Google Maps is not in the same scope as Vue. **/
+    initAutoCompleteLocation: function () {
+      let options = {
+        types: ['geocode'],
+      }
+      // eslint-disable-next-line no-undef
+      autocompleteLocation = new google.maps.places.Autocomplete(document.getElementById("autocompleteLocation"), options)
+      autocompleteLocation.setFields(['address_components'])
+      autocompleteLocation.addListener('place_changed', function () {
+        var locationArray = autocompleteLocation.getPlace();
+        console.log(locationArray);
+
+        let locationString = "";
+        for (let i = 0; i < (locationArray.address_components).length; i++) {
+          if (i === 0) {
+            locationString = locationArray.address_components[0].long_name;
+          } else if (i !== (locationArray.address_components).length) {
+            if (locationArray.address_components[i].long_name !== locationArray.address_components[i - 1].long_name) {
+                locationString = locationString + ", " + locationArray.address_components[i].long_name;
+              }
+            }
+          }
+        document.getElementById("autocompleteLocation").value = locationString;
+      })
+    },
+
+    clearLocation() {
+      this.$parent.clearLocation()
+      this.successToast("Location removed")
+      document.getElementById("autocompleteLocation").value = null;
+      this.location = {location: ""}
+    },
+    submitLocation() {
+      //Using JSON methods to make a constant and compare two JSON objects
+      const original = JSON.stringify(this.profile.location)
+      this.location = document.getElementById("autocompleteLocation").value;
+      if (this.location === "") {
+        this.warningToast("Please enter a location")
+      } else if (JSON.stringify((this.location)) === original) {
+        this.warningToast("No changes made")
+      } else {
+        this.$parent.updateLocation(this.location)
+        this.successToast("New location saved")
+      }
+    },
+    setLocation() {
+      if (this.profile.location != null) {
+        this.location = this.profile.location;
+        document.getElementById("autocompleteLocation").value = this.location;
+      }
+    }
+  },
+  mounted() {
+    // this.getAllCountries();
+    this.setLocation();
+    this.initAutoCompleteLocation();
+  }
+
+}
 
 </script>
 
 <style scoped>
-    .container {
-        background-color: #F7F8F9;
-        margin-top: 0px;
-        padding: 0px;
-    }
+.container {
+  background-color: #F7F8F9;
+  margin-top: 0px;
+  padding: 0px;
+}
 
-    .button-right {
-        align: right;
-    }
+.button-right {
+  align: right;
+}
 
-    #countrySelectMenu, #country {
-        width: 100%;
-    }
-
-
-
+#countrySelectMenu, #country {
+  width: 100%;
+}
 
 
 </style>
