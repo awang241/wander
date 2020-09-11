@@ -57,9 +57,7 @@ public class LocationTestSteps {
 
     @When("I select the country {string} and city {string}")
     public void iSelectTheCountryAndCity(String country, String city) {
-        ProfileLocation location = new ProfileLocation();
-        location.setCity(city);
-        location.setCountry(country);
+        ProfileLocation location = new ProfileLocation(city, "", country);
         profile.setLocation(location);
         profileService.updateProfileLocation(location, profile.getId());
     }
@@ -67,33 +65,28 @@ public class LocationTestSteps {
     @Then("The profile has the country {string} and city {string}")
     public void theProfileHasTheCountryAndCity(String country, String city) {
         Profile profileFromDatabase = profileRepository.getOne(profile.getId());
-        assertEquals(profileFromDatabase.getProfileLocation().getCity(), city);
-        assertEquals(profileFromDatabase.getProfileLocation().getCountry(), country);
+        String address = String.format("%s, %s, %s.", city, "", country);
+        assertEquals(profileFromDatabase.getProfileLocation().getAddress(), address);
     }
 
 
     @When("I select the country {string} and city {string} and the state {string}")
     public void iSelectTheCountryAndCityAndTheState(String country, String city, String state) {
-        ProfileLocation location = new ProfileLocation();
-        location.setCity(city);
-        location.setCountry(country);
-        location.setState(state);
+        ProfileLocation location = new ProfileLocation(city, state, country);
         profileService.updateProfileLocation(location, profile.getId());
     }
 
     @Then("The profile has the country {string} city {string} and state {string}")
     public void theProfileHasTheCountryCityAndState(String country, String city, String state) {
         Profile profileFromDatabase = profileRepository.getOne(profile.getId());
-        assertEquals(profileFromDatabase.getProfileLocation().getCity(), city);
-        assertEquals(profileFromDatabase.getProfileLocation().getCountry(), country);
-        assertEquals(profileFromDatabase.getProfileLocation().getState(), state);
+        String address = String.format("%s, %s, %s.", city, state, country);
+        assertEquals(profileFromDatabase.getProfileLocation().getAddress(), address);
     }
 
     @When("I select the country {string} and the State {string}")
     public void iSelectTheCountryAndTheState(String country, String state) {
-        ProfileLocation location = new ProfileLocation();
-        location.setCountry(country);
-        location.setState(state);
+        ProfileLocation location = new ProfileLocation("", state, country);
+
         profileService.updateProfileLocation(location, profile.getId());
     }
 
@@ -105,9 +98,7 @@ public class LocationTestSteps {
     @Given("A profile exists with city {string} and country {string}")
     public void aProfileExistsWithCityAndCountry(String city, String country) {
         profile = createNormalProfileJacky("email@gmail.com", "password");
-        ProfileLocation location = new ProfileLocation();
-        location.setCountry(country);
-        location.setCity(city);
+        ProfileLocation location = new ProfileLocation(city, "", country);
         profile.setLocation(location);
         location.setProfile(profile);
         profileRepository.save(profile);
@@ -115,17 +106,14 @@ public class LocationTestSteps {
 
     @When("I select {string} as country {string} city")
     public void iSelectAsCountryCity(String country, String city) {
-        ProfileLocation location = new ProfileLocation();
-        location.setCountry(country);
-        location.setCity(city);
+        ProfileLocation location = new ProfileLocation(city, "", country);
         profileService.updateProfileLocation(location, profile.getId());
     }
 
     @Then("The profile should now have {string} As country and {string} as city")
     public void theProfileShouldNowHaveAsCountryAndAsCity(String country, String city) {
         ProfileLocation location = profileRepository.getOne(profile.getId()).getProfileLocation();
-        assertEquals(location.getCountry(), country);
-        assertEquals(location.getCity(), city);
+        assertEquals(location.getAddress(), String.format("%s, %s, %s.", city, "", country));
     }
 
     @When("I choose to delete the location from this profile")

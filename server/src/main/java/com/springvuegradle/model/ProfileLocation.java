@@ -17,27 +17,21 @@ public class ProfileLocation {
 
     @JsonCreator
     public ProfileLocation(
-            @JsonProperty("country") String country,
-            @JsonProperty("city") String city,
-            @JsonProperty("state") String state,
-            @JsonProperty("longitude") Long longitude,
-            @JsonProperty("latitude") Long latitude,
+            @JsonProperty("longitude") Double longitude,
+            @JsonProperty("latitude") Double latitude,
             @JsonProperty("address") String address) {
-        this.country = country;
-        this.city = city;
-        this.state = state;
         this.longitude = longitude;
         this.latitude = latitude;
         this.address = address;
     }
 
     public ProfileLocation(
-            String country,
             String city,
-            String state) {
-        this.country = country;
-        this.city = city;
-        this.state = state;
+            String state,
+            String country) {
+        this.address = String.format("%s, %s, %s.", city, state, country);
+        this.longitude = 0.0;
+        this.latitude = 0.0;
     }
 
     /**
@@ -56,31 +50,13 @@ public class ProfileLocation {
     private Profile profile;
 
     /**
-     * Holds the country as a string.
-     */
-    @Column()
-    private String country;
-
-    /**
-     * Holds the city as a string.
-     */
-    @Column()
-    private String city;
-
-    /**
-     * Holds the state as a string.
-     */
-    @Column()
-    private String state;
-
-    /**
      * Holds the longitude and latitude coordinates used to point to the exact location on the map.
      */
     @Column()
-    private Long longitude;
+    private Double longitude;
 
     @Column()
-    private Long latitude;
+    private Double latitude;
 
     /**
      * Holds the address as a string.
@@ -105,48 +81,25 @@ public class ProfileLocation {
     }
 
     public void update(ProfileLocation newLocation) {
-        this.city = newLocation.city;
-        this.state = newLocation.state;
-        this.country = newLocation.country;
+        this.longitude = newLocation.longitude;
+        this.latitude = newLocation.latitude;
+        this.address = newLocation.address;
     }
 
-    public String getCountry() {
-        return country;
-    }
 
-    public void setCountry(String country) {
-        this.country = country;
-    }
-
-    public String getCity() {
-        return city;
-    }
-
-    public void setCity(String city) {
-        this.city = city;
-    }
-
-    public String getState() {
-        return state;
-    }
-
-    public void setState(String state) {
-        this.state = state;
-    }
-
-    public Long getLongitude() {
+    public Double getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(Long longitude) {
+    public void setLongitude(Double longitude) {
         this.longitude = longitude;
     }
 
-    public Long getLatitude() {
+    public Double getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(Long latitude) {
+    public void setLatitude(Double latitude) {
         this.latitude = latitude;
     }
 
@@ -162,10 +115,7 @@ public class ProfileLocation {
     public boolean equals(Object o) {
         if (o instanceof ProfileLocation) {
             ProfileLocation other = (ProfileLocation) o;
-            return this.city.equals(other.city) &&
-                    this.state.equals(other.state) &&
-                    this.country.equals(other.country) &&
-                    this.longitude.equals(other.longitude) &&
+            return  this.longitude.equals(other.longitude) &&
                     this.latitude.equals(other.latitude) &&
                     this.address.equals(other.address);
 
