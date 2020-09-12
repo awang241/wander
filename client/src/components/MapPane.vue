@@ -34,19 +34,31 @@
     export default {
         name: "MapPane",
         components: {VueResizable},
+        props: {
+            locationChoiceCoordinates: {
+                type: Object,
+            },
+            markerLabel: {
+              type: String,
+              default: "Location"
+            }
+        },
         data() {
             return {
                 height: 500,
                 width: 1075,
-                myLocationMarker: null,
+                locationChoiceMarker: null,
                 map: null,
                 google: null
             }
         },
         async mounted() {
             this.google = await googleMapsInit()
-            this.createMap()
+            await this.createMap()
             this.createMarkers()
+            if(this.locationChoiceCoordinates) {
+                this.setLocationWithMarker(this.locationChoiceCoordinates)
+            }
         },
         computed: {
             isMinimized() {
@@ -61,19 +73,20 @@
                 this.width = this.width === 0 ? 1075 : 0
             },
             //Allows user to choose their location by clicking on the map
-            setLocationWithMarker(position){
-                if(this.myLocationMarker){
-                    this.myLocationMarker.setPosition(position)
+            setLocationWithMarker(position) {
+                if (this.locationChoiceMarker) {
+                    this.locationChoiceMarker.setPosition(position)
                 } else {
-                    this.myLocationMarker = new this.google.maps.Marker({
+                    this.locationChoiceMarker = new this.google.maps.Marker({
                         position: position,
-                        label: {text: "My location"},
+                        label: {text: this.markerLabel},
                     });
-                    this.myLocationMarker.setMap(this.map)
+                    this.locationChoiceMarker.setMap(this.map)
                 }
+                this.$emit('locationChoiceChanged', position)
             },
             //Dynamically creates the google map
-            createMap(){
+            createMap() {
                 const initialLocation = {lat: -25.363, lng: 13.044}
                 this.map = new this.google.maps.Map(document.getElementById('map'), {
                     zoom: 4,
@@ -84,12 +97,12 @@
                 })
             },
             //Loops through locations and creates marker for each one
-            createMarkers(){
+            createMarkers() {
                 //Api call would go here
                 locations.forEach(location => this.createSingleMarker(location))
             },
             //Creates a singular marker on the map
-            createSingleMarker({position, text, id}){
+            createSingleMarker({position, text, id}) {
                 const marker = new this.google.maps.Marker({
                     position: position,
                     map: this.map,
@@ -100,7 +113,7 @@
                 marker.addListener('click', () => this.openDetailedMarkerView(id))
             },
             //Method that should show users profile, or route to their profile in the future
-            openDetailedMarkerView(id){
+            openDetailedMarkerView(id) {
                 alert(`Opening profile ${id}`)
             }
         }
