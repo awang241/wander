@@ -4,13 +4,12 @@ package com.springvuegradle.service;
 import com.springvuegradle.enums.NotificationType;
 import com.springvuegradle.model.*;
 import com.springvuegradle.repositories.*;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.*;
 import com.springvuegradle.repositories.ActivityMembershipRepository;
 import com.springvuegradle.repositories.ActivityRepository;
 import com.springvuegradle.repositories.NotificationRepository;
 import com.springvuegradle.repositories.ProfileRepository;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
@@ -41,8 +40,12 @@ public class NotificationServiceTest {
     @Autowired
     private NotificationService notificationService;
 
-    @AfterEach
-    void tearDown() {
+    @Autowired
+    private ProfileLocationRepository profileLocationRepository;
+
+    @BeforeEach
+    void setUp() {
+        profileLocationRepository.deleteAll();
         emailRepository.deleteAll();
         activityMembershipRepository.deleteAll();
         notificationRepository.deleteAll();

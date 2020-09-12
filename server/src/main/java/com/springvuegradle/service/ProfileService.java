@@ -63,7 +63,7 @@ public class ProfileService {
      * @return a response status detailing if the operation was successful
      */
     public ResponseEntity<String> updateProfileLocation(ProfileLocation newLocation, Long id) {
-        if(FieldValidationHelper.isNullOrEmpty(newLocation.getCity()) || FieldValidationHelper.isNullOrEmpty(newLocation.getCountry())){
+        if(FieldValidationHelper.isNullOrEmpty(newLocation.getAddress())){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         Optional<Profile> optionalProfile = profileRepository.findById(id);
