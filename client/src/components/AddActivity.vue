@@ -70,6 +70,8 @@
                     </b-field>
                 </ValidationProvider>
 
+                <MapPane marker-label="Activity Location" :location-choice-coordinates="activityLocationLatLong" v-on:locationChoiceChanged="updateLocation"></MapPane>
+
                 <h4 class="label">Add at least one activity type <span class="requiredStar">*</span></h4>
                 <b-field>
                     <b-select placeholder="Select at least one activity type" v-model="newActivityType" expanded>
@@ -110,11 +112,13 @@
     import toastMixin from "../mixins/toastMixin";
     import {ValidationProvider, ValidationObserver} from 'vee-validate'
     import dateTimeMixin from "../mixins/dateTimeMixin";
+    import MapPane from "./MapPane";
 
 
     export default {
         name: "AddActivity",
         components: {
+            MapPane,
             List,
             ValidationProvider,
             ValidationObserver
@@ -160,6 +164,8 @@
                 activity: {},
                 newActivityType: "",
                 possibleActivityTypes: [],
+                //The location of the activity in lat and long (will be displayed on map if it exists)
+                activityLocationLatLong: null
             }
         },
         mounted() {
@@ -168,7 +174,10 @@
             this.activity = this.convertToProp(this.$props.activityProp)
         },
         methods: {
-
+            //Updates the users location coordinates with the location on the map they have clicked
+            updateLocation(location){
+                this.activityLocationLatLong = {lat: location.lat(), lng: location.lng()}
+            },
             goBack() {
                 router.go(-1)
             },
