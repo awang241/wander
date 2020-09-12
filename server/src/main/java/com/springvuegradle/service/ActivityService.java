@@ -6,7 +6,6 @@ import com.springvuegradle.dto.SimplifiedActivity;
 import com.springvuegradle.enums.*;
 import com.springvuegradle.model.*;
 import com.springvuegradle.repositories.*;
-import com.springvuegradle.dto.requests.ActivityRoleUpdateRequest;
 import com.springvuegradle.dto.responses.ActivityMemberProfileResponse;
 import com.springvuegradle.enums.ActivityMessage;
 import com.springvuegradle.enums.ActivityPrivacy;
@@ -19,13 +18,11 @@ import com.springvuegradle.repositories.ActivityMembershipRepository;
 import com.springvuegradle.repositories.ActivityRepository;
 import com.springvuegradle.repositories.ActivityTypeRepository;
 import com.springvuegradle.repositories.ProfileRepository;
-import com.springvuegradle.repositories.EmailRepository;
-import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
@@ -42,9 +39,7 @@ public class ActivityService {
     private ActivityRepository activityRepo;
     private ActivityTypeRepository typeRepo;
     private ActivityMembershipRepository membershipRepo;
-    private EmailRepository emailRepo;
     private ActivityParticipationRepository participationRepo;
-    private NotificationRepository notificationRepo;
     private NotificationService notificationService;
 
 
@@ -59,13 +54,12 @@ public class ActivityService {
     @Autowired
     public ActivityService(ProfileRepository profileRepo, ActivityRepository activityRepo, ActivityTypeRepository activityTypeRepo,
                            ActivityMembershipRepository activityMembershipRepository, ActivityParticipationRepository participationRepo,
-                           NotificationRepository notificationRepo, NotificationService notificationService) {
+                           NotificationService notificationService) {
         this.profileRepo = profileRepo;
         this.activityRepo = activityRepo;
         this.typeRepo = activityTypeRepo;
         this.membershipRepo = activityMembershipRepository;
         this.participationRepo = participationRepo;
-        this.notificationRepo = notificationRepo;
         this.notificationService = notificationService;
     }
 
@@ -151,8 +145,8 @@ public class ActivityService {
                     profile.removeActivity(membership);
                 }
             }
-            Profile profile = profileRepo.findById(profileId).get();
-            Activity activity = activityRepo.findById(activityId).get();
+            Profile profile = getModelObjectById(profileRepo, profileId);
+            Activity activity = getModelObjectById(activityRepo, activityId);
             notificationService.createNotification(NotificationType.ActivityRemoved, activity, profile,
                     profile.getFullName() + " deleted an activity called " + activity.getActivityName() + ".");
             notificationService.detachActivityFromNotifications(activity);
@@ -168,23 +162,52 @@ public class ActivityService {
     }
 
     /**
-     * Removes an activity membership from an activity
+     * Removes an activity membership from an activity and generates a notification for that activity's remaining members.
      *
-     * @param profileDoingEditingId the ID of the profile doing the editing
-     * @param profileBeingEditedId  the ID of the profile having their membership deleted
-     * @param activityId            the ID of the activity we are removing them from
+     * @param editorId the ID of the profile doing the editing
+     * @param editedId  the ID of the profile having their membership deleted
+     * @param activityId the ID of the activity we are removing them from
      */
-    public void removeUserRoleFromActivity(Long profileDoingEditingId, Long profileBeingEditedId, Long activityId) {
-        if (isProfileActivityCreator(profileBeingEditedId, profileDoingEditingId)) {
-            throw new IllegalArgumentException();
+    public void removeUserRoleFromActivity(Long editorId, Long editedId, Long activityId) {
+        if (isProfileActivityCreator(editedId, activityId)) {
+            throw new IllegalArgumentException(ActivityMessage.EDITING_CREATOR.toString());
         }
-        if (!canChangeRole(profileDoingEditingId, profileBeingEditedId, activityId, null)) {
+        if (!canChangeRole(editorId, editedId, activityId, null)) {
             throw new AccessControlException("No permission");
         }
-        int modifiedActivities = membershipRepo.deleteActivityMembershipByProfileIdAndActivityId(profileBeingEditedId, activityId);
-        if (modifiedActivities < 1) {
-            throw new NoSuchElementException();
+        Optional<ActivityMembership> membershipResult = membershipRepo.findByActivity_IdAndProfile_Id(activityId, editedId);
+        if (membershipResult.isEmpty()){
+            throw new NoSuchElementException(ActivityMessage.MEMBERSHIP_NOT_FOUND.toString());
         }
+        ActivityMembership membership = membershipResult.get();
+        membershipRepo.deleteActivityMembershipByProfileIdAndActivityId(editedId, activityId);
+
+        NotificationType type;
+        switch (membership.getRole()) {
+            case FOLLOWER:
+                type = NotificationType.ActivityFollowerRemoved;
+                break;
+            case ORGANISER:
+                type = NotificationType.ActivityOrganiserRemoved;
+                break;
+            case PARTICIPANT:
+                type = NotificationType.ActivityParticipantRemoved;
+                break;
+            default:
+                throw new IllegalArgumentException(ActivityMessage.EDITING_CREATOR.toString());
+        }
+
+        Profile editor = getModelObjectById(profileRepo, editorId);
+        Profile edited = getModelObjectById(profileRepo, editedId);
+        String message;
+        if (editorId.equals(editedId)) {
+            message = String.format("%s %s left the activity", edited.getFirstname(), edited.getLastname());
+        } else {
+            message = String.format("%s %s removed %s %s from the activity", editor.getFirstname(), editor.getLastname(),
+                    edited.getFirstname(), edited.getLastname());
+        }
+        notificationService.createNotification(type, membership.getActivity(), editor, message);
+
     }
 
     /**
@@ -241,6 +264,7 @@ public class ActivityService {
      * @return true if membership was found and deleted, false otherwise
      */
     public boolean removeMembership(Long profileId, Long activityId) {
+        //Check against other service method in merge
         if (activityRepo.existsById(activityId)) {
             for (ActivityMembership membership : membershipRepo.findAll()) {
                 if (membership.getActivity().getId() == activityId && membership.getProfile().getId().equals(profileId)) {
@@ -299,8 +323,9 @@ public class ActivityService {
 
     /**
      * Returns all the activities that the user is a creator or organiser of.
-     * @param request contains the count and start index for pagination
-     *
+     * @param count the number of activities to return. The function may return less if the last page is returned.
+     * @param authLevel the user's authorisation level.
+     * @param startIndex the index of an items to be returned; the page containing this item is returned.
      * @param profileId the id of the user we want to check is the creator or organiser of an activity
      * @return list of activities
      */
@@ -316,14 +341,6 @@ public class ActivityService {
         }
         return userActivities.subList(Math.min(userActivities.size(), startIndex), Math.min(userActivities.size(), count + startIndex));
     }
-
-//    List<Activity> userActivities = new ArrayList<>();
-//    Page<ActivityMembership> memberships = membershipRepo.findMyActivityMembershipsByProfileId(profileId, request);
-//        for (ActivityMembership membership: memberships) {
-//        userActivities.add(membership.getActivity());
-//    }
-//        return userActivities;
-//
 
     /**
      * Returns all the new activities for the user to discover.
@@ -672,12 +689,11 @@ public class ActivityService {
                 isCreatorOrOrganiser = true;
             }
         }
-        if (newRole != null) {
-            if (newRole.equals(ActivityMembership.Role.ORGANISER)) {
-                return isAdmin || isCreatorOrOrganiser;
-            }
+        if (ActivityMembership.Role.ORGANISER.equals(newRole)) {
+            return isAdmin || isCreatorOrOrganiser;
+        } else {
+            return isAdmin || isCreatorOrOrganiser || profileBeingEditedId == profileDoingEditingId;
         }
-        return isAdmin || isCreatorOrOrganiser || profileBeingEditedId == profileDoingEditingId;
     }
 
     /**
@@ -883,6 +899,23 @@ public class ActivityService {
             throw new NoSuchElementException();
         }
         return optionalActivityMembership.get().getRole().name().toLowerCase();
+    }
+
+    /**
+     * Wrapper method for getting a generic object from a repository.
+     * @param repository The repository the object is being retrieved from.
+     * @param id The id of the object.
+     * @param <T> The type of the object.
+     * @throws NoSuchElementException if no object with that ID exists in the repository.
+     * @return the object from the repository with the given ID.
+     */
+    private <T> T getModelObjectById(JpaRepository<T, Long> repository, Long id) {
+        Optional<T> optional = repository.findById(id);
+        if (optional.isPresent()) {
+            return optional.get();
+        } else {
+            throw new NoSuchElementException();
+        }
     }
 }
 
