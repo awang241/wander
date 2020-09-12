@@ -11,7 +11,7 @@
         <div v-else id="noMatches">
             <h1>You have no notifications.</h1>
         </div>
-        <observer v-on:intersect="$emit('loadMoreNotifications')"/>
+        <observer v-on:intersect="this.loadMoreNotifications()"/>
     </div>
 </template>
 
@@ -34,20 +34,27 @@ export default {
       store: store,
       observer: null,
       notifications: [],
+      startIndex: 0,
+      moreNotificationsExist: true
     }
   },
   methods: {
       loadMoreNotifications(){
-        const searchParameters = {count: 50, startIndex: 0}
-        api.getNotifications(Number(this.store.getters.getUserId), localStorage.getItem("authToken"), searchParameters).then(response => {
-            if(response.data.notifications.length > 0){
-              this.notifications = response.data.notifications;
+        if (this.moreNotificationsExist) {
+          const searchParameters = {count: 5, startIndex: this.startIndex}
+          api.getNotifications(Number(this.store.getters.getUserId), localStorage.getItem("authToken"), searchParameters).then(response => {
+            if (response.data.notifications.length > 0) {
+              this.notifications = [...this.notifications, ...response.data.notifications];
+            } else {
+              this.moreNotificationsExist = false;
             }
           })
+        }
+
       }
   },
   mounted() {
-    this.loadMoreNotifications()
+    //this.loadMoreNotifications()
   }
 }
 </script>
