@@ -4,6 +4,7 @@ import com.springvuegradle.controller.ActivityController;
 import com.springvuegradle.enums.NotificationType;
 import com.springvuegradle.model.*;
 import com.springvuegradle.repositories.*;
+import com.springvuegradle.utilities.ActivityTestUtils;
 import com.springvuegradle.utilities.InitialDataHelper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,7 +13,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import java.util.*;
 
 import static com.springvuegradle.service.ActivityServiceTest.createNormalActivity;
 import static com.springvuegradle.service.ActivityServiceTest.createNormalProfileBen;

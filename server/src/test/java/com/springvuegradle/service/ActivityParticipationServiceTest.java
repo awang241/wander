@@ -1,9 +1,11 @@
 package com.springvuegradle.service;
 
 import com.springvuegradle.model.*;
+import com.springvuegradle.utilities.ActivityTestUtils;
 import com.springvuegradle.utilities.FormatHelper;
 import com.springvuegradle.utilities.InitialDataHelper;
 import com.springvuegradle.repositories.*;
+import com.springvuegradle.utilities.ProfileTestUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,7 +16,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Optional;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 

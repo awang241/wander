@@ -8,6 +8,7 @@ import com.springvuegradle.model.*;
 import com.springvuegradle.dto.responses.ActivityMemberProfileResponse;
 import com.springvuegradle.model.*;
 import com.springvuegradle.repositories.*;
+import com.springvuegradle.utilities.ActivityTestUtils;
 import com.springvuegradle.utilities.FormatHelper;
 import com.springvuegradle.utilities.InitialDataHelper;
 import org.junit.jupiter.api.AfterEach;
@@ -128,6 +129,30 @@ class ActivityServiceTest {
     }
 
     /**
+     * Test to edit the location of an existing activity
+     **/
+    @Test
+    void updateActivityLocationTest() {
+        Activity originalActivity = ActivityTestUtils.createNormalActivity();
+        Activity updatedActivity = ActivityTestUtils.createDifferentLocationActivity();
+        double originalLatitude = originalActivity.getLatitude();
+        double originalLongitude = originalActivity.getLongitude();
+
+        activityRepository.save(originalActivity);
+        Long activityId = activityRepository.getLastInsertedId();
+        Profile profile = profileRepository.save(createNormalProfileBen());
+        //update Activity in repo with new location, latitude and longitude
+        service.update(updatedActivity, activityId, profile.getId());
+
+        Activity result = activityRepository.findById(activityId).get();
+        double updatedLatitude = result.getLatitude();
+        double updatedLongitude = result.getLongitude();
+
+        assertNotEquals(originalLatitude, updatedLatitude);
+        assertNotEquals(originalLongitude, updatedLongitude);
+    }
+
+    /**
      * Test to edit an activity which doesn't already exist
      **/
     @Test
@@ -228,7 +253,8 @@ class ActivityServiceTest {
     void updateActivityWithNoActivityTypesTest() {
         activityRepository.save(createNormalActivitySilly());
         Long activityId = activityRepository.getLastInsertedId();
-        Activity expectedActivity = createNormalActivitySilly(), actualActivity = null;
+        Activity expectedActivity = createNormalActivitySilly();
+        Activity actualActivity = null;
         Optional<Activity> result = activityRepository.findById(activityId);
         if (result.isPresent()) {
             actualActivity = result.get();
@@ -1053,13 +1079,13 @@ class ActivityServiceTest {
 
     public static Activity createNormalActivity() {
         return new Activity("Kaikoura Coast Track race", "A big and nice race on a lovely peninsula",
-                new String[]{"Tramping", "Hiking"}, false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ");
+                new String[]{"Tramping", "Hiking"}, false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ", 100, 100);
     }
 
     public Activity createNormalActivityKaikoura() {
         Activity activity =  new Activity("Kaikoura Coast Track race", "A big and nice race on a lovely peninsula",
                 new String[]{"Hiking"}, false, "2020-02-20T08:00:00+1300",
-                "2020-02-20T08:00:00+1300", "Kaikoura, NZ");
+                "2020-02-20T08:00:00+1300", "Kaikoura, NZ", 100, 100);
         Set<ActivityType> updatedActivityType = new HashSet<>();
         for(ActivityType activityType : activity.retrieveActivityTypes()){
             List<ActivityType> resultActivityTypes = typeRepository.findByActivityTypeName(activityType.getActivityTypeName());{
@@ -1072,7 +1098,7 @@ class ActivityServiceTest {
 
     private Activity createNormalActivitySilly() {
         return new Activity("Wibble", "A bald man", new String[]{"Hockey"}, true,
-                "2020-02-20T08:00:00+1300","2020-02-20T08:00:00+1300", "K2");
+                "2020-02-20T08:00:00+1300","2020-02-20T08:00:00+1300", "K2", 100, 100);
     }
 
     private Activity createBadActivityNoName() {
@@ -1107,17 +1133,17 @@ class ActivityServiceTest {
 
     private Activity createBadActivityNoActivityTypes() {
         return new Activity("", "A big and nice race on a lovely peninsula",null, false,
-                "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ");
+                "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ", 100, 100);
     }
 
     private Activity createBadActivityEmptyActivityTypes() {
         return new Activity("", "A big and nice race on a lovely peninsula", new String[]{},
-                false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ");
+                false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ", 100, 100);
     }
 
     private Activity createBadActivityInvalidActivityTypes() {
         return new Activity("", "A big and nice race on a lovely peninsula", new String[]{"nugts"},
-                false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ");
+                false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ", 100, 100);
     }
 
     /**

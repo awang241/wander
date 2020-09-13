@@ -1,6 +1,8 @@
-package com.springvuegradle.model;
+package com.springvuegradle.utilities;
 
 import com.springvuegradle.enums.NotificationType;
+import com.springvuegradle.model.Notification;
+import com.springvuegradle.model.Profile;
 
 import java.util.*;
 
