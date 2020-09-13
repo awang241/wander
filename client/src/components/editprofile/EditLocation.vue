@@ -53,11 +53,10 @@ let autocompleteLocation;
             initAutoCompleteLocation() {
                 let options = {
                     types: ['geocode'],
-                }
-                // eslint-disable-next-line no-undef
+                };
                 autocompleteLocation = new this.google.maps.places.Autocomplete(document.getElementById("autocompleteLocation"), options)
-                autocompleteLocation.setFields(['address_components'])
-                autocompleteLocation.addListener('place_changed', function () {
+                autocompleteLocation.setFields(['address_components']);
+                autocompleteLocation.addListener('place_changed', () => {
                     var locationArray = autocompleteLocation.getPlace();
                     let locationString = "";
                     for (let i = 0; i < (locationArray.address_components).length; i++) {
@@ -71,7 +70,7 @@ let autocompleteLocation;
                       }
                     document.getElementById("autocompleteLocation").value = locationString;
                     let geocoder = new this.google.maps.Geocoder;
-                    geocoder.geocode({'address': document.getElementById("autocompleteLocation").value}, function(results, status) {
+                    geocoder.geocode({'address': document.getElementById("autocompleteLocation").value}, (results, status) => {
                       // need to set this variable in local state - isnt working correctly
                       if (status === 'OK') {
                         this.profileLocationLatLong = {lat: results[0].geometry.location.lat(), lng: results[0].geometry.location.lng()}
