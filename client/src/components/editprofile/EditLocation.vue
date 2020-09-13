@@ -28,7 +28,6 @@
 import toastMixin from "../../mixins/toastMixin";
 import googleMapsInit from '../../utils/googlemaps'
 import MapPane from "../MapPane";
-import MapPane from "@/components/MapPane";
 
 
 let autocompleteLocation;
