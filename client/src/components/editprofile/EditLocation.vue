@@ -72,12 +72,20 @@ let autocompleteLocation;
                         }
                       }
                     document.getElementById("autocompleteLocation").value = locationString;
-                     })
+                })
+            },
+
+            checkValidLocation() {
+
+              //Need to use the geocode API to return true
+
+              return true;
+
             },
 
             clearLocation() {
-              this.$parent.clearLocation()
-              this.successToast("Location removed")
+              this.$parent.clearLocation();
+              this.successToast("Location removed");
               document.getElementById("autocompleteLocation").value = null;
               this.location = {location: ""}
             },
@@ -89,6 +97,8 @@ let autocompleteLocation;
                 this.warningToast("Please enter a location")
               } else if (JSON.stringify((this.location)) === original) {
                 this.warningToast("No changes made")
+              } else if(!this.checkValidLocation()) {
+                this.warningToast("Location is invalid, please use the auto-complete suggestions")
               } else {
                 this.$parent.updateLocation(this.location)
                 this.successToast("New location saved")
