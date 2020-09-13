@@ -53,7 +53,15 @@
                 google: null
             }
         },
-        async mounted() {
+
+        //When prop locationchoicecoords changes, call this.setlocationwithmarker
+        watch: {
+          locationChoiceCoordinates: function (newCoords) {
+            this.setLocationWithMarker(newCoords)
+          }
+        },
+
+      async mounted() {
             this.google = await googleMapsInit()
             await this.createMap()
             this.createMarkers()

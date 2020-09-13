@@ -39,9 +39,10 @@ export default {
     return {
       location: "",
       google: null,
-      profileLocationLatLong: null
+      profileLocationLatLong: null,
     }
   },
+
   methods: {
 
     /** This method sets up the autocomplete. It takes the location from the input field and reformats it to a single string.
@@ -56,7 +57,6 @@ export default {
       autocompleteLocation.setFields(['address_components'])
       autocompleteLocation.addListener('place_changed', () => {
         var locationArray = autocompleteLocation.getPlace();
-
         let locationString = "";
         for (let i = 0; i < (locationArray.address_components).length; i++) {
           if (i === 0) {
@@ -68,6 +68,13 @@ export default {
             }
           }
         document.getElementById("autocompleteLocation").value = locationString;
+        let geocoder = new this.google.maps.Geocoder;
+        geocoder.geocode({'address': document.getElementById("autocompleteLocation").value}, function(results, status) {
+          // need to set this variable in local state - isnt working correctly
+          if (status === 'OK') {
+            this.profileLocationLatLong = {lat: results[0].geometry.location.lat(), lng: results[0].geometry.location.lng()}
+          }
+        })
       })
     },
 
@@ -121,7 +128,7 @@ export default {
 <style scoped>
 .container {
   background-color: #F7F8F9;
-  margin-top: 0px;
-  padding: 0px;
+  margin-top: 0;
+  padding: 0;
 }
 </style>
