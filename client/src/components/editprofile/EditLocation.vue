@@ -43,94 +43,106 @@ let autocompleteLocation;
             return {
                 location: "",
                 google: null,
-                profileLocationLatLong: null,
+                profileLocationLatLong: null
             }
         },
         methods: {
-            /** This method sets up the autocomplete. It takes the location from the input field and reformats it to a single string.
-             This string is saved to the DOM and will be sent to the backend
-             There is a lot of logic within the add listener because Google Maps is not in the same scope as Vue. **/
-            initAutoCompleteLocation() {
-                let options = {
-                    types: ['geocode'],
-                };
-                autocompleteLocation = new this.google.maps.places.Autocomplete(document.getElementById("autocompleteLocation"), options)
-                autocompleteLocation.setFields(['address_components']);
-                autocompleteLocation.addListener('place_changed', () => {
-                    var locationArray = autocompleteLocation.getPlace();
-                    let locationString = "";
-                    for (let i = 0; i < (locationArray.address_components).length; i++) {
-                      if (i === 0) {
-                        locationString = locationArray.address_components[0].long_name;
-                      } else if (i !== (locationArray.address_components).length) {
-                        if (locationArray.address_components[i].long_name !== locationArray.address_components[i - 1].long_name) {
-                            locationString = locationString + ", " + locationArray.address_components[i].long_name;
-                          }
-                        }
-                      }
-                    this.location = locationString
-                    document.getElementById("autocompleteLocation").value = locationString;
-                    let geocoder = new this.google.maps.Geocoder;
-                    geocoder.geocode({'address': document.getElementById("autocompleteLocation").value}, (results, status) => {
-                      if (status === 'OK') {
-                        this.profileLocationLatLong = {lat: results[0].geometry.location.lat(), lng: results[0].geometry.location.lng()}
-                      }
-                    })
-                })
-            },
-
-    updateLocation(location) {
-      this.profileLocationLatLong = {lat: location.lat(), lng: location.lng()}
-      let geocoder = new this.google.maps.Geocoder;
-      let latlng = {lat: parseFloat(location.lat()), lng: parseFloat(location.lng())};
-      geocoder.geocode({'location': latlng}, function(results, status) {
-        if (status === 'OK') {
-          document.getElementById("autocompleteLocation").value = results[0].formatted_address
-        }
-      })
-    },
-
-            checkValidLocation() {
-
-              //Need to use the geocode API to return true
-
-              return true;
-
-            },
-
-            clearLocation() {
-              this.$parent.clearLocation();
-              this.successToast("Location removed");
-              document.getElementById("autocompleteLocation").value = null;
-              this.location = {location: ""}
-            },
-            submitLocation() {
-              //Using JSON methods to make a constant and compare two JSON objects
-              const original = JSON.stringify(this.profile.location)
-              this.location = document.getElementById("autocompleteLocation").value;
-              if (this.location === "") {
-                this.warningToast("Please enter a location")
-              } else if (JSON.stringify((this.location)) === original) {
-                this.warningToast("No changes made")
-              } else if(!this.checkValidLocation()) {
-                this.warningToast("Location is invalid, please use the auto-complete suggestions")
-              } else {
-                this.$parent.updateLocation(this.location)
-                this.successToast("New location saved")
+          /** This method sets up the autocomplete. It takes the location from the input field and reformats it to a single string.
+           This string is saved to the DOM and will be sent to the backend
+           There is a lot of logic within the add listener because Google Maps is not in the same scope as Vue. **/
+          initAutoCompleteLocation() {
+            let options = {
+              types: ['geocode'],
+            };
+            autocompleteLocation = new this.google.maps.places.Autocomplete(document.getElementById("autocompleteLocation"), options)
+            autocompleteLocation.setFields(['address_components']);
+            autocompleteLocation.addListener('place_changed', () => {
+              var locationArray = autocompleteLocation.getPlace();
+              let locationString = "";
+              for (let i = 0; i < (locationArray.address_components).length; i++) {
+                if (i === 0) {
+                  locationString = locationArray.address_components[0].long_name;
+                } else if (i !== (locationArray.address_components).length) {
+                  if (locationArray.address_components[i].long_name !== locationArray.address_components[i - 1].long_name) {
+                    locationString = locationString + ", " + locationArray.address_components[i].long_name;
+                  }
+                }
               }
-            },
-            setLocation() {
-              if (this.profile.location != null) {
-                this.location = this.profile.location;
-                document.getElementById("autocompleteLocation").value = this.location;
+              this.location = locationString
+              document.getElementById("autocompleteLocation").value = locationString;
+              let geocoder = new this.google.maps.Geocoder;
+              geocoder.geocode({'address': document.getElementById("autocompleteLocation").value}, (results, status) => {
+                if (status === 'OK') {
+                  this.profileLocationLatLong = {lat: results[0].geometry.location.lat(), lng: results[0].geometry.location.lng()}
+                }
+              })
+            })
+          },
+
+          updateLocation(location) {
+            this.profileLocationLatLong = {lat: location.lat(), lng: location.lng()}
+            let geocoder = new this.google.maps.Geocoder;
+            let latlng = {lat: parseFloat(location.lat()), lng: parseFloat(location.lng())};
+            geocoder.geocode({'location': latlng}, function(results, status) {
+              if (status === 'OK') {
+                document.getElementById("autocompleteLocation").value = results[0].formatted_address
               }
+            })
+          },
+
+          checkValidGeoCode(geocoder) {
+            return new Promise((resolve, reject) => {
+              geocoder.geocode({'address': this.location}, (results, status) => {
+                if (status === 'OK') {
+                  resolve(true)
+                } else {
+                  reject(false);
+                }
+              })
+            })
+          },
+
+          async checkValidLocation() {
+            let geocoder = new this.google.maps.Geocoder;
+            let result;
+            await this.checkValidGeoCode(geocoder).then(() => {result = true}).catch(() => {result = false})
+            return result
+          },
+
+          clearLocation() {
+            this.$parent.clearLocation();
+            this.successToast("Location removed");
+            document.getElementById("autocompleteLocation").value = null;
+            this.location = {location: ""}
+          },
+          async submitLocation() {
+            //Using JSON methods to make a constant and compare two JSON objects
+            const original = JSON.stringify(this.profile.location)
+            this.location = document.getElementById("autocompleteLocation").value;
+            let check = await this.checkValidLocation();
+            if (this.location === "") {
+              this.warningToast("Please enter a location")
+            } else if (JSON.stringify((this.location)) === original) {
+              this.warningToast("No changes made")
+            } else if(check == false) {
+              this.warningToast("Location is invalid, please use the auto-complete suggestions")
+            } else {
+              this.$parent.updateLocation(this.location)
+              this.successToast("New location saved")
             }
-        },
-          async mounted() {
-            this.google = await googleMapsInit();
-            this.setLocation();
-            this.initAutoCompleteLocation();
+          },
+          setLocation() {
+            if (this.profile.location != null) {
+              this.location = this.profile.location;
+              document.getElementById("autocompleteLocation").value = this.location;
+            }
           }
+        },
+      async mounted() {
+        this.google = await googleMapsInit();
+        this.setLocation();
+        this.initAutoCompleteLocation();
+      }
 
 }
 
