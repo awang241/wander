@@ -2,13 +2,11 @@
   <div class="container">
     <h1 class="title is-5">Edit Your Location </h1>
 
-      <MapPane/>
-
-      <br>
-
       <form>
       <input class="input" type="text" placeholder="Enter a location" id="autocompleteLocation"/>
     </form>
+    <MapPane marker-label="Profile Location" :location-choice-coordinates="profileLocationLatLong" v-on:locationChoiceChanged="updateLocation"></MapPane>
+    <br>
 
     <div class="row">
       <br>
@@ -31,6 +29,7 @@ import toastMixin from "../../mixins/toastMixin";
 import googleMapsInit from '../../utils/googlemaps'
 import MapPane from "../MapPane";
 
+
 let autocompleteLocation;
 
     export default {
@@ -43,7 +42,8 @@ let autocompleteLocation;
         data() {
             return {
                 location: "",
-                google: null
+                google: null,
+                profileLocationLatLong: null,
             }
         },
         methods: {
@@ -53,14 +53,11 @@ let autocompleteLocation;
             initAutoCompleteLocation() {
                 let options = {
                     types: ['geocode'],
-                }
-                // eslint-disable-next-line no-undef
+                };
                 autocompleteLocation = new this.google.maps.places.Autocomplete(document.getElementById("autocompleteLocation"), options)
-                autocompleteLocation.setFields(['address_components'])
-                autocompleteLocation.addListener('place_changed', function () {
+                autocompleteLocation.setFields(['address_components']);
+                autocompleteLocation.addListener('place_changed', () => {
                     var locationArray = autocompleteLocation.getPlace();
-
-
                     let locationString = "";
                     for (let i = 0; i < (locationArray.address_components).length; i++) {
                       if (i === 0) {
@@ -71,9 +68,27 @@ let autocompleteLocation;
                           }
                         }
                       }
+                    this.location = locationString
                     document.getElementById("autocompleteLocation").value = locationString;
+                    let geocoder = new this.google.maps.Geocoder;
+                    geocoder.geocode({'address': document.getElementById("autocompleteLocation").value}, (results, status) => {
+                      if (status === 'OK') {
+                        this.profileLocationLatLong = {lat: results[0].geometry.location.lat(), lng: results[0].geometry.location.lng()}
+                      }
+                    })
                 })
             },
+
+    updateLocation(location) {
+      this.profileLocationLatLong = {lat: location.lat(), lng: location.lng()}
+      let geocoder = new this.google.maps.Geocoder;
+      let latlng = {lat: parseFloat(location.lat()), lng: parseFloat(location.lng())};
+      geocoder.geocode({'location': latlng}, function(results, status) {
+        if (status === 'OK') {
+          document.getElementById("autocompleteLocation").value = results[0].formatted_address
+        }
+      })
+    },
 
             checkValidLocation() {
 
