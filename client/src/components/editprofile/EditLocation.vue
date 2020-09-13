@@ -68,6 +68,7 @@ let autocompleteLocation;
                           }
                         }
                       }
+                    this.location = locationString
                     document.getElementById("autocompleteLocation").value = locationString;
                     let geocoder = new this.google.maps.Geocoder;
                     geocoder.geocode({'address': document.getElementById("autocompleteLocation").value}, (results, status) => {

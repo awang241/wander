@@ -43,8 +43,8 @@
                 type: Object,
             },
             markerLabel: {
-              type: String,
-              default: "Location"
+                type: String,
+                default: "Location"
             }
         },
 
@@ -60,16 +60,17 @@
 
         //When prop locationchoicecoords changes, call this.setlocationwithmarker
         watch: {
-          locationChoiceCoordinates: function (newCoords) {
-            this.setLocationWithMarker(newCoords)
-          }
+            locationChoiceCoordinates: function (newCoords) {
+                this.setLocationWithMarker(newCoords)
+                this.map.setCenter(newCoords)
+            }
         },
 
-      async mounted() {
+        async mounted() {
             this.google = await googleMapsInit()
             await this.createMap()
             this.createMarkers()
-            if(this.locationChoiceCoordinates) {
+            if (this.locationChoiceCoordinates) {
                 this.setLocationWithMarker(this.locationChoiceCoordinates)
             }
         },
