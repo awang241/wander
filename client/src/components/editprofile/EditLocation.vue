@@ -41,9 +41,10 @@ let autocompleteLocation;
         mixins: [toastMixin],
         data() {
             return {
-                location: "",
-                google: null,
-                profileLocationLatLong: null
+              location: "",
+              google: null,
+              profileLocationLatLong: null,
+              geocoder: null
             }
         },
         methods: {
@@ -68,10 +69,9 @@ let autocompleteLocation;
                   }
                 }
               }
-              this.location = locationString
+              this.location = locationString;
               document.getElementById("autocompleteLocation").value = locationString;
-              let geocoder = new this.google.maps.Geocoder;
-              geocoder.geocode({'address': document.getElementById("autocompleteLocation").value}, (results, status) => {
+              this.geocoder.geocode({'address': document.getElementById("autocompleteLocation").value}, (results, status) => {
                 if (status === 'OK') {
                   this.profileLocationLatLong = {lat: results[0].geometry.location.lat(), lng: results[0].geometry.location.lng()}
                 }
@@ -81,18 +81,18 @@ let autocompleteLocation;
 
           updateLocation(location) {
             this.profileLocationLatLong = {lat: location.lat(), lng: location.lng()}
-            let geocoder = new this.google.maps.Geocoder;
+            // let geocoder = new this.google.maps.Geocoder;
             let latlng = {lat: parseFloat(location.lat()), lng: parseFloat(location.lng())};
-            geocoder.geocode({'location': latlng}, function(results, status) {
+            this.geocoder.geocode({'location': latlng}, function(results, status) {
               if (status === 'OK') {
                 document.getElementById("autocompleteLocation").value = results[0].formatted_address
               }
             })
           },
 
-          checkValidGeoCode(geocoder) {
+          checkValidGeoCode() {
             return new Promise((resolve, reject) => {
-              geocoder.geocode({'address': this.location}, (results, status) => {
+              this.geocoder.geocode({'address': this.location}, (results, status) => {
                 if (status === 'OK') {
                   resolve(true)
                 } else {
@@ -103,9 +103,8 @@ let autocompleteLocation;
           },
 
           async checkValidLocation() {
-            let geocoder = new this.google.maps.Geocoder;
             let result;
-            await this.checkValidGeoCode(geocoder).then(() => {result = true}).catch(() => {result = false})
+            await this.checkValidGeoCode().then(() => {result = true}).catch(() => {result = false})
             return result
           },
 
@@ -117,7 +116,7 @@ let autocompleteLocation;
           },
           async submitLocation() {
             //Using JSON methods to make a constant and compare two JSON objects
-            const original = JSON.stringify(this.profile.location)
+            const original = JSON.stringify(this.profile.location);
             this.location = document.getElementById("autocompleteLocation").value;
             let check = await this.checkValidLocation();
             if (this.location === "") {
@@ -140,6 +139,7 @@ let autocompleteLocation;
         },
       async mounted() {
         this.google = await googleMapsInit();
+        this.geocoder = new this.google.maps.Geocoder;
         this.setLocation();
         this.initAutoCompleteLocation();
       }
