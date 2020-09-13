@@ -271,16 +271,78 @@ class ActivityServiceTest {
      * Test to remove a profiles membership from an activity which they are not a part of
      */
     @Test
-    void removeActivityMemberShipFailTest() {
+    void removeMembershipWhereMembershipDoesNotExistThrowsExceptionTest() {
         Activity activity = activityRepository.save(createNormalActivityKaikoura());
         Profile bennyBoi = createNormalProfileBen();
         profileRepository.save(bennyBoi);
         Profile johnnyBoi = createNormalProfileJohnny();
         profileRepository.save(johnnyBoi);
-        ActivityMembership testMemberShip = new ActivityMembership(activity, bennyBoi, ActivityMembership.Role.PARTICIPANT);
+        ActivityMembership testMemberShip = new ActivityMembership(activity, bennyBoi, ActivityMembership.Role.ORGANISER);
         activityMembershipRepository.save(testMemberShip);
-        assertThrows(AccessControlException.class, () -> service.removeUserRoleFromActivity(bennyBoi.getId(), johnnyBoi.getId(), activity.getId()));
+        assertThrows(NoSuchElementException.class, () -> service.removeUserRoleFromActivity(bennyBoi.getId(), johnnyBoi.getId(), activity.getId()));
         assertEquals(1, activityMembershipRepository.count());
+    }
+
+    @Test
+    void removeMembershipWhenEditedIsOrganiserSucceedsTest() {
+        Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        Profile bennyBoi = createNormalProfileBen();
+        profileRepository.save(bennyBoi);
+        Profile johnnyBoi = createNormalProfileJohnny();
+        profileRepository.save(johnnyBoi);
+        ActivityMembership bennyMembership = new ActivityMembership(activity, bennyBoi, ActivityMembership.Role.ORGANISER);
+        activityMembershipRepository.save(bennyMembership);
+        ActivityMembership johnnyMemberShip = new ActivityMembership(activity, johnnyBoi, ActivityMembership.Role.ORGANISER);
+        activityMembershipRepository.save(johnnyMemberShip);
+
+        service.removeUserRoleFromActivity(bennyBoi.getId(), johnnyBoi.getId(), activity.getId());
+        assertEquals(1, activityMembershipRepository.count());
+    }
+
+    @Test
+    void removeMembershipWhenMemberIsCreatorThrowsExceptionTest() {
+        Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        Profile bennyBoi = createNormalProfileBen();
+        profileRepository.save(bennyBoi);
+        Profile johnnyBoi = createNormalProfileJohnny();
+        profileRepository.save(johnnyBoi);
+        ActivityMembership bennyMembership = new ActivityMembership(activity, bennyBoi, ActivityMembership.Role.ORGANISER);
+        activityMembershipRepository.save(bennyMembership);
+        ActivityMembership johnnyMemberShip = new ActivityMembership(activity, johnnyBoi, ActivityMembership.Role.CREATOR);
+        activityMembershipRepository.save(johnnyMemberShip);
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                service.removeUserRoleFromActivity(bennyBoi.getId(), johnnyBoi.getId(), activity.getId()));
+        assertEquals(exception.getMessage(), ActivityMessage.EDITING_CREATOR.toString());
+        assertEquals(2, activityMembershipRepository.count());
+    }
+
+    @Test
+    void removeMembershipWhenUnauthorisedThrowsExceptionTest() {
+        Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        Profile bennyBoi = createNormalProfileBen();
+        profileRepository.save(bennyBoi);
+        Profile johnnyBoi = createNormalProfileJohnny();
+        profileRepository.save(johnnyBoi);
+        ActivityMembership bennyMembership = new ActivityMembership(activity, bennyBoi, ActivityMembership.Role.PARTICIPANT);
+        activityMembershipRepository.save(bennyMembership);
+        ActivityMembership johnnyMemberShip = new ActivityMembership(activity, johnnyBoi, ActivityMembership.Role.CREATOR);
+        activityMembershipRepository.save(johnnyMemberShip);
+
+        AccessControlException exception = assertThrows(AccessControlException.class, () ->
+                service.removeUserRoleFromActivity(bennyBoi.getId(), johnnyBoi.getId(), activity.getId()));
+    }
+
+    @Test
+    void removeMembershipWhenRemovingSelfSucceedsTest() {
+        Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        Profile bennyBoi = createNormalProfileBen();
+        profileRepository.save(bennyBoi);
+        ActivityMembership bennyMembership = new ActivityMembership(activity, bennyBoi, ActivityMembership.Role.FOLLOWER);
+        activityMembershipRepository.save(bennyMembership);
+
+        service.removeUserRoleFromActivity(bennyBoi.getId(), bennyBoi.getId(), activity.getId());
+        assertEquals(0, activityMembershipRepository.count());
     }
 
     /**
@@ -318,7 +380,7 @@ class ActivityServiceTest {
         activity.setPrivacyLevel(0);
         service.addActivityRole(activity.getId(), profile.getId(), "ORGANISER");
         Activity activityResult = service.getActivityByActivityId(profile.getId(), activity.getId(), profile.getAuthLevel());
-        assertEquals(null, activityResult);
+        assertNull(activityResult);
     }
 
     /**
@@ -333,7 +395,7 @@ class ActivityServiceTest {
         activity.setPrivacyLevel(0);
         service.addActivityRole(activity.getId(), profile.getId(), "PARTICIPANT");
         Activity activityResult = service.getActivityByActivityId(profile.getId(), activity.getId(), profile.getAuthLevel());
-        assertEquals(null, activityResult);
+        assertNull(activityResult);
     }
 
     /**
@@ -348,7 +410,7 @@ class ActivityServiceTest {
         activity.setPrivacyLevel(0);
         service.addActivityRole(activity.getId(), profile.getId(), "FOLLOWER");
         Activity activityResult = service.getActivityByActivityId(profile.getId(), activity.getId(), profile.getAuthLevel());
-        assertEquals(null, activityResult);
+        assertNull(activityResult);
     }
 
     /**
@@ -362,7 +424,7 @@ class ActivityServiceTest {
         Activity activity = activityRepository.save(createNormalActivity());
         activity.setPrivacyLevel(0);
         Activity activityResult = service.getActivityByActivityId(profile.getId(), activity.getId(), profile.getAuthLevel());
-        assertEquals(null, activityResult);
+        assertNull(activityResult);
     }
 
     /**
@@ -444,7 +506,7 @@ class ActivityServiceTest {
         Activity activity = activityRepository.save(createNormalActivity());
         activity.setPrivacyLevel(1);
         Activity activityResult = service.getActivityByActivityId(profile.getId(), activity.getId(), profile.getAuthLevel());
-        assertEquals(null, activityResult);
+        assertNull(activityResult);
     }
 
     /**
@@ -647,7 +709,7 @@ class ActivityServiceTest {
         profileRepository.save(benny);
         Activity activity = createNormalActivity();
         activity.setPrivacyLevel(0);
-        controller.createActivity(benny.getId(), activity, null, true);;
+        controller.createActivity(benny.getId(), activity, null, true);
         List<Activity> list = service.getActivitiesByProfileIdByRole(benny.getId(), ActivityMembership.Role.CREATOR, startIndex, count, benny.getAuthLevel());
         assertEquals(1, list.size());
     }
@@ -917,7 +979,7 @@ class ActivityServiceTest {
         emailRepository.save(new Email("ben11@hotmail.com", true, followerOne));
         emailRepository.save(new Email("ben12@hotmail.com", true, followerTwo));
         emailRepository.save(new Email("ben13@hotmail.com", true, organiser));
-        emailRepository.save(new Email("ben14@hotmail.com", true, participant));;
+        emailRepository.save(new Email("ben14@hotmail.com", true, participant));
         ActivityMembership creatorMembership = new ActivityMembership(activity, creator, ActivityMembership.Role.CREATOR);
         ActivityMembership followerOneMembership = new ActivityMembership(activity, followerOne, ActivityMembership.Role.FOLLOWER);
         ActivityMembership followerTwoMembership = new ActivityMembership(activity, followerTwo, ActivityMembership.Role.FOLLOWER);
@@ -1010,7 +1072,7 @@ class ActivityServiceTest {
 
     @Test
     void clearRolesOfActivityThatDoesntExistThrowsExceptionTest(){
-        assertThrows(IllegalArgumentException.class, ()-> service.clearActivityRoleList(915730971l, "FOLLOWER"));
+        assertThrows(IllegalArgumentException.class, ()-> service.clearActivityRoleList(915730971L, "FOLLOWER"));
     }
 
     /**

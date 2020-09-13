@@ -82,6 +82,7 @@ public class ActivityService {
             List<ActivityType> resultActivityTypes = typeRepo.findByActivityTypeName(activityType.getActivityTypeName());
             updatedActivityType.add(resultActivityTypes.get(0));
         }
+
         activity.setActivityTypes(updatedActivityType);
 
         Activity result = activityRepo.save(activity);
@@ -169,17 +170,20 @@ public class ActivityService {
      * @param activityId the ID of the activity we are removing them from
      */
     public void removeUserRoleFromActivity(Long editorId, Long editedId, Long activityId) {
-        if (isProfileActivityCreator(editedId, activityId)) {
-            throw new IllegalArgumentException(ActivityMessage.EDITING_CREATOR.toString());
-        }
-        if (!canChangeRole(editorId, editedId, activityId, null)) {
-            throw new AccessControlException("No permission");
-        }
         Optional<ActivityMembership> membershipResult = membershipRepo.findByActivity_IdAndProfile_Id(activityId, editedId);
         if (membershipResult.isEmpty()){
             throw new NoSuchElementException(ActivityMessage.MEMBERSHIP_NOT_FOUND.toString());
         }
         ActivityMembership membership = membershipResult.get();
+
+        if (!canChangeRole(editorId, editedId, activityId, null)) {
+            throw new AccessControlException("No permission");
+        }
+
+        if (membership.getRole() == ActivityMembership.Role.CREATOR) {
+            throw new IllegalArgumentException(ActivityMessage.EDITING_CREATOR.toString());
+        }
+
         membershipRepo.deleteActivityMembershipByProfileIdAndActivityId(editedId, activityId);
 
         NotificationType type;
@@ -200,14 +204,14 @@ public class ActivityService {
         Profile editor = getModelObjectById(profileRepo, editorId);
         Profile edited = getModelObjectById(profileRepo, editedId);
         String message;
+        String activityName = membership.getActivity().getActivityName();
         if (editorId.equals(editedId)) {
-            message = String.format("%s %s left the activity", edited.getFirstname(), edited.getLastname());
+            message = String.format("%s %s left the activity %s", edited.getFirstname(), edited.getLastname(), activityName);
         } else {
-            message = String.format("%s %s removed %s %s from the activity", editor.getFirstname(), editor.getLastname(),
-                    edited.getFirstname(), edited.getLastname());
+            message = String.format("%s %s removed %s %s from the activity %s", editor.getFirstname(), editor.getLastname(),
+                    edited.getFirstname(), edited.getLastname(), activityName);
         }
         notificationService.createNotification(type, membership.getActivity(), editor, message);
-
     }
 
     /**
@@ -264,7 +268,7 @@ public class ActivityService {
      * @return true if membership was found and deleted, false otherwise
      */
     public boolean removeMembership(Long profileId, Long activityId) {
-        //Check against other service method in merge
+        //Check against other service method in merge - This seems to be a double-up with removeUserRoleFromActivity
         if (activityRepo.existsById(activityId)) {
             for (ActivityMembership membership : membershipRepo.findAll()) {
                 if (membership.getActivity().getId() == activityId && membership.getProfile().getId().equals(profileId)) {
@@ -275,21 +279,6 @@ public class ActivityService {
             }
         }
         return false;
-    }
-
-    /**
-     * Returns all activities associated with the given profile.
-     *
-     * @param profileId The ID of the profile whose activities are being retrieved.
-     * @return A list of the given profile's activities.
-     */
-    public List<Activity> getActivitiesByProfileId(Long profileId) {
-        Profile profile = profileRepo.findAllById(profileId).get(0);
-        List<Activity> userActivities = new ArrayList<>();
-        for (ActivityMembership activityMembership : profile.getActivities()) {
-            userActivities.add(activityMembership.getActivity());
-        }
-        return userActivities;
     }
 
     /**
@@ -414,11 +403,6 @@ public class ActivityService {
         return activityRepo.findAll();
     }
 
-    /**
-     * Checks if an activity is valid by checking all fields and throws an exception otherwise.
-     *
-     * @param activity the activity to check the fields of.
-     */
     /**
      * Return an activity by activity id.
      *
@@ -637,22 +621,6 @@ public class ActivityService {
     public Page<Activity> getAllActivities(Pageable request) {
 
         return activityRepo.findAll(request);
-    }
-
-    /**
-     * Returns a map of activities alongside the user's role in that activity.
-     *
-     * @param request   A page request containing the index and size of the page to be returned.
-     * @param profileId The user's profile id
-     * @return A map of the activities and the role that the user has with that activity.
-     */
-    public Map<Activity, ActivityMembership.Role> getUsersActivities(Pageable request, Long profileId) {
-        Page<ActivityMembership> memberships = membershipRepo.findAllByProfileId(profileId, request);
-        Map<Activity, ActivityMembership.Role> activityRoleMap = new HashMap<>();
-        for (ActivityMembership membership : memberships.getContent()) {
-            activityRoleMap.put(membership.getActivity(), membership.getRole());
-        }
-        return activityRoleMap;
     }
 
     /**
