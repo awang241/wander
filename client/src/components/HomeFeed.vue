@@ -27,6 +27,8 @@ import Observer from "./Observer";
 import api from "../Api";
 import Notification from "../components/Notification";
 
+let COUNT = 25;
+
 export default {
   name: "HomeFeed",
   components: {
@@ -46,12 +48,12 @@ export default {
   methods: {
       loadMoreNotifications() {
         if (this.moreNotificationsExist) {
-          const searchParameters = {count: 5, startIndex: this.startIndex};
+          const searchParameters = {count: COUNT, startIndex: this.startIndex};
           api.getNotifications(Number(this.store.getters.getUserId), localStorage.getItem("authToken"), searchParameters).then(response => {
             if (response.data.notifications.length > 0) {
               this.notifications = [...this.notifications, ...response.data.notifications];
-              this.startIndex += response.data.notifications.length;
-              if (response.data.notifications.length < 5) {
+              this.startIndex += COUNT;
+              if (response.data.notifications.length < COUNT) {
                   this.moreNotificationsExist = false;
               }
             } else {
