@@ -43,6 +43,7 @@
               default: "Location"
             }
         },
+
         data() {
             return {
                 height: 500,
@@ -87,10 +88,10 @@
             },
             //Dynamically creates the google map
             createMap() {
-                const initialLocation = {lat: -25.363, lng: 13.044}
+                const defaultLocation = {lat: -43.4341, lng: 172.6397}
                 this.map = new this.google.maps.Map(document.getElementById('map'), {
                     zoom: 4,
-                    center: initialLocation,
+                    center: this.locationChoiceCoordinates ? this.locationChoiceCoordinates : defaultLocation,
                 });
                 this.google.maps.event.addListener(this.map, 'click', e => {
                     this.setLocationWithMarker(e.latLng);

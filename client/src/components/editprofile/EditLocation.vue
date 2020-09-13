@@ -5,6 +5,7 @@
     <form>
       <input class="input" type="text" placeholder="Enter a location" id="autocompleteLocation"/>
     </form>
+    <MapPane marker-label="Profile Location" :location-choice-coordinates="profileLocationLatLong" v-on:locationChoiceChanged="updateLocation"></MapPane>
 
     <div class="row">
       <br>
@@ -25,17 +26,20 @@
 
 import toastMixin from "../../mixins/toastMixin";
 import googleMapsInit from '../../utils/googlemaps'
+import MapPane from "@/components/MapPane";
 
 let autocompleteLocation;
 
 export default {
   name: "EditLocation",
+  components: {MapPane},
   props: ["profile"],
   mixins: [toastMixin],
   data() {
     return {
       location: "",
-      google: null
+      google: null,
+      profileLocationLatLong: null
     }
   },
   methods: {
@@ -50,7 +54,7 @@ export default {
       // eslint-disable-next-line no-undef
       autocompleteLocation = new this.google.maps.places.Autocomplete(document.getElementById("autocompleteLocation"), options)
       autocompleteLocation.setFields(['address_components'])
-      autocompleteLocation.addListener('place_changed', function () {
+      autocompleteLocation.addListener('place_changed', () => {
         var locationArray = autocompleteLocation.getPlace();
 
         let locationString = "";
@@ -64,6 +68,17 @@ export default {
             }
           }
         document.getElementById("autocompleteLocation").value = locationString;
+      })
+    },
+
+    updateLocation(location) {
+      this.profileLocationLatLong = {lat: location.lat(), lng: location.lng()}
+      let geocoder = new this.google.maps.Geocoder;
+      let latlng = {lat: parseFloat(location.lat()), lng: parseFloat(location.lng())};
+      geocoder.geocode({'location': latlng}, function(results, status) {
+        if (status === 'OK') {
+          document.getElementById("autocompleteLocation").value = results[0].formatted_address
+        }
       })
     },
 
