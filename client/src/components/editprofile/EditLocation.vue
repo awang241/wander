@@ -48,7 +48,7 @@
             }
         },
         methods: {
-            beansTwo(results, status) {
+            updateProfileLocationFromGeocodeResult(results, status) {
                 if (status === 'OK') {
                     this.profileLocationLatLong = {
                         lat: results[0].geometry.location.lat(),
@@ -56,7 +56,7 @@
                     }
                 }
             },
-            beans(autoCompleteLocation) {
+            getLocationFromGeocode(autoCompleteLocation) {
                 let locationArray = autoCompleteLocation.getPlace();
                 let locationString = "";
                 for (let i = 0; i < (locationArray.address_components).length; i++) {
@@ -72,9 +72,7 @@
                 document.getElementById("autocompleteLocation").value = locationString;
                 let geocoder = new this.google.maps.Geocoder;
                 geocoder.geocode({'address': document.getElementById("autocompleteLocation").value}, (results,status) => {
-                          console.log(this)
-                          this.beansTwo(results, status)
-                          console.log("done")
+                          this.updateProfileLocationFromGeocodeResult(results, status)
                         }
                   )
                 // need to set this variable in local state - isnt working correctly
@@ -89,7 +87,7 @@
                 // eslint-disable-next-line no-undef
                 autocompleteLocation = new this.google.maps.places.Autocomplete(document.getElementById("autocompleteLocation"), options)
                 autocompleteLocation.setFields(['address_components'])
-                autocompleteLocation.addListener('place_changed', this.beans.bind(null, autocompleteLocation))
+                autocompleteLocation.addListener('place_changed', () => this.getLocationFromGeocode(autocompleteLocation))
             },
 
             updateLocation(location) {
