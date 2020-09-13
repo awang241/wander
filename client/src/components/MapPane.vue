@@ -13,6 +13,10 @@
     import VueResizable from 'vue-resizable'
     import googleMapsInit from '../utils/googlemaps'
     //Fake data until API endpoint is set up
+
+    const DEFAULT_HEIGHT = 500;
+    const DEFAULT_WIDTH = 1075;
+
     const locations = [
         {
             position: {
@@ -45,8 +49,8 @@
         },
         data() {
             return {
-                height: 500,
-                width: 500,
+                height: DEFAULT_HEIGHT,
+                width: DEFAULT_WIDTH,
                 locationChoiceMarker: null,
                 map: null,
                 google: null
@@ -69,8 +73,8 @@
             //Minimizes the map pane if it is not already minimized
             //Restores the pane to its default size if it is minimized
             resizePane() {
-                this.height = this.height === 0 ? 500 : 0
-                this.width = this.width === 0 ? 500 : 0
+                this.height = this.height === 0 ? DEFAULT_HEIGHT : 0
+                this.width = this.width === 0 ? DEFAULT_WIDTH : 0
             },
             //Allows user to choose their location by clicking on the map
             setLocationWithMarker(position) {
