@@ -71,7 +71,6 @@ let autocompleteLocation;
                     document.getElementById("autocompleteLocation").value = locationString;
                     let geocoder = new this.google.maps.Geocoder;
                     geocoder.geocode({'address': document.getElementById("autocompleteLocation").value}, (results, status) => {
-                      // need to set this variable in local state - isnt working correctly
                       if (status === 'OK') {
                         this.profileLocationLatLong = {lat: results[0].geometry.location.lat(), lng: results[0].geometry.location.lng()}
                       }
