@@ -11,8 +11,13 @@
         <div v-else id="noMatches">
             <h1>You have no notifications.</h1>
         </div>
-        <observer v-on:intersect="this.loadMoreNotifications()"/>
+        <div>
+            <observer v-on:intersect="loadMoreNotifications()"/>
+        </div>
+
     </div>
+
+
 </template>
 
 <script>
@@ -39,12 +44,16 @@ export default {
     }
   },
   methods: {
-      loadMoreNotifications(){
+      loadMoreNotifications() {
         if (this.moreNotificationsExist) {
-          const searchParameters = {count: 5, startIndex: this.startIndex}
+          const searchParameters = {count: 5, startIndex: this.startIndex};
           api.getNotifications(Number(this.store.getters.getUserId), localStorage.getItem("authToken"), searchParameters).then(response => {
             if (response.data.notifications.length > 0) {
               this.notifications = [...this.notifications, ...response.data.notifications];
+              this.startIndex += response.data.notifications.length;
+              if (response.data.notifications.length < 5) {
+                  this.moreNotificationsExist = false;
+              }
             } else {
               this.moreNotificationsExist = false;
             }
