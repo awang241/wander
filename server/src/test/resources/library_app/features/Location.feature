@@ -29,3 +29,9 @@ Feature: CRUD for a profiles location
     Given A profile exists with city "Wellington" and country "New Zealand"
     When I choose to delete the location from this profile
     Then the profile now has no location
+
+  @U9-location
+  Scenario: Adding a location with an address, latitude, and longitude values
+    Given A profile exists with no location
+    When I select the address "20 Kirkwood Ave, Upper Riccarton, Christchurch", longitude "1.1" and latitude "-1.1"
+    Then the profile has the address "20 Kirkwood Ave, Upper Riccarton, Christchurch", longitude "1.1" and latitude "-1.1"
