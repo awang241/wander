@@ -43,10 +43,11 @@
                 type: Object,
             },
             markerLabel: {
-              type: String,
-              default: "Location"
+                type: String,
+                default: "Location"
             }
         },
+
         data() {
             return {
                 height: DEFAULT_HEIGHT,
@@ -56,11 +57,20 @@
                 google: null
             }
         },
+
+        //When prop locationchoicecoords changes, call this.setlocationwithmarker
+        watch: {
+            locationChoiceCoordinates: function (newCoords) {
+                this.setLocationWithMarker(newCoords)
+                this.map.setCenter(newCoords)
+            }
+        },
+
         async mounted() {
             this.google = await googleMapsInit()
             await this.createMap()
             this.createMarkers()
-            if(this.locationChoiceCoordinates) {
+            if (this.locationChoiceCoordinates) {
                 this.setLocationWithMarker(this.locationChoiceCoordinates)
             }
         },
@@ -91,10 +101,10 @@
             },
             //Dynamically creates the google map
             createMap() {
-                const initialLocation = {lat: -25.363, lng: 13.044}
+                const defaultLocation = {lat: -43.4341, lng: 172.6397}
                 this.map = new this.google.maps.Map(document.getElementById('map'), {
                     zoom: 4,
-                    center: initialLocation,
+                    center: this.locationChoiceCoordinates ? this.locationChoiceCoordinates : defaultLocation,
                 });
                 this.google.maps.event.addListener(this.map, 'click', e => {
                     this.setLocationWithMarker(e.latLng);
