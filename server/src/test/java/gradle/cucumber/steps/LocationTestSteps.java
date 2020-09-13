@@ -57,7 +57,7 @@ public class LocationTestSteps {
 
     @When("I select the country {string} and city {string}")
     public void iSelectTheCountryAndCity(String country, String city) {
-        ProfileLocation location = new ProfileLocation(city, "", country);
+        ProfileLocation location = new ProfileLocation(city, "", country, 100, 100);
         profile.setLocation(location);
         profileService.updateProfileLocation(location, profile.getId());
     }
@@ -72,7 +72,7 @@ public class LocationTestSteps {
 
     @When("I select the country {string} and city {string} and the state {string}")
     public void iSelectTheCountryAndCityAndTheState(String country, String city, String state) {
-        ProfileLocation location = new ProfileLocation(city, state, country);
+        ProfileLocation location = new ProfileLocation(city, state, country, 100, 100);
         profileService.updateProfileLocation(location, profile.getId());
     }
 
@@ -85,7 +85,7 @@ public class LocationTestSteps {
 
     @When("I select the country {string} and the State {string}")
     public void iSelectTheCountryAndTheState(String country, String state) {
-        ProfileLocation location = new ProfileLocation("", state, country);
+        ProfileLocation location = new ProfileLocation("", state, country, 100, 100);
 
         profileService.updateProfileLocation(location, profile.getId());
     }
@@ -98,7 +98,7 @@ public class LocationTestSteps {
     @Given("A profile exists with city {string} and country {string}")
     public void aProfileExistsWithCityAndCountry(String city, String country) {
         profile = createNormalProfileJacky("email@gmail.com", "password");
-        ProfileLocation location = new ProfileLocation(city, "", country);
+        ProfileLocation location = new ProfileLocation(city, "", country, 100, 100);
         profile.setLocation(location);
         location.setProfile(profile);
         profileRepository.save(profile);
@@ -106,7 +106,7 @@ public class LocationTestSteps {
 
     @When("I select {string} as country {string} city")
     public void iSelectAsCountryCity(String country, String city) {
-        ProfileLocation location = new ProfileLocation(city, "", country);
+        ProfileLocation location = new ProfileLocation(city, "", country, 100, 100);
         profileService.updateProfileLocation(location, profile.getId());
     }
 
