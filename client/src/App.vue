@@ -9,7 +9,7 @@
 
 <script>
   import NavBar from './components/NavBar';
-  import ProfileSearch from "./components/ProfileSearch";
+  import ProfileSearch from "./components/Search/ProfileSearch";
   import router from "./router";
 
   const app = {

@@ -1,5 +1,5 @@
 import { shallowMount } from '@vue/test-utils'
-import ProfileSearch from "../../src/components/ProfileSearch";
+import ProfileSearch from "../../src/components/Search/ProfileSearch";
 
 let wrapper;
 const DEFAULT_RESULT_COUNT = 10
