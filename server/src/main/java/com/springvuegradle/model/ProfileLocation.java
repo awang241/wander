@@ -28,10 +28,13 @@ public class ProfileLocation {
     public ProfileLocation(
             String city,
             String state,
-            String country) {
+            String country,
+            double longitude,
+            double latitude
+           ) {
         this.address = String.format("%s, %s, %s.", city, state, country);
-        this.longitude = 0.0;
-        this.latitude = 0.0;
+        this.longitude = longitude;
+        this.latitude = latitude;
     }
 
     /**

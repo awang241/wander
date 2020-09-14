@@ -10,6 +10,7 @@ import com.springvuegradle.model.ProfileSearchCriteria;
 import com.springvuegradle.model.ProfileTestUtils;
 import com.springvuegradle.repositories.EmailRepository;
 import com.springvuegradle.repositories.ProfileRepository;
+import com.springvuegradle.utilities.ProfileLocationTestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import com.springvuegradle.repositories.*;
 import org.junit.jupiter.api.AfterEach;
@@ -258,7 +259,7 @@ class ProfileServiceTest {
      **/
     @Test
     void testAddLocationResponse() {
-        ProfileLocation location = new ProfileLocation("New Zealand", "Christchurch", "Canterbury");
+        ProfileLocation location = ProfileLocationTestUtils.createValidProfileLocation();
         Profile profile = createProfile();
         profileRepository.save(profile);
         ResponseEntity<String> response = profileService.updateProfileLocation(location, profile.getId());
@@ -270,10 +271,10 @@ class ProfileServiceTest {
      **/
     @Test
     void testAddLocationData() {
-        ProfileLocation location = new ProfileLocation("New Zealand", "Christchurch", "Canterbury");
+        ProfileLocation location = ProfileLocationTestUtils.createValidProfileLocation();
         Profile profile = createProfile();
         profileRepository.save(profile);
-        ResponseEntity<String> response = profileService.updateProfileLocation(location, profile.getId());
+        profileService.updateProfileLocation(location, profile.getId());
         assertEquals(profile.getProfileLocation(), location);
     }
 
@@ -282,13 +283,42 @@ class ProfileServiceTest {
      **/
     @Test
     void testChangeLocationData() {
-        ProfileLocation location = new ProfileLocation("New Zealand", "Christchurch", "Canterbury");
+        ProfileLocation location = ProfileLocationTestUtils.createValidProfileLocation();
         Profile profile = createProfile();
         profile.setLocation(location);
         profileRepository.save(profile);
-        ProfileLocation newLocation = new ProfileLocation("Australia", "Sydney", "NSW");
+        ProfileLocation newLocation = ProfileLocationTestUtils.createUpdatedProfileLocation();
         profileService.updateProfileLocation(newLocation, profile.getId());
         assertEquals(profile.getProfileLocation(), newLocation);
+    }
+
+    /**
+     * Tests to ensure when locations update there latitude and longitude, the service method updates it correctly
+     * in the database.
+     */
+    @Test
+    void testChangeLocationCoordinates() {
+        ProfileLocation location = ProfileLocationTestUtils.createValidProfileLocation();
+        ProfileLocation newLocation = ProfileLocationTestUtils.createUpdatedProfileLocation();
+        Profile profile = createProfile();
+        profile.setLocation(location);
+        ArrayList<Double> currentCoordinates = new ArrayList<>();
+        ArrayList<Double> newCoordinates = new ArrayList<>();
+
+        profileRepository.save(profile);
+
+        double currentLatitude = profile.getProfileLocation().getLatitude();
+        double currentLongitude = profile.getProfileLocation().getLongitude();
+        currentCoordinates.add(currentLatitude);
+        currentCoordinates.add(currentLongitude);
+
+        profileService.updateProfileLocation(newLocation, profile.getId());
+        double newLatitude = profile.getProfileLocation().getLatitude();
+        double newLongitude = profile.getProfileLocation().getLongitude();
+        newCoordinates.add(newLatitude);
+        newCoordinates.add(newLongitude);
+
+        assertNotEquals(currentCoordinates, newCoordinates);
     }
 
     /**
@@ -296,7 +326,7 @@ class ProfileServiceTest {
      **/
     @Test
     void testNonExistentProfileIdStatus(){
-        ProfileLocation location = new ProfileLocation("New Zealand", "Christchurch", "Canterbury");
+        ProfileLocation location = ProfileLocationTestUtils.createValidProfileLocation();
         ResponseEntity<String> response = profileService.updateProfileLocation(location,-1L);
         assertEquals(response, new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
@@ -306,7 +336,7 @@ class ProfileServiceTest {
      **/
     @Test
     void testNonExistentProfileData(){
-        ProfileLocation location = new ProfileLocation("New Zealand", "Christchurch", "Canterbury");
+        ProfileLocation location = ProfileLocationTestUtils.createValidProfileLocation();
         ResponseEntity<String> response = profileService.updateProfileLocation(location, -1L);
         assertEquals(0L, profileLocationRepository.count());
     }
