@@ -96,7 +96,7 @@
                         label: {text: this.markerLabel},
                     });
                     this.locationChoiceMarker.setMap(this.map)
-                    this.map.setZoom(12)
+                    this.map.setZoom(16)
                 }
                 this.$emit('locationChoiceChanged', position)
             },
@@ -109,7 +109,7 @@
                 });
                 this.google.maps.event.addListener(this.map, 'click', e => {
                     this.setLocationWithMarker(e.latLng);
-                    this.map.setZoom(12);
+                    this.map.setZoom(16);
                 })
             },
             //Loops through locations and creates marker for each one

@@ -119,12 +119,16 @@ export default {
       this.profile.location = location
       api.editProfileLocation(this.id, this.profile.location, localStorage.getItem('authToken'))
           .then(() => {
-            this.successToast("Location updated!")
+            this.successToast("Location updated")
           })
           .catch(error => this.warningToast(error.response.data))
     },
     clearLocation() {
-      api.deleteLocation(this.id, localStorage.getItem('authToken'));
+      api.deleteLocation(this.id, localStorage.getItem('authToken'))
+        .then(() => {
+          this.successToast("Location removed");
+        })
+        .catch(error => this.warningToast(error.response.data))
     },
     updatePersonal(personalDetails) {
       this.profile.firstname = personalDetails.firstname
