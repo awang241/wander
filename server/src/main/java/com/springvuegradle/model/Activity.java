@@ -41,9 +41,9 @@ public class Activity {
     @NotNull
     private String location;
 
-    private Double latitude;
+    private double latitude;
 
-    private Double longitude;
+    private double longitude;
 
 
     /**
@@ -192,6 +192,14 @@ public class Activity {
 
     public String getLocation() {
         return location;
+    }
+
+    public double getLatitude(){
+        return latitude;
+    }
+
+    public double getLongitude(){
+        return longitude;
     }
 
     public void setLocation(String location) {
