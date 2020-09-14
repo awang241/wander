@@ -89,9 +89,9 @@ import AutoCompleteLocation  from "../AutoCompleteLocation";
             })
           },
 
-          async checkValidLocation() {
+          async checkValidLocation(locationAddress) {
             let result;
-            await this.checkValidGeoCode().then(() => {result = true}).catch(() => {result = false})
+            await this.checkValidGeoCode(locationAddress).then(() => {result = true}).catch(() => {result = false})
             return result
           },
 
@@ -106,7 +106,7 @@ import AutoCompleteLocation  from "../AutoCompleteLocation";
             //Using JSON methods to make a constant and compare two JSON objects
             const original = JSON.stringify(this.profile.location.address);
             this.location.address = document.getElementById("autocompleteLocation").value;
-            let check = await this.checkValidLocation();
+            let check = await this.checkValidLocation(this.location.address);
             if (this.location.address === "" || this.location.latitude === "" || this.location.longitude === "") {
               this.warningToast("Please enter a location")
             } else if (JSON.stringify((this.location.address)) === original) {
