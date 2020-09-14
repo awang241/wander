@@ -117,13 +117,9 @@ export default {
     },
     updateLocation(location) {
       this.profile.location = location
-      console.log(this.profile.location)
-      console.log(location)
-      console.log(this.id)
       api.editProfileLocation(this.id, this.profile.location, localStorage.getItem('authToken'))
-          .then(response => {
+          .then(() => {
             this.successToast("Location updated!")
-            console.log(response)
           })
           .catch(error => this.warningToast(error.response.data))
     },

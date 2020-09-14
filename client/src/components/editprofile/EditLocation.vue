@@ -125,7 +125,6 @@ let autocompleteLocation;
             const original = JSON.stringify(this.profile.location.address);
             this.location.address = document.getElementById("autocompleteLocation").value;
             let check = await this.checkValidLocation();
-            console.log(this.location)
             if (this.location.address === "" || this.location.latitude === "" || this.location.longitude === "") {
               this.warningToast("Please enter a location")
             } else if (JSON.stringify((this.location.address)) === original) {
