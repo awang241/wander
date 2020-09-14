@@ -122,17 +122,14 @@ let autocompleteLocation;
           },
           async submitLocation() {
             //Using JSON methods to make a constant and compare two JSON objects
-
-            // NEED TO SUCCESSFULLY SAVE THE LOCATION IN ANOTHER TASK BEFORE COMPARING IT FOR CHANGES
-            // const original = JSON.stringify(this.profile.location);
+            const original = JSON.stringify(this.profile.location.address);
             this.location.address = document.getElementById("autocompleteLocation").value;
             let check = await this.checkValidLocation();
             console.log(this.location)
             if (this.location.address === "" || this.location.latitude === "" || this.location.longitude === "") {
               this.warningToast("Please enter a location")
-            // } else if (JSON.stringify((this.location)) === original) {
-            //
-            //   this.warningToast("No changes made")
+            } else if (JSON.stringify((this.location.address)) === original) {
+              this.warningToast("No changes made")
             } else if(check == false) {
               this.warningToast("Location is invalid, please use the auto-complete suggestions")
             } else {
@@ -143,6 +140,7 @@ let autocompleteLocation;
             if (this.profile.location.address != "") {
               this.location.address = this.profile.location.address;
               document.getElementById("autocompleteLocation").value = this.location.address;
+              this.checkValidGeoCode()
             }
           }
         },
