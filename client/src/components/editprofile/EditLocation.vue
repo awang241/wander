@@ -136,14 +136,12 @@ let autocompleteLocation;
             } else if(check == false) {
               this.warningToast("Location is invalid, please use the auto-complete suggestions")
             } else {
-
               this.$parent.updateLocation(this.location)
-              this.successToast("New location saved")
             }
           },
           setLocation() {
-            if (this.profile.location != null) {
-              this.location = this.profile.location;
+            if (this.profile.location.address != "") {
+              this.location.address = this.profile.location.address;
               document.getElementById("autocompleteLocation").value = this.location.address;
             }
           }
