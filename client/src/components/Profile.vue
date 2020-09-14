@@ -47,7 +47,7 @@
                                 </tr>
                                 <tr v-if="profile.location">
                                     <td>Location:</td>
-                                    <td>{{fullLocation}}</td>
+                                    <td>{{profile.location.address}}</td>
                                 </tr>
                                 <tr>
                                     <td>Birthday:</td>
@@ -156,14 +156,6 @@
                     default:
                         return "Beginner: I am not active at all";
                 }
-            },
-            fullLocation: function () {
-                let locationString = this.profile.location.city + ", ";
-                if (this.profile.location.state) {
-                    locationString += this.profile.location.state + ", "
-                }
-                locationString += this.profile.location.country;
-                return locationString
             }
         },
         mounted() {

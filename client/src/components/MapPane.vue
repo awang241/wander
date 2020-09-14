@@ -112,7 +112,6 @@
             },
             //Loops through locations and creates marker for each one
             createMarkers() {
-                //Api call would go here
                 locations.forEach(location => this.createSingleMarker(location))
             },
             //Creates a singular marker on the map
