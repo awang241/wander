@@ -228,6 +228,10 @@
                         <p>This activity has no participation results.</p>
                     </div>
                 </b-tab-item>
+
+                <b-tab-item label="Location">
+                    <MapPane></MapPane>
+                </b-tab-item>
             </b-tabs>
         </div>
     </div>
@@ -241,6 +245,8 @@
     import Observer from "./Observer";
     import ActivityParticipationSummary from "./ActivityParticipationSummary";
     import toastMixin from "../mixins/toastMixin";
+    import googleMapsInit from "../utils/googlemaps";
+    import MapPane from "./MapPane";
 
 
     const DEFAULT_RESULT_COUNT = 50;
@@ -259,7 +265,7 @@
 
     export default {
         name: "ViewActivity",
-        components: {ProfileSummary, ActivityParticipationSummary, Observer},
+        components: {MapPane, ProfileSummary, ActivityParticipationSummary, Observer},
         mixins: [toastMixin],
         data() {
             return {
@@ -462,7 +468,9 @@
             }
 
         },
-        mounted() {
+        async mounted() {
+            this.google = await googleMapsInit();
+            this.geocoder = new this.google.maps.Geocoder();
             this.getActivity();
             this.getRoleCounts();
             this.getParticipationResults();
