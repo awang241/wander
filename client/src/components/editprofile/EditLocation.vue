@@ -42,7 +42,7 @@ import AutoCompleteLocation  from "../AutoCompleteLocation";
               google: null,
               profileLocationLatLong: null,
               geocoder: null,
-              locationString: this.profile.location.address
+              locationString: ""
             }
         },
         methods: {
@@ -57,6 +57,12 @@ import AutoCompleteLocation  from "../AutoCompleteLocation";
             })
           },
 
+          updateLocationString() {
+            if (this.profile.location.address) {
+              this.locationString = this.profile.location.address
+            }
+          },
+
           async checkValidLocation(locationAddress) {
             let result;
             await this.$refs.autocomplete.checkValidGeoCode(locationAddress).then(() => {result = true}).catch(() => {result = false})
@@ -64,6 +70,7 @@ import AutoCompleteLocation  from "../AutoCompleteLocation";
           },
 
           updateMapLocationFromAutoComplete(location) {
+            console.log(location)
             this.profileLocationLatLong = {lat: location.latitude, lng: location.longitude}
             this.locationString = location.address
           },
@@ -98,6 +105,7 @@ import AutoCompleteLocation  from "../AutoCompleteLocation";
       async mounted() {
         this.google = await googleMapsInit();
         this.geocoder = new this.google.maps.Geocoder;
+        this.updateLocationString();
       }
 
 }
