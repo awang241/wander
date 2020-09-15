@@ -2,7 +2,7 @@
   <div class="container">
     <h1 class="title is-5">Edit Your Location </h1>
 
-    <AutoCompleteLocation></AutoCompleteLocation>
+    <AutoCompleteLocation v-on:updateMap="updateLocation" v-bind:profileLocation="this.profile.location" ref="autocomplete"></AutoCompleteLocation>
 
     <MapPane marker-label="Profile Location" :location-choice-coordinates="profileLocationLatLong" v-on:locationChoiceChanged="updateLocation"></MapPane>
     <br>
@@ -60,20 +60,7 @@ import AutoCompleteLocation  from "../AutoCompleteLocation";
             })
           },
 
-          formatLocationTextField(locationArray) {
-            let locationString = "";
-            for (let i = 0; i < (locationArray.address_components).length; i++) {
-              if (i === 0) {
-                locationString = locationArray.address_components[0].long_name;
-              } else if (i !== (locationArray.address_components).length) {
-                if (locationArray.address_components[i].long_name !== locationArray.address_components[i - 1].long_name) {
-                  locationString = locationString + ", " + locationArray.address_components[i].long_name;
-                }
-              }
-            }
-            return locationString;
-          },
-
+          //Need to call this from autocomplete child
           checkValidGeoCode(locationAddress) {
             return new Promise((resolve, reject) => {
               this.geocoder.geocode({'address': locationAddress}, (results, status) => {
@@ -89,10 +76,16 @@ import AutoCompleteLocation  from "../AutoCompleteLocation";
             })
           },
 
+          //Call childs checkvalidgeocode from here
           async checkValidLocation(locationAddress) {
             let result;
             await this.checkValidGeoCode(locationAddress).then(() => {result = true}).catch(() => {result = false})
             return result
+          },
+
+          updateMapLocationFromAutoComplete(location) {
+            console.log("brap brap braaaaapp")
+            this.profileLocationLatLong = {lat: location.latitude, lng: location.longitude}
           },
 
           clearLocation() {
@@ -116,20 +109,16 @@ import AutoCompleteLocation  from "../AutoCompleteLocation";
             } else {
               this.$parent.updateLocation(this.location)
             }
-          },
-
-          setLocation() {
-            if (this.profile.location.address != "") {
-              this.location.address = this.profile.location.address;
-              document.getElementById("autocompleteLocation").value = this.location.address;
-              this.checkValidGeoCode(this.location.address)
-            }
           }
+
+
+
         },
       async mounted() {
         this.google = await googleMapsInit();
         this.geocoder = new this.google.maps.Geocoder;
-        this.setLocation();
+        // this.$ref.autocomplete.setLocation();
+        // this.setLocation()
       }
 
 }

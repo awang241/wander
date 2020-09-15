@@ -10,13 +10,22 @@
 
 <script>
 
+    import googleMapsInit from "../utils/googlemaps";
+
     let autocompleteLocation;
 
     export default {
         name: "AutoCompleteLocation",
+        props: ["profileLocation"],
         data() {
             return {
-                locationAddress : ""
+                location : {
+                    address: "",
+                    latitude: "",
+                    longitude: ""
+                },
+                geocoder: "",
+                profileLocationLatLong: ""
             }
         },
         methods: {
@@ -28,14 +37,12 @@
                 let options = {
                     types: ['geocode'],
                 };
-                // eslint-disable-next-line no-undef
-                autocompleteLocation = new google.maps.places.Autocomplete(document.getElementById("autocompleteLocation"), options)
+                autocompleteLocation = new this.google.maps.places.Autocomplete(document.getElementById("autocompleteLocation"), options)
                 autocompleteLocation.setFields(['address_components']);
                 autocompleteLocation.addListener('place_changed', () => {
-                    var locationObject = autocompleteLocation.getPlace();
-                    this.locationAddress = this.formatLocationTextField(locationObject);
-                    document.getElementById("autocompleteLocation").value = this.locationAddress;
-                    this.$parent.checkValidGeoCode(this.locationAddress)
+                    this.location.address = this.formatLocationTextField(autocompleteLocation.getPlace());
+                    document.getElementById("autocompleteLocation").value = this.location.address;
+                    this.checkValidGeoCode(this.location.address)
                 })
             },
 
@@ -52,11 +59,38 @@
                 }
                 return locationString
 
+            },
+
+            checkValidGeoCode(locationAddress) {
+                return new Promise((resolve, reject) => {
+                    this.geocoder.geocode({'address': locationAddress}, (results, status) => {
+                        if (status === 'OK') {
+                            this.location.latitude = results[0].geometry.location.lat()
+                            this.location.longitude = results[0].geometry.location.lng()
+                            resolve(true)
+                        } else {
+                            reject(false);
+                        }
+                    })
+                })
+            },
+
+            async setLocation() {
+                if (this.profileLocation.address != "") {
+                    this.location.address = this.profileLocation.address;
+                    document.getElementById("autocompleteLocation").value = this.location.address;
+                    await this.checkValidGeoCode(this.location.address)
+                    this.$parent.updateMapLocationFromAutoComplete(this.location);
+                }
             }
 
         },
-        mounted() {
+        async mounted() {
+            this.google = await googleMapsInit();
+            this.geocoder = new this.google.maps.Geocoder;
             this.initAutoCompleteLocation()
+            this.setLocation()
+            // this.$emit('updateLocation', this.location)
         }
     }
 </script>
