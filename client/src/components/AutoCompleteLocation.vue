@@ -25,7 +25,6 @@
                     longitude: ""
                 },
                 geocoder: "",
-                profileLocationLatLong: ""
             }
         },
         methods: {
@@ -43,7 +42,6 @@
                 autocompleteLocation.addListener('place_changed', () => {
                     this.location.address = this.formatLocationTextField(autocompleteLocation.getPlace());
                     document.getElementById("autocompleteLocation").value = this.location.address;
-                    console.log("durrr?")
                     this.checkValidGeoCode(this.location.address)
                 })
             },
@@ -69,7 +67,6 @@
                         if (status === 'OK') {
                             this.location.latitude = results[0].geometry.location.lat()
                             this.location.longitude = results[0].geometry.location.lng()
-                            console.log("ok bro")
                             this.$parent.updateMapLocationFromAutoComplete(this.location);
                             resolve(true)
                         } else {
@@ -80,6 +77,7 @@
             },
 
             async setLocation() {
+                console.log(this.profileLocation)
                 if (this.profileLocation.address != "") {
                     this.location.address = this.profileLocation.address;
                     document.getElementById("autocompleteLocation").value = this.location.address;
@@ -89,14 +87,17 @@
             },
 
             clearLocation() {
-                console.log(this.location)
                 this.location = {location: "", latitude: "", longitude: ""}
-                console.log(this.location)
             },
 
-            updateLocation(location) {
-                console.log("yo")
-                console.log(location)
+            updateLocation(locationAddress) {
+                this.location.address = locationAddress
+                this.checkValidGeoCode(locationAddress)
+
+            },
+
+            returnLocation() {
+                return this.location;
             }
 
         },
@@ -105,7 +106,6 @@
             this.geocoder = new this.google.maps.Geocoder;
             this.initAutoCompleteLocation()
             this.setLocation()
-            // this.$emit('updateLocation', this.location)
         }
     }
 </script>
