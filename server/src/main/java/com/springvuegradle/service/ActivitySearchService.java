@@ -2,6 +2,8 @@ package com.springvuegradle.service;
 
 import com.springvuegradle.dto.SimplifiedActivity;
 import com.springvuegradle.model.Activity;
+import com.springvuegradle.model.ActivityMembership;
+import com.springvuegradle.repositories.ActivityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,26 +13,40 @@ import java.util.List;
 @Service
 public class ActivitySearchService {
 
-    @Autowired ActivityService activityService;
+    @Autowired
+    ActivityService activityService;
+
+    @Autowired
+    ActivityRepository activityRepository;
+
+    @Autowired
+    ProfileService profileService;
+
 
     /**
      * Returns a list of simplified activities which are both within the specified distance
      * of the specified point AND visible to the user
+     * @param isAdmin whether the user searching is an admin
+     * @param profileId the ID of the user who is searching
      * @param maximumDistance activities only within this distance(specified in m) will be returned
      * @param latitude the latitude we are searching within a distance of
      * @param longitude the longitude we are searching within a distance of
      * @return a list of simplified activities that are visible to the user and are within the required range
      */
-    public List<SimplifiedActivity> getActivitiesInRange(int maximumDistance, double latitude, double longitude){
-        if(!(isValidLatitude(latitude) && isValidLongitude(longitude))){
-            //Throw exception here
+    public List<SimplifiedActivity> getActivitiesInRange(Long profileId, boolean isAdmin, int maximumDistance, Double latitude, Double longitude) {
+        if (!(isValidLatitude(latitude) && isValidLongitude(longitude))) {
+            throw new IllegalArgumentException("Invalid latitude and longitude");
         }
-
-        List<Activity> visibleActivities = activityService.getAllActivities();
-        List<Activity> activitiesInRange = new ArrayList<Activity>();
-        for(Activity activity: visibleActivities){
-            double activityDistanceFromPoint = distance(latitude, activity.getLatitude(), longitude, activity.getLongitude());
-            if(activityDistanceFromPoint < maximumDistance){
+        List<Activity> visibleActivities;
+        if (isAdmin) {
+            visibleActivities = activityService.getAllActivities();
+        } else {
+            visibleActivities = activityRepository.findActivitiesUserCanSee(profileId, ActivityMembership.Role.CREATOR);
+        }
+        List<Activity> activitiesInRange = new ArrayList<>();
+        for (Activity activity : visibleActivities) {
+            Double activityDistanceFromPoint = distance(latitude, activity.getLatitude(), longitude, activity.getLongitude());
+            if (activityDistanceFromPoint < maximumDistance) {
                 activitiesInRange.add(activity);
             }
         }
@@ -41,7 +57,7 @@ public class ActivitySearchService {
      * Method based on https://stackoverflow.com/questions/3694380/calculating-distance-between-two-points-using-latitude-longitude
      * Calculate distance between two points in latitude and longitude without
      * taking into account height difference
-     * lat1, lon1 Start point lat2, lon2 End point el1 Start altitude in meters
+     *
      * @param lat1 the latitude of the first location
      * @param lat2 the latitude of the second location
      * @param lon1 the longitude of the first location
@@ -68,19 +84,27 @@ public class ActivitySearchService {
 
     /**
      * Ensures a latidude is valid
+     *
      * @param latitude the latitude to be checked
      * @return true if the latitude is valid
      */
-    private static boolean isValidLatitude(double latitude){
+    private static boolean isValidLatitude(Double latitude) {
+        if (latitude == null) {
+            return false;
+        }
         return latitude >= -90 && latitude <= 90;
     }
 
     /**
      * Ensures a longitude is valid
+     *
      * @param longitude the longitude to be checked
      * @return true if the longitude is valid
      */
-    private static boolean isValidLongitude(double longitude){
+    private static boolean isValidLongitude(Double longitude) {
+        if (longitude == null) {
+            return false;
+        }
         return longitude >= -90 && longitude <= 180;
     }
 }

@@ -4,9 +4,9 @@ import lombok.Data;
 
 @Data
 public class ActivityRangeRequest {
-    double latitude;
+    Double latitude;
 
-    double longitude;
+    Double longitude;
 
     //Used to check if activities are within this distance (m) of the location
     int distance;
