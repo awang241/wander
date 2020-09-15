@@ -39,11 +39,6 @@ import AutoCompleteLocation  from "../AutoCompleteLocation";
         mixins: [toastMixin],
         data() {
             return {
-              location: {
-                address: "",
-                latitude: "",
-                longitude: ""
-              },
               google: null,
               profileLocationLatLong: null,
               geocoder: null
@@ -60,26 +55,9 @@ import AutoCompleteLocation  from "../AutoCompleteLocation";
             })
           },
 
-          //Need to call this from autocomplete child
-          checkValidGeoCode(locationAddress) {
-            return new Promise((resolve, reject) => {
-              this.geocoder.geocode({'address': locationAddress}, (results, status) => {
-                if (status === 'OK') {
-                  this.location.latitude = results[0].geometry.location.lat()
-                  this.location.longitude = results[0].geometry.location.lng()
-                  this.profileLocationLatLong = {lat: this.location.latitude, lng: this.location.longitude}
-                  resolve(true)
-                } else {
-                  reject(false);
-                }
-              })
-            })
-          },
-
-          //Call childs checkvalidgeocode from here
           async checkValidLocation(locationAddress) {
             let result;
-            await this.checkValidGeoCode(locationAddress).then(() => {result = true}).catch(() => {result = false})
+            await this.$refs.autocomplete.checkValidGeoCode(locationAddress).then(() => {result = true}).catch(() => {result = false})
             return result
           },
 
@@ -92,13 +70,13 @@ import AutoCompleteLocation  from "../AutoCompleteLocation";
             this.$parent.clearLocation();
             this.successToast("Location removed");
             document.getElementById("autocompleteLocation").value = null;
-            this.location = {location: "", latitude: "", longitude: ""}
+            this.$refs.autocomplete.clearLocation();
           },
 
           async submitLocation() {
             //Using JSON methods to make a constant and compare two JSON objects
             const original = JSON.stringify(this.profile.location.address);
-            this.location.address = document.getElementById("autocompleteLocation").value;
+            this.$refs.autocomplete.updateLocation(document.getElementById("autocompleteLocation").value);
             let check = await this.checkValidLocation(this.location.address);
             if (this.location.address === "" || this.location.latitude === "" || this.location.longitude === "") {
               this.warningToast("Please enter a location")
@@ -117,8 +95,6 @@ import AutoCompleteLocation  from "../AutoCompleteLocation";
       async mounted() {
         this.google = await googleMapsInit();
         this.geocoder = new this.google.maps.Geocoder;
-        // this.$ref.autocomplete.setLocation();
-        // this.setLocation()
       }
 
 }

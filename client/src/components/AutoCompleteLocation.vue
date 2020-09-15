@@ -37,11 +37,13 @@
                 let options = {
                     types: ['geocode'],
                 };
+
                 autocompleteLocation = new this.google.maps.places.Autocomplete(document.getElementById("autocompleteLocation"), options)
                 autocompleteLocation.setFields(['address_components']);
                 autocompleteLocation.addListener('place_changed', () => {
                     this.location.address = this.formatLocationTextField(autocompleteLocation.getPlace());
                     document.getElementById("autocompleteLocation").value = this.location.address;
+                    console.log("durrr?")
                     this.checkValidGeoCode(this.location.address)
                 })
             },
@@ -67,6 +69,8 @@
                         if (status === 'OK') {
                             this.location.latitude = results[0].geometry.location.lat()
                             this.location.longitude = results[0].geometry.location.lng()
+                            console.log("ok bro")
+                            this.$parent.updateMapLocationFromAutoComplete(this.location);
                             resolve(true)
                         } else {
                             reject(false);
@@ -82,6 +86,17 @@
                     await this.checkValidGeoCode(this.location.address)
                     this.$parent.updateMapLocationFromAutoComplete(this.location);
                 }
+            },
+
+            clearLocation() {
+                console.log(this.location)
+                this.location = {location: "", latitude: "", longitude: ""}
+                console.log(this.location)
+            },
+
+            updateLocation(location) {
+                console.log("yo")
+                console.log(location)
             }
 
         },
