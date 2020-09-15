@@ -7,14 +7,13 @@ import com.springvuegradle.model.Email;
 import com.springvuegradle.model.Profile;
 import com.springvuegradle.model.ProfileLocation;
 import com.springvuegradle.model.ProfileSearchCriteria;
-import com.springvuegradle.model.ProfileTestUtils;
+import com.springvuegradle.utilities.ProfileTestUtils;
 import com.springvuegradle.repositories.EmailRepository;
 import com.springvuegradle.repositories.ProfileRepository;
 import com.springvuegradle.utilities.ProfileLocationTestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import com.springvuegradle.repositories.*;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -255,7 +254,7 @@ class ProfileServiceTest {
     }
 
     /**
-     * Test to ensure HTTP Ok response returned when successfully editing profile
+     * Test to ensure HTTP Ok response returned when successfully adding a location to a profile.
      **/
     @Test
     void testAddLocationResponse() {

@@ -111,7 +111,6 @@ public class ActivityController {
             return errorOccurred;
         }
 
-
         try {
             activityService.update(request, activityId, profileId);
             return new ResponseEntity<>(ActivityResponseMessage.EDIT_SUCCESS.toString(), HttpStatus.OK);
