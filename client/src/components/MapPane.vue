@@ -111,7 +111,6 @@
                 });
                 this.google.maps.event.addListener(this.map, 'click', e => {
                     this.setLocationWithMarker(e.latLng);
-                    // this.map.setZoom(16);
                 })
             },
             //Loops through locations and creates marker for each one
