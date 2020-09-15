@@ -27,7 +27,7 @@ import Observer from "./Observer";
 import api from "../Api";
 import Notification from "../components/Notification";
 
-let COUNT = 25;
+const COUNT = 25;
 
 export default {
   name: "HomeFeed",
@@ -64,9 +64,6 @@ export default {
 
       }
   },
-  mounted() {
-    //this.loadMoreNotifications()
-  }
 }
 </script>
 
