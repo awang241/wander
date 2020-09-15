@@ -11,8 +11,13 @@
         <div v-else id="noMatches">
             <h1>You have no notifications.</h1>
         </div>
-        <observer v-on:intersect="$emit('loadMoreNotifications')"/>
+        <div>
+            <observer v-on:intersect="loadMoreNotifications()"/>
+        </div>
+
     </div>
+
+
 </template>
 
 <script>
@@ -21,6 +26,8 @@ import toastMixin from "../mixins/toastMixin";
 import Observer from "./Observer";
 import api from "../Api";
 import Notification from "../components/Notification";
+
+const COUNT = 25;
 
 export default {
   name: "HomeFeed",
@@ -34,21 +41,29 @@ export default {
       store: store,
       observer: null,
       notifications: [],
+      startIndex: 0,
+      moreNotificationsExist: true
     }
   },
   methods: {
-      loadMoreNotifications(){
-        const searchParameters = {count: 50, startIndex: 0}
-        api.getNotifications(Number(this.store.getters.getUserId), localStorage.getItem("authToken"), searchParameters).then(response => {
-            if(response.data.notifications.length > 0){
-              this.notifications = response.data.notifications;
+      loadMoreNotifications() {
+        if (this.moreNotificationsExist) {
+          const searchParameters = {count: COUNT, startIndex: this.startIndex};
+          api.getNotifications(Number(this.store.getters.getUserId), localStorage.getItem("authToken"), searchParameters).then(response => {
+            if (response.data.notifications.length > 0) {
+              this.notifications = [...this.notifications, ...response.data.notifications];
+              this.startIndex += COUNT;
+              if (response.data.notifications.length < COUNT) {
+                  this.moreNotificationsExist = false;
+              }
+            } else {
+              this.moreNotificationsExist = false;
             }
           })
+        }
+
       }
   },
-  mounted() {
-    this.loadMoreNotifications()
-  }
 }
 </script>
 
