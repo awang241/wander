@@ -4,12 +4,13 @@ package com.springvuegradle.service;
 import com.springvuegradle.enums.NotificationType;
 import com.springvuegradle.model.*;
 import com.springvuegradle.repositories.*;
+import com.springvuegradle.utilities.ActivityTestUtils;
+import com.springvuegradle.utilities.ProfileTestUtils;
 import org.junit.jupiter.api.*;
 import com.springvuegradle.repositories.ActivityMembershipRepository;
 import com.springvuegradle.repositories.ActivityRepository;
 import com.springvuegradle.repositories.NotificationRepository;
 import com.springvuegradle.repositories.ProfileRepository;
-import org.junit.jupiter.api.AfterEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 

@@ -1,13 +1,11 @@
 package com.springvuegradle.controller;
 
-import com.springvuegradle.dto.SimplifiedActivitiesResponse;
 import com.springvuegradle.dto.requests.EditAuthLevelRequest;
 import com.springvuegradle.dto.responses.NotificationsResponse;
 import com.springvuegradle.enums.ProfileErrorMessage;
-import com.springvuegradle.model.Notification;
 import com.springvuegradle.model.Profile;
 import com.springvuegradle.model.ProfileSearchCriteria;
-import com.springvuegradle.model.ProfileTestUtils;
+import com.springvuegradle.utilities.ProfileTestUtils;
 import com.springvuegradle.repositories.*;
 import com.springvuegradle.service.NotificationService;
 import com.springvuegradle.utilities.JwtUtil;
@@ -16,7 +14,6 @@ import com.springvuegradle.dto.responses.ProfileSearchResponse;
 import com.springvuegradle.dto.responses.ProfileSummary;
 import com.springvuegradle.enums.AuthenticationErrorMessage;
 import com.springvuegradle.service.ProfileService;
-import org.aspectj.weaver.ast.Not;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -33,11 +30,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 

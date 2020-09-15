@@ -68,7 +68,6 @@ import AutoCompleteLocation  from "../AutoCompleteLocation";
 
           clearLocation() {
             this.$parent.clearLocation();
-            this.successToast("Location removed");
             document.getElementById("autocompleteLocation").value = null;
             this.$refs.autocomplete.clearLocation();
           },
