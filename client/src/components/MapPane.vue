@@ -45,6 +45,9 @@
             markerLabel: {
                 type: String,
                 default: "Location"
+            },
+            address: {
+              type: String
             }
         },
 
@@ -58,7 +61,6 @@
             }
         },
 
-        //When prop locationchoicecoords changes, call this.setlocationwithmarker
         watch: {
             locationChoiceCoordinates: function (newCoords) {
                 this.setLocationWithMarker(newCoords)
@@ -97,7 +99,8 @@
                     });
                     this.locationChoiceMarker.setMap(this.map)
                 }
-                this.$emit('locationChoiceChanged', position)
+              this.setZoomLevel()
+              this.$emit('locationChoiceChanged', position)
             },
             //Dynamically creates the google map
             createMap() {
@@ -112,7 +115,6 @@
             },
             //Loops through locations and creates marker for each one
             createMarkers() {
-                //Api call would go here
                 locations.forEach(location => this.createSingleMarker(location))
             },
             //Creates a singular marker on the map
@@ -129,6 +131,10 @@
             //Method that should show users profile, or route to their profile in the future
             openDetailedMarkerView(id) {
                 alert(`Opening profile ${id}`)
+            },
+            setZoomLevel() {
+              let address_parts = this.address.split(',')
+              this.map.setZoom(address_parts.length * 2.5)
             }
         }
     }

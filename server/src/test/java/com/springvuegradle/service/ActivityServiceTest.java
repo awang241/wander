@@ -8,6 +8,7 @@ import com.springvuegradle.model.*;
 import com.springvuegradle.dto.responses.ActivityMemberProfileResponse;
 import com.springvuegradle.model.*;
 import com.springvuegradle.repositories.*;
+import com.springvuegradle.utilities.ActivityTestUtils;
 import com.springvuegradle.utilities.FormatHelper;
 import com.springvuegradle.utilities.InitialDataHelper;
 import org.junit.jupiter.api.AfterEach;
@@ -128,6 +129,30 @@ class ActivityServiceTest {
     }
 
     /**
+     * Test to edit the location of an existing activity
+     **/
+    @Test
+    void updateActivityLocationTest() {
+        Activity originalActivity = ActivityTestUtils.createNormalActivity();
+        Activity updatedActivity = ActivityTestUtils.createDifferentLocationActivity();
+        double originalLatitude = originalActivity.getLatitude();
+        double originalLongitude = originalActivity.getLongitude();
+
+        activityRepository.save(originalActivity);
+        Long activityId = activityRepository.getLastInsertedId();
+        Profile profile = profileRepository.save(createNormalProfileBen());
+        //update Activity in repo with new location, latitude and longitude
+        service.update(updatedActivity, activityId, profile.getId());
+
+        Activity result = activityRepository.findById(activityId).get();
+        double updatedLatitude = result.getLatitude();
+        double updatedLongitude = result.getLongitude();
+
+        assertNotEquals(originalLatitude, updatedLatitude);
+        assertNotEquals(originalLongitude, updatedLongitude);
+    }
+
+    /**
      * Test to edit an activity which doesn't already exist
      **/
     @Test
@@ -228,7 +253,8 @@ class ActivityServiceTest {
     void updateActivityWithNoActivityTypesTest() {
         activityRepository.save(createNormalActivitySilly());
         Long activityId = activityRepository.getLastInsertedId();
-        Activity expectedActivity = createNormalActivitySilly(), actualActivity = null;
+        Activity expectedActivity = createNormalActivitySilly();
+        Activity actualActivity = null;
         Optional<Activity> result = activityRepository.findById(activityId);
         if (result.isPresent()) {
             actualActivity = result.get();
@@ -271,16 +297,78 @@ class ActivityServiceTest {
      * Test to remove a profiles membership from an activity which they are not a part of
      */
     @Test
-    void removeActivityMemberShipFailTest() {
+    void removeMembershipWhereMembershipDoesNotExistThrowsExceptionTest() {
         Activity activity = activityRepository.save(createNormalActivityKaikoura());
         Profile bennyBoi = createNormalProfileBen();
         profileRepository.save(bennyBoi);
         Profile johnnyBoi = createNormalProfileJohnny();
         profileRepository.save(johnnyBoi);
-        ActivityMembership testMemberShip = new ActivityMembership(activity, bennyBoi, ActivityMembership.Role.PARTICIPANT);
+        ActivityMembership testMemberShip = new ActivityMembership(activity, bennyBoi, ActivityMembership.Role.ORGANISER);
         activityMembershipRepository.save(testMemberShip);
-        assertThrows(AccessControlException.class, () -> service.removeUserRoleFromActivity(bennyBoi.getId(), johnnyBoi.getId(), activity.getId()));
+        assertThrows(NoSuchElementException.class, () -> service.removeUserRoleFromActivity(bennyBoi.getId(), johnnyBoi.getId(), activity.getId()));
         assertEquals(1, activityMembershipRepository.count());
+    }
+
+    @Test
+    void removeMembershipWhenEditedIsOrganiserSucceedsTest() {
+        Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        Profile bennyBoi = createNormalProfileBen();
+        profileRepository.save(bennyBoi);
+        Profile johnnyBoi = createNormalProfileJohnny();
+        profileRepository.save(johnnyBoi);
+        ActivityMembership bennyMembership = new ActivityMembership(activity, bennyBoi, ActivityMembership.Role.ORGANISER);
+        activityMembershipRepository.save(bennyMembership);
+        ActivityMembership johnnyMemberShip = new ActivityMembership(activity, johnnyBoi, ActivityMembership.Role.ORGANISER);
+        activityMembershipRepository.save(johnnyMemberShip);
+
+        service.removeUserRoleFromActivity(bennyBoi.getId(), johnnyBoi.getId(), activity.getId());
+        assertEquals(1, activityMembershipRepository.count());
+    }
+
+    @Test
+    void removeMembershipWhenMemberIsCreatorThrowsExceptionTest() {
+        Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        Profile bennyBoi = createNormalProfileBen();
+        profileRepository.save(bennyBoi);
+        Profile johnnyBoi = createNormalProfileJohnny();
+        profileRepository.save(johnnyBoi);
+        ActivityMembership bennyMembership = new ActivityMembership(activity, bennyBoi, ActivityMembership.Role.ORGANISER);
+        activityMembershipRepository.save(bennyMembership);
+        ActivityMembership johnnyMemberShip = new ActivityMembership(activity, johnnyBoi, ActivityMembership.Role.CREATOR);
+        activityMembershipRepository.save(johnnyMemberShip);
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                service.removeUserRoleFromActivity(bennyBoi.getId(), johnnyBoi.getId(), activity.getId()));
+        assertEquals(exception.getMessage(), ActivityMessage.EDITING_CREATOR.toString());
+        assertEquals(2, activityMembershipRepository.count());
+    }
+
+    @Test
+    void removeMembershipWhenUnauthorisedThrowsExceptionTest() {
+        Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        Profile bennyBoi = createNormalProfileBen();
+        profileRepository.save(bennyBoi);
+        Profile johnnyBoi = createNormalProfileJohnny();
+        profileRepository.save(johnnyBoi);
+        ActivityMembership bennyMembership = new ActivityMembership(activity, bennyBoi, ActivityMembership.Role.PARTICIPANT);
+        activityMembershipRepository.save(bennyMembership);
+        ActivityMembership johnnyMemberShip = new ActivityMembership(activity, johnnyBoi, ActivityMembership.Role.CREATOR);
+        activityMembershipRepository.save(johnnyMemberShip);
+
+        AccessControlException exception = assertThrows(AccessControlException.class, () ->
+                service.removeUserRoleFromActivity(bennyBoi.getId(), johnnyBoi.getId(), activity.getId()));
+    }
+
+    @Test
+    void removeMembershipWhenRemovingSelfSucceedsTest() {
+        Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        Profile bennyBoi = createNormalProfileBen();
+        profileRepository.save(bennyBoi);
+        ActivityMembership bennyMembership = new ActivityMembership(activity, bennyBoi, ActivityMembership.Role.FOLLOWER);
+        activityMembershipRepository.save(bennyMembership);
+
+        service.removeUserRoleFromActivity(bennyBoi.getId(), bennyBoi.getId(), activity.getId());
+        assertEquals(0, activityMembershipRepository.count());
     }
 
     /**
@@ -318,7 +406,7 @@ class ActivityServiceTest {
         activity.setPrivacyLevel(0);
         service.addActivityRole(activity.getId(), profile.getId(), "ORGANISER");
         Activity activityResult = service.getActivityByActivityId(profile.getId(), activity.getId(), profile.getAuthLevel());
-        assertEquals(null, activityResult);
+        assertNull(activityResult);
     }
 
     /**
@@ -333,7 +421,7 @@ class ActivityServiceTest {
         activity.setPrivacyLevel(0);
         service.addActivityRole(activity.getId(), profile.getId(), "PARTICIPANT");
         Activity activityResult = service.getActivityByActivityId(profile.getId(), activity.getId(), profile.getAuthLevel());
-        assertEquals(null, activityResult);
+        assertNull(activityResult);
     }
 
     /**
@@ -348,7 +436,7 @@ class ActivityServiceTest {
         activity.setPrivacyLevel(0);
         service.addActivityRole(activity.getId(), profile.getId(), "FOLLOWER");
         Activity activityResult = service.getActivityByActivityId(profile.getId(), activity.getId(), profile.getAuthLevel());
-        assertEquals(null, activityResult);
+        assertNull(activityResult);
     }
 
     /**
@@ -362,7 +450,7 @@ class ActivityServiceTest {
         Activity activity = activityRepository.save(createNormalActivity());
         activity.setPrivacyLevel(0);
         Activity activityResult = service.getActivityByActivityId(profile.getId(), activity.getId(), profile.getAuthLevel());
-        assertEquals(null, activityResult);
+        assertNull(activityResult);
     }
 
     /**
@@ -444,7 +532,7 @@ class ActivityServiceTest {
         Activity activity = activityRepository.save(createNormalActivity());
         activity.setPrivacyLevel(1);
         Activity activityResult = service.getActivityByActivityId(profile.getId(), activity.getId(), profile.getAuthLevel());
-        assertEquals(null, activityResult);
+        assertNull(activityResult);
     }
 
     /**
@@ -647,7 +735,7 @@ class ActivityServiceTest {
         profileRepository.save(benny);
         Activity activity = createNormalActivity();
         activity.setPrivacyLevel(0);
-        controller.createActivity(benny.getId(), activity, null, true);;
+        controller.createActivity(benny.getId(), activity, null, true);
         List<Activity> list = service.getActivitiesByProfileIdByRole(benny.getId(), ActivityMembership.Role.CREATOR, startIndex, count, benny.getAuthLevel());
         assertEquals(1, list.size());
     }
@@ -917,7 +1005,7 @@ class ActivityServiceTest {
         emailRepository.save(new Email("ben11@hotmail.com", true, followerOne));
         emailRepository.save(new Email("ben12@hotmail.com", true, followerTwo));
         emailRepository.save(new Email("ben13@hotmail.com", true, organiser));
-        emailRepository.save(new Email("ben14@hotmail.com", true, participant));;
+        emailRepository.save(new Email("ben14@hotmail.com", true, participant));
         ActivityMembership creatorMembership = new ActivityMembership(activity, creator, ActivityMembership.Role.CREATOR);
         ActivityMembership followerOneMembership = new ActivityMembership(activity, followerOne, ActivityMembership.Role.FOLLOWER);
         ActivityMembership followerTwoMembership = new ActivityMembership(activity, followerTwo, ActivityMembership.Role.FOLLOWER);
@@ -1010,7 +1098,7 @@ class ActivityServiceTest {
 
     @Test
     void clearRolesOfActivityThatDoesntExistThrowsExceptionTest(){
-        assertThrows(IllegalArgumentException.class, ()-> service.clearActivityRoleList(915730971l, "FOLLOWER"));
+        assertThrows(IllegalArgumentException.class, ()-> service.clearActivityRoleList(915730971L, "FOLLOWER"));
     }
 
     /**
@@ -1053,13 +1141,13 @@ class ActivityServiceTest {
 
     public static Activity createNormalActivity() {
         return new Activity("Kaikoura Coast Track race", "A big and nice race on a lovely peninsula",
-                new String[]{"Tramping", "Hiking"}, false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ");
+                new String[]{"Tramping", "Hiking"}, false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ", 100, 100);
     }
 
     public Activity createNormalActivityKaikoura() {
         Activity activity =  new Activity("Kaikoura Coast Track race", "A big and nice race on a lovely peninsula",
                 new String[]{"Hiking"}, false, "2020-02-20T08:00:00+1300",
-                "2020-02-20T08:00:00+1300", "Kaikoura, NZ");
+                "2020-02-20T08:00:00+1300", "Kaikoura, NZ", 100, 100);
         Set<ActivityType> updatedActivityType = new HashSet<>();
         for(ActivityType activityType : activity.retrieveActivityTypes()){
             List<ActivityType> resultActivityTypes = typeRepository.findByActivityTypeName(activityType.getActivityTypeName());{
@@ -1072,7 +1160,7 @@ class ActivityServiceTest {
 
     private Activity createNormalActivitySilly() {
         return new Activity("Wibble", "A bald man", new String[]{"Hockey"}, true,
-                "2020-02-20T08:00:00+1300","2020-02-20T08:00:00+1300", "K2");
+                "2020-02-20T08:00:00+1300","2020-02-20T08:00:00+1300", "K2", 100, 100);
     }
 
     private Activity createBadActivityNoName() {
@@ -1107,17 +1195,17 @@ class ActivityServiceTest {
 
     private Activity createBadActivityNoActivityTypes() {
         return new Activity("", "A big and nice race on a lovely peninsula",null, false,
-                "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ");
+                "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ", 100, 100);
     }
 
     private Activity createBadActivityEmptyActivityTypes() {
         return new Activity("", "A big and nice race on a lovely peninsula", new String[]{},
-                false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ");
+                false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ", 100, 100);
     }
 
     private Activity createBadActivityInvalidActivityTypes() {
         return new Activity("", "A big and nice race on a lovely peninsula", new String[]{"nugts"},
-                false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ");
+                false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ", 100, 100);
     }
 
     /**

@@ -1,6 +1,8 @@
-package com.springvuegradle.model;
+package com.springvuegradle.utilities;
 
 import com.springvuegradle.dto.ActivityParticipationRequest;
+import com.springvuegradle.model.Activity;
+import com.springvuegradle.model.ActivityParticipation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,12 +15,12 @@ public class ActivityTestUtils {
      */
     public static Activity createNormalActivity() {
         return new Activity("Kaikoura Coast Track race", "A big and nice race on a lovely peninsula",
-                new String[]{"Hiking"}, false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ");
+                new String[]{"Hiking"}, false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ", 100, 100);
     }
 
-    public static Activity createNullActivity() {
-        return new Activity(null, null, null,
-                null, null, null, null);
+    public static Activity createDifferentLocationActivity() {
+        return new Activity("Kaikoura Coast Track race", "A big and nice race on a lovely peninsula",
+                new String[]{"Hiking"}, false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Dunedin, NZ", 50, 200);
     }
 
     public static ActivityParticipation createNormalParticipation() {
