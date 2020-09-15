@@ -5,7 +5,7 @@
       <form>
       <input class="input" type="text" placeholder="Enter a location" id="autocompleteLocation"/>
     </form>
-    <MapPane marker-label="Profile Location" :location-choice-coordinates="profileLocationLatLong" v-on:locationChoiceChanged="updateLocation"></MapPane>
+    <MapPane marker-label="Profile Location" :location-choice-coordinates="profileLocationLatLong" :address="location.address" v-on:locationChoiceChanged="updateLocation"></MapPane>
     <br>
 
     <div class="row">
