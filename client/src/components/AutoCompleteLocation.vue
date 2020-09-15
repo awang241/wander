@@ -77,7 +77,6 @@
             },
 
             async setLocation() {
-                console.log(this.profileLocation)
                 if (this.profileLocation.address != "") {
                     this.location.address = this.profileLocation.address;
                     document.getElementById("autocompleteLocation").value = this.location.address;
