@@ -7,7 +7,7 @@
 </template>
 
 <script>
-    import ProfileSearch from "./ProfileSearch";
+    import ProfileSearch from "./Search/ProfileSearch";
 
     export default {
         name: "AdminDashboard",
