@@ -4,7 +4,7 @@
 
     <AutoCompleteLocation v-on:updateMap="updateLocation" v-bind:profileLocation="this.profile.location" ref="autocomplete"></AutoCompleteLocation>
 
-    <MapPane v-bind:address="this.locationString" marker-label="Profile Location" :location-choice-coordinates="profileLocationLatLong" v-on:locationChoiceChanged="updateLocation"></MapPane>
+    <MapPane v-bind:address="this.locationString" marker-label="Profile Location" :location-choice-coordinates="profileLocationLatLong" v-on:locationChoiceChanged="updateLocation" ref="map"></MapPane>
     <br>
 
     <div class="row">
@@ -81,6 +81,7 @@ import AutoCompleteLocation  from "../AutoCompleteLocation";
             this.profileLocationLatLong = ""
             this.locationString = ""
             this.$refs.autocomplete.clearLocation();
+            this.$refs.map.removeMarker()
           },
 
           async submitLocation() {

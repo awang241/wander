@@ -63,8 +63,10 @@
 
         watch: {
             locationChoiceCoordinates: function (newCoords) {
-                this.setLocationWithMarker(newCoords)
-                this.map.setCenter(newCoords)
+                if (newCoords) {
+                  this.setLocationWithMarker(newCoords)
+                  this.map.setCenter(newCoords)
+                }
             }
         },
 
@@ -90,15 +92,17 @@
             },
             //Allows user to choose their location by clicking on the map
             setLocationWithMarker(position) {
-                if (this.locationChoiceMarker) {
-                    this.locationChoiceMarker.setPosition(position)
-                } else {
-                    this.locationChoiceMarker = new this.google.maps.Marker({
-                        position: position,
-                        label: {text: this.markerLabel},
-                    });
-                    this.locationChoiceMarker.setMap(this.map)
-                }
+              if (!this.locationChoiceMarker) {
+                this.locationChoiceMarker = new this.google.maps.Marker({
+                  position: position,
+                  label: {text: this.markerLabel},
+                });
+                this.locationChoiceMarker.setMap(this.map)
+              } else if (this.locationChoiceMarker.map === null) {
+                this.locationChoiceMarker.setMap(this.map)
+              } else {
+                this.locationChoiceMarker.setPosition(position)
+              }
               this.setZoomLevel()
               this.$emit('locationChoiceChanged', position)
             },
@@ -138,7 +142,10 @@
               if (this.map.getZoom() < zoomLevel) {
                 this.map.setZoom(zoomLevel)
               }
-            }
+            },
+          removeMarker() {
+              this.locationChoiceMarker.setMap(null)
+          }
         }
     }
 </script>
