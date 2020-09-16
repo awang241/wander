@@ -41,7 +41,7 @@ public class ActivitySearchService {
      */
     public List<SimplifiedActivity> getActivitiesInRange(Long profileId, boolean isAdmin, int maximumDistance, Double latitude, Double longitude) {
         if (!(isInRange(latitude, MINIMUM_LATITUDE, MAXIMUM_LATITUDE) && isInRange(longitude, MINIMUM_LONGITUDE, MAXIMUM_LONGITUDE))) {
-            throw new IllegalArgumentException("Invalid latitude and longitude");
+            throw new IllegalArgumentException("Invalid location specified!");
         }
         List<Activity> visibleActivities;
         if (isAdmin) {

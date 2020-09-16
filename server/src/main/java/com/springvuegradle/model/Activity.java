@@ -200,9 +200,6 @@ public class Activity {
         return location;
     }
 
-    public Double getLatitude(){
-        return latitude;
-    }
 
     public Double getLongitude(){
         return longitude;
@@ -212,11 +209,8 @@ public class Activity {
         this.location = location;
     }
 
-    public double getLatitude() { return latitude; }
-
     public void setLatitude(double latitude) { this.latitude = latitude; }
 
-    public double getLongitude() { return longitude; }
 
     public void setLongitude(double longitude) { this.longitude = longitude; }
 
@@ -330,5 +324,9 @@ public class Activity {
 
     public void removeNotification(Notification notification) {
         this.notifications.remove(notification);
+    }
+
+    public double getLatitude() {
+        return latitude;
     }
 }

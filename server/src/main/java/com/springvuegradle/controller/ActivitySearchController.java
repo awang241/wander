@@ -31,7 +31,8 @@ public class ActivitySearchController {
     /**
      * Gets all activities in a given range that are visible to a user
      * @param token the users authentication token
-     * @param request
+     * @param request contains the latitude longitude coordinates of a point and from this point in which
+     *               activities should be returned
      * @return a list of activities that are within a specific range of a location and visible to the user
      */
     @GetMapping("activities/range")
