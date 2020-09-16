@@ -86,7 +86,9 @@ public class Activity {
             @JsonProperty("continuous") Boolean continuous,
             @JsonProperty("start_time") String startTime,
             @JsonProperty("end_time") String endTime,
-            @JsonProperty("location") String location){
+            @JsonProperty("location") String location,
+            @JsonProperty("latitude") double latitude,
+            @JsonProperty("longitude") double longitude){
         this.activityName = activityName;
         this.description = description;
         this.activityTypes = new HashSet<>();
@@ -108,6 +110,8 @@ public class Activity {
             this.endTime = FormatHelper.parseOffsetDateTime(endTime);
         }
         this.location = location;
+        this.latitude = latitude;
+        this.longitude = longitude;
         this.members = new HashSet<>();
     }
 
@@ -118,6 +122,8 @@ public class Activity {
         this.startTime = activity.startTime;
         this.endTime = activity.endTime;
         this.location = activity.location;
+        this.latitude = activity.latitude;
+        this.longitude = activity.longitude;
         Set<ActivityType> removals = new HashSet<>(this.activityTypes);
         removals.removeAll(activity.activityTypes);
         for (ActivityType removal: removals) {
@@ -205,6 +211,14 @@ public class Activity {
     public void setLocation(String location) {
         this.location = location;
     }
+
+    public double getLatitude() { return latitude; }
+
+    public void setLatitude(double latitude) { this.latitude = latitude; }
+
+    public double getLongitude() { return longitude; }
+
+    public void setLongitude(double longitude) { this.longitude = longitude; }
 
     @JsonIgnore
     public Set<ActivityMembership> getMembers() {

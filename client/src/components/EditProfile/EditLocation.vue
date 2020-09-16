@@ -5,7 +5,7 @@
       <form>
       <input class="input" type="text" placeholder="Enter a location" id="autocompleteLocation"/>
     </form>
-    <MapPane marker-label="Profile Location" :location-choice-coordinates="profileLocationLatLong" v-on:locationChoiceChanged="updateLocation"></MapPane>
+    <MapPane marker-label="Profile Location" :location-choice-coordinates="profileLocationLatLong" :address="location.address" v-on:locationChoiceChanged="updateLocation"></MapPane>
     <br>
 
     <div class="row">
@@ -116,13 +116,16 @@ let autocompleteLocation;
 
           clearLocation() {
             this.$parent.clearLocation();
-            this.successToast("Location removed");
             document.getElementById("autocompleteLocation").value = null;
             this.location = {location: "", latitude: "", longitude: ""}
           },
+
           async submitLocation() {
             //Using JSON methods to make a constant and compare two JSON objects
-            const original = JSON.stringify(this.profile.location.address);
+            let original = "";
+            if (this.profile.location) {
+              original = JSON.stringify(this.profile.location.address);
+            }
             this.location.address = document.getElementById("autocompleteLocation").value;
             let check = await this.checkValidLocation();
             if (this.location.address === "" || this.location.latitude === "" || this.location.longitude === "") {
@@ -136,7 +139,7 @@ let autocompleteLocation;
             }
           },
           setLocation() {
-            if (this.profile.location.address != "") {
+            if (this.profile.location) {
               this.location.address = this.profile.location.address;
               document.getElementById("autocompleteLocation").value = this.location.address;
               this.checkValidGeoCode()

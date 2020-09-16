@@ -2,7 +2,7 @@
     <div class="container">
         <!--slot for name allows this component to be reused with different names-->
         <slot name="header">
-            <h1 class="title">User search</h1>
+            <h1 class="title">Profile Search</h1>
         </slot>
         <form @submit.prevent="searchUser">
             <b-field label="Name" expanded>
@@ -91,16 +91,16 @@
 </template>
 
 <script>
-    import Api from "../Api";
-    import ProfileSummary from "./ProfileSummary";
-    import Observer from "./Observer";
-    import toastMixin from "../mixins/toastMixin";
-    import {eventBus} from "../main";
-    import NavBar from "./NavBar";
-    import store from "../store";
-    import Profile from "./Profile";
-    import EditProfile from "./editprofile/EditProfile";
-    import router from "../router";
+    import Api from "../../Api";
+    import ProfileSummary from "../ProfileSummary";
+    import Observer from "../Observer";
+    import toastMixin from "../../mixins/toastMixin";
+    import {eventBus} from "../../main";
+    import NavBar from "../NavBar";
+    import store from "../../store";
+    import Profile from "../Profile";
+    import EditProfile from "../EditProfile/EditProfile";
+    import router from "../../router";
 
     const DEFAULT_RESULT_COUNT = 10
 
