@@ -1052,7 +1052,15 @@ class ActivityServiceTest {
 
     @Test
     void deleteMembersFromActivityAsAdminTest(){
-
+        Profile admin = profileRepository.save(createNormalProfileBen());
+        admin.setAuthLevel(0);
+        Profile follower = profileRepository.save(createNormalProfileJohnny());
+        Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        ActivityMembership membership = new ActivityMembership(activity, follower, ActivityMembership.Role.FOLLOWER);
+        activityMembershipRepository.save(membership);
+        service.clearActivityRoleList(activity.getId(), "follower");
+        assertEquals(new ActivityRoleCountResponse(0, 0 ,1), service.getRoleCounts(activity.getId()));
+        //when the admin role change bug is fixed, the expected values here should be 0,0,0
     }
 
     @Test

@@ -30,9 +30,6 @@ public class ActivitiesResponse {
 
     public void setMessage(String message) { this.message = message; }
 
-    public List<Activity> getResults() { return results; }
-
-
     /**
      * Returns all
      * @return

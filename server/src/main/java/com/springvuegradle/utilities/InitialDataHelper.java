@@ -15,6 +15,10 @@ import java.util.Random;
 
 public class InitialDataHelper {
 
+    private InitialDataHelper(){
+        throw new IllegalStateException("Class should not be instantiated");
+    }
+
     private static Random random = new Random();
 
     /**
@@ -47,7 +51,7 @@ public class InitialDataHelper {
         String[] extraEmails = {"throwayway1@gmail.com", "throwaway2@gmail.com"};
         List<Profile> steves = repo.findByPrimaryEmail("Steve@test.com");
         List<Profile> daves = repo.findByPrimaryEmail("Dave@test.com");
-        if (steves.size() == 0) {
+        if (steves.isEmpty()) {
             Profile regularProfile = new Profile(1L, "Steve", "Tester", "The", "Stevetest",
                     "Steve@test.com", extraEmails, Profile_Controller.hashPassword("987654321"), "Here to run some tests!", calendar1,
                     "male", 2, new String[]{}, new String[]{});
@@ -57,7 +61,7 @@ public class InitialDataHelper {
             erepo.save(regularEmail);
         }
 
-        if (daves.size() == 0) {
+        if (daves.isEmpty()) {
             Profile daveAdminProfile = new Profile(2L, "Dave", "Tester", "The", "Davetest",
                     "Dave@test.com", extraEmails, Profile_Controller.hashPassword("SecureAdminPassword"), "I'm a model Admin!", calendar2,
                     "male", 2, new String[]{}, new String[]{});
@@ -77,9 +81,9 @@ public class InitialDataHelper {
      * @return
      */
     public static String updateDefaultAdmin(ProfileRepository repo, EmailRepository erepo) {
-        List<Profile> default_admins = repo.findByAuthLevel(0);
+        List<Profile> defaultAdmins = repo.findByAuthLevel(0);
 
-        if (default_admins.size() == 0) {
+        if (defaultAdmins.isEmpty()) {
             int minAscii = 48;
             int maxAscii = 122;
             int passwordLength = 20;

@@ -3,21 +3,10 @@ package com.springvuegradle.service;
 import com.springvuegradle.dto.ActivityRoleCountResponse;
 import com.springvuegradle.dto.MembersRequest;
 import com.springvuegradle.dto.SimplifiedActivity;
+import com.springvuegradle.dto.responses.ActivityMemberProfileResponse;
 import com.springvuegradle.enums.*;
 import com.springvuegradle.model.*;
 import com.springvuegradle.repositories.*;
-import com.springvuegradle.dto.responses.ActivityMemberProfileResponse;
-import com.springvuegradle.enums.ActivityMessage;
-import com.springvuegradle.enums.ActivityPrivacy;
-import com.springvuegradle.enums.ActivityResponseMessage;
-import com.springvuegradle.model.Activity;
-import com.springvuegradle.model.ActivityMembership;
-import com.springvuegradle.model.ActivityType;
-import com.springvuegradle.model.Profile;
-import com.springvuegradle.repositories.ActivityMembershipRepository;
-import com.springvuegradle.repositories.ActivityRepository;
-import com.springvuegradle.repositories.ActivityTypeRepository;
-import com.springvuegradle.repositories.ProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -92,7 +81,7 @@ public class ActivityService {
         profile.addActivity(activityMembership);
         activity.addMember(activityMembership);
 
-        notificationService.createNotification(NotificationType.ActivityCreated,
+        notificationService.createNotification(NotificationType.ACTIVITY_CREATED,
                 activity,
                 profile,
                 profile.getFullName() + " created a new activity called " + activity.getActivityName() + ".");
@@ -124,7 +113,7 @@ public class ActivityService {
             dbActivity.setActivityTypes(updatedActivityTypes);
             dbActivity.update(activity);
             activityRepo.save(dbActivity);
-            notificationService.createNotification(NotificationType.ActivityEdited, dbActivity, editor.get(),
+            notificationService.createNotification(NotificationType.ACTIVITY_EDITED, dbActivity, editor.get(),
                     editor.get().getFullName() + " edited an activity called " + dbActivity.getActivityName() + ".");
         } else {
             throw new IllegalArgumentException(ActivityResponseMessage.INVALID_ACTIVITY.toString());
@@ -148,7 +137,7 @@ public class ActivityService {
             }
             Profile profile = getModelObjectById(profileRepo, profileId);
             Activity activity = getModelObjectById(activityRepo, activityId);
-            notificationService.createNotification(NotificationType.ActivityRemoved, activity, profile,
+            notificationService.createNotification(NotificationType.ACTIVITY_REMOVED, activity, profile,
                     profile.getFullName() + " deleted an activity called " + activity.getActivityName() + ".");
             notificationService.detachActivityFromNotifications(activity);
             for (ActivityType activityType : typeRepo.findAll()) {
@@ -189,13 +178,13 @@ public class ActivityService {
         NotificationType type;
         switch (membership.getRole()) {
             case FOLLOWER:
-                type = NotificationType.ActivityFollowerRemoved;
+                type = NotificationType.NOTIFICATION_TYPE;
                 break;
             case ORGANISER:
-                type = NotificationType.ActivityOrganiserRemoved;
+                type = NotificationType.ACTIVITY_ORGANISER_REMOVED;
                 break;
             case PARTICIPANT:
-                type = NotificationType.ActivityParticipantRemoved;
+                type = NotificationType.ACTIVITY_PARTICIPANT_REMOVED;
                 break;
             default:
                 throw new IllegalArgumentException(ActivityMessage.EDITING_CREATOR.toString());
@@ -489,16 +478,16 @@ public class ActivityService {
         NotificationType notificationType;
         switch (activityRole.toUpperCase()) {
             case "FOLLOWER":
-                notificationType = NotificationType.ActivityFollowerAdded;
+                notificationType = NotificationType.ACTIVITY_FOLLOWER_ADDED;
                 break;
             case "ORGANISER":
-                notificationType = NotificationType.ActivityOrganiserAdded;
+                notificationType = NotificationType.ACTIVITY_ORGANISER_ADDED;
                 break;
             case "PARTICIPANT":
-                notificationType = NotificationType.ActivityParticipantAdded;
+                notificationType = NotificationType.ACTIVITY_PARTICIPANT_ADDED;
                 break;
             case "CREATOR":
-                notificationType = NotificationType.ActivityCreatorAdded;
+                notificationType = NotificationType.ACTIVITY_CREATOR_ADDED;
                 break;
             default:
                 throw new IllegalArgumentException(ActivityMessage.INVALID_ROLE.getMessage());
@@ -559,7 +548,7 @@ public class ActivityService {
         if(optionalEditor.isPresent()){
             editor = optionalEditor.get();
         }
-        notificationService.createNotification(NotificationType.ActivityPrivacyChanged,
+        notificationService.createNotification(NotificationType.ACTIVITY_PRIVACY_CHANGED,
                 activity,
                 editor,
                 "Activity " + activity.getActivityName() +"'s privacy level has been changed to " + privacy);
@@ -724,7 +713,7 @@ public class ActivityService {
         profile.addParticipation(participation);
         profileRepo.save(profile);
         activity.addParticipation(participation);
-        notificationService.createNotification(NotificationType.ParticipantCreated, activity, profile,
+        notificationService.createNotification(NotificationType.PARTICIPANT_CREATED, activity, profile,
                 profile.getFullName() + " added participation results to an activity called " + activity.getActivityName() + ".\n" +
                         "Outcome: " + participation.getOutcome() + "\nDetails: " + participation.getDetails());
         activityRepo.save(activity);
@@ -750,7 +739,7 @@ public class ActivityService {
         ActivityParticipation dbParticipation = participationResult.get();
         dbParticipation.updateActivityParticipation(participation);
         participationRepo.save(dbParticipation);
-        notificationService.createNotification(NotificationType.ParticipationEdited, activity, profile,
+        notificationService.createNotification(NotificationType.PARTICIPATION_EDITED, activity, profile,
                 profile.getFullName() + " edited participation results of activity called " + activity.getActivityName() + ".\n" +
                         "Outcome:" + participation.getOutcome() + "\nDetails: " + participation.getDetails());
     }

@@ -1,16 +1,14 @@
 package com.springvuegradle.service;
 
-import com.springvuegradle.enums.ActivityMessage;
 import com.springvuegradle.enums.NotificationType;
 import com.springvuegradle.enums.ProfileErrorMessage;
 import com.springvuegradle.model.Activity;
 import com.springvuegradle.model.ActivityMembership;
 import com.springvuegradle.model.Notification;
 import com.springvuegradle.model.Profile;
-import com.springvuegradle.repositories.*;
-import org.aspectj.weaver.ast.Not;
+import com.springvuegradle.repositories.NotificationRepository;
+import com.springvuegradle.repositories.ProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -88,12 +86,6 @@ public class NotificationService {
      * @param notificationsList the list of notifications to be sorted
      */
     private void sortNotifications(List<Notification> notificationsList) {
-        Collections.sort(notificationsList, new Comparator<Notification>() {
-            @Override
-            public int compare(Notification o1, Notification o2)
-            {
-                return o2.getTimeStamp().compareTo(o1.getTimeStamp());
-            }
-        });
+        Collections.sort(notificationsList, (o1, o2) -> o2.getTimeStamp().compareTo(o1.getTimeStamp()));
     }
 }

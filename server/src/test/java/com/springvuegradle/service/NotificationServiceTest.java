@@ -67,8 +67,8 @@ public class NotificationServiceTest {
         activityOne.addMember(new ActivityMembership(activityOne, profileOne, ActivityMembership.Role.ORGANISER));
         activityOne.addMember(new ActivityMembership(activityOne, profileTwo, ActivityMembership.Role.FOLLOWER));
         String message = "Activity edited";
-        notificationService.createNotification(NotificationType.ActivityEdited, activityOne, profileOne, message);
-        Notification expectedNotification = new Notification(message, activityOne, profileOne, NotificationType.ActivityEdited);
+        notificationService.createNotification(NotificationType.ACTIVITY_EDITED, activityOne, profileOne, message);
+        Notification expectedNotification = new Notification(message, activityOne, profileOne, NotificationType.ACTIVITY_EDITED);
         expectedNotification.addRecipient(profileOne);
         expectedNotification.addRecipient(profileTwo);
         Notification actualNotification = notificationRepository.findAll().get(0);
@@ -90,7 +90,7 @@ public class NotificationServiceTest {
         activityOne.addMember(followerMembership);
         activityOne.addMember(creatorMembership);
         activityService.editActivityPrivacy("public", activityOne.getId(), profileOne.getId());
-        Notification expectedNotification = new Notification("Activity Kaikoura Coast Track race's privacy level has been changed to public", activityOne, profileOne, NotificationType.ActivityPrivacyChanged);
+        Notification expectedNotification = new Notification("Activity Kaikoura Coast Track race's privacy level has been changed to public", activityOne, profileOne, NotificationType.ACTIVITY_PRIVACY_CHANGED);
         expectedNotification.addRecipient(profileOne);
         expectedNotification.addRecipient(profileTwo);
         Notification actualNotification = notificationRepository.findAll().get(0);
@@ -107,13 +107,13 @@ public class NotificationServiceTest {
     }
 
     void saveNotifications(Profile profile, Activity activity) {
-        Notification notification1 = new Notification("activity created", activity, profile, NotificationType.ActivityCreated);
+        Notification notification1 = new Notification("activity created", activity, profile, NotificationType.ACTIVITY_CREATED);
         notificationRepository.save(notification1);
         profile.addNotification(notification1);
-        Notification notification2 = new Notification("activity has new follower", activity, profile, NotificationType.ActivityFollowerAdded);
+        Notification notification2 = new Notification("activity has new follower", activity, profile, NotificationType.ACTIVITY_FOLLOWER_ADDED);
         notificationRepository.save(notification2);
         profile.addNotification(notification2);
-        Notification notification3 = new Notification("activity has removed a follower", activity, profile, NotificationType.ActivityFollowerRemoved);
+        Notification notification3 = new Notification("activity has removed a follower", activity, profile, NotificationType.NOTIFICATION_TYPE);
         notificationRepository.save(notification3);
         profile.addNotification(notification3);
     }
@@ -198,6 +198,7 @@ public class NotificationServiceTest {
         return true;
     }
 
+    //This test seems to sometimes pass and sometimes fail with no changes and I have no idea why
     @Test
     void getNotificationsSortedByDateTest() {
         Profile profile = ProfileTestUtils.createProfileJimmyAlternate();
@@ -205,13 +206,13 @@ public class NotificationServiceTest {
         activityRepository.save(activity);
         profileRepository.save(profile);
 
-        Notification notification1 = new Notification("activity created", activity, profile, NotificationType.ActivityCreated);
+        Notification notification1 = new Notification("activity created", activity, profile, NotificationType.ACTIVITY_CREATED);
         notificationRepository.save(notification1);
         profile.addNotification(notification1);
-        Notification notification2 = new Notification("activity has new follower", activity, profile, NotificationType.ActivityFollowerAdded);
+        Notification notification2 = new Notification("activity has new follower", activity, profile, NotificationType.ACTIVITY_FOLLOWER_ADDED);
         notificationRepository.save(notification2);
         profile.addNotification(notification2);
-        Notification notification3 = new Notification("activity has removed a follower", activity, profile, NotificationType.ActivityFollowerRemoved);
+        Notification notification3 = new Notification("activity has removed a follower", activity, profile, NotificationType.NOTIFICATION_TYPE);
         notificationRepository.save(notification3);
         profile.addNotification(notification3);
 
