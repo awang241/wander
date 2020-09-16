@@ -50,10 +50,17 @@
                 let locationString = "";
                 for (let i = 0; i < (locationObject.address_components).length; i++) {
                     if (i === 0) {
-                        locationString = locationObject.address_components[0].long_name;
+                      const letters = /^[0-9a-zA-Z]+$/;
+                      locationString = locationObject.address_components[0].long_name;
+                      if(!locationString.match(letters)) {
+                        locationString = locationString + ", "
+                      }
                     } else if (i !== (locationObject.address_components).length) {
                         if (locationObject.address_components[i].long_name !== locationObject.address_components[i - 1].long_name) {
-                            locationString = locationString + ", " + locationObject.address_components[i].long_name;
+                            locationString = locationString + " " + locationObject.address_components[i].long_name;
+                        }
+                        if (i !== (locationObject.address_components).length -1) {
+                           locationString = locationString + ","
                         }
                     }
                 }

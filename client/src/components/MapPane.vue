@@ -134,7 +134,10 @@
             },
             setZoomLevel() {
               let address_parts = this.address.split(',')
-              this.map.setZoom(address_parts.length * 2.5)
+              let zoomLevel = address_parts.length * 3
+              if (this.map.getZoom() < zoomLevel) {
+                this.map.setZoom(zoomLevel)
+              }
             }
         }
     }

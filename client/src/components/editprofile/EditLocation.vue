@@ -48,11 +48,12 @@ import AutoCompleteLocation  from "../AutoCompleteLocation";
         methods: {
 
           updateLocation(location) {
-            this.profileLocationLatLong = {lat: location.lat(), lng: location.lng()}
-            this.geocoder.geocode({'location': this.profileLocationLatLong}, function(results, status) {
+            this.geocoder.geocode({'location': {lat: location.lat(), lng: location.lng()}}, (results, status) => {
               if (status === 'OK') {
                 document.getElementById("autocompleteLocation").value = results[0].formatted_address
                 this.locationString = results[0].formatted_address
+                this.profileLocationLatLong = {lat: location.lat(), lng: location.lng()}
+
               }
             })
           },
@@ -70,7 +71,6 @@ import AutoCompleteLocation  from "../AutoCompleteLocation";
           },
 
           updateMapLocationFromAutoComplete(location) {
-            console.log(location)
             this.profileLocationLatLong = {lat: location.latitude, lng: location.longitude}
             this.locationString = location.address
           },
@@ -85,11 +85,13 @@ import AutoCompleteLocation  from "../AutoCompleteLocation";
 
           async submitLocation() {
             //Using JSON methods to make a constant and compare two JSON objects
-            const original = JSON.stringify(this.profile.location.address);
+            let original = "";
+            if (this.profile.location) {
+              original = JSON.stringify(this.profile.location.address);
+            }
             this.$refs.autocomplete.updateLocation(document.getElementById("autocompleteLocation").value);
             let check = await this.checkValidLocation(document.getElementById("autocompleteLocation").value);
             const location = this.$refs.autocomplete.returnLocation();
-
             if (location.address === "" || location.latitude === "" || location.longitude === "") {
               this.warningToast("Please enter a location")
             } else if (JSON.stringify((location.address)) === original) {
