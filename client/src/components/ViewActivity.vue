@@ -230,7 +230,7 @@
                 </b-tab-item>
 
                 <b-tab-item label="Location">
-                    <MapPane></MapPane>
+                    <MapPane marker-label="View Activity Location" :location-choice-coordinates="activityLocationLatLong"></MapPane>
                 </b-tab-item>
             </b-tabs>
         </div>
@@ -273,6 +273,14 @@
                 userRole: null,
                 activityId: this.$route.params.id,
                 activity: null,
+                activityLocationLatLong: null,
+                google: null,
+                geocoder:null,
+                location: {
+                    address: "Chicago, Cook County, Illinois, United States",
+                    latitude: "",
+                    longitude: ""
+                },
                 members: {
                     "organiser": [],
                     "participant": [],
@@ -295,6 +303,22 @@
           }
         },
         methods: {
+            getValidGeoCode() {
+                return new Promise((resolve, reject) => {
+                    this.geocoder.geocode({'address': this.location.address}, (results, status) => {
+                        if (status === 'OK') {
+                            this.location.latitude = results[0].geometry.location.lat()
+                            this.location.longitude = results[0].geometry.location.lng()
+                            this.activityLocationLatLong = {lat: this.location.latitude, lng: this.location.longitude}
+                            resolve(true)
+                        } else {
+                            reject(false);
+                        }
+                        console.log(this.location);
+                    })
+                })
+
+            },
             updateRole(profileId, newRole) {
                 if (this.userRole == null) {
                     this.addRole(newRole);
@@ -471,6 +495,7 @@
         async mounted() {
             this.google = await googleMapsInit();
             this.geocoder = new this.google.maps.Geocoder();
+            await this.getValidGeoCode();
             this.getActivity();
             this.getRoleCounts();
             this.getParticipationResults();
