@@ -23,6 +23,12 @@ public class ActivitySearchService {
     ProfileService profileService;
 
 
+    final int MINIMUM_LATITUDE = -90;
+    final int MINIMUM_LONGITUDE = -90;
+    final int MAXIMUM_LATITUDE = 90;
+    final int MAXIMUM_LONGITUDE = 180;
+
+
     /**
      * Returns a list of simplified activities which are both within the specified distance
      * of the specified point AND visible to the user
@@ -34,7 +40,7 @@ public class ActivitySearchService {
      * @return a list of simplified activities that are visible to the user and are within the required range
      */
     public List<SimplifiedActivity> getActivitiesInRange(Long profileId, boolean isAdmin, int maximumDistance, Double latitude, Double longitude) {
-        if (!(isValidLatitude(latitude) && isValidLongitude(longitude))) {
+        if (!(isInRange(latitude, MINIMUM_LATITUDE, MAXIMUM_LATITUDE) && isInRange(longitude, MINIMUM_LONGITUDE, MAXIMUM_LONGITUDE))) {
             throw new IllegalArgumentException("Invalid latitude and longitude");
         }
         List<Activity> visibleActivities;
@@ -64,7 +70,7 @@ public class ActivitySearchService {
      * @param lon2 the longitude of the second location
      * @return Distance in Meters between the two coordinates
      */
-    public static double distance(double lat1, double lat2, double lon1,
+    public double distance(double lat1, double lat2, double lon1,
                                   double lon2) {
 
         final int R = 6371; // Radius of the earth
@@ -83,28 +89,16 @@ public class ActivitySearchService {
     }
 
     /**
-     * Ensures a latidude is valid
-     *
-     * @param latitude the latitude to be checked
-     * @return true if the latitude is valid
-     */
-    private static boolean isValidLatitude(Double latitude) {
-        if (latitude == null) {
-            return false;
-        }
-        return latitude >= -90 && latitude <= 90;
-    }
-
-    /**
-     * Ensures a longitude is valid
-     *
-     * @param longitude the longitude to be checked
+     * Ensures a value is in between a range and not null
+     * @param number the longitude to be checked
+     * @param low the number should be greater than or equal to this
+     * @parma high the number should be less than or equal to this
      * @return true if the longitude is valid
      */
-    private static boolean isValidLongitude(Double longitude) {
-        if (longitude == null) {
+    public boolean isInRange(Double number, int low, int high) {
+        if (number == null) {
             return false;
         }
-        return longitude >= -90 && longitude <= 180;
+        return number >= low && number <= high;
     }
 }
