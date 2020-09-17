@@ -7,8 +7,7 @@ import com.springvuegradle.repositories.ActivityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class ActivitySearchService {
@@ -32,11 +31,12 @@ public class ActivitySearchService {
     /**
      * Returns a list of simplified activities which are both within the specified distance
      * of the specified point AND visible to the user
-     * @param isAdmin whether the user searching is an admin
-     * @param profileId the ID of the user who is searching
+     *
+     * @param isAdmin         whether the user searching is an admin
+     * @param profileId       the ID of the user who is searching
      * @param maximumDistance activities only within this distance(specified in m) will be returned
-     * @param latitude the latitude we are searching within a distance of
-     * @param longitude the longitude we are searching within a distance of
+     * @param latitude        the latitude we are searching within a distance of
+     * @param longitude       the longitude we are searching within a distance of
      * @return a list of simplified activities that are visible to the user and are within the required range
      */
     public List<SimplifiedActivity> getActivitiesInRange(Long profileId, boolean isAdmin, int maximumDistance, Double latitude, Double longitude) {
@@ -49,14 +49,31 @@ public class ActivitySearchService {
         } else {
             visibleActivities = activityRepository.findActivitiesUserCanSee(profileId, ActivityMembership.Role.CREATOR);
         }
-        List<Activity> activitiesInRange = new ArrayList<>();
+        HashMap<Activity, Double> activityDistanceHashMap = new HashMap<>();
         for (Activity activity : visibleActivities) {
             Double activityDistanceFromPoint = distance(latitude, activity.getLatitude(), longitude, activity.getLongitude());
             if (activityDistanceFromPoint < maximumDistance) {
-                activitiesInRange.add(activity);
+                activityDistanceHashMap.put(activity, activityDistanceFromPoint);
             }
         }
-        return activityService.createSimplifiedActivities(activitiesInRange);
+        List<Activity> sortedActivities = sortActivitiesByDistance(activityDistanceHashMap);
+        return activityService.createSimplifiedActivities(sortedActivities);
+    }
+
+
+    /**
+     * Takes a map of activity distance and returns activities in order of distance increasing
+     * @param activityDistanceHashMap a hashmap of activities and their distance from the search point.
+     * @return
+     */
+    private List<Activity> sortActivitiesByDistance(HashMap<Activity, Double> activityDistanceHashMap) {
+        List<Map.Entry<Activity, Double>> list = new LinkedList<Map.Entry<Activity, Double>>(activityDistanceHashMap.entrySet());
+        Collections.sort(list, Comparator.comparing(Map.Entry::getValue));
+        ArrayList<Activity> sortedActivities = new ArrayList<>();
+        for (Map.Entry<Activity, Double> aa : list) {
+            sortedActivities.add(aa.getKey());
+        }
+        return sortedActivities;
     }
 
     /**
@@ -71,7 +88,7 @@ public class ActivitySearchService {
      * @return Distance in Meters between the two coordinates
      */
     public double distance(double lat1, double lat2, double lon1,
-                                  double lon2) {
+                           double lon2) {
 
         final int R = 6371; // Radius of the earth
 
@@ -90,10 +107,11 @@ public class ActivitySearchService {
 
     /**
      * Ensures a value is in between a range and not null
+     *
      * @param number the longitude to be checked
-     * @param low the number should be greater than or equal to this
-     * @parma high the number should be less than or equal to this
+     * @param low    the number should be greater than or equal to this
      * @return true if the longitude is valid
+     * @parma high the number should be less than or equal to this
      */
     public boolean isInRange(Double number, int low, int high) {
         if (number == null) {

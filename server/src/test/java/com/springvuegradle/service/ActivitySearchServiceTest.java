@@ -114,21 +114,25 @@ public class ActivitySearchServiceTest {
     @Test
         //Ensures admin can see all activities when searching with high distance
     void adminCanSeeAllActivitiesInWorld() {
-        assertEquals(activityService.createSimplifiedActivities(List.of(publicActivityWellington,
-                publicActivityChristchurch,
-                publicActivityDelaware,
+        List<SimplifiedActivity> expected = activityService.createSimplifiedActivities(List.of(
+                publicActivityWellington,
                 membersActivityChristchurch,
-                membersActivitySydney,
                 privateActivityChristchurch,
-                privateActivityManila)), activitySearchService.getActivitiesInRange(1L, true, 1000000000, WELLINGTON_LATITUDE, WELLINGTON_LONGITUDE));
+                publicActivityChristchurch,
+                membersActivitySydney,
+                privateActivityManila,
+                publicActivityDelaware));
+        List<SimplifiedActivity> actual = activitySearchService.getActivitiesInRange(1L, true, 1000000000, WELLINGTON_LATITUDE, WELLINGTON_LONGITUDE);
+        assertEquals(expected, actual);
     }
 
     @Test
     void adminCanSeeAllActivitiesWithinNewZealand() {
-        assertEquals(activityService.createSimplifiedActivities(List.of(publicActivityWellington,
-                publicActivityChristchurch,
+        assertEquals(activityService.createSimplifiedActivities(List.of(
                 membersActivityChristchurch,
-                privateActivityChristchurch
+                privateActivityChristchurch,
+                publicActivityChristchurch,
+                publicActivityWellington
         )), activitySearchService.getActivitiesInRange(1L, true, 450000, CHRISTCHURCH_LATITUDE, CHRISTCHURCH_LONGITUDE));
     }
 
