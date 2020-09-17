@@ -24,7 +24,7 @@ public class ActivityParticipation {
     /**
      * Each activity participation object is associated with one and only one profile object.
      */
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "profile_id")
     @JsonBackReference(value = "profile")
     private Profile profile;
@@ -32,12 +32,12 @@ public class ActivityParticipation {
     /**
      * Each activity participation object is associated with one and only one activity object.
      */
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "activity_id")
     @JsonBackReference(value = "activity")
     private Activity activity;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     private ActivityMembership activityMembership;
 
     private String details = "No details added";
