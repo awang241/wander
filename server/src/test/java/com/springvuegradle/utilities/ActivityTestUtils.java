@@ -18,6 +18,11 @@ public class ActivityTestUtils {
                 new String[]{"Hiking"}, false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ", 100, 100);
     }
 
+    public static Activity createActivity(String name, Double latitude, Double longitude) {
+        return new Activity(name, "A big and nice race on a lovely peninsula",
+                new String[]{"Hiking"}, false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ", latitude, longitude);
+    }
+
     public static Activity createDifferentLocationActivity() {
         return new Activity("Kaikoura Coast Track race", "A big and nice race on a lovely peninsula",
                 new String[]{"Hiking"}, false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Dunedin, NZ", 50, 200);

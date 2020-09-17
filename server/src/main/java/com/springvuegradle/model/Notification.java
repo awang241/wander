@@ -30,12 +30,12 @@ public class Notification {
     @NotNull
     private String message;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "activity_id")
     @JsonBackReference(value = "activity")
     private Activity activity;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "profile_id")
     @JsonBackReference(value = "profile")
     private Profile profile;
@@ -44,7 +44,7 @@ public class Notification {
      * Holds the user's notifications and estabishes a Many to Many relationship as a Profile object can be associated with
      * multiple Notifications.
      */
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "profile_notification",
             inverseJoinColumns = @JoinColumn(name = "notification_id", referencedColumnName = "id"),
             joinColumns = @JoinColumn(name = "profile_id", referencedColumnName = "id"))

@@ -50,7 +50,7 @@ public class Email {
     /**
      * Each email object is associated with one and only one profile object.
      */
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "profile_id")
     @JsonBackReference
     private Profile profile;
