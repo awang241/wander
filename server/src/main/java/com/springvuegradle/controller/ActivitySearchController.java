@@ -1,7 +1,9 @@
 package com.springvuegradle.controller;
 
 import com.springvuegradle.dto.SimplifiedActivity;
+import com.springvuegradle.model.ActivityType;
 import com.springvuegradle.service.ActivitySearchService;
+import com.springvuegradle.service.ActivityService;
 import com.springvuegradle.service.SecurityService;
 import com.springvuegradle.utilities.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +26,9 @@ public class ActivitySearchController {
     private SecurityService securityService;
 
     @Autowired
+    private ActivityService activityService;
+
+    @Autowired
     private ActivitySearchService activitySearchService;
 
 
@@ -39,6 +44,7 @@ public class ActivitySearchController {
     public ResponseEntity<List<SimplifiedActivity>> getActivitiesInRange(@RequestParam Integer distance,
                                                                          @RequestParam Double latitude,
                                                                          @RequestParam Double longitude,
+                                                                         @RequestParam(required = false) String[] activityTypes,
                                                                          @RequestHeader("authorization") String token) {
         if (!jwtUtil.validateToken(token)) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
@@ -46,7 +52,8 @@ public class ActivitySearchController {
         boolean isAdmin = jwtUtil.extractPermission(token) < 2;
         Long profileId = jwtUtil.extractId(token);
         try {
-            List<SimplifiedActivity> activities = activitySearchService.getActivitiesInRange(profileId, isAdmin, distance, latitude, longitude);
+            List<ActivityType> activityTypeList = activityService.getActivityTypesFromStringArray(activityTypes);
+            List<SimplifiedActivity> activities = activitySearchService.getActivitiesInRange(profileId, isAdmin, distance, latitude, longitude, activityTypeList);
             return new ResponseEntity<>(activities, HttpStatus.OK);
         } catch(IllegalArgumentException e){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

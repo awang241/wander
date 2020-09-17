@@ -3,6 +3,7 @@ package com.springvuegradle.service;
 import com.springvuegradle.dto.SimplifiedActivity;
 import com.springvuegradle.model.Activity;
 import com.springvuegradle.model.ActivityMembership;
+import com.springvuegradle.model.ActivityType;
 import com.springvuegradle.model.Profile;
 import com.springvuegradle.repositories.ActivityMembershipRepository;
 import com.springvuegradle.repositories.ActivityRepository;
@@ -17,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
@@ -65,6 +67,8 @@ public class ActivitySearchServiceTest {
 
     Double MANILA_LATITUDE = 14.6D;
     Double MANILA_LONGITUDE = 120.1D;
+
+    ArrayList<ActivityType> noActivityTypes = new ArrayList<ActivityType>();
 
 
     @BeforeEach
@@ -122,7 +126,7 @@ public class ActivitySearchServiceTest {
                 membersActivitySydney,
                 privateActivityManila,
                 publicActivityDelaware));
-        List<SimplifiedActivity> actual = activitySearchService.getActivitiesInRange(1L, true, 1000000000, WELLINGTON_LATITUDE, WELLINGTON_LONGITUDE);
+        List<SimplifiedActivity> actual = activitySearchService.getActivitiesInRange(1L, true, 1000000000, WELLINGTON_LATITUDE, WELLINGTON_LONGITUDE, noActivityTypes);
         assertEquals(expected, actual);
     }
 
@@ -133,7 +137,7 @@ public class ActivitySearchServiceTest {
                 privateActivityChristchurch,
                 publicActivityChristchurch,
                 publicActivityWellington
-        )), activitySearchService.getActivitiesInRange(1L, true, 450000, CHRISTCHURCH_LATITUDE, CHRISTCHURCH_LONGITUDE));
+        )), activitySearchService.getActivitiesInRange(1L, true, 450000, CHRISTCHURCH_LATITUDE, CHRISTCHURCH_LONGITUDE, noActivityTypes));
     }
 
     @Test
@@ -147,7 +151,7 @@ public class ActivitySearchServiceTest {
                 privateActivityManila
         ));
 
-        List<SimplifiedActivity> actual = activitySearchService.getActivitiesInRange(1L, true, 9000000, WELLINGTON_LATITUDE, WELLINGTON_LONGITUDE);
+        List<SimplifiedActivity> actual = activitySearchService.getActivitiesInRange(1L, true, 9000000, WELLINGTON_LATITUDE, WELLINGTON_LONGITUDE, noActivityTypes);
         assertTrue(expected.size() == actual.size() &&
                 new HashSet(expected).equals(new HashSet(actual)));
     }
@@ -159,7 +163,7 @@ public class ActivitySearchServiceTest {
         List<SimplifiedActivity> expected = activityService.createSimplifiedActivities(List.of(
                 publicActivityChristchurch
         ));
-        List<SimplifiedActivity> actual = activitySearchService.getActivitiesInRange(profile.getId(), false, 100000, CHRISTCHURCH_LATITUDE + 0.1, CHRISTCHURCH_LONGITUDE + 0.1);
+        List<SimplifiedActivity> actual = activitySearchService.getActivitiesInRange(profile.getId(), false, 100000, CHRISTCHURCH_LATITUDE + 0.1, CHRISTCHURCH_LONGITUDE + 0.1, noActivityTypes);
         assertTrue(expected.size() == actual.size() &&
                 new HashSet(expected).equals(new HashSet(actual)));
     }
@@ -173,7 +177,7 @@ public class ActivitySearchServiceTest {
                 publicActivityChristchurch,
                 publicActivityWellington
         ));
-        List<SimplifiedActivity> actual = activitySearchService.getActivitiesInRange(profile.getId(), false, 500000, CHRISTCHURCH_LATITUDE + 0.1, CHRISTCHURCH_LONGITUDE + 0.1);
+        List<SimplifiedActivity> actual = activitySearchService.getActivitiesInRange(profile.getId(), false, 500000, CHRISTCHURCH_LATITUDE + 0.1, CHRISTCHURCH_LONGITUDE + 0.1, noActivityTypes);
         assertTrue(expected.size() == actual.size() &&
                 new HashSet(expected).equals(new HashSet(actual)));
     }
@@ -194,7 +198,7 @@ public class ActivitySearchServiceTest {
                 publicActivityWellington,
                 membersActivityChristchurch
         ));
-        List<SimplifiedActivity> actual = activitySearchService.getActivitiesInRange(profile.getId(), false, 500000, CHRISTCHURCH_LATITUDE + 0.1, CHRISTCHURCH_LONGITUDE + 0.1);
+        List<SimplifiedActivity> actual = activitySearchService.getActivitiesInRange(profile.getId(), false, 500000, CHRISTCHURCH_LATITUDE + 0.1, CHRISTCHURCH_LONGITUDE + 0.1, noActivityTypes);
         assertTrue(expected.size() == actual.size() &&
                 new HashSet(expected).equals(new HashSet(actual)));
     }
@@ -209,7 +213,7 @@ public class ActivitySearchServiceTest {
                 membersActivityChristchurch,
                 privateActivityChristchurch
         ));
-        List<SimplifiedActivity> actual = activitySearchService.getActivitiesInRange(creator.getId(), false, 500000, WELLINGTON_LATITUDE + 0.1, WELLINGTON_LONGITUDE + 0.1);
+        List<SimplifiedActivity> actual = activitySearchService.getActivitiesInRange(creator.getId(), false, 500000, WELLINGTON_LATITUDE + 0.1, WELLINGTON_LONGITUDE + 0.1, noActivityTypes);
         assertTrue(expected.size() == actual.size() &&
                 new HashSet(expected).equals(new HashSet(actual)));
     }
@@ -224,7 +228,7 @@ public class ActivitySearchServiceTest {
                 publicActivityChristchurch,
                 publicActivityWellington
         ));
-        List<SimplifiedActivity> actual = activitySearchService.getActivitiesInRange(profile.getId(), false, 500000000, DELAWARE_LATITUDE, DELAWARE_LONGITUDE);
+        List<SimplifiedActivity> actual = activitySearchService.getActivitiesInRange(profile.getId(), false, 500000000, DELAWARE_LATITUDE, DELAWARE_LONGITUDE, noActivityTypes);
         assertTrue(expected.size() == actual.size() &&
                 new HashSet(expected).equals(new HashSet(actual)));
     }

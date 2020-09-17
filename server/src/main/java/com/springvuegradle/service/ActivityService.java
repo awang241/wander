@@ -3,21 +3,10 @@ package com.springvuegradle.service;
 import com.springvuegradle.dto.ActivityRoleCountResponse;
 import com.springvuegradle.dto.MembersRequest;
 import com.springvuegradle.dto.SimplifiedActivity;
+import com.springvuegradle.dto.responses.ActivityMemberProfileResponse;
 import com.springvuegradle.enums.*;
 import com.springvuegradle.model.*;
 import com.springvuegradle.repositories.*;
-import com.springvuegradle.dto.responses.ActivityMemberProfileResponse;
-import com.springvuegradle.enums.ActivityMessage;
-import com.springvuegradle.enums.ActivityPrivacy;
-import com.springvuegradle.enums.ActivityResponseMessage;
-import com.springvuegradle.model.Activity;
-import com.springvuegradle.model.ActivityMembership;
-import com.springvuegradle.model.ActivityType;
-import com.springvuegradle.model.Profile;
-import com.springvuegradle.repositories.ActivityMembershipRepository;
-import com.springvuegradle.repositories.ActivityRepository;
-import com.springvuegradle.repositories.ActivityTypeRepository;
-import com.springvuegradle.repositories.ProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -28,6 +17,7 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityNotFoundException;
 import java.security.AccessControlException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Service-layer class containing business logic handling activities.
@@ -105,7 +95,7 @@ public class ActivityService {
      *
      * @param activity   the new activity object
      * @param activityId the id of the activity to update
-     * @param profileId the id of the profile updating the activity
+     * @param profileId  the id of the profile updating the activity
      */
     public void update(Activity activity, Long activityId, Long profileId) {
         Optional<Profile> editor = profileRepo.findById(profileId);
@@ -130,6 +120,48 @@ public class ActivityService {
             throw new IllegalArgumentException(ActivityResponseMessage.INVALID_ACTIVITY.toString());
         }
     }
+
+    /**
+     * Filters a list of activities to ensure only ones containing all of the required activity types are shown
+     * @param activities a list of activites
+     * @param requiredActivityTypes
+     * @return a list of activities that have all activity types
+     */
+    public List<Activity> filterByActivityTypes(List<Activity> activities, List<ActivityType> requiredActivityTypes){
+        if(requiredActivityTypes.isEmpty()){return activities;}
+        List<Activity> filteredActivities = new ArrayList<>();
+        for(Activity activity: activities) {
+            Set<ActivityType> actualActivityTypes = activity.getActivityTypeObjects();
+            Set<ActivityType> result = requiredActivityTypes.stream()
+                    .distinct()
+                    .filter(actualActivityTypes::contains)
+                    .collect(Collectors.toSet());
+            if(result.size() == requiredActivityTypes.size()){
+                filteredActivities.add(activity);
+            }
+        }
+        return filteredActivities;
+    }
+
+    /**
+     * Takes a string array and returns an array of activity types corresponding to those strings
+     * @param activityTypes
+     * @return an array of activity types if types are specified, else none
+     * @throws IllegalArgumentException if an activity type in the list does not exist
+     */
+    public List<ActivityType> getActivityTypesFromStringArray(String[] activityTypes) {
+        if(activityTypes == null){return new ArrayList<>();}
+        List<ActivityType> types = new ArrayList<>();
+        for (String activityTypeString : activityTypes) {
+            ActivityType type = typeRepo.getByActivityTypeName(activityTypeString);
+            if (type == null) {
+                throw new IllegalArgumentException();
+            }
+            types.add(type);
+        }
+        return types;
+    }
+
 
     /**
      * Checks if the activity exists in the repository, deletes the activity.
@@ -165,13 +197,13 @@ public class ActivityService {
     /**
      * Removes an activity membership from an activity and generates a notification for that activity's remaining members.
      *
-     * @param editorId the ID of the profile doing the editing
-     * @param editedId  the ID of the profile having their membership deleted
+     * @param editorId   the ID of the profile doing the editing
+     * @param editedId   the ID of the profile having their membership deleted
      * @param activityId the ID of the activity we are removing them from
      */
     public void removeUserRoleFromActivity(Long editorId, Long editedId, Long activityId) {
         Optional<ActivityMembership> membershipResult = membershipRepo.findByActivity_IdAndProfile_Id(activityId, editedId);
-        if (membershipResult.isEmpty()){
+        if (membershipResult.isEmpty()) {
             throw new NoSuchElementException(ActivityMessage.MEMBERSHIP_NOT_FOUND.toString());
         }
         ActivityMembership membership = membershipResult.get();
@@ -312,10 +344,11 @@ public class ActivityService {
 
     /**
      * Returns all the activities that the user is a creator or organiser of.
-     * @param count the number of activities to return. The function may return less if the last page is returned.
-     * @param authLevel the user's authorisation level.
+     *
+     * @param count      the number of activities to return. The function may return less if the last page is returned.
+     * @param authLevel  the user's authorisation level.
      * @param startIndex the index of an items to be returned; the page containing this item is returned.
-     * @param profileId the id of the user we want to check is the creator or organiser of an activity
+     * @param profileId  the id of the user we want to check is the creator or organiser of an activity
      * @return list of activities
      */
     public List<Activity> getActivitiesUserCanModify(Long profileId, Integer startIndex, Integer count, Integer authLevel) {
@@ -405,7 +438,7 @@ public class ActivityService {
 
     /**
      * Return an activity by activity id.
-     *
+     * <p>
      * Return an activity by activity id and profile id based on the privacy activity and role of the user.
      *
      * @param profileId  The ID of the profile that is requesting the Activity
@@ -556,13 +589,13 @@ public class ActivityService {
         activityRepo.save(activity);
         Profile editor = null;
         Optional<Profile> optionalEditor = profileRepo.findById(profileId);
-        if(optionalEditor.isPresent()){
+        if (optionalEditor.isPresent()) {
             editor = optionalEditor.get();
         }
         notificationService.createNotification(NotificationType.ActivityPrivacyChanged,
                 activity,
                 editor,
-                "Activity " + activity.getActivityName() +"'s privacy level has been changed to " + privacy);
+                "Activity " + activity.getActivityName() + "'s privacy level has been changed to " + privacy);
     }
 
     /**
@@ -871,11 +904,12 @@ public class ActivityService {
 
     /**
      * Wrapper method for getting a generic object from a repository.
+     *
      * @param repository The repository the object is being retrieved from.
-     * @param id The id of the object.
-     * @param <T> The type of the object.
-     * @throws NoSuchElementException if no object with that ID exists in the repository.
+     * @param id         The id of the object.
+     * @param <T>        The type of the object.
      * @return the object from the repository with the given ID.
+     * @throws NoSuchElementException if no object with that ID exists in the repository.
      */
     private <T> T getModelObjectById(JpaRepository<T, Long> repository, Long id) {
         Optional<T> optional = repository.findById(id);
