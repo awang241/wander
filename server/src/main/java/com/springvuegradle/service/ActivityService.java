@@ -834,11 +834,12 @@ public class ActivityService {
      * @param activityId  the ID of the activity being cleared
      * @param roleToClear the ENUM String of the role to clear
      */
-    public void clearActivityRoleList(Long activityId, String roleToClear) {
+    public void clearActivityRoleList(Long editorID, Long activityId, String roleToClear) {
         List<ActivityMemberProfileResponse> memberships = getActivityMembers(activityId);
         for (ActivityMemberProfileResponse membership : memberships) {
             if (membership.getRole().name().equals(roleToClear)) {
-                removeMembership(membership.getId(), activityId);
+                //removeMembership(membership.getId(), activityId)
+                removeUserRoleFromActivity(editorID, membership.getId(), activityId);
             }
         }
     }

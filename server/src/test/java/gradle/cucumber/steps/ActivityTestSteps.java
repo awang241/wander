@@ -362,7 +362,7 @@ public class ActivityTestSteps {
 
     @When("I remove all {string}s from the activity")
     public void iRemoveAllSFromTheActivity(String role) {
-        activityService.clearActivityRoleList(activity.getId(), role);
+        activityService.clearActivityRoleList(profile.getId(), activity.getId(), role);
     }
 
     @Then("The amount of {string}s of the activity is {int}")

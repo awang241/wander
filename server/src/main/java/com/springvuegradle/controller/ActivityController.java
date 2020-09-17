@@ -464,7 +464,7 @@ public class ActivityController {
             String currentRole = activityService.getSingleActivityMembership(profileId, activityId);
             return new ResponseEntity<>(new ActivityRoleUpdateRequest(currentRole), HttpStatus.OK);
         } catch (NoSuchElementException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new ActivityRoleUpdateRequest("None"), HttpStatus.OK);
         }
 
     }
@@ -516,14 +516,14 @@ public class ActivityController {
             response = new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
                     HttpStatus.UNAUTHORIZED);
         }
-        if (!(jwtUtil.extractPermission(token) > 2 || activityService.isProfileActivityCreator(jwtUtil.extractId(token), activityId))) {
+        if (!((jwtUtil.extractPermission(token) <= 1) || activityService.isProfileActivityCreator(jwtUtil.extractId(token), activityId))) {
             response = new ResponseEntity<>(ActivityMessage.INSUFFICIENT_PERMISSION.getMessage(), HttpStatus.FORBIDDEN);
         }
         if (response == null) {
             String roleString = roleToClear.toUpperCase();
             try {
                 Arrays.asList(ActivityRoleLevel.values()).contains(ActivityRoleLevel.valueOf(roleString));
-                activityService.clearActivityRoleList(activityId, roleString);
+                activityService.clearActivityRoleList(jwtUtil.extractId(token), activityId, roleString);
                 response = new ResponseEntity<>(ActivityMessage.SUCCESSFUL_DELETION.getMessage(), HttpStatus.OK);
             } catch (IllegalArgumentException e) {
                 response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -548,7 +548,7 @@ public class ActivityController {
                                                       @PathVariable Long profileId,
                                                       @PathVariable Long activityId) {
 
-        if (token == null || token.isBlank() || !activityService.isProfileActivityCreator(jwtUtil.extractId(token), activityId)) {
+        if (token == null || token.isBlank() || !(activityService.isProfileActivityCreator(jwtUtil.extractId(token), activityId) || (jwtUtil.extractPermission(token) <= 1))) {
             return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(), HttpStatus.UNAUTHORIZED);
         }
         try {
