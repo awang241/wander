@@ -52,8 +52,5 @@ public class ActivitySearchController {
         } catch(IllegalArgumentException e){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-
-
     }
-
 }
