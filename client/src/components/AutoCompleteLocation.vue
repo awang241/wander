@@ -56,12 +56,11 @@
                       if(!locationString.match(regexCriteria) && i + 1 !== addressSize) {
                         locationString = locationString + ","
                       }
-                    } else if (i !== addressSize) {
+                    } else if (i === addressSize - 1) {
+                        locationString = locationString + " " + locationObject.address_components[i].long_name
+                    } else {
                         if (locationObject.address_components[i].long_name !== locationObject.address_components[i - 1].long_name) {
-                            locationString = locationString + " " + locationObject.address_components[i].long_name;
-                        }
-                        if (i !== (addressSize -1)) {
-                           locationString = locationString + ","
+                            locationString = locationString + " " + locationObject.address_components[i].long_name + ", ";
                         }
                     }
                 }
@@ -83,6 +82,12 @@
                     })
                 })
             },
+
+           async updateLocation(locationAddress) {
+                this.location.address = locationAddress
+                await this.checkValidGeoCode(locationAddress)
+            },
+
 
             async setLocation() {
                 if (this.profileLocation.address != "") {
