@@ -69,7 +69,7 @@ class ActivityRepositoryTest {
 
     static Activity createNormalActivityTrackRace() {
         Activity activity = new Activity("Kaikoura Coast Track race", "A big and nice race on a lovely peninsula",
-                new String[]{"Hiking"}, false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ");
+                new String[]{"Hiking"}, false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ", 0.0, 0.0);
         activity.setLatitude(0.0);
         activity.setLongitude(0.0);
         return activity;
@@ -77,9 +77,7 @@ class ActivityRepositoryTest {
 
     static Activity createNormalActivityTriathlon() {
         Activity activity =  new Activity("Triathlon", "I hate triathlons",
-                new String[]{"Hiking","Football"}, false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ");
-        activity.setLatitude(500.0);
-        activity.setLongitude(1000.0);
+                new String[]{"Hiking","Football"}, false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ", 500.0, 1000.0);
         return activity;
     }
 }
