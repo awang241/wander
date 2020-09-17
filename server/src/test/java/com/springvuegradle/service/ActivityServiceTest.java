@@ -2,10 +2,9 @@ package com.springvuegradle.service;
 
 import com.springvuegradle.controller.ActivityController;
 import com.springvuegradle.dto.ActivityRoleCountResponse;
+import com.springvuegradle.dto.responses.ActivityMemberProfileResponse;
 import com.springvuegradle.enums.ActivityMessage;
 import com.springvuegradle.enums.ActivityPrivacy;
-import com.springvuegradle.model.*;
-import com.springvuegradle.dto.responses.ActivityMemberProfileResponse;
 import com.springvuegradle.model.*;
 import com.springvuegradle.repositories.*;
 import com.springvuegradle.utilities.ActivityTestUtils;
@@ -18,10 +17,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.security.AccessControlException;
@@ -1109,6 +1106,33 @@ class ActivityServiceTest {
         ActivityParticipation participation = createNormalParticipationWithoutProfileActivity();
         activityParticipationRepository.save(participation);
         assertEquals(participation, service.readParticipation(participation.getId()));
+    }
+
+    @Test
+    void getActivityTypesWithInvalidTypeThrowsExceptionTest(){
+        assertThrows(IllegalArgumentException.class, ()->service.getActivityTypesFromStringArray(new String[] {"beans"}));
+    }
+
+    @Test
+    void getActivityTypesWithEmptyArrayReturnsEmptyListTest(){
+        String[] emptyArray = {};
+        assertTrue(service.getActivityTypesFromStringArray(emptyArray).size() == 0);
+    }
+
+    @Test
+    void getActivityTypesWithSingleTypeTest(){
+        List<ActivityType> types = service.getActivityTypesFromStringArray(new String[] {"Tramping"});
+        assertTrue(types.size() == 1);
+        assertEquals(types.get(0).getActivityTypeName(), "Tramping");
+
+    }
+
+    @Test
+    void getActivityTypesWithMultipleTypesTest(){
+        List<ActivityType> types = service.getActivityTypesFromStringArray(new String[] {"Tramping", "Yoga"});
+        assertTrue(types.size() == 2);
+        assertEquals(types.get(0).getActivityTypeName(), "Tramping");
+        assertEquals(types.get(1).getActivityTypeName(), "Yoga");
     }
 
     /**
