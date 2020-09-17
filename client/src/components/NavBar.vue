@@ -37,10 +37,10 @@
                               id="registrationButton">
                         Register
                     </b-button>
-                    <b-button  @click="goToProfileSearch"
+                    <b-button  @click="goToSearch"
                                v-if="store.getters.getAuthenticationStatus && store.getters.getAuthenticationLevel > 1"
                                type="is-light">
-                        Search for a Profile
+                        Search
                     </b-button>
                     <b-button  @click="goToAdminDashboard"
                                v-if="store.getters.getAuthenticationLevel <= 1"
@@ -99,8 +99,8 @@
             goToActivities(){
                 router.push({path: '/Activities'});
             },
-            goToProfileSearch() {
-                router.push({path: '/ProfileSearch'})
+            goToSearch() {
+                router.push({path: '/Search'})
             },
             goToHomeFeed() {
               router.push({path: '/Home'})
