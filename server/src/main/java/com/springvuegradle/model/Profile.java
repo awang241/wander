@@ -122,10 +122,10 @@ public class Profile {
     @JoinColumn(name = "location_id", referencedColumnName = "id")
     private ProfileLocation location;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "profile")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "profile")
     private Set<ActivityMembership> activities = new HashSet<>();
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "profile")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "profile")
     private Set<ActivityParticipation> activityParticipations = new HashSet<>();
 
     @ManyToMany(mappedBy = "recipients")
