@@ -138,11 +138,9 @@
                 alert(`Opening profile ${id}`)
             },
             setZoomLevel() {
-              let address_parts = this.address.split(',')
-              let zoomLevel = address_parts.length * 3
-              if (this.map.getZoom() < zoomLevel) {
-                this.map.setZoom(zoomLevel)
-              }
+              let address_parts = this.address.split(',');
+              let zoomLevel = address_parts.length * 3;
+              this.map.setZoom(zoomLevel)
             },
           removeMarker() {
               this.locationChoiceMarker.setMap(null)

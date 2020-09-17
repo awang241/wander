@@ -48,18 +48,19 @@
 
             formatLocationTextField(locationObject) {
                 let locationString = "";
-                for (let i = 0; i < (locationObject.address_components).length; i++) {
+                let addressSize = (locationObject.address_components).length
+                for (let i = 0; i < addressSize; i++) {
                     if (i === 0) {
-                      const letters = /^[0-9a-zA-Z]+$/;
+                      const regexCriteria = /^[0-9]*[a-zA-Z]?$/;
                       locationString = locationObject.address_components[0].long_name;
-                      if(!locationString.match(letters)) {
-                        locationString = locationString + ", "
+                      if(!locationString.match(regexCriteria) && i + 1 !== addressSize) {
+                        locationString = locationString + ","
                       }
-                    } else if (i !== (locationObject.address_components).length) {
+                    } else if (i !== addressSize) {
                         if (locationObject.address_components[i].long_name !== locationObject.address_components[i - 1].long_name) {
                             locationString = locationString + " " + locationObject.address_components[i].long_name;
                         }
-                        if (i !== (locationObject.address_components).length -1) {
+                        if (i !== (addressSize -1)) {
                            locationString = locationString + ","
                         }
                     }
@@ -74,7 +75,7 @@
                         if (status === 'OK') {
                             this.location.latitude = results[0].geometry.location.lat()
                             this.location.longitude = results[0].geometry.location.lng()
-                            this.getLocationFromLatLng(this.location.latitude, this.location.longitude)
+                            this.$parent.updateMapLocationFromAutoComplete(this.location);
                             resolve(true)
                         } else {
                             reject(false);
@@ -96,35 +97,8 @@
                 this.location = {location: "", latitude: "", longitude: ""}
             },
 
-            async finaliseLocation(locationInput) {
-                await this.checkValidGeoCode(locationInput);
-                await this.getLocationFromLatLng(this.location.latitude, this.location.longitude)
-                this.$parent.updateMapLocationFromAutoComplete(this.location);
-            },
-
-            getLocationFromLatLng(lat, lng) {
-                this.geocoder.geocode({'location': {lat: lat, lng: lng}}, (results, status) => {
-                    if (status === 'OK') {
-                        console.log(results[0])
-                        this.location.address = results[0].formatted_address
-                    }
-                })
-                // return new Promise((resolve, reject) => {
-                //     this.geocoder.geocode({'location': {lat: lat, lng: lng}}, (results, status) => {
-                //         if (status === 'OK') {
-                //             console.log(results[0])
-                //             this.location.address = results[0].formatted_address
-                //             resolve(true)
-                //         } else {
-                //             reject(false);
-                //         }
-                //     })
-                // })
-            },
 
             returnLocation() {
-                console.log(this.location)
-                // await this.getLocationFromLatLng(this.location.latitude, this.location.longitude)
                 return this.location;
             }
 

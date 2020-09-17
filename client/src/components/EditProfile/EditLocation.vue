@@ -91,11 +91,8 @@ import AutoCompleteLocation  from "../AutoCompleteLocation";
             if (this.profile.location) {
               original = JSON.stringify(this.profile.location.address);
             }
-            console.log("hmmmmm")
-            // this.$refs.autocomplete.updateLocation(document.getElementById("autocompleteLocation").value);
             let check = await this.checkValidLocation(document.getElementById("autocompleteLocation").value);
             const location = this.$refs.autocomplete.returnLocation();
-            console.log(location)
             if (location.address === "" || location.latitude === "" || location.longitude === "") {
               this.warningToast("Please enter a location")
             } else if (JSON.stringify((location.address)) === original) {
