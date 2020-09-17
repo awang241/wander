@@ -1,10 +1,15 @@
 <template>
-    <div class="container">
-        <h1 class="title is-5">Activity Search</h1>
-
-      <div>
-          insert reusable component
-      </div>
+  <div class="container">
+    <h1 class="title">Activity Search</h1>
+      <b-field group-multiline grouped>
+        <b-field label="Enter a location" expanded>
+          <input class="input" type="text" placeholder="Enter a location" id="autocompleteLocation"/>
+        </b-field>
+        <b-field label="Max distance (km)">
+          <b-numberinput v-model="maxDistance" type="is-primary" :min="1" :max="200"></b-numberinput>
+        </b-field>
+        <br>
+      </b-field>
         <MapPane marker-label="Profile Location" :location-choice-coordinates="profileLocationLatLong" v-on:locationChoiceChanged="updateLocation"></MapPane>
         <br>
 
@@ -35,6 +40,7 @@
         },
         data() {
             return {
+              maxDistance: 50
             }
         },
         methods: {
