@@ -74,7 +74,7 @@
                         if (status === 'OK') {
                             this.location.latitude = results[0].geometry.location.lat()
                             this.location.longitude = results[0].geometry.location.lng()
-                            this.$parent.updateMapLocationFromAutoComplete(this.location);
+                            this.getLocationFromLatLng(this.location.latitude, this.location.longitude)
                             resolve(true)
                         } else {
                             reject(false);
@@ -96,13 +96,35 @@
                 this.location = {location: "", latitude: "", longitude: ""}
             },
 
-            updateLocation(locationAddress) {
-                this.location.address = locationAddress
-                this.checkValidGeoCode(locationAddress)
+            async finaliseLocation(locationInput) {
+                await this.checkValidGeoCode(locationInput);
+                await this.getLocationFromLatLng(this.location.latitude, this.location.longitude)
+                this.$parent.updateMapLocationFromAutoComplete(this.location);
+            },
 
+            getLocationFromLatLng(lat, lng) {
+                this.geocoder.geocode({'location': {lat: lat, lng: lng}}, (results, status) => {
+                    if (status === 'OK') {
+                        console.log(results[0])
+                        this.location.address = results[0].formatted_address
+                    }
+                })
+                // return new Promise((resolve, reject) => {
+                //     this.geocoder.geocode({'location': {lat: lat, lng: lng}}, (results, status) => {
+                //         if (status === 'OK') {
+                //             console.log(results[0])
+                //             this.location.address = results[0].formatted_address
+                //             resolve(true)
+                //         } else {
+                //             reject(false);
+                //         }
+                //     })
+                // })
             },
 
             returnLocation() {
+                console.log(this.location)
+                // await this.getLocationFromLatLng(this.location.latitude, this.location.longitude)
                 return this.location;
             }
 

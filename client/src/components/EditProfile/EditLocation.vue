@@ -84,15 +84,18 @@ import AutoCompleteLocation  from "../AutoCompleteLocation";
             this.$refs.map.removeMarker()
           },
 
+
           async submitLocation() {
             //Using JSON methods to make a constant and compare two JSON objects
             let original = "";
             if (this.profile.location) {
               original = JSON.stringify(this.profile.location.address);
             }
-            this.$refs.autocomplete.updateLocation(document.getElementById("autocompleteLocation").value);
+            console.log("hmmmmm")
+            // this.$refs.autocomplete.updateLocation(document.getElementById("autocompleteLocation").value);
             let check = await this.checkValidLocation(document.getElementById("autocompleteLocation").value);
             const location = this.$refs.autocomplete.returnLocation();
+            console.log(location)
             if (location.address === "" || location.latitude === "" || location.longitude === "") {
               this.warningToast("Please enter a location")
             } else if (JSON.stringify((location.address)) === original) {
