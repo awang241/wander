@@ -1135,6 +1135,28 @@ class ActivityServiceTest {
         assertEquals(types.get(1).getActivityTypeName(), "Yoga");
     }
 
+
+    @Test
+    void filterByActivityTypesWithEmptyTypeListTest(){
+        Activity activityOne = activityRepository.save(createNormalActivity());
+        Activity activityTwo = activityRepository.save(createNormalActivity());
+        assertEquals(service.filterByActivityTypes(List.of(activityOne, activityTwo), new ArrayList<ActivityType>()), List.of(activityOne, activityTwo));
+    }
+
+    @Test
+    void filterByActivityTypesTest(){
+        Activity activityOne = activityRepository.save(createNormalActivity());
+        Activity activityTwo = activityRepository.save(createNormalActivity());
+        ActivityType myCoolType = new ActivityType("myCoolType");
+        typeRepository.save(myCoolType);
+        activityOne.addActivityType(myCoolType);
+        activityRepository.save(activityOne);
+        ArrayList<ActivityType> requiredActivities = new ArrayList<>();
+        requiredActivities.add(myCoolType);
+        assertEquals(service.filterByActivityTypes(List.of(activityOne, activityTwo), requiredActivities), List.of(activityOne));
+
+    }
+
     /**
      *  Tests the readParticipation method that it throws an error when a participation with the given id does not exist
      *  in the database.
