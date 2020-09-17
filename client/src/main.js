@@ -33,8 +33,8 @@ if (localStorage.getItem('authToken') != null) {
             return res
         })
         .catch((error) => {
-            let payload = {'token': null, 'userId': null, 'authenticationStatus': false, 'authenticationLevel': 5};
-            store.dispatch('resetUserData', payload).then();
+            let emptyPayload = {'token': null, 'userId': null, 'authenticationStatus': false, 'authenticationLevel': 5};
+            store.dispatch('resetUserData', emptyPayload).then();
             localStorage.clear();
             this.warningToast("An error occurred while verifying token.");
             return error
