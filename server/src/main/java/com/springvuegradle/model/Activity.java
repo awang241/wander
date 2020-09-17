@@ -60,20 +60,20 @@ public class Activity {
     /**
      * Each activity object can have multiple activities.
      */
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinTable(name = "activity_activity_type",
             inverseJoinColumns = @JoinColumn(name = "activity_type_id", referencedColumnName = "id"),
             joinColumns = @JoinColumn(name = "activity_id", referencedColumnName = "id"))
     private Set<ActivityType> activityTypes;
 
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "activity")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "activity")
     private Set<ActivityMembership> members;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "activity")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "activity")
     private Set<ActivityParticipation> activityParticipations = new HashSet<>();
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "activity")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "activity")
     private Set<Notification> notifications = new HashSet<>();
 
     public Activity(){}

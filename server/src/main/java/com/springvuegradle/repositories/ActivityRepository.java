@@ -32,5 +32,9 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
     @Query("SELECT a FROM Activity a WHERE a.privacyLevel = :privacyLevel")
     Page<Activity> findAllByPrivacyLevelWithPagination(@Param("privacyLevel") int privacyLevel, Pageable pageable);
 
+    @Query("SELECT a FROM Activity a WHERE (a.longitude BETWEEN :x_left AND :x_right) AND (a.latitude BETWEEN :y_bottom AND :y_top)")
+    List<Activity> findAllInRange(@Param("x_left") double x_left, @Param("x_right") double x_right,
+                                  @Param("y_bottom") double y_bottom, @Param("y_top") double y_top);
+
     boolean existsById(Long id);
 }
