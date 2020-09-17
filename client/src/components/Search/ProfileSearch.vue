@@ -1,6 +1,5 @@
 <template>
     <div class="container">
-        <!--slot for name allows this component to be reused with different names-->
         <slot name="header">
             <h1 class="title">Profile Search</h1>
         </slot>
@@ -19,32 +18,10 @@
                 </b-input>
             </b-field>
             <br>
-            <b-field label="Activity types">
-                <b-taginput
-                        v-model="chosenActivityTypes"
-                        :data="filteredActivityTypes"
-                        autocomplete
-                        @typing="getFilteredActivityTypes"
-                        :open-on-focus="false"
-                        placeholder="Add an activity type">
-                </b-taginput>
-            </b-field>
 
-            <div>
-                <b-radio v-model="activitySearchType"
-                         name="all types"
-                         native-value="all">
-                    Matching all types
-                </b-radio>
-                <b-radio v-model="activitySearchType"
-                         name="any types"
-                         native-value="any">
-                    Matching any type
-                </b-radio>
-            </div>
+          <ActivityTypesField v-on:updateSearchMethod="newSearchMethod => activitySearchType = newSearchMethod" v-on:updateChosenActivityTypes="newActivityTypes => chosenActivityTypes = newActivityTypes" :chosenActivityTypes="chosenActivityTypes" :activitySearchType="activitySearchType"></ActivityTypesField>
 
             <br>
-
             <div class="column">
                 <div class="is-pulled-left">
                     <b-button type="is-danger" @click="resetSearchFields">Reset fields</b-button>
@@ -101,13 +78,14 @@
     import Profile from "../Profile";
     import EditProfile from "../EditProfile/EditProfile";
     import router from "../../router";
+    import ActivityTypesField from "@/components/ActivityTypesField";
 
     const DEFAULT_RESULT_COUNT = 10
 
     export default {
         name: "ProfileSearch",
         mixins: [toastMixin],
-        components: {Observer, ProfileSummary},
+        components: {ActivityTypesField, Observer, ProfileSummary},
         data() {
             return {
                 store: store,
@@ -115,17 +93,13 @@
                 chosenActivityTypes: [],
                 email: "",
                 name: "",
-                possibleActivityTypes: [],
-                filteredActivityTypes: this.possibleActivityTypes,
                 observer: null,
                 profiles: [],
                 startIndex: 0,
                 moreProfilesExist: true
             }
         },
-        mounted() {
-            this.getPossibleActivityTypes()
-        },
+
         created() {
             //Used to update the list of profiles when a profile on this list is changed
             //This is done by watching for the profileWasEdited event on the global event bus
@@ -141,7 +115,7 @@
             })
         },
         methods: {
-            openProfileModal(profile) {
+          openProfileModal(profile) {
                 this.$buefy.modal.open({
                     parent: this,
                     props: {id: profile.id},
@@ -190,11 +164,6 @@
                         this.warningToast(`Could not change user to ${permissionLevel}.`);
                     })
             },
-            getPossibleActivityTypes() {
-                Api.getActivityTypesList()
-                    .then(response => this.possibleActivityTypes = response.data.allActivityTypes)
-                    .catch(() => this.warningToast("Could not get activity type list, please refresh"))
-            },
             onDeleteProfileClicked(profileToDelete) {
                 this.$buefy.dialog.confirm({
                     message: `Are you sure you want to <b>delete</b> ${profileToDelete.firstname}'s profile? This will also delete all associated data.`,
@@ -241,15 +210,7 @@
                 }
                 return searchParameters
             },
-            //Autocomplete to display activity types that finish the word the user is typing
-            getFilteredActivityTypes(text) {
-                this.filteredActivityTypes = this.possibleActivityTypes.filter((option) => {
-                    return option
-                        .toString()
-                        .toLowerCase()
-                        .indexOf(text.toLowerCase()) >= 0
-                })
-            },
+
             loadMoreProfiles() {
                 if (this.moreProfilesExist) {
 
@@ -283,5 +244,8 @@
         display: flex;
         align-items: center;
         padding-right: 1rem;
+    }
+    .container {
+      margin-top: 0px;
     }
 </style>
