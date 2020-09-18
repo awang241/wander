@@ -1302,11 +1302,6 @@ class ActivityServiceTest {
         return actualActivity;
     }
 
-
-    private void setupActivityTypeFilterTest(){
-
-    }
-
     public static Profile createNormalProfileBen() {
 
         return new Profile(null, "Ben", "Sales", "James", "Ben10", "ben10@hotmail.com", new String[]{"additional@email.com"}, "hushhush",
