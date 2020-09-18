@@ -1140,7 +1140,7 @@ class ActivityServiceTest {
     void filterByActivityTypesWithEmptyTypeListTest(){
         Activity activityOne = activityRepository.save(createNormalActivity());
         Activity activityTwo = activityRepository.save(createNormalActivity());
-        assertEquals(service.filterByActivityTypes(List.of(activityOne, activityTwo), new ArrayList<ActivityType>(), "all"), List.of(activityOne, activityTwo));
+        assertEquals(service.filterActivitiesByActivityTypes(List.of(activityOne, activityTwo), new ArrayList<ActivityType>(), "all"), List.of(activityOne, activityTwo));
     }
 
     @Test
@@ -1160,7 +1160,7 @@ class ActivityServiceTest {
         ArrayList<ActivityType> requiredActivityTypes = new ArrayList<>();
         requiredActivityTypes.add(xbox);
         requiredActivityTypes.add(playstation);
-        assertEquals(service.filterByActivityTypes(List.of(activityOne, activityTwo, activityThree), requiredActivityTypes, "all"), List.of(activityOne));
+        assertEquals(service.filterActivitiesByActivityTypes(List.of(activityOne, activityTwo, activityThree), requiredActivityTypes, "all"), List.of(activityOne));
     }
 
     @Test
@@ -1180,7 +1180,7 @@ class ActivityServiceTest {
         ArrayList<ActivityType> requiredActivityTypes = new ArrayList<>();
         requiredActivityTypes.add(xbox);
         requiredActivityTypes.add(playstation);
-        assertEquals(service.filterByActivityTypes(List.of(activityOne, activityTwo, activityThree), requiredActivityTypes, "any"), List.of(activityOne, activityTwo));
+        assertEquals(service.filterActivitiesByActivityTypes(List.of(activityOne, activityTwo, activityThree), requiredActivityTypes, "any"), List.of(activityOne, activityTwo));
     }
 
     /**

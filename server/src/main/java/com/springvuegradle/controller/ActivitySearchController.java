@@ -1,7 +1,6 @@
 package com.springvuegradle.controller;
 
 import com.springvuegradle.dto.responses.ActivityLocationResponse;
-import com.springvuegradle.model.ActivityType;
 import com.springvuegradle.service.ActivitySearchService;
 import com.springvuegradle.service.ActivityService;
 import com.springvuegradle.service.SecurityService;
@@ -53,8 +52,7 @@ public class ActivitySearchController {
         boolean isAdmin = jwtUtil.extractPermission(token) < 2;
         Long profileId = jwtUtil.extractId(token);
         try {
-            List<ActivityType> activityTypeList = activityService.getActivityTypesFromStringArray(activityTypes);
-            List<ActivityLocationResponse> activities = activitySearchService.getActivitiesInRange(profileId, isAdmin, distance, latitude, longitude, activityTypeList, searchMethod);
+            List<ActivityLocationResponse> activities = activitySearchService.getActivitiesByRangeAndActivityTypes(profileId, isAdmin, distance, latitude, longitude, activityTypes, searchMethod);
             return new ResponseEntity<>(activities, HttpStatus.OK);
         } catch(IllegalArgumentException e){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
