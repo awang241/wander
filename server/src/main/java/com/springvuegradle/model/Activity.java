@@ -227,6 +227,10 @@ public class Activity {
         return result;
     }
 
+    public Set<ActivityType> getActivityTypeObjects(){
+        return this.activityTypes;
+    }
+
     @JsonIgnore
     public Set<ActivityType> retrieveActivityTypes() {
         return Collections.unmodifiableSet(activityTypes);

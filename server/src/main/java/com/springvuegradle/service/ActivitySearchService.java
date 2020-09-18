@@ -1,8 +1,9 @@
 package com.springvuegradle.service;
 
-import com.springvuegradle.dto.SimplifiedActivity;
+import com.springvuegradle.dto.responses.ActivityLocationResponse;
 import com.springvuegradle.model.Activity;
 import com.springvuegradle.model.ActivityMembership;
+import com.springvuegradle.model.ActivityType;
 import com.springvuegradle.repositories.ActivityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,9 +38,10 @@ public class ActivitySearchService {
      * @param maximumDistance activities only within this distance(specified in m) will be returned
      * @param latitude        the latitude we are searching within a distance of
      * @param longitude       the longitude we are searching within a distance of
+     * @param activityTypes   A list of activity types that the resulting activities must contain
      * @return a list of simplified activities that are visible to the user and are within the required range
      */
-    public List<SimplifiedActivity> getActivitiesInRange(Long profileId, boolean isAdmin, int maximumDistance, Double latitude, Double longitude) {
+    public List<ActivityLocationResponse> getActivitiesInRange(Long profileId, boolean isAdmin, int maximumDistance, Double latitude, Double longitude, List<ActivityType> activityTypes) {
         if (!(isInRange(latitude, MINIMUM_LATITUDE, MAXIMUM_LATITUDE) && isInRange(longitude, MINIMUM_LONGITUDE, MAXIMUM_LONGITUDE))) {
             throw new IllegalArgumentException("Invalid location specified!");
         }
@@ -49,22 +51,37 @@ public class ActivitySearchService {
         } else {
             visibleActivities = activityRepository.findActivitiesUserCanSee(profileId, ActivityMembership.Role.CREATOR);
         }
+        visibleActivities = activityService.filterByActivityTypes(visibleActivities, activityTypes);
+        HashMap<Activity, Double> activityDistanceHashMap = filterActivitiesByDistance(visibleActivities, latitude, longitude, maximumDistance);
+
+        List<Activity> sortedActivities = sortActivitiesByDistance(activityDistanceHashMap);
+        return activityService.createActivityLocationResponse(sortedActivities);
+    }
+
+    /**
+     * Filters a list of activities so only ones within a certain distance of a point are returned
+     * @param activities a list of activities
+     * @param latitude the latitude of the point at the center of the search
+     * @param longitude the longitude of the point at the center of the search
+     * @param maximumDistance the maximum distance away from the center activities can be
+     * @return  list of activities so only ones within a certain distance of a point
+     */
+    private HashMap<Activity, Double> filterActivitiesByDistance(List<Activity> activities, Double latitude, Double longitude, Integer maximumDistance){
         HashMap<Activity, Double> activityDistanceHashMap = new HashMap<>();
-        for (Activity activity : visibleActivities) {
+        for (Activity activity : activities) {
             Double activityDistanceFromPoint = distance(latitude, activity.getLatitude(), longitude, activity.getLongitude());
             if (activityDistanceFromPoint < maximumDistance) {
                 activityDistanceHashMap.put(activity, activityDistanceFromPoint);
             }
         }
-        List<Activity> sortedActivities = sortActivitiesByDistance(activityDistanceHashMap);
-        return activityService.createSimplifiedActivities(sortedActivities);
+        return activityDistanceHashMap;
     }
 
 
     /**
      * Takes a map of activity distance and returns activities in order of distance increasing
      * @param activityDistanceHashMap a hashmap of activities and their distance from the search point.
-     * @return
+     * @return a list of activities sorted by distance from the center of the search
      */
     private List<Activity> sortActivitiesByDistance(HashMap<Activity, Double> activityDistanceHashMap) {
         List<Map.Entry<Activity, Double>> list = new LinkedList<Map.Entry<Activity, Double>>(activityDistanceHashMap.entrySet());
@@ -107,11 +124,10 @@ public class ActivitySearchService {
 
     /**
      * Ensures a value is in between a range and not null
-     *
      * @param number the longitude to be checked
      * @param low    the number should be greater than or equal to this
+     * @param high the number should be less than or equal to this
      * @return true if the longitude is valid
-     * @parma high the number should be less than or equal to this
      */
     public boolean isInRange(Double number, int low, int high) {
         if (number == null) {
