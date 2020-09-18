@@ -1,6 +1,6 @@
 package com.springvuegradle.controller;
 
-import com.springvuegradle.dto.SimplifiedActivity;
+import com.springvuegradle.dto.responses.ActivityLocationResponse;
 import com.springvuegradle.model.ActivityType;
 import com.springvuegradle.service.ActivitySearchService;
 import com.springvuegradle.service.ActivityService;
@@ -41,11 +41,11 @@ public class ActivitySearchController {
      * @return a list of activities that are within a specific range of a location and visible to the user
      */
     @GetMapping("activities/distance")
-    public ResponseEntity<List<SimplifiedActivity>> getActivitiesInRange(@RequestParam Integer distance,
-                                                                         @RequestParam Double latitude,
-                                                                         @RequestParam Double longitude,
-                                                                         @RequestParam(required = false) String[] activityTypes,
-                                                                         @RequestHeader("authorization") String token) {
+    public ResponseEntity<List<ActivityLocationResponse>> getActivitiesInRange(@RequestParam Integer distance,
+                                                                               @RequestParam Double latitude,
+                                                                               @RequestParam Double longitude,
+                                                                               @RequestParam(required = false) String[] activityTypes,
+                                                                               @RequestHeader("authorization") String token) {
         if (!jwtUtil.validateToken(token)) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
@@ -53,7 +53,7 @@ public class ActivitySearchController {
         Long profileId = jwtUtil.extractId(token);
         try {
             List<ActivityType> activityTypeList = activityService.getActivityTypesFromStringArray(activityTypes);
-            List<SimplifiedActivity> activities = activitySearchService.getActivitiesInRange(profileId, isAdmin, distance, latitude, longitude, activityTypeList);
+            List<ActivityLocationResponse> activities = activitySearchService.getActivitiesInRange(profileId, isAdmin, distance, latitude, longitude, activityTypeList);
             return new ResponseEntity<>(activities, HttpStatus.OK);
         } catch(IllegalArgumentException e){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

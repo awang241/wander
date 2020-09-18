@@ -1,6 +1,6 @@
 package com.springvuegradle.service;
 
-import com.springvuegradle.dto.SimplifiedActivity;
+import com.springvuegradle.dto.responses.ActivityLocationResponse;
 import com.springvuegradle.model.Activity;
 import com.springvuegradle.model.ActivityMembership;
 import com.springvuegradle.model.ActivityType;
@@ -41,7 +41,7 @@ public class ActivitySearchService {
      * @param activityTypes   A list of activity types that the resulting activities must contain
      * @return a list of simplified activities that are visible to the user and are within the required range
      */
-    public List<SimplifiedActivity> getActivitiesInRange(Long profileId, boolean isAdmin, int maximumDistance, Double latitude, Double longitude, List<ActivityType> activityTypes) {
+    public List<ActivityLocationResponse> getActivitiesInRange(Long profileId, boolean isAdmin, int maximumDistance, Double latitude, Double longitude, List<ActivityType> activityTypes) {
         if (!(isInRange(latitude, MINIMUM_LATITUDE, MAXIMUM_LATITUDE) && isInRange(longitude, MINIMUM_LONGITUDE, MAXIMUM_LONGITUDE))) {
             throw new IllegalArgumentException("Invalid location specified!");
         }
@@ -55,7 +55,7 @@ public class ActivitySearchService {
         HashMap<Activity, Double> activityDistanceHashMap = filterActivitiesByDistance(visibleActivities, latitude, longitude, maximumDistance);
 
         List<Activity> sortedActivities = sortActivitiesByDistance(activityDistanceHashMap);
-        return activityService.createSimplifiedActivities(sortedActivities);
+        return activityService.createActivityLocationResponse(sortedActivities);
     }
 
     /**

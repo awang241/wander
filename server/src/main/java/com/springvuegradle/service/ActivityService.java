@@ -3,6 +3,7 @@ package com.springvuegradle.service;
 import com.springvuegradle.dto.ActivityRoleCountResponse;
 import com.springvuegradle.dto.MembersRequest;
 import com.springvuegradle.dto.SimplifiedActivity;
+import com.springvuegradle.dto.responses.ActivityLocationResponse;
 import com.springvuegradle.dto.responses.ActivityMemberProfileResponse;
 import com.springvuegradle.enums.*;
 import com.springvuegradle.model.*;
@@ -608,6 +609,18 @@ public class ActivityService {
         List<SimplifiedActivity> simplifiedActivities = new ArrayList<>();
         activities.forEach((k, v) -> simplifiedActivities.add(new SimplifiedActivity(k)));
         return simplifiedActivities;
+    }
+
+    /**
+     * Converts a list of normal activities into a list of simplified activities
+     *
+     * @param activities a list of normal activity objects to be simplified
+     * @return a list of simplified activities
+     */
+    public static List<ActivityLocationResponse> createActivityLocationResponse(List<Activity> activities) {
+        List<ActivityLocationResponse> activityLocationResponse = new ArrayList<>();
+        activities.forEach((activity) -> activityLocationResponse.add(new ActivityLocationResponse(activity)));
+        return activityLocationResponse;
     }
 
     /**

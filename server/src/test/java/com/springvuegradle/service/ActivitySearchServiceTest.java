@@ -1,6 +1,6 @@
 package com.springvuegradle.service;
 
-import com.springvuegradle.dto.SimplifiedActivity;
+import com.springvuegradle.dto.responses.ActivityLocationResponse;
 import com.springvuegradle.model.Activity;
 import com.springvuegradle.model.ActivityMembership;
 import com.springvuegradle.model.ActivityType;
@@ -118,7 +118,7 @@ public class ActivitySearchServiceTest {
     @Test
         //Ensures admin can see all activities when searching with high distance
     void adminCanSeeAllActivitiesInWorld() {
-        List<SimplifiedActivity> expected = activityService.createSimplifiedActivities(List.of(
+        List<ActivityLocationResponse> expected = activityService.createActivityLocationResponse(List.of(
                 publicActivityWellington,
                 membersActivityChristchurch,
                 privateActivityChristchurch,
@@ -126,13 +126,13 @@ public class ActivitySearchServiceTest {
                 membersActivitySydney,
                 privateActivityManila,
                 publicActivityDelaware));
-        List<SimplifiedActivity> actual = activitySearchService.getActivitiesInRange(1L, true, 1000000000, WELLINGTON_LATITUDE, WELLINGTON_LONGITUDE, noActivityTypes);
+        List<ActivityLocationResponse> actual = activitySearchService.getActivitiesInRange(1L, true, 1000000000, WELLINGTON_LATITUDE, WELLINGTON_LONGITUDE, noActivityTypes);
         assertEquals(expected, actual);
     }
 
     @Test
     void adminCanSeeAllActivitiesWithinNewZealand() {
-        assertEquals(activityService.createSimplifiedActivities(List.of(
+        assertEquals(activityService.createActivityLocationResponse(List.of(
                 membersActivityChristchurch,
                 privateActivityChristchurch,
                 publicActivityChristchurch,
@@ -142,7 +142,7 @@ public class ActivitySearchServiceTest {
 
     @Test
     void adminCanSeeALlActivitiesWithinOceaniaAndAsia() {
-        List<SimplifiedActivity> expected = activityService.createSimplifiedActivities(List.of(
+        List<ActivityLocationResponse> expected = activityService.createActivityLocationResponse(List.of(
                 publicActivityChristchurch,
                 publicActivityWellington,
                 membersActivityChristchurch,
@@ -151,7 +151,7 @@ public class ActivitySearchServiceTest {
                 privateActivityManila
         ));
 
-        List<SimplifiedActivity> actual = activitySearchService.getActivitiesInRange(1L, true, 9000000, WELLINGTON_LATITUDE, WELLINGTON_LONGITUDE, noActivityTypes);
+        List<ActivityLocationResponse> actual = activitySearchService.getActivitiesInRange(1L, true, 9000000, WELLINGTON_LATITUDE, WELLINGTON_LONGITUDE, noActivityTypes);
         assertTrue(expected.size() == actual.size() &&
                 new HashSet(expected).equals(new HashSet(actual)));
     }
@@ -160,10 +160,10 @@ public class ActivitySearchServiceTest {
     void userCanSeePublicActivitiesInChristchurch() {
         Profile profile = ProfileTestUtils.createProfileJimmyAlternate();
         profileRepository.save(profile);
-        List<SimplifiedActivity> expected = activityService.createSimplifiedActivities(List.of(
+        List<ActivityLocationResponse> expected = activityService.createActivityLocationResponse(List.of(
                 publicActivityChristchurch
         ));
-        List<SimplifiedActivity> actual = activitySearchService.getActivitiesInRange(profile.getId(), false, 100000, CHRISTCHURCH_LATITUDE + 0.1, CHRISTCHURCH_LONGITUDE + 0.1, noActivityTypes);
+        List<ActivityLocationResponse> actual = activitySearchService.getActivitiesInRange(profile.getId(), false, 100000, CHRISTCHURCH_LATITUDE + 0.1, CHRISTCHURCH_LONGITUDE + 0.1, noActivityTypes);
         assertTrue(expected.size() == actual.size() &&
                 new HashSet(expected).equals(new HashSet(actual)));
     }
@@ -173,11 +173,11 @@ public class ActivitySearchServiceTest {
     void userCanSeePublicActivitiesInNewZealand() {
         Profile profile = ProfileTestUtils.createProfileJimmyAlternate();
         profileRepository.save(profile);
-        List<SimplifiedActivity> expected = activityService.createSimplifiedActivities(List.of(
+        List<ActivityLocationResponse> expected = activityService.createActivityLocationResponse(List.of(
                 publicActivityChristchurch,
                 publicActivityWellington
         ));
-        List<SimplifiedActivity> actual = activitySearchService.getActivitiesInRange(profile.getId(), false, 500000, CHRISTCHURCH_LATITUDE + 0.1, CHRISTCHURCH_LONGITUDE + 0.1, noActivityTypes);
+        List<ActivityLocationResponse> actual = activitySearchService.getActivitiesInRange(profile.getId(), false, 500000, CHRISTCHURCH_LATITUDE + 0.1, CHRISTCHURCH_LONGITUDE + 0.1, noActivityTypes);
         assertTrue(expected.size() == actual.size() &&
                 new HashSet(expected).equals(new HashSet(actual)));
     }
@@ -193,12 +193,12 @@ public class ActivitySearchServiceTest {
         membersActivityChristchurch.addMember(membership);
         activityRepository.save(membersActivityChristchurch);
 
-        List<SimplifiedActivity> expected = activityService.createSimplifiedActivities(List.of(
+        List<ActivityLocationResponse> expected = activityService.createActivityLocationResponse(List.of(
                 publicActivityChristchurch,
                 publicActivityWellington,
                 membersActivityChristchurch
         ));
-        List<SimplifiedActivity> actual = activitySearchService.getActivitiesInRange(profile.getId(), false, 500000, CHRISTCHURCH_LATITUDE + 0.1, CHRISTCHURCH_LONGITUDE + 0.1, noActivityTypes);
+        List<ActivityLocationResponse> actual = activitySearchService.getActivitiesInRange(profile.getId(), false, 500000, CHRISTCHURCH_LATITUDE + 0.1, CHRISTCHURCH_LONGITUDE + 0.1, noActivityTypes);
         assertTrue(expected.size() == actual.size() &&
                 new HashSet(expected).equals(new HashSet(actual)));
     }
@@ -207,13 +207,13 @@ public class ActivitySearchServiceTest {
     void creatorOfActivityCanSeeTheirOwnActivitysNewZealand(){
         Profile profile = ProfileTestUtils.createProfileJimmyAlternate();
         profileRepository.save(profile);
-        List<SimplifiedActivity> expected = activityService.createSimplifiedActivities(List.of(
+        List<ActivityLocationResponse> expected = activityService.createActivityLocationResponse(List.of(
                 publicActivityChristchurch,
                 publicActivityWellington,
                 membersActivityChristchurch,
                 privateActivityChristchurch
         ));
-        List<SimplifiedActivity> actual = activitySearchService.getActivitiesInRange(creator.getId(), false, 500000, WELLINGTON_LATITUDE + 0.1, WELLINGTON_LONGITUDE + 0.1, noActivityTypes);
+        List<ActivityLocationResponse> actual = activitySearchService.getActivitiesInRange(creator.getId(), false, 500000, WELLINGTON_LATITUDE + 0.1, WELLINGTON_LONGITUDE + 0.1, noActivityTypes);
         assertTrue(expected.size() == actual.size() &&
                 new HashSet(expected).equals(new HashSet(actual)));
     }
@@ -223,12 +223,12 @@ public class ActivitySearchServiceTest {
     void userCanSeePublicActivitiesInWorld() {
         Profile profile = ProfileTestUtils.createProfileJimmyAlternate();
         profileRepository.save(profile);
-        List<SimplifiedActivity> expected = activityService.createSimplifiedActivities(List.of(
+        List<ActivityLocationResponse> expected = activityService.createActivityLocationResponse(List.of(
                 publicActivityDelaware,
                 publicActivityChristchurch,
                 publicActivityWellington
         ));
-        List<SimplifiedActivity> actual = activitySearchService.getActivitiesInRange(profile.getId(), false, 500000000, DELAWARE_LATITUDE, DELAWARE_LONGITUDE, noActivityTypes);
+        List<ActivityLocationResponse> actual = activitySearchService.getActivitiesInRange(profile.getId(), false, 500000000, DELAWARE_LATITUDE, DELAWARE_LONGITUDE, noActivityTypes);
         assertTrue(expected.size() == actual.size() &&
                 new HashSet(expected).equals(new HashSet(actual)));
     }
