@@ -16,6 +16,8 @@
 
     const DEFAULT_HEIGHT = 500;
     const DEFAULT_WIDTH = 1075;
+    const DEFAULT_LOCATION = {lat: -43.4341, lng: 172.6397}
+    const DEFAULT_ZOOM = 4;
 
     const locations = [
         {
@@ -63,8 +65,10 @@
 
         watch: {
             locationChoiceCoordinates: function (newCoords) {
-                this.setLocationWithMarker(newCoords)
-                this.map.setCenter(newCoords)
+                if (newCoords) {
+                  this.setLocationWithMarker(newCoords)
+                  this.map.setCenter(newCoords)
+                }
             }
         },
 
@@ -90,24 +94,25 @@
             },
             //Allows user to choose their location by clicking on the map
             setLocationWithMarker(position) {
-                if (this.locationChoiceMarker) {
-                    this.locationChoiceMarker.setPosition(position)
-                } else {
-                    this.locationChoiceMarker = new this.google.maps.Marker({
-                        position: position,
-                        label: {text: this.markerLabel},
-                    });
-                    this.locationChoiceMarker.setMap(this.map)
-                }
+              if (!this.locationChoiceMarker) {
+                this.locationChoiceMarker = new this.google.maps.Marker({
+                  position: position,
+                  label: {text: this.markerLabel},
+                });
+                this.locationChoiceMarker.setMap(this.map)
+              } else if (this.locationChoiceMarker.map === null) {
+                this.locationChoiceMarker.setMap(this.map)
+              } else {
+                this.locationChoiceMarker.setPosition(position)
+              }
               this.setZoomLevel()
               this.$emit('locationChoiceChanged', position)
             },
             //Dynamically creates the google map
             createMap() {
-                const defaultLocation = {lat: -43.4341, lng: 172.6397}
                 this.map = new this.google.maps.Map(document.getElementById('map'), {
-                    zoom: 4,
-                    center: this.locationChoiceCoordinates ? this.locationChoiceCoordinates : defaultLocation,
+                    zoom: DEFAULT_ZOOM,
+                    center: this.locationChoiceCoordinates ? this.locationChoiceCoordinates : DEFAULT_LOCATION,
                 });
                 this.google.maps.event.addListener(this.map, 'click', e => {
                     this.setLocationWithMarker(e.latLng);
@@ -133,9 +138,15 @@
                 alert(`Opening profile ${id}`)
             },
             setZoomLevel() {
-              let address_parts = this.address.split(',')
-              this.map.setZoom(address_parts.length * 2.5)
-            }
+              let address_parts = this.address.split(',');
+              let zoomLevel = address_parts.length * 3;
+              this.map.setZoom(zoomLevel)
+            },
+          removeMarker() {
+              this.locationChoiceMarker.setMap(null)
+              this.map.setZoom(DEFAULT_ZOOM);
+              this.map.setCenter(DEFAULT_LOCATION)
+          }
         }
     }
 </script>
