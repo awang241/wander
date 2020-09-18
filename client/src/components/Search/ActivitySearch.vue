@@ -3,7 +3,7 @@
     <h1 class="title">Activity Search</h1>
     <b-field group-multiline grouped>
       <b-field label="Enter a location" expanded>
-        <AutoCompleteLocation v-on:updateMap="updateLocation" v-bind:profileLocation="this.profile.location" ref="autocomplete"></AutoCompleteLocation>
+        <AutoCompleteLocation v-on:locationStringChanged="updateMapLocationFromAutoComplete" v-on:updateMap="updateLocation" v-bind:profileLocation="this.profile.location" ref="autocomplete"></AutoCompleteLocation>
       </b-field>
       <b-field label="Max distance (km)">
         <b-numberinput v-model="maxDistance" type="is-primary" :min="1" :max="200"></b-numberinput>
@@ -14,7 +14,7 @@
                         :chosenActivityTypes="chosenActivityTypes"
                         :activitySearchType="activitySearchType"></ActivityTypesField>
     <br>
-    <MapPane marker-label="Profile Location" :location-choice-coordinates="profileLocationLatLong"
+    <MapPane marker-label="Profile Location" :location-choice-coordinates="profileLocationLatLong" v-bind:address="this.profile.location.address"
              v-on:locationChoiceChanged="updateLocation"></MapPane>
     <br>
 
@@ -50,15 +50,15 @@ export default {
   mixins: [toastMixin],
   data() {
     return {
+      geocoder: null,
       profile: {},
       maxDistance: 50,
       activitySearchType: "all",
       chosenActivityTypes: [],
       activityResults: [],
-      latitude: "",
-      longitude: "",
       store: store,
       profileLocationLatLong: null,
+      locationString: ""
 
     }
   },
@@ -92,7 +92,6 @@ export default {
             this.profile = response.data;
             if (this.profile.location) {
               this.profileLocationLatLong = {lat: this.profile.location.latitude, lng: this.profile.location.longitude};
-              console.log(this.profileLocationLatLong)
             }
           })
           .catch(() => {
@@ -109,11 +108,16 @@ export default {
         }
       })
     },
+    updateMapLocationFromAutoComplete(location) {
+      this.profileLocationLatLong = {lat: location.latitude, lng: location.longitude}
+      this.locationString = location.address
+    },
 
   },
   async mounted() {
     this.google = await googleMapsInit();
     this.setDefaultProfileLocation();
+    this.geocoder = new this.google.maps.Geocoder;
   }
 }
 
