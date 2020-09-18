@@ -2,7 +2,6 @@ package com.springvuegradle.dto.responses;
 
 import com.springvuegradle.model.Notification;
 import lombok.Data;
-
 import java.util.List;
 
 @Data

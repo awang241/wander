@@ -14,7 +14,6 @@ import ParticipationComponent from "./components/ParticipationForm.vue";
 import SearchComponent from "./components/Search/Search";
 import store from "./store";
 import HomeFeed from "./components/HomeFeed";
-import MapPane from "./components/MapPane";
 
 
 const routes = [
@@ -78,7 +77,6 @@ const routes = [
             }
         }
     },
-    {path: "/Map", name: "map", component:MapPane},
 ];
 
 const router = new VueRouter({
