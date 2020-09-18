@@ -17,5 +17,12 @@ afterEach(() => {
 });
 
 describe('ActivitySearch.vue', () => {
-    // needs to be implemented once reusable autocomplete component has been merged
+    test('Search with max distance has default parameters and email', () => {
+        const max_distance = 60
+        wrapper.vm.latitude = 50
+        wrapper.vm.longitude = 50
+        wrapper.vm.chosenActivityTypes = []
+        wrapper.vm.maxDistance = max_distance
+        expect(wrapper.vm.getSearchParameters()).toStrictEqual({latitude: 50, longitude: 50, distance: max_distance})
+    });
 });
