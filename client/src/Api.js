@@ -51,7 +51,7 @@ export default {
   getActivityParticipation: (userId, activityId, token, participationId) => localAxiosInstance.get('/profiles/'+ userId + '/activities/' + activityId + '/participation/' + participationId, {headers: {'authorization': token}}),
   getAllActivityParticipations: (activityId, token) => localAxiosInstance.get('activities/' + activityId + '/participations', {headers: {'authorization': token}}),
   getSingleUserActivityRole: (userId, activityId, token) => localAxiosInstance.get(`/profiles/${userId}/activities/${activityId}/role`, {headers: {"authorization":token}}),
-
+  getActivitiesByLocation: (token, parameters = {}) => localAxiosInstance.get('activities/distance', {headers: {"authorization": token}, params: parameters}),
 
   // All login/logout API requests
   login: (user) => localAxiosInstance.post('login', user),
