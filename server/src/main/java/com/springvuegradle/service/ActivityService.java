@@ -590,21 +590,9 @@ public class ActivityService {
      * @param activities a list of normal activity objects to be simplified
      * @return a list of simplified activities
      */
-    public static List<SimplifiedActivity> createSimplifiedActivities(Map<Activity, ActivityMembership.Role> activities) {
-        List<SimplifiedActivity> simplifiedActivities = new ArrayList<>();
-        activities.forEach((k, v) -> simplifiedActivities.add(new SimplifiedActivity(k)));
-        return simplifiedActivities;
-    }
-
-    /**
-     * Converts a list of normal activities into a list of simplified activities
-     *
-     * @param activities a list of normal activity objects to be simplified
-     * @return a list of simplified activities
-     */
     public static List<ActivityLocationResponse> createActivityLocationResponse(List<Activity> activities) {
         List<ActivityLocationResponse> activityLocationResponse = new ArrayList<>();
-        activities.forEach((activity) -> activityLocationResponse.add(new ActivityLocationResponse(activity)));
+        activities.forEach(activity -> activityLocationResponse.add(new ActivityLocationResponse(activity)));
         return activityLocationResponse;
     }
 
