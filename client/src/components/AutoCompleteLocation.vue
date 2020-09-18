@@ -64,7 +64,6 @@
                         }
                     }
                 }
-                console.log(`location string is ${locationString}`)
                 return locationString
 
             },
