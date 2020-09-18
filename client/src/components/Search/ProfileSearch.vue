@@ -78,7 +78,7 @@
     import Profile from "../Profile";
     import EditProfile from "../EditProfile/EditProfile";
     import router from "../../router";
-    import ActivityTypesField from "@/components/ActivityTypesField";
+    import ActivityTypesField from "../ActivityTypesField";
 
     const DEFAULT_RESULT_COUNT = 10
 

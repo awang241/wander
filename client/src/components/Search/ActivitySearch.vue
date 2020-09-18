@@ -37,8 +37,8 @@ import googleMapsInit from '../../utils/googlemaps'
 import MapPane from "../MapPane";
 import api from "../../Api";
 import router from "../../router";
-import ActivityTypesField from "@/components/ActivityTypesField";
-import Api from "@/Api";
+import ActivityTypesField from "../ActivityTypesField";
+import Api from "../../Api";
 
 export default {
   name: "ActivitySearch",
@@ -50,7 +50,9 @@ export default {
       maxDistance: 50,
       activitySearchType: "all",
       chosenActivityTypes: [],
-      activityResults: []
+      activityResults: [],
+      latitude: "",
+      longitude: ""
     }
   },
   methods: {
@@ -67,15 +69,16 @@ export default {
     },
     getSearchParameters() {
       const searchParameters = {};
-      if (this.maxDistance > 0 && this.maxDistance <= 200) {
-        searchParameters.distance = this.maxDistance
-      }
+      searchParameters.latitude = this.latitude
+      searchParameters.longitude = this.longitude
+      searchParameters.distance = this.maxDistance
       if (this.chosenActivityTypes.length > 0) {
         searchParameters.activityTypes = this.chosenActivityTypes.join(",")
         searchParameters.method = this.activitySearchType
       }
       return searchParameters
     },
+
     setDefaultProfileLocation() {
       api.getProfile(this.id, localStorage.getItem('authToken'))
           .then((response) => {
