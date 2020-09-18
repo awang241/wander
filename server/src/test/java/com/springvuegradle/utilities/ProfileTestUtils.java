@@ -10,11 +10,11 @@ public class ProfileTestUtils {
     /* Below are a set of ready-made Profile objects which can be used for various tests. */
 
     public static Notification createNormalNotificationWithTypeBeing0() {
-        return new Notification("Activity: bobbing in bobbington, has been created hooray", null, null, NotificationType.ActivityCreated);
+        return new Notification("Activity: bobbing in bobbington, has been created hooray", null, null, NotificationType.ACTIVITY_CREATED);
     }
 
     public static Notification createNormalNotificationWithTypeBeing2() {
-        return new Notification("Activity: bobbing in bobbington, has been edited, name is now gobbing in gobbington", null, null, NotificationType.ActivityEdited);
+        return new Notification("Activity: bobbing in bobbington, has been edited, name is now gobbing in gobbington", null, null, NotificationType.ACTIVITY_EDITED);
     }
 
     public static List<Notification> createListOfNormalNotifications() {

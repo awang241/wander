@@ -4,11 +4,8 @@ import com.springvuegradle.repositories.*;
 import com.springvuegradle.utilities.InitialDataHelper;
 import com.springvuegradle.utilities.ValidationHelper;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.SpringApplication;
-
-import java.util.*;
-
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -16,6 +13,10 @@ import org.springframework.core.Ordered;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 
 @SpringBootApplication
 @ComponentScan({"com.springvuegradle.controller", "com.springvuegradle.utilities", "com.springvuegradle.service"})
@@ -35,10 +36,8 @@ public class Application {
             if (password != null) {
                 System.out.println("Default admin created with password: " + password);
             }
-            System.out.println("-----Update Complete-----");
             System.out.println("-----Updating Passport Country Repository-----");
             ValidationHelper.updatePassportCountryRepository(pcRepo, pRepo);
-            System.out.println("-----Update Complete-----");
             System.out.println("-----Program should be running now-----");
         };
     }
@@ -51,7 +50,6 @@ public class Application {
         config.setAllowCredentials(true);
         // *** URL below needs to match the Vue client URL and port ***
         config.setAllowedOrigins(new ArrayList(Arrays.asList("http://localhost:9000", "http://localhost:9499", "http://localhost:9500", "https://csse-s302g1.canterbury.ac.nz/test", "https://csse-s302g1.canterbury.ac.nz/prod", "https://csse-s302g1.canterbury.ac.nz", "https://csse-s302g1.canterbury.ac.nz/test/api", "https://csse-s302g1.canterbury.ac.nz/prod/api")));
-        //config.setAllowedOrigins(Collections.singletonList("*"));
         config.setAllowedMethods(Collections.singletonList("*"));
         config.setAllowedHeaders(Collections.singletonList("*"));
         source.registerCorsConfiguration("/**", config);

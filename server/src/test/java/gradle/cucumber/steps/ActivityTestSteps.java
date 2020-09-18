@@ -83,6 +83,8 @@ public class ActivityTestSteps {
 
     private Activity activity;
 
+    private ActivityPOJO activityPOJO;
+
     private SimplifiedActivitiesResponse simplifiedActivitiesResponse;
 
 
@@ -228,6 +230,11 @@ public class ActivityTestSteps {
                 new String[]{"Running"}, true, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "UC, CHCH, NZ", 100, 100);
     }
 
+    static ActivityPOJO createNormalActivityPOJO(String title, String location) {
+        return new ActivityPOJO(title, "description doesn't matter atm",
+                new String[]{"Running"}, true, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "UC, CHCH, NZ", 100, 100);
+    }
+
     @And("I am a {string} of this activity")
     public void iAmAOfThisActivity(String roleString) {
         ActivityMembership.Role role = ActivityMembership.Role.valueOf(roleString);
@@ -355,7 +362,7 @@ public class ActivityTestSteps {
 
     @When("I remove all {string}s from the activity")
     public void iRemoveAllSFromTheActivity(String role) {
-        activityService.clearActivityRoleList(activity.getId(), role);
+        activityService.clearActivityRoleList(profile.getId(), activity.getId(), role);
     }
 
     @Then("The amount of {string}s of the activity is {int}")

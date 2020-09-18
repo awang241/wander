@@ -1,7 +1,5 @@
 package com.springvuegradle.controller;
 
-import com.springvuegradle.dto.ActivityParticipationResponse;
-import com.springvuegradle.dto.SimplifiedActivitiesResponse;
 import com.springvuegradle.dto.requests.*;
 import com.springvuegradle.dto.responses.ActivityTypesResponse;
 import com.springvuegradle.dto.responses.NotificationsResponse;
@@ -9,25 +7,20 @@ import com.springvuegradle.dto.responses.ProfileSearchResponse;
 import com.springvuegradle.dto.responses.ProfileSummary;
 import com.springvuegradle.enums.AuthLevel;
 import com.springvuegradle.enums.AuthenticationErrorMessage;
+import com.springvuegradle.enums.ProfileErrorMessage;
 import com.springvuegradle.model.*;
 import com.springvuegradle.repositories.*;
 import com.springvuegradle.service.NotificationService;
+import com.springvuegradle.service.ProfileService;
+import com.springvuegradle.service.SecurityService;
 import com.springvuegradle.utilities.FieldValidationHelper;
 import com.springvuegradle.utilities.JwtUtil;
-import com.springvuegradle.service.SecurityService;
-import com.springvuegradle.enums.ProfileErrorMessage;
-import com.springvuegradle.service.ProfileService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.auditing.AuditingHandler;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.springvuegradle.repositories.ProfileRepository;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 import javax.xml.bind.DatatypeConverter;
 import java.nio.charset.StandardCharsets;
@@ -86,6 +79,8 @@ public class Profile_Controller {
     @Autowired
     private NotificationService notificationService;
 
+    private String PERMISSION_DENIED = "Permission Denied";
+
 
     public Profile_Controller(ProfileService profileService,
                               ProfileRepository profileRepository,
@@ -122,7 +117,7 @@ public class Profile_Controller {
     @PutMapping("/profiles/{id}/location")
     public ResponseEntity<String> updateProfileLocation(@RequestBody ProfileLocation newLocation,  @RequestHeader("authorization") String token, @PathVariable Long id){
         if(!securityService.checkEditPermission(token, id)){
-            return new ResponseEntity<>("Permission denied", HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>(PERMISSION_DENIED, HttpStatus.FORBIDDEN);
         }
         return profileService.updateProfileLocation(newLocation, id);
     }
@@ -136,7 +131,7 @@ public class Profile_Controller {
     @DeleteMapping("/profiles/{id}/location")
     public @ResponseBody ResponseEntity<String> deleteLocation(@RequestHeader("authorization") String token, @PathVariable Long id) {
         if(!securityService.checkEditPermission(token, id)){
-            return new ResponseEntity<>("Permission denied", HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>(PERMISSION_DENIED, HttpStatus.FORBIDDEN);
         }
         return profileService.deleteProfileLocation(id);
     }
@@ -191,7 +186,7 @@ public class Profile_Controller {
      */
     @GetMapping("/profiles/{id}")
     public @ResponseBody ResponseEntity<Profile> getProfile(@PathVariable Long id, @RequestHeader("authorization") String token) {
-        if (jwtUtil.validateToken(token)) {
+        if (Boolean.TRUE.equals(jwtUtil.validateToken(token))) {
             return getProfile(id);
         } else {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
@@ -224,7 +219,7 @@ public class Profile_Controller {
     @DeleteMapping(value="/profiles/{id}")
     public @ResponseBody ResponseEntity<String> deleteProfile(@RequestHeader("authorization") String token, @PathVariable Long id) {
         if(!securityService.checkEditPermission(token, id)){
-            return new ResponseEntity<>("Permission denied", HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>(PERMISSION_DENIED, HttpStatus.FORBIDDEN);
         }
         return deleteProfile(id);
     }
@@ -353,7 +348,7 @@ public class Profile_Controller {
             return new ResponseEntity<>(new NotificationsResponse(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage()),
                     HttpStatus.UNAUTHORIZED);
         }
-        if (!jwtUtil.validateToken(token)) {
+        if (Boolean.FALSE.equals(jwtUtil.validateToken(token))) {
             return new ResponseEntity<>(new NotificationsResponse(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage()),
                     HttpStatus.FORBIDDEN);
         }
@@ -377,7 +372,7 @@ public class Profile_Controller {
     protected ResponseEntity<String> addEmails(EmailAddRequest request, Long id, String token, Boolean testing) {
         HttpStatus status;
         String message;
-        if (testing || jwtUtil.validateToken(token)) {
+        if (testing || Boolean.TRUE.equals(jwtUtil.validateToken(token))) {
             Optional<Profile> result = repo.findById(id);
             if (Boolean.TRUE.equals(result.isPresent())) {
                 Profile targetProfile = result.get();
@@ -408,7 +403,7 @@ public class Profile_Controller {
      */
     @PutMapping("/profiles/{id}/emails")
     public ResponseEntity<String> editEmails (@RequestBody EmailUpdateRequest newEmails, @PathVariable Long id, @RequestHeader("authorization") String token) {
-        if (jwtUtil.validateToken(token)) {
+        if (Boolean.TRUE.equals(jwtUtil.validateToken(token))) {
             return editEmails (newEmails, id);
         } else {
             return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(), HttpStatus.UNAUTHORIZED);
@@ -424,7 +419,7 @@ public class Profile_Controller {
      */
     @PutMapping("/profiles/{id}/activityType-types")
     public ResponseEntity<String> editActivityTypes (@RequestBody ActivityTypeUpdateRequest newActivityTypes, @PathVariable Long id, @RequestHeader("authorization") String token) {
-        if (!jwtUtil.validateToken(token)) {
+        if (Boolean.FALSE.equals(jwtUtil.validateToken(token))) {
             return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(), HttpStatus.UNAUTHORIZED);
         }
         return editActivityTypes(newActivityTypes.getActivityTypes(), id);
@@ -456,7 +451,7 @@ public class Profile_Controller {
     }
 
     public ResponseEntity<String> changePassword(ChangePasswordRequest newPasswordRequest, Long id, String token, Boolean testing) {
-        if(!testing && !jwtUtil.validateToken(token)){
+        if(!testing && Boolean.FALSE.equals(jwtUtil.validateToken(token))){
             return new ResponseEntity<>("Invalid session ID.", HttpStatus.UNAUTHORIZED);
         }
 
@@ -529,10 +524,7 @@ public class Profile_Controller {
      */
     protected ResponseEntity<Profile> getProfile(Long id) {
         Optional<Profile> profileWithId = repo.findById(id);
-        if(profileWithId.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        else if (profileWithId.get().getAuthLevel() == 0) {
+        if(profileWithId.isEmpty() || profileWithId.get().getAuthLevel() == 0) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(profileWithId.get(), HttpStatus.OK);
@@ -545,7 +537,7 @@ public class Profile_Controller {
      */
     @GetMapping("/authLevel")
     public ResponseEntity<Integer> getAuthLevel(@RequestHeader("authorization") String token) {
-        if(jwtUtil.validateToken(token)) {
+        if(Boolean.TRUE.equals(jwtUtil.validateToken(token))) {
             return new ResponseEntity<>(jwtUtil.extractPermission(token), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
@@ -569,14 +561,14 @@ public class Profile_Controller {
         // verifying passport countries
         Optional<Profile> dbResults = repo.findById(id);
         if(dbResults.isPresent()) {
-            Profile db_profile = dbResults.get();
-            db_profile.updateProfileExceptEmailsPassword(editedProfile);
+            Profile dbProfile = dbResults.get();
+            dbProfile.updateProfileExceptEmailsPassword(editedProfile);
             Set<PassportCountry> updatedCountries = new HashSet<>();
             for (PassportCountry passportCountry : editedProfile.getPassportObjects()) {
                 List<PassportCountry> result = pcRepo.findByCountryName(passportCountry.getCountryName());
                 updatedCountries.add(result.get(0));
             }
-            db_profile.setPassports(updatedCountries);
+            dbProfile.setPassports(updatedCountries);
 
             // verifying activityTypes
             Set<ActivityType> updatedActivityTypes = new HashSet<>();
@@ -584,7 +576,7 @@ public class Profile_Controller {
                 List<ActivityType> resultActivityTypes = aRepo.findByActivityTypeName(activityType.getActivityTypeName());
                 updatedActivityTypes.add(resultActivityTypes.get(0));
             }
-            db_profile.setActivityTypes(updatedActivityTypes);
+            dbProfile.setActivityTypes(updatedActivityTypes);
 
             // verifying emails, reuses the editEmails method
             EmailUpdateRequest mockRequest = new EmailUpdateRequest(new ArrayList<>(editedProfile.getAdditional_email()), editedProfile.getPrimary_email(), id.intValue());
@@ -594,15 +586,15 @@ public class Profile_Controller {
             }
 
             // checks if location is present, updates location if they are
-            Optional<ProfileLocation> location = profileLocationRepository.findLocationByProfile(db_profile);
+            Optional<ProfileLocation> location = profileLocationRepository.findLocationByProfile(dbProfile);
             if (location.isPresent()) {
                 location.get().update(editedProfile.getProfileLocation());
             } else {
-                db_profile.setLocation(editedProfile.getProfileLocation());
+                dbProfile.setLocation(editedProfile.getProfileLocation());
             }
 
-            repo.save(db_profile);
-            return new ResponseEntity<>(db_profile.toString(), HttpStatus.OK);
+            repo.save(dbProfile);
+            return new ResponseEntity<>(dbProfile.toString(), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -651,12 +643,12 @@ public class Profile_Controller {
 
         Optional<Profile> dbResults = repo.findById(id);
         if(dbResults.isPresent()) {
-            Profile db_profile = dbResults.get();
+            Profile dbProfile = dbResults.get();
             String primaryEmail = newEmails.getPrimary_email();
 
             Set<Email> newEmailSet = new HashSet<>();
 
-            Set<Email> oldEmails = db_profile.retrieveEmails();
+            Set<Email> oldEmails = dbProfile.retrieveEmails();
 
             List<String> duplicateDetectionList = new ArrayList<>();
 
@@ -684,7 +676,7 @@ public class Profile_Controller {
             if (primaryEmail != null) {
                 List<Email> emailsReturnedFromSearch = eRepo.findAllByAddress(primaryEmail);
                 if (emailsReturnedFromSearch.isEmpty()) {
-                    newEmailSet.add(new Email(primaryEmail, true, db_profile));
+                    newEmailSet.add(new Email(primaryEmail, true, dbProfile));
                 } else if (emailsReturnedFromSearch.get(0).getProfile().getId().equals(id)) {
                     //case where primary email already associated with profile
                     Email email = emailsReturnedFromSearch.get(0);
@@ -701,7 +693,7 @@ public class Profile_Controller {
             for (String optionalEmail : newEmails.getAdditional_email()) {
                 List<Email> emailsReturnedFromSearch = eRepo.findAllByAddress(optionalEmail);
                 if (emailsReturnedFromSearch.isEmpty()) {
-                    newEmailSet.add(new Email(optionalEmail, false, db_profile));
+                    newEmailSet.add(new Email(optionalEmail, false, dbProfile));
                 } else if (emailsReturnedFromSearch.get(0).getProfile().getId().equals(id)) {
                     Email email = emailsReturnedFromSearch.get(0);
                     email.setPrimary(false);
@@ -730,8 +722,8 @@ public class Profile_Controller {
             }
 
             // assigning the emails to the profile and saving the profile object to the database
-            db_profile.setEmails(newEmailSet);
-            repo.save(db_profile);
+            dbProfile.setEmails(newEmailSet);
+            repo.save(dbProfile);
 
             return new ResponseEntity<>(HttpStatus.OK);
         } else {
@@ -781,7 +773,7 @@ public class Profile_Controller {
      */
     @GetMapping("/token")
     public @ResponseBody ResponseEntity<String> verifyToken(@RequestHeader("authorization") String token) {
-        if (jwtUtil.validateToken(token)) {
+        if (Boolean.TRUE.equals(jwtUtil.validateToken(token))) {
             return new ResponseEntity<>("expired", HttpStatus.OK);
         } else {
             return new ResponseEntity<>("not expired", HttpStatus.UNAUTHORIZED);
@@ -800,7 +792,7 @@ public class Profile_Controller {
         if (token == null) {
             return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(), HttpStatus.UNAUTHORIZED);
         }
-        else if (!jwtUtil.validateToken(token)) {
+        else if (Boolean.FALSE.equals(jwtUtil.validateToken(token))) {
             return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(), HttpStatus.FORBIDDEN);
         }
         else if (editAuthLevelRequest.getRole().equals("admin") || editAuthLevelRequest.getRole().equals("user")) {

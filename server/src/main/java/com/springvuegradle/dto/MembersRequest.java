@@ -1,7 +1,5 @@
 package com.springvuegradle.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
 public class MembersRequest {
     String email;
     String role;

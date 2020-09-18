@@ -1,27 +1,21 @@
 package com.springvuegradle.controller;
 
 
-import com.springvuegradle.dto.SimplifiedActivitiesResponse;
-import com.springvuegradle.dto.SimplifiedActivity;
+import com.springvuegradle.dto.*;
 import com.springvuegradle.dto.requests.ActivityRoleUpdateRequest;
 import com.springvuegradle.dto.responses.ActivityMemberProfileResponse;
-import com.springvuegradle.dto.*;
-import com.springvuegradle.enums.*;
 import com.springvuegradle.dto.responses.ActivityMemberRoleResponse;
 import com.springvuegradle.dto.responses.ProfileSummary;
 import com.springvuegradle.enums.*;
 import com.springvuegradle.model.Activity;
 import com.springvuegradle.model.ActivityMembership;
+import com.springvuegradle.model.ActivityParticipation;
 import com.springvuegradle.model.Profile;
 import com.springvuegradle.service.ActivityService;
 import com.springvuegradle.service.SecurityService;
-import com.springvuegradle.model.ActivityParticipation;
-import com.springvuegradle.repositories.ActivityRepository;
 import com.springvuegradle.utilities.FieldValidationHelper;
 import com.springvuegradle.utilities.FormatHelper;
 import com.springvuegradle.utilities.JwtUtil;
-import javassist.NotFoundException;
-import org.hibernate.annotations.NotFound;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -156,7 +150,7 @@ public class ActivityController {
     @GetMapping("/activities/{activityId}/members")
     public ResponseEntity<List<ActivityMemberProfileResponse>> getActivityMembers(@RequestHeader("authorization") String token,
                                                                                   @PathVariable long activityId) {
-        if (!jwtUtil.validateToken(token)) {
+        if (Boolean.FALSE.equals(jwtUtil.validateToken(token))) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
@@ -190,7 +184,7 @@ public class ActivityController {
                                                                          @RequestParam(name = "index", required = false) Integer index) {
         ActivityMemberRoleResponse body;
         HttpStatus status;
-        if (!jwtUtil.validateToken(token)) {
+        if (Boolean.FALSE.equals(jwtUtil.validateToken(token))) {
             body = new ActivityMemberRoleResponse(AuthenticationErrorMessage.INVALID_CREDENTIALS);
             return new ResponseEntity<>(body, HttpStatus.UNAUTHORIZED);
         }
@@ -267,7 +261,7 @@ public class ActivityController {
                                                 @PathVariable long activityId) {
         if (token == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        } else if (!jwtUtil.validateToken(token)) {
+        } else if (Boolean.FALSE.equals(jwtUtil.validateToken(token))) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         Activity activity = activityService.getActivityByActivityId(jwtUtil.extractId(token), activityId, jwtUtil.extractPermission(token));
@@ -291,7 +285,7 @@ public class ActivityController {
     public ResponseEntity<ActivityRoleCountResponse> getActivityRoleCount(@RequestHeader("authorization") String token,
                                                                           @PathVariable long activityId
     ) {
-        if (!jwtUtil.validateToken(token)) {
+        if (Boolean.FALSE.equals(jwtUtil.validateToken(token))) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
         try {
@@ -462,17 +456,15 @@ public class ActivityController {
                                                                      @PathVariable Long profileId,
                                                                      @PathVariable Long activityId) {
         if (token == null || token.isBlank()) {
-            return new ResponseEntity<>(null,
-                    HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         } else if (!securityService.checkEditPermission(token, profileId)) {
-            return new ResponseEntity<>(null,
-                    HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         try {
             String currentRole = activityService.getSingleActivityMembership(profileId, activityId);
             return new ResponseEntity<>(new ActivityRoleUpdateRequest(currentRole), HttpStatus.OK);
         } catch (NoSuchElementException e) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new ActivityRoleUpdateRequest("None"), HttpStatus.OK);
         }
 
     }
@@ -520,21 +512,18 @@ public class ActivityController {
                                                @PathVariable Long activityId,
                                                @RequestParam("role") String roleToClear) {
         ResponseEntity response = null;
-        if (token == null || token.isBlank()) {
-            response = new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
-                    HttpStatus.UNAUTHORIZED);
-        } else if (!jwtUtil.validateToken(token)) {
+        if (token == null || token.isBlank() || Boolean.FALSE.equals(jwtUtil.validateToken(token))) {
             response = new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
                     HttpStatus.UNAUTHORIZED);
         }
-        if (!(jwtUtil.extractPermission(token) > 2 || activityService.isProfileActivityCreator(jwtUtil.extractId(token), activityId))) {
+        if (!((jwtUtil.extractPermission(token) <= 1) || activityService.isProfileActivityCreator(jwtUtil.extractId(token), activityId))) {
             response = new ResponseEntity<>(ActivityMessage.INSUFFICIENT_PERMISSION.getMessage(), HttpStatus.FORBIDDEN);
         }
         if (response == null) {
             String roleString = roleToClear.toUpperCase();
             try {
                 Arrays.asList(ActivityRoleLevel.values()).contains(ActivityRoleLevel.valueOf(roleString));
-                activityService.clearActivityRoleList(activityId, roleString);
+                activityService.clearActivityRoleList(jwtUtil.extractId(token), activityId, roleString);
                 response = new ResponseEntity<>(ActivityMessage.SUCCESSFUL_DELETION.getMessage(), HttpStatus.OK);
             } catch (IllegalArgumentException e) {
                 response = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -559,12 +548,12 @@ public class ActivityController {
                                                       @PathVariable Long profileId,
                                                       @PathVariable Long activityId) {
 
-        if (token == null || token.isBlank() || !activityService.isProfileActivityCreator(jwtUtil.extractId(token), activityId)) {
+        if (token == null || token.isBlank() || !(activityService.isProfileActivityCreator(jwtUtil.extractId(token), activityId) || (jwtUtil.extractPermission(token) <= 1))) {
             return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(), HttpStatus.UNAUTHORIZED);
         }
         try {
             activityService.editActivityPrivacy(privacyRequest.getPrivacy(), activityId, jwtUtil.extractId(token));
-            if (privacyRequest.getPrivacy().toLowerCase().equals("restricted") && privacyRequest.getMembers() != null) {
+            if (privacyRequest.getPrivacy().equalsIgnoreCase("restricted") && privacyRequest.getMembers() != null) {
                 activityService.addMembers(privacyRequest.getMembers(), activityId);
             }
             return new ResponseEntity<>(ActivityResponseMessage.EDIT_SUCCESS.toString(), HttpStatus.OK);
@@ -591,7 +580,7 @@ public class ActivityController {
             return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
                     HttpStatus.UNAUTHORIZED);
         }
-        if (!jwtUtil.validateToken(token)) {
+        if (Boolean.FALSE.equals(jwtUtil.validateToken(token))) {
             return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(),
                     HttpStatus.FORBIDDEN);
         }
@@ -625,7 +614,7 @@ public class ActivityController {
             return new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
                     HttpStatus.UNAUTHORIZED);
         }
-        if (!jwtUtil.validateToken(token)) {
+        if (Boolean.FALSE.equals(jwtUtil.validateToken(token))) {
             return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(),
                     HttpStatus.FORBIDDEN);
         }
@@ -686,7 +675,7 @@ public class ActivityController {
                     AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage()),
                     HttpStatus.UNAUTHORIZED);
         }
-        if (!jwtUtil.validateToken(token)) {
+        if (Boolean.FALSE.equals(jwtUtil.validateToken(token))) {
             return new ResponseEntity<>(new ActivityParticipationResponse(
                     AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage()),
                     HttpStatus.FORBIDDEN);
@@ -716,7 +705,7 @@ public class ActivityController {
         if (token == null || token.isBlank()) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
-        else if (!jwtUtil.validateToken(token)) {
+        else if (Boolean.FALSE.equals(jwtUtil.validateToken(token))) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         try {
