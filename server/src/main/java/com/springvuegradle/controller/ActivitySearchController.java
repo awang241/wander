@@ -45,6 +45,7 @@ public class ActivitySearchController {
                                                                                @RequestParam Double latitude,
                                                                                @RequestParam Double longitude,
                                                                                @RequestParam(required = false) String[] activityTypes,
+                                                                               @RequestParam(required = false) String searchMethod,
                                                                                @RequestHeader("authorization") String token) {
         if (!jwtUtil.validateToken(token)) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
@@ -53,7 +54,7 @@ public class ActivitySearchController {
         Long profileId = jwtUtil.extractId(token);
         try {
             List<ActivityType> activityTypeList = activityService.getActivityTypesFromStringArray(activityTypes);
-            List<ActivityLocationResponse> activities = activitySearchService.getActivitiesInRange(profileId, isAdmin, distance, latitude, longitude, activityTypeList);
+            List<ActivityLocationResponse> activities = activitySearchService.getActivitiesInRange(profileId, isAdmin, distance, latitude, longitude, activityTypeList, searchMethod);
             return new ResponseEntity<>(activities, HttpStatus.OK);
         } catch(IllegalArgumentException e){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

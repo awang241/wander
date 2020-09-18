@@ -39,9 +39,11 @@ public class ActivitySearchService {
      * @param latitude        the latitude we are searching within a distance of
      * @param longitude       the longitude we are searching within a distance of
      * @param activityTypes   A list of activity types that the resulting activities must contain
+     * @param activityTypeSearchMethod All if all activities are required, Any if any of the activities in the list are required. Null if no
+     *                                 activity type searching is required.
      * @return a list of simplified activities that are visible to the user and are within the required range
      */
-    public List<ActivityLocationResponse> getActivitiesInRange(Long profileId, boolean isAdmin, int maximumDistance, Double latitude, Double longitude, List<ActivityType> activityTypes) {
+    public List<ActivityLocationResponse> getActivitiesInRange(Long profileId, boolean isAdmin, int maximumDistance, Double latitude, Double longitude, List<ActivityType> activityTypes, String activityTypeSearchMethod) {
         if (!(isInRange(latitude, MINIMUM_LATITUDE, MAXIMUM_LATITUDE) && isInRange(longitude, MINIMUM_LONGITUDE, MAXIMUM_LONGITUDE))) {
             throw new IllegalArgumentException("Invalid location specified!");
         }
@@ -51,7 +53,7 @@ public class ActivitySearchService {
         } else {
             visibleActivities = activityRepository.findActivitiesUserCanSee(profileId, ActivityMembership.Role.CREATOR);
         }
-        visibleActivities = activityService.filterByActivityTypes(visibleActivities, activityTypes);
+        visibleActivities = activityService.filterByActivityTypes(visibleActivities, activityTypes, activityTypeSearchMethod);
         HashMap<Activity, Double> activityDistanceHashMap = filterActivitiesByDistance(visibleActivities, latitude, longitude, maximumDistance);
 
         List<Activity> sortedActivities = sortActivitiesByDistance(activityDistanceHashMap);
