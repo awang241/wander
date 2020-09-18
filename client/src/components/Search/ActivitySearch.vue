@@ -3,7 +3,7 @@
     <h1 class="title">Activity Search</h1>
     <b-field group-multiline grouped>
       <b-field label="Enter a location" expanded>
-        <input class="input" type="text" placeholder="Enter a location" id="autocompleteLocation"/>
+        <AutoCompleteLocation v-on:updateMap="updateLocation" v-bind:profileLocation="this.profile.location" ref="autocomplete"></AutoCompleteLocation>
       </b-field>
       <b-field label="Max distance (km)">
         <b-numberinput v-model="maxDistance" type="is-primary" :min="1" :max="200"></b-numberinput>
@@ -35,24 +35,31 @@
 <script>
 import googleMapsInit from '../../utils/googlemaps'
 import MapPane from "../MapPane";
-import api from "../../Api";
-import router from "../../router";
 import ActivityTypesField from "../ActivityTypesField";
 import Api from "../../Api";
+import store from "../../store";
+import toastMixin from "@/mixins/toastMixin";
+import AutoCompleteLocation  from "../AutoCompleteLocation";
+
 
 export default {
   name: "ActivitySearch",
   components: {
-    MapPane, ActivityTypesField
+    MapPane, ActivityTypesField, AutoCompleteLocation
   },
+  mixins: [toastMixin],
   data() {
     return {
+      profile: {},
       maxDistance: 50,
       activitySearchType: "all",
       chosenActivityTypes: [],
       activityResults: [],
       latitude: "",
-      longitude: ""
+      longitude: "",
+      store: store,
+      profileLocationLatLong: null,
+
     }
   },
   methods: {
@@ -74,22 +81,35 @@ export default {
       searchParameters.distance = this.maxDistance
       if (this.chosenActivityTypes.length > 0) {
         searchParameters.activityTypes = this.chosenActivityTypes.join(",")
-        searchParameters.method = this.activitySearchType
+        searchParameters.searchMethod = this.activitySearchType
       }
       return searchParameters
     },
 
     setDefaultProfileLocation() {
-      api.getProfile(this.id, localStorage.getItem('authToken'))
+      Api.getProfile(this.store.getters.getUserId, localStorage.getItem('authToken'))
           .then((response) => {
-            let location = response.data.location;
-            this.profileLocationLatLong = {lat: location.lat(), lng: location.lng()};
+            this.profile = response.data;
+            if (this.profile.location) {
+              this.profileLocationLatLong = {lat: this.profile.location.latitude, lng: this.profile.location.longitude};
+              console.log(this.profileLocationLatLong)
+            }
           })
           .catch(() => {
-            this.warningToast("Error occurred while getting Profile Location details.");
-            router.go(-1)
+            this.warningToast("Error occurred while getting your location details.");
           })
     },
+    updateLocation(location) {
+      this.geocoder.geocode({'location': {lat: location.lat(), lng: location.lng()}}, (results, status) => {
+        if (status === 'OK') {
+          document.getElementById("autocompleteLocation").value = results[0].formatted_address
+          this.locationString = results[0].formatted_address
+          this.profileLocationLatLong = {lat: location.lat(), lng: location.lng()}
+
+        }
+      })
+    },
+
   },
   async mounted() {
     this.google = await googleMapsInit();
