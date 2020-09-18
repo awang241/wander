@@ -51,6 +51,7 @@
             address: {
                 type: String
             },
+            //Should be a list of strings, something along those lines
             infoWindowContent: {
                 type: Object
             }
@@ -147,11 +148,11 @@
               let zoomLevel = address_parts.length * 3;
               this.map.setZoom(zoomLevel)
             },
-          removeMarker() {
-              this.locationChoiceMarker.setMap(null)
-              this.map.setZoom(DEFAULT_ZOOM);
-              this.map.setCenter(DEFAULT_LOCATION)
-          }
+            removeMarker() {
+                this.locationChoiceMarker.setMap(null)
+                this.map.setZoom(DEFAULT_ZOOM);
+                this.map.setCenter(DEFAULT_LOCATION)
+            }
         }
     }
 </script>
