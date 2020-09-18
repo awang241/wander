@@ -16,6 +16,8 @@ public interface ActivityTypeRepository extends JpaRepository<ActivityType, Long
 
     boolean existsByActivityTypeName(String name);
 
+    ActivityType getByActivityTypeName(String name);
+
     @Query("SELECT a.activityTypeName FROM ActivityType a")
     List<String> findAllActivityTypeNames();
 }
