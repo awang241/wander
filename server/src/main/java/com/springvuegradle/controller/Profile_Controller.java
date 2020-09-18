@@ -1,7 +1,5 @@
 package com.springvuegradle.controller;
 
-import com.springvuegradle.dto.ActivityParticipationResponse;
-import com.springvuegradle.dto.SimplifiedActivitiesResponse;
 import com.springvuegradle.dto.requests.*;
 import com.springvuegradle.dto.responses.ActivityTypesResponse;
 import com.springvuegradle.dto.responses.NotificationsResponse;
@@ -18,7 +16,6 @@ import com.springvuegradle.service.SecurityService;
 import com.springvuegradle.enums.ProfileErrorMessage;
 import com.springvuegradle.service.ProfileService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.auditing.AuditingHandler;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -122,7 +119,7 @@ public class Profile_Controller {
     @PutMapping("/profiles/{id}/location")
     public ResponseEntity<String> updateProfileLocation(@RequestBody ProfileLocation newLocation,  @RequestHeader("authorization") String token, @PathVariable Long id){
         if(!securityService.checkEditPermission(token, id)){
-            return new ResponseEntity<>("Permission denied", HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_PERMISSION.toString(), HttpStatus.FORBIDDEN);
         }
         return profileService.updateProfileLocation(newLocation, id);
     }
@@ -529,10 +526,7 @@ public class Profile_Controller {
      */
     protected ResponseEntity<Profile> getProfile(Long id) {
         Optional<Profile> profileWithId = repo.findById(id);
-        if(profileWithId.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        else if (profileWithId.get().getAuthLevel() == 0) {
+        if(profileWithId.isEmpty() || profileWithId.get().getAuthLevel() == 0) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(profileWithId.get(), HttpStatus.OK);

@@ -44,14 +44,14 @@ public class LoginController {
 
         List<Profile> result = eRepo.findByPrimaryEmail(request.getEmail());
         if (result.size() > 1) {
-            return new ResponseEntity(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
         } else if (result.isEmpty()) {
-            return new ResponseEntity(null, HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity(HttpStatus.UNAUTHORIZED);
         }
         Profile profile = result.get(0);
         String hashedPassword = Profile_Controller.hashPassword(request.getPassword());
         if (!result.get(0).getPassword().equals(hashedPassword)) {
-            return new ResponseEntity(null, HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity(HttpStatus.UNAUTHORIZED);
         }
 
         String token = jwtUtil.generateToken(profile);

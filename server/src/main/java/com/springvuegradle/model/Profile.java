@@ -418,6 +418,10 @@ public class Profile {
         return firstname;
     }
 
+    /**
+     * Returns the first and last names of the profile, separated by a space.
+     * @return the first and last names of the profile, separated by a space.
+     */
     public String getFirstAndLastName() {
         return getFirstname() + " " + getLastname();
     }
@@ -426,10 +430,6 @@ public class Profile {
         this.firstname = firstname;
     }
 
-    /**
-     * Returns the first and last names of the profile, separated by a space.
-     * @return the first and last names of the profile, separated by a space.
-     */
     public String getLastname() {
         return lastname;
     }

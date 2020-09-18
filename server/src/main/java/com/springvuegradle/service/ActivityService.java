@@ -581,7 +581,8 @@ public class ActivityService {
             throw new IllegalArgumentException(ActivityResponseMessage.EDITING_CREATOR.toString());
         }
         NotificationType type = NotificationService.getTypeForAddingRole(newRole);
-        String message, template;
+        String message;
+        String template;
         Activity activity = getModelObjectById(activityRepo, activityId);
         Profile editor = getModelObjectById(profileRepo, editorId);
         Profile edited = getModelObjectById(profileRepo, editedId);

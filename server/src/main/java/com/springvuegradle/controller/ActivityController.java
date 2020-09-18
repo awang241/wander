@@ -16,12 +16,9 @@ import com.springvuegradle.model.Profile;
 import com.springvuegradle.service.ActivityService;
 import com.springvuegradle.service.SecurityService;
 import com.springvuegradle.model.ActivityParticipation;
-import com.springvuegradle.repositories.ActivityRepository;
 import com.springvuegradle.utilities.FieldValidationHelper;
 import com.springvuegradle.utilities.FormatHelper;
 import com.springvuegradle.utilities.JwtUtil;
-import javassist.NotFoundException;
-import org.hibernate.annotations.NotFound;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -462,17 +459,15 @@ public class ActivityController {
                                                                      @PathVariable Long profileId,
                                                                      @PathVariable Long activityId) {
         if (token == null || token.isBlank()) {
-            return new ResponseEntity<>(null,
-                    HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         } else if (!securityService.checkEditPermission(token, profileId)) {
-            return new ResponseEntity<>(null,
-                    HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         try {
             String currentRole = activityService.getSingleActivityMembership(profileId, activityId);
             return new ResponseEntity<>(new ActivityRoleUpdateRequest(currentRole), HttpStatus.OK);
         } catch (NoSuchElementException e) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
     }
@@ -524,7 +519,7 @@ public class ActivityController {
             response = new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
                     HttpStatus.UNAUTHORIZED);
         } else if (!jwtUtil.validateToken(token)) {
-            response = new ResponseEntity<>(AuthenticationErrorMessage.AUTHENTICATION_REQUIRED.getMessage(),
+            response = new ResponseEntity<>(AuthenticationErrorMessage.INVALID_CREDENTIALS.getMessage(),
                     HttpStatus.UNAUTHORIZED);
         }
         if (!(jwtUtil.extractPermission(token) > 2 || activityService.isProfileActivityCreator(jwtUtil.extractId(token), activityId))) {
@@ -564,7 +559,7 @@ public class ActivityController {
         }
         try {
             activityService.editActivityPrivacy(privacyRequest.getPrivacy(), activityId, jwtUtil.extractId(token));
-            if (privacyRequest.getPrivacy().toLowerCase().equals("restricted") && privacyRequest.getMembers() != null) {
+            if (privacyRequest.getPrivacy().equalsIgnoreCase("restricted") && privacyRequest.getMembers() != null) {
                 activityService.addMembers(privacyRequest.getMembers(), activityId);
             }
             return new ResponseEntity<>(ActivityResponseMessage.EDIT_SUCCESS.toString(), HttpStatus.OK);
