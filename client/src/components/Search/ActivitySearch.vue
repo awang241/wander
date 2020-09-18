@@ -38,7 +38,7 @@ import MapPane from "../MapPane";
 import ActivityTypesField from "../ActivityTypesField";
 import Api from "../../Api";
 import store from "../../store";
-import toastMixin from "@/mixins/toastMixin";
+import toastMixin from "../..//mixins/toastMixin";
 import AutoCompleteLocation  from "../AutoCompleteLocation";
 
 
@@ -76,9 +76,9 @@ export default {
     },
     getSearchParameters() {
       const searchParameters = {};
-      searchParameters.latitude = this.latitude
-      searchParameters.longitude = this.longitude
       searchParameters.distance = this.maxDistance
+      searchParameters.latitude = this.profileLocationLatLong.lat
+      searchParameters.longitude = this.profileLocationLatLong.lng
       if (this.chosenActivityTypes.length > 0) {
         searchParameters.activityTypes = this.chosenActivityTypes.join(",")
         searchParameters.searchMethod = this.activitySearchType
