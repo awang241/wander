@@ -25,6 +25,8 @@
 <script>
     import googleMapsInit from '../../utils/googlemaps'
     import MapPane from "../MapPane";
+    import api from "../../Api";
+    import router from "../../router";
 
     export default {
         name: "ActivitySearch",
@@ -41,12 +43,23 @@
             },
             search() {
                 console.log("needs to be implemented")
-            }
+            },
+            setDefaultProfileLocation() {
+                api.getProfile(this.id, localStorage.getItem('authToken'))
+                    .then((response) => {
+                        let location = response.data.location;
+                        this.profileLocationLatLong = {lat: location.lat(), lng: location.lng()};
+                    })
+                    .catch(() => {
+                        this.warningToast("Error occurred while getting Profile Location details.");
+                        router.go(-1)
+                    })
+            },
         },
         async mounted() {
             this.google = await googleMapsInit();
+            this.setDefaultProfileLocation();
         }
-
     }
 
 </script>
