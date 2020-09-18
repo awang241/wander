@@ -1,6 +1,9 @@
 package com.springvuegradle.model;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.*;
 import javax.validation.constraints.Max;
@@ -546,7 +549,7 @@ public class Profile {
         return notifications.add(notification);
     }
 
-    public boolean removeNotification(Notification participation) {
-        return activityParticipations.remove(participation);
+    public boolean removeNotification(Notification notification) {
+        return notifications.remove(notification);
     }
 }

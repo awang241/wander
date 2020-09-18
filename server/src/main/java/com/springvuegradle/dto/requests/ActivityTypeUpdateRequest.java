@@ -1,5 +1,6 @@
 package com.springvuegradle.dto.requests;
 
+
 import java.util.ArrayList;
 
 public class ActivityTypeUpdateRequest {

@@ -139,8 +139,8 @@
             async addEmail() {
                 let emailAlreadyAdded = false
                 let emailIsCreators = false
-                let response = await Api.getProfile(store.getters.getUserId, localStorage.getItem('authToken'))
-                if (response.data.primary_email === this.newEmail) {
+                let responseProfile = await Api.getProfile(store.getters.getUserId, localStorage.getItem('authToken'))
+                if (responseProfile.data.primary_email === this.newEmail) {
                     emailIsCreators = true
                 }
                 if (emailIsCreators) {

@@ -337,7 +337,7 @@ class ProfileControllerTest {
         long profileId = repo.findByPrimaryEmail(originalProfile.getPrimary_email()).get(0).getId();
         Profile expectedProfile = repo.findById(profileId).get();
 
-        assertEquals(expectedProfile.getActivityTypes().size(), 3, "Check profile saved successfully");
+        assertEquals(3, expectedProfile.getActivityTypes().size(), "Check profile saved successfully");
     }
 
     /**

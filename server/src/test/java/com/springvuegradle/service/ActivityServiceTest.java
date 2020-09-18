@@ -1047,10 +1047,6 @@ class ActivityServiceTest {
         assertEquals(expectedProfiles.size(),actualProfiles.getSize());
     }
 
-    @Test
-    void deleteMembersFromActivityAsAdminTest(){
-
-    }
 
     @Test
     void getActivityMembersByRoleWithPaginationNormalTest() {
@@ -1095,7 +1091,7 @@ class ActivityServiceTest {
 
     @Test
     void clearRolesOfActivityThatDoesntExistThrowsExceptionTest(){
-        assertThrows(IllegalArgumentException.class, ()-> service.clearActivityRoleList(915730971L, "FOLLOWER"));
+        assertThrows(IllegalArgumentException.class, ()-> service.clearActivityRoleList(1l,915730971L, "FOLLOWER"));
     }
 
     /**

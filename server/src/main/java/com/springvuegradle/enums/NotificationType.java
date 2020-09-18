@@ -1,10 +1,10 @@
 package com.springvuegradle.enums;
 
 public enum NotificationType {
-    ActivityCreated(0), ActivityRemoved(1), ActivityEdited(2), ActivityFollowerAdded(3),
-    ActivityFollowerRemoved(4), ActivityOrganiserAdded(5), ActivityOrganiserRemoved(6),
-    ActivityParticipantAdded(7), ActivityParticipantRemoved(8), ParticipantCreated(9),
-    ParticipationEdited(10), ActivityPrivacyChanged(11), ActivityCreatorAdded(12);
+    ACTIVITY_CREATED(0), ACTIVITY_REMOVED(1), ACTIVITY_EDITED(2), ACTIVITY_FOLLOWER_ADDED(3),
+    NOTIFICATION_TYPE(4), ACTIVITY_ORGANISER_ADDED(5), ACTIVITY_ORGANISER_REMOVED(6),
+    ACTIVITY_PARTICIPANT_ADDED(7), ACTIVITY_PARTICIPANT_REMOVED(8), PARTICIPANT_CREATED(9),
+    PARTICIPATION_EDITED(10), ACTIVITY_PRIVACY_CHANGED(11), ACTIVITY_CREATOR_ADDED(12);
     private int num;
     NotificationType(int num) {
         this.num = num;
