@@ -66,7 +66,7 @@
                              :message="errors"
                              expanded>
                         <template slot="label">Activity Location <span class="requiredStar">*</span></template>
-                        <b-input v-model="activity.location" placeholder="Enter activity location"></b-input>
+                      <AutoCompleteLocation v-on:updateMap="updateLocation" v-bind:ActivityLocation="this.activity.location" ref="autocomplete"></AutoCompleteLocation>
                     </b-field>
                 </ValidationProvider>
 
@@ -113,6 +113,8 @@
     import {ValidationProvider, ValidationObserver} from 'vee-validate'
     import dateTimeMixin from "../mixins/dateTimeMixin";
     import MapPane from "./MapPane";
+    import AutoCompleteLocation  from "./AutoCompleteLocation";
+    import googleMapsInit from "@/utils/googlemaps";
 
 
     export default {
@@ -120,6 +122,7 @@
         components: {
             MapPane,
             List,
+            AutoCompleteLocation,
             ValidationProvider,
             ValidationObserver
         },
@@ -141,7 +144,12 @@
                         endTime: "",
                         location: "",
                         continuous: true,
-                        creating: true
+                        creating: true,
+
+                        google: null,
+                        activityLocationLatLong: null,
+                        geocoder: null,
+                        locationString: ""
                     }
                 }
             }
@@ -168,15 +176,28 @@
                 activityLocationLatLong: null
             }
         },
-        mounted() {
+        async mounted() {
             this.checkAuthenticationStatus()
             this.getPossibleActivityTypes()
             this.activity = this.convertToProp(this.$props.activityProp)
+
+            this.google = await googleMapsInit();
+            this.geocoder = new this.google.maps.Geocoder;
+            this.updateLocationString();
+
+
         },
         methods: {
             //Updates the users location coordinates with the location on the map they have clicked
             updateLocation(location){
-                this.activityLocationLatLong = {lat: location.lat(), lng: location.lng()}
+              this.geocoder.geocode({'location': {lat: location.lat(), lng: location.lng()}}, (results, status) => {
+                if (status === 'OK') {
+                  document.getElementById("autocompleteLocation").value = results[0].formatted_address
+                  this.locationString = results[0].formatted_address
+                  this.activityLocationLatLong = {lat: location.lat(), lng: location.lng()}
+
+                }
+              })
             },
             goBack() {
                 router.go(-1)
@@ -293,7 +314,17 @@
 
                 return activityProp
             },
+          updateLocationString() {
+            if (this.activity.location.address) {
+              this.locationString = this.activity.location.address
+            }
+          },
+          updateMapLocationFromAutoComplete(location) {
+            this.activityLocationLatLong = {lat: location.latitude, lng: location.longitude}
+            this.locationString = location.address
+          }
         }
+
     }
 </script>
 
