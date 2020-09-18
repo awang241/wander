@@ -49,7 +49,10 @@
                 default: "Location"
             },
             address: {
-              type: String
+                type: String
+            },
+            infoWindowContent: {
+                type: Object
             }
         },
 
@@ -124,19 +127,21 @@
             },
             //Creates a singular marker on the map
             createSingleMarker({position, text, id}) {
+                const infowindow = new this.google.maps.InfoWindow({
+                    content: "contentString"
+                });
                 const marker = new this.google.maps.Marker({
                     position: position,
                     map: this.map,
                     label: {text: text},
                     id: id
                 });
+                marker.addListener("click", () => {
+                    infowindow.open(this.map, marker);
+                });
                 marker.setMap(this.map)
-                marker.addListener('click', () => this.openDetailedMarkerView(id))
             },
-            //Method that should show users profile, or route to their profile in the future
-            openDetailedMarkerView(id) {
-                alert(`Opening profile ${id}`)
-            },
+
             setZoomLevel() {
               let address_parts = this.address.split(',');
               let zoomLevel = address_parts.length * 3;

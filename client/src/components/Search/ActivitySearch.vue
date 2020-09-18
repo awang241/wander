@@ -4,8 +4,9 @@
 
       <div>
           insert reusable component
+
       </div>
-        <MapPane marker-label="Profile Location" :location-choice-coordinates="profileLocationLatLong" v-on:locationChoiceChanged="updateLocation"></MapPane>
+        <MapPane marker-label="Profile Location" :info-window-content="activitesData" :location-choice-coordinates="profileLocationLatLong" v-on:locationChoiceChanged="updateLocation"></MapPane>
         <br>
 
         <div class="row">
@@ -35,6 +36,7 @@
         },
         data() {
             return {
+                activitiesData: ""
             }
         },
         methods: {
@@ -54,7 +56,7 @@
                         this.warningToast("Error occurred while getting Profile Location details.");
                         router.go(-1)
                     })
-            },
+            }
         },
         async mounted() {
             this.google = await googleMapsInit();
