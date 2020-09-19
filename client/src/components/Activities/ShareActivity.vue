@@ -70,7 +70,7 @@
     import router from "../../router";
     import toastMixin from "../../mixins/toastMixin";
     import {ValidationObserver, ValidationProvider} from "vee-validate";
-    import ActivityShareConfirmation from "./ActivityHelpers/ActivityShareConfirmation";
+    import ActivityShareConfirmation from "./ActivityShareConfirmation";
     import Api from "../../Api";
     import ListItem from "../Misc/HelperComponents/ListItem";
 

@@ -78,7 +78,7 @@
     import Profile from "../Profile/Profile";
     import EditProfile from "../Profile/EditProfile/EditProfile";
     import router from "../../router";
-    import ActivityTypesField from "../Activities/ActivityHelpers/ActivityTypesField";
+    import ActivityTypesField from "./SearchReusables/ActivityTypesField";
 
     const DEFAULT_RESULT_COUNT = 10
 

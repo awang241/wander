@@ -112,7 +112,7 @@
     import toastMixin from "../../mixins/toastMixin";
     import {ValidationProvider, ValidationObserver} from 'vee-validate'
     import dateTimeMixin from "../../mixins/dateTimeMixin";
-    import MapPane from "../Reusables/MapPane";
+    import MapPane from "../Location/MapPane";
 
 
     export default {

@@ -1,5 +1,5 @@
 import { shallowMount } from '@vue/test-utils'
-import ActivityTypesField from "../../src/components/Activities/ActivityHelpers/ActivityTypesField";
+import ActivityTypesField from "../../src/components/Search/SearchReusables/ActivityTypesField";
 
 let wrapper;
 

@@ -51,7 +51,7 @@
     import router from "../../router";
     import store from "../../store"
     import toastMixin from "../../mixins/toastMixin";
-    import ActivityList from "./ActivityHelpers/ActivityList";
+    import ActivityList from "../Summaries/SummaryReusables/ActivityList";
 
     const DEFAULT_RESULT_COUNT = 5;
 

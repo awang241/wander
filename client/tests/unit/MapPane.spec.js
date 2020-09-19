@@ -1,5 +1,5 @@
 import {shallowMount} from '@vue/test-utils'
-import MapPane from "../../src/components/Reusables/MapPane";
+import MapPane from "../../src/components/Location/MapPane";
 
 let wrapper;
 

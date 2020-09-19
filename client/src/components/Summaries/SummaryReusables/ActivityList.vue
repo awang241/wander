@@ -19,7 +19,7 @@
 <script>
     import store from "../../../store";
     import toastMixin from "../../../mixins/toastMixin";
-    import ActivitySummary from "../../Summaries/ActivitySummary";
+    import ActivitySummary from "../ActivitySummary";
     import Observer from "../../Misc/Observer";
 
     export default {

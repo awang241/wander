@@ -34,12 +34,12 @@
 
 <script>
     import googleMapsInit from '../../utils/googlemaps'
-    import MapPane from "../Reusables/MapPane";
-    import ActivityTypesField from "../Activities/ActivityHelpers/ActivityTypesField";
+    import MapPane from "../Location/MapPane";
+    import ActivityTypesField from "./SearchReusables/ActivityTypesField";
     import Api from "../../Api";
     import store from "../../store";
     import toastMixin from "../..//mixins/toastMixin";
-    import AutoCompleteLocation from "../Reusables/AutoCompleteLocation";
+    import AutoCompleteLocation from "../Location/AutoCompleteLocation";
 
 export default {
   name: "ActivitySearch",

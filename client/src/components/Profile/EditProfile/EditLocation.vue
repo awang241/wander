@@ -33,8 +33,8 @@
 
     import toastMixin from "../../../mixins/toastMixin";
     import googleMapsInit from '../../../utils/googlemaps'
-    import MapPane from "../../Reusables/MapPane";
-    import AutoCompleteLocation from "../../Reusables/AutoCompleteLocation";
+    import MapPane from "../../Location/MapPane";
+    import AutoCompleteLocation from "../../Location/AutoCompleteLocation";
 
     export default {
         name: "EditLocation",
