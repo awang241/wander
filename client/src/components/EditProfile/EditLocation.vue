@@ -78,8 +78,8 @@ import AutoCompleteLocation  from "../AutoCompleteLocation";
           clearLocation() {
             this.$parent.clearLocation();
             document.getElementById("autocompleteLocation").value = null;
-            this.profileLocationLatLong = ""
-            this.locationString = ""
+            this.profileLocationLatLong = "";
+            this.locationString = "";
             this.$refs.autocomplete.clearLocation();
             this.$refs.map.removeMarker()
           },

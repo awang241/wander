@@ -130,7 +130,7 @@
         mixins: [toastMixin],
 
         data() {
-            const today = new Date()
+            const today = new Date();
             return {
                 firstName: this.profile.firstname,
                 lastName: this.profile.lastname,
@@ -179,7 +179,7 @@
                         "date_of_birth": new Date(this.profile.date_of_birth),
                         "gender": this.profile.gender,
                         "fitness": this.profile.fitness
-                    }
+                    };
 
                 const personalDetails =
                     {
@@ -191,26 +191,41 @@
                         "date_of_birth": Date.parse(this.dateOfBirth),
                         "gender": this.gender,
                         "fitness": this.fitness_level
-                    }
+                    };
                 if (JSON.stringify(original) !== JSON.stringify(personalDetails)) {
-                    this.$parent.updatePersonal(personalDetails)
+                    this.$parent.updatePersonal(personalDetails);
                     this.successToast("New personal details saved")
                 } else {
                     this.warningToast("No changes made")
                 }
             },
-
+            loadProfileData() {
+                this.firstName = this.profile.firstname;
+                this.lastName = this.profile.lastname;
+                this.middleName =  this.profile.middlename;
+                this.nickName =  this.profile.nickname;
+                this.bio = this.profile.bio;
+                this.dateOfBirth = this.profile.date_of_birth;
+                this.gender = this.profile.gender;
+                this.fitness_level = this.profile.fitness;
+                this.date = this.profile.date_of_birth;
+            },
             getErrorMessageFromStatusCode(statusCode) {
-                let message = ""
-                if (statusCode == 200) {
+                let message = "";
+                if (statusCode === 200) {
                     message = "Details updated successfully"
-                } else if (statusCode == 400 || statusCode == 403 || statusCode == 401) {
+                } else if (statusCode === 400 || statusCode === 403 || statusCode === 401) {
                     message = "Please fill in all required fields"
                 }
                 this.warningToast(message)
             },
             dateFormatter(dt) {
                 return dt.toLocaleDateString('en-NZ', {year: 'numeric', month: 'numeric', day: 'numeric'});
+            }
+        },
+        watch: {
+            profile: function() {
+                this.loadProfileData();
             }
         }
     }
