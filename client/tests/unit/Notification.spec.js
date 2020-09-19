@@ -8,7 +8,7 @@ localVue.use(Vuex);
 
 const dataTemplate = {
     "message": "John Smith started following the activity 'Fun Run.'",
-    "notificationType": 'ActivityFollowerAdded',
+    "notificationType": 'ACTIVITY_FOLLOWER_ADDED',
     "activityId": 20,
     "profileId": 0,
     "timeStamp": "2020-09-05T08:00:00+1300"
@@ -61,7 +61,7 @@ describe('Notification.vue', () => {
         let data = {};
         Object.assign(data, dataTemplate);
 
-        data.notificationType = 'ActivityFollowerAdded';
+        data.notificationType = 'ACTIVITY_FOLLOWER_ADDED';
         const wrapper = shallowMount(Notification, {
             store, localVue, propsData: {notification: data}
         });
@@ -73,7 +73,7 @@ describe('Notification.vue', () => {
         let data = {};
         Object.assign(data, dataTemplate);
 
-        data.notificationType = 'ActivityFollowerRemoved';
+        data.notificationType = 'ACTIVITY_FOLLOWER_REMOVED';
         const wrapper = shallowMount(Notification, {
             store, localVue, propsData: {notification: data}
         });
@@ -85,7 +85,7 @@ describe('Notification.vue', () => {
         let data = {};
         Object.assign(data, dataTemplate);
 
-        data.notificationType = 'ActivityEdited';
+        data.notificationType = 'ACTIVITY_EDITED';
         const wrapper = shallowMount(Notification, {
             store, localVue, propsData: {notification: data}
         });
