@@ -1,5 +1,5 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils'
-import ViewActivity from "../../src/components/ViewActivity";
+import ViewActivity from "../../src/components/Activities/ViewActivity";
 import VueRouter from 'vue-router'
 
 const localVue = createLocalVue()
