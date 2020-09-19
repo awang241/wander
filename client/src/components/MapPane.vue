@@ -49,7 +49,12 @@
                 default: "Location"
             },
             address: {
-              type: String
+                type: String
+            },
+            //If pins are being made one at a time this should be a string
+            //Else if pins are made all at once this should be a list of strings
+            infoWindowContent: {
+                type: String
             }
         },
 
@@ -124,15 +129,26 @@
             },
             //Creates a singular marker on the map
             createSingleMarker({position, text, id}) {
+                //content is just a place holder
+                const infowindow = new this.google.maps.InfoWindow({
+                    content: "contentString"
+                });
                 const marker = new this.google.maps.Marker({
                     position: position,
                     map: this.map,
                     label: {text: text},
                     id: id
                 });
+                marker.addListener("click", () => {
+                    infowindow.open(this.map, marker);
+                });
                 marker.setMap(this.map)
-                marker.addListener('click', () => this.openDetailedMarkerView(id))
             },
+
+            setZoomLevel() {
+              let address_parts = this.address.split(',');
+              let zoomLevel = address_parts.length * 3;
+              this.map.setZoom(zoomLevel)
             //Method that should show users profile, or route to their profile in the future
             openDetailedMarkerView(id) {
                 alert(`Opening profile ${id}`)
@@ -150,11 +166,11 @@
                     this.map.setZoom(zoomLevel)
                 }
             },
-          removeMarker() {
-              this.locationChoiceMarker.setMap(null)
-              this.map.setZoom(DEFAULT_ZOOM);
-              this.map.setCenter(DEFAULT_LOCATION)
-          }
+            removeMarker() {
+                this.locationChoiceMarker.setMap(null)
+                this.map.setZoom(DEFAULT_ZOOM);
+                this.map.setCenter(DEFAULT_LOCATION)
+            }
         }
     }
 </script>
