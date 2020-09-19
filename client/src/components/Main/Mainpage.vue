@@ -169,11 +169,6 @@
 </script>
 
 <style>
-    .mainpage {
-        line-height: 12px;
-        font-size: 16pt;
-        margin-top: 60px;
-    }
     html {
         background-size:cover;
         background: url("../../../images/3.jpg") no-repeat center center fixed;
@@ -184,8 +179,6 @@
         background-size: cover;
     }
     .mainpage-banner {
-        /*width: 1550px;*/
-        /*height: 1250px;*/
         overflow: hidden;
         margin-left: auto;
         margin-right: auto;
@@ -193,9 +186,6 @@
 
     }
     .mainpage-banner img {
-        /*width: 1550px;*/
-        /*height:1250px;*/
-        /*margin: -75px 0 0 -100px;*/
         margin-left: auto;
         margin-right: auto;
         display: block;

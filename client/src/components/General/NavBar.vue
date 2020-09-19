@@ -138,7 +138,6 @@
     .crop-banner img {
         width: 200px;
         height: 50px;
-        /*margin: -75px 0 0 -100px;*/
         margin-left: auto;
         margin-right: auto;
         display: block;
