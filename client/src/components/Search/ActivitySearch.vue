@@ -87,7 +87,7 @@ export default {
           let result;
           for (result in this.activityResults) {
             let myLatLng = {lat: result.latitude, lng: result.longitude};
-            this.$refs.map.createSingleMarker({position: myLatLng, title: result.id, id: result.id});
+            this.$refs.map.createSingleMarker({position: myLatLng, title: result.activityName, id: result.id});
           }
         }
 

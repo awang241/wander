@@ -42,8 +42,10 @@ public class Activity {
     @NotNull
     private String location;
 
+    @Column
     private Double latitude;
 
+    @Column
     private Double longitude;
 
 
@@ -111,8 +113,8 @@ public class Activity {
             this.endTime = FormatHelper.parseOffsetDateTime(endTime);
         }
         this.location = location;
-        this.latitude = latitude;
-        this.longitude = longitude;
+        this.latitude = Double.parseDouble(latitude);
+        this.longitude = Double.parseDouble(longitude);
         this.members = new HashSet<>();
     }
 
@@ -226,10 +228,10 @@ public class Activity {
         this.location = location;
     }
 
-    public void setLatitude(double latitude) { this.latitude = latitude; }
+    public void setLatitude(Double latitude) { this.latitude = latitude; }
 
 
-    public void setLongitude(double longitude) { this.longitude = longitude; }
+    public void setLongitude(Double longitude) { this.longitude = longitude; }
 
     @JsonIgnore
     public Set<ActivityMembership> getMembers() {
@@ -347,7 +349,7 @@ public class Activity {
         this.notifications.remove(notification);
     }
 
-    public double getLatitude() {
+    public Double getLatitude() {
         return latitude;
     }
 }
