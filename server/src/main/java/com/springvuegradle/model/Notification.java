@@ -123,4 +123,18 @@ public class Notification {
         return recipients.remove(recipient);
     }
 
+    /**
+     * Returns true if the argument has the same details as this notification, excluding the id and timestamp fields.
+     * This is for testing purposes only - checking if notifications are equal should include checking the timestamps.
+     * @param notification the target notification.
+     * @return true if the argument has the same details as this notification
+     */
+    public boolean equalsExceptTimestamp(Notification notification) {
+        if (notification == null) return false;
+        return this.message.equals(notification.message) &&
+                this.activity.equals(notification.activity) &&
+                this.profile.equals(notification.profile) &&
+                this.recipients.equals(notification.recipients) &&
+                this.notificationType.equals(notification.notificationType);
+    }
 }

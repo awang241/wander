@@ -14,6 +14,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+
 import javax.persistence.EntityNotFoundException;
 import java.security.AccessControlException;
 import java.util.*;
@@ -240,10 +242,10 @@ public class ActivityService {
         String message;
         String activityName = membership.getActivity().getActivityName();
         if (editorId.equals(editedId)) {
-            message = String.format("%s %s left the activity %s", edited.getFirstname(), edited.getLastname(), activityName);
+            message = String.format("%s left the activity %s", edited.getFirstAndLastName(), activityName);
         } else {
-            message = String.format("%s %s removed %s %s from the activity %s", editor.getFirstname(), editor.getLastname(),
-                    edited.getFirstname(), edited.getLastname(), activityName);
+            message = String.format("%s removed %s from the activity %s", editor.getFirstAndLastName(),
+                    edited.getFirstAndLastName(), activityName);
         }
         notificationService.createNotification(type, membership.getActivity(), editor, message);
     }
@@ -520,23 +522,7 @@ public class ActivityService {
         profile.addActivity(activityMembership);
         activity.addMember(activityMembership);
 
-        NotificationType notificationType;
-        switch (activityRole.toUpperCase()) {
-            case "FOLLOWER":
-                notificationType = NotificationType.ACTIVITY_FOLLOWER_ADDED;
-                break;
-            case "ORGANISER":
-                notificationType = NotificationType.ACTIVITY_ORGANISER_ADDED;
-                break;
-            case "PARTICIPANT":
-                notificationType = NotificationType.ACTIVITY_PARTICIPANT_ADDED;
-                break;
-            case "CREATOR":
-                notificationType = NotificationType.ACTIVITY_CREATOR_ADDED;
-                break;
-            default:
-                throw new IllegalArgumentException(ActivityMessage.INVALID_ROLE.getMessage());
-        }
+        NotificationType notificationType = NotificationService.getTypeForAddingRole(role);
         notificationService.createNotification(notificationType, activity, profile,
                 profile.getFullName() + " changed role to " + activityRole + " for activity " + activity.getActivityName() + ".");
 
@@ -590,7 +576,7 @@ public class ActivityService {
         activityRepo.save(activity);
         Profile editor = null;
         Optional<Profile> optionalEditor = profileRepo.findById(profileId);
-        if(optionalEditor.isPresent()){
+        if (optionalEditor.isPresent()) {
             editor = optionalEditor.get();
         }
         notificationService.createNotification(NotificationType.ACTIVITY_PRIVACY_CHANGED,
@@ -605,21 +591,9 @@ public class ActivityService {
      * @param activities a list of normal activity objects to be simplified
      * @return a list of simplified activities
      */
-    public static List<SimplifiedActivity> createSimplifiedActivities(Map<Activity, ActivityMembership.Role> activities) {
-        List<SimplifiedActivity> simplifiedActivities = new ArrayList<>();
-        activities.forEach((k, v) -> simplifiedActivities.add(new SimplifiedActivity(k)));
-        return simplifiedActivities;
-    }
-
-    /**
-     * Converts a list of normal activities into a list of simplified activities
-     *
-     * @param activities a list of normal activity objects to be simplified
-     * @return a list of simplified activities
-     */
     public static List<ActivityLocationResponse> createActivityLocationResponse(List<Activity> activities) {
         List<ActivityLocationResponse> activityLocationResponse = new ArrayList<>();
-        activities.forEach((activity) -> activityLocationResponse.add(new ActivityLocationResponse(activity)));
+        activities.forEach(activity -> activityLocationResponse.add(new ActivityLocationResponse(activity)));
         return activityLocationResponse;
     }
 
@@ -627,34 +601,49 @@ public class ActivityService {
      * Sets the role of an activity member to the given role. Profiles cannot be set as creators, and creators
      * cannot have their role changed for that activity.
      *
-     * @param profileBeingEditedId  The ID of the profile whose role is being changed
-     * @param profileDoingEditingId The ID of the profile who is doing the editing
+     * @param editedId  The ID of the profile whose role is being changed
+     * @param editorId The ID of the profile who is doing the editing
      * @param activityId            the ID of the activity
      * @param newRole               The role the member is being changed to
      * @throws IllegalArgumentException if the parameters do not match the database constraints (e.g. no profile with
      *                                  that id exists, or the given profile isn't a member of that activity), or if the profile is being set to or from
      *                                  the Creator role.
      */
-    public void setProfileRole(long profileBeingEditedId, long profileDoingEditingId, long activityId, ActivityMembership.Role newRole) {
+    public void setProfileRole(long editedId, long editorId, long activityId, ActivityMembership.Role newRole) {
         if (newRole.equals(ActivityMembership.Role.CREATOR)) {
             throw new IllegalArgumentException(ActivityResponseMessage.EDITING_CREATOR.toString());
         }
 
-        if (!canChangeRole(profileDoingEditingId, profileBeingEditedId, activityId, newRole)) {
+        if (!canChangeRole(editorId, editedId, activityId, newRole)) {
             throw new IllegalArgumentException(ActivityResponseMessage.INVALID_PERMISSION.toString());
         }
 
-        Optional<ActivityMembership> optionalMembership = membershipRepo.findByActivity_IdAndProfile_Id(activityId, profileBeingEditedId);
+        Optional<ActivityMembership> optionalMembership = membershipRepo.findByActivity_IdAndProfile_Id(activityId, editedId);
         if (optionalMembership.isEmpty()) {
-            throw new IllegalArgumentException(ActivityResponseMessage.INVALID_MEMBERSHIP.toString());
+            throw new NoSuchElementException(ActivityResponseMessage.INVALID_MEMBERSHIP.toString());
         }
 
         ActivityMembership membership = optionalMembership.get();
         if (membership.getRole() == ActivityMembership.Role.CREATOR) {
             throw new IllegalArgumentException(ActivityResponseMessage.EDITING_CREATOR.toString());
         }
+        NotificationType type = NotificationService.getTypeForAddingRole(newRole);
+        String message;
+        String template;
+        Activity activity = getModelObjectById(activityRepo, activityId);
+        Profile editor = getModelObjectById(profileRepo, editorId);
+        Profile edited = getModelObjectById(profileRepo, editedId);
+        String roleName = StringUtils.capitalize(newRole.toString().toLowerCase());
+        if (editedId == editorId) {
+            template = "%s changed their role in %s to %s.";
+        } else {
+            template = "%s had their role in %s changed to %s.";
+        }
+        message = String.format(template, edited.getFirstAndLastName(), activity.getActivityName(), roleName);
+
         membership.setRole(newRole);
         membershipRepo.save(membership);
+        notificationService.createNotification(type, activity, editor, message);
     }
 
 
@@ -830,6 +819,7 @@ public class ActivityService {
         if (participationResult.isEmpty()) {
             throw new IllegalArgumentException(ActivityParticipationMessage.PARTICIPATION_NOT_FOUND.toString());
         }
+
     }
 
     /**
@@ -886,7 +876,7 @@ public class ActivityService {
 
 
     /**
-     * Method to clear all memberships that have a specified role and return an appropriate http response
+     * Method to clear all memberships that have a specified role
      *
      * @param activityId  the ID of the activity being cleared
      * @param roleToClear the ENUM String of the role to clear

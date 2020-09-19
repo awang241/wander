@@ -5,6 +5,7 @@ import com.springvuegradle.dto.ActivityRoleCountResponse;
 import com.springvuegradle.dto.responses.ActivityMemberProfileResponse;
 import com.springvuegradle.enums.ActivityMessage;
 import com.springvuegradle.enums.ActivityPrivacy;
+import com.springvuegradle.enums.NotificationType;
 import com.springvuegradle.model.*;
 import com.springvuegradle.repositories.*;
 import com.springvuegradle.utilities.ActivityTestUtils;
@@ -20,6 +21,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.util.StringUtils;
 
 import java.security.AccessControlException;
 import java.util.*;
@@ -870,7 +872,7 @@ class ActivityServiceTest {
      * Tests that an exception error is thrown when attempting to change a role of a non existent user.
      */
     @Test
-    void setProfileRoleForNonexistentMembershipThrowsIllegalArgumentExceptionTest() {
+    void setProfileRoleForNonexistentProfileThrowsNoSuchElementExceptionTest() {
         Profile editor = profileRepository.save(createNormalProfileBen());
         assertThrows(IllegalArgumentException.class, ()-> service.setProfileRole(0, editor.getId(), 3, ActivityMembership.Role.FOLLOWER));
     }
@@ -897,11 +899,71 @@ class ActivityServiceTest {
         }
     }
 
+    @Test
+    void setProfileRoleWhenProfileIsNotAnActivityMemberThrowsNoSuchElementExceptionTest() {
+        Profile creator = profileRepository.save(createNormalProfileBen());
+        Profile follower = profileRepository.save(createNormalProfileJohnny());
+        Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        ActivityMembership creatorMembership = new ActivityMembership(activity, creator, ActivityMembership.Role.CREATOR);
+        activityMembershipRepository.save(creatorMembership);
+
+        assertThrows(NoSuchElementException.class, () ->
+                service.setProfileRole(follower.getId(), creator.getId(), activity.getId(), ActivityMembership.Role.PARTICIPANT));
+    }
+
+    @Test
+    void setProfileRoleWhenChangingOwnActivityMembershipCreatesCorrectNotificationTest() {
+        Profile follower = profileRepository.save(createNormalProfileJohnny());
+        Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        ActivityMembership followerMembership = new ActivityMembership(activity, follower, ActivityMembership.Role.FOLLOWER);
+        activityMembershipRepository.save(followerMembership);
+
+        String followerName = follower.getFirstAndLastName();
+        String roleName = StringUtils.capitalize(ActivityMembership.Role.PARTICIPANT.toString().toLowerCase());
+        String message = String.format("%s changed their role in %s to %s.", followerName, activity.getActivityName(), roleName);
+        NotificationType type = NotificationService.getTypeForAddingRole(ActivityMembership.Role.PARTICIPANT);
+
+        service.setProfileRole(follower.getId(), follower.getId(), activity.getId(), ActivityMembership.Role.PARTICIPANT);
+        Notification expectedNotification = new Notification(message, activity, follower, type);
+        Optional<Notification> result = notificationRepository.findById(notificationRepository.getLastInsertedId());
+        if (result.isEmpty()) {
+            fail("Test notification could not be found");
+        } else {
+            assertTrue(expectedNotification.equalsExceptTimestamp(result.get()));
+        }
+    }
+
+    @Test
+    void setProfileRoleWhenChangingAnotherMembersActivityMembershipCreatesCorrectNotificationTest() {
+        Profile creator = profileRepository.save(createNormalProfileBen());
+        Profile follower = profileRepository.save(createNormalProfileJohnny());
+        Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        ActivityMembership creatorMembership = new ActivityMembership(activity, creator, ActivityMembership.Role.CREATOR);
+        ActivityMembership followerMembership = new ActivityMembership(activity, follower, ActivityMembership.Role.FOLLOWER);
+        activityMembershipRepository.save(creatorMembership);
+        activityMembershipRepository.save(followerMembership);
+
+        String followerName = follower.getFirstAndLastName();
+        String roleName = StringUtils.capitalize(ActivityMembership.Role.PARTICIPANT.toString().toLowerCase());
+        String message = String.format("%s had their role in %s changed to %s.", followerName, activity.getActivityName(), roleName);
+        NotificationType type = NotificationService.getTypeForAddingRole(ActivityMembership.Role.PARTICIPANT);
+
+        service.setProfileRole(follower.getId(), creator.getId(), activity.getId(), ActivityMembership.Role.PARTICIPANT);
+        Notification expectedNotification = new Notification(message, activity, creator, type);
+        Optional<Notification> result = notificationRepository.findById(notificationRepository.getLastInsertedId());
+        if (result.isEmpty()) {
+            fail("Test notification could not be found");
+        } else {
+            assertTrue(expectedNotification.equalsExceptTimestamp(result.get()));
+        }
+
+    }
+
     /**
      * Tests that setting a role to an ORGANISER as an ADMIN works.
      */
     @Test
-    void setProfileRoleToOrganiserAsAdmin() {
+    void setProfileRoleToOrganiserAsAdminSucceedsTest() {
         Profile admin = profileRepository.save(createNormalProfileBen());
         admin.setAuthLevel(1);
         Profile follower = profileRepository.save(createNormalProfileJohnny());
@@ -917,7 +979,7 @@ class ActivityServiceTest {
      * Tests that setting a role to an ORGANISER as a CREATOR works.
      */
     @Test
-    void setProfileRoleToOrganiserAsCreator() {
+    void setProfileRoleToOrganiserAsCreatorSucceedsTest() {
         Profile creator = profileRepository.save(createNormalProfileBen());
         Profile follower = profileRepository.save(createNormalProfileJohnny());
         Activity activity = activityRepository.save(createNormalActivityKaikoura());

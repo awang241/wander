@@ -79,8 +79,6 @@ public class Profile_Controller {
     @Autowired
     private NotificationService notificationService;
 
-    private String PERMISSION_DENIED = "Permission Denied";
-
 
     public Profile_Controller(ProfileService profileService,
                               ProfileRepository profileRepository,
@@ -117,7 +115,7 @@ public class Profile_Controller {
     @PutMapping("/profiles/{id}/location")
     public ResponseEntity<String> updateProfileLocation(@RequestBody ProfileLocation newLocation,  @RequestHeader("authorization") String token, @PathVariable Long id){
         if(!securityService.checkEditPermission(token, id)){
-            return new ResponseEntity<>(PERMISSION_DENIED, HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_PERMISSION.toString(), HttpStatus.FORBIDDEN);
         }
         return profileService.updateProfileLocation(newLocation, id);
     }
@@ -131,7 +129,7 @@ public class Profile_Controller {
     @DeleteMapping("/profiles/{id}/location")
     public @ResponseBody ResponseEntity<String> deleteLocation(@RequestHeader("authorization") String token, @PathVariable Long id) {
         if(!securityService.checkEditPermission(token, id)){
-            return new ResponseEntity<>(PERMISSION_DENIED, HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_PERMISSION.toString(), HttpStatus.FORBIDDEN);
         }
         return profileService.deleteProfileLocation(id);
     }
@@ -219,7 +217,7 @@ public class Profile_Controller {
     @DeleteMapping(value="/profiles/{id}")
     public @ResponseBody ResponseEntity<String> deleteProfile(@RequestHeader("authorization") String token, @PathVariable Long id) {
         if(!securityService.checkEditPermission(token, id)){
-            return new ResponseEntity<>(PERMISSION_DENIED, HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>(AuthenticationErrorMessage.INVALID_PERMISSION.toString(), HttpStatus.FORBIDDEN);
         }
         return deleteProfile(id);
     }
