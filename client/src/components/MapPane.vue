@@ -138,9 +138,6 @@
                 alert(`Opening profile ${id}`)
             },
             setZoomLevel(newAddress) {
-                console.log(this.address)
-                console.log(newAddress)
-
                 if (newAddress){
                     let address_parts = newAddress.split(',');
                     let zoomLevel = address_parts.length * 3;
