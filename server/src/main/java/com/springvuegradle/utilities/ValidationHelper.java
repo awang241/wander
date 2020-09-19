@@ -5,9 +5,7 @@ import com.springvuegradle.model.PassportCountry;
 import com.springvuegradle.model.Profile;
 import com.springvuegradle.repositories.PassportCountryRepository;
 import com.springvuegradle.repositories.ProfileRepository;
-
 import java.io.IOException;
-import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Arrays;
