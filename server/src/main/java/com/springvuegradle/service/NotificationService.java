@@ -1,5 +1,6 @@
 package com.springvuegradle.service;
 
+import com.springvuegradle.enums.ActivityMessage;
 import com.springvuegradle.enums.NotificationType;
 import com.springvuegradle.enums.ProfileErrorMessage;
 import com.springvuegradle.model.Activity;
@@ -97,16 +98,16 @@ public class NotificationService {
         NotificationType notificationType;
         switch (role) {
             case FOLLOWER:
-                notificationType = NotificationType.ActivityFollowerAdded;
+                notificationType = NotificationType.ACTIVITY_FOLLOWER_ADDED;
                 break;
             case ORGANISER:
-                notificationType = NotificationType.ActivityOrganiserAdded;
+                notificationType = NotificationType.ACTIVITY_ORGANISER_ADDED;
                 break;
             case PARTICIPANT:
-                notificationType = NotificationType.ActivityParticipantAdded;
+                notificationType = NotificationType.ACTIVITY_PARTICIPANT_ADDED;
                 break;
             case CREATOR:
-                notificationType = NotificationType.ActivityCreatorAdded;
+                notificationType = NotificationType.ACTIVITY_CREATOR_ADDED;
                 break;
             default:
                 throw new IllegalArgumentException(ActivityMessage.INVALID_ROLE.getMessage());
