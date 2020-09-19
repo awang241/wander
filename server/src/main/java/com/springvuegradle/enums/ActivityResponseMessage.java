@@ -15,7 +15,6 @@ public enum ActivityResponseMessage {
     INVALID_PROFILE("No profile with that ID exists in the database"),
     INVALID_DATES("The end date cannot be before the start date"),
     INVALID_MEMBERSHIP("The profile is not a member of the activity"),
-    INVALID_FIELDS("Invalid fields"),
     INVALID_EMAILS("Invalid email(s) entered."),
     INVALID_TYPE("Given activity types do not exist in the database"),
     INVALID_PERMISSION("You don't have permission to change this role"),

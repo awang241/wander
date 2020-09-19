@@ -17,7 +17,8 @@
     <div style="margin: auto; min-height: 500px;">
       <div style="width: 50%;float: left; height: 300px;">
         <MapPane ref="map" marker-label="Profile Location" :location-choice-coordinates="profileLocationLatLong" v-bind:address="this.profile.location.address"
-                 v-on:locationChoiceChanged="updateLocation"></MapPane>
+                 v-on:locationChoiceChanged="updateLocation"
+                 :info-window-content="this.informationWindowData"></MapPane>
       </div>
       <div style="width: 50%;float: right; height: auto;">
         <h2>The quick brown fox jumped over the lazy dog.</h2>
@@ -67,7 +68,8 @@ export default {
       activityResults: [],
       store: store,
       profileLocationLatLong: null,
-      locationString: ""
+      locationString: "",
+      informationWindowData: ""
 
     }
   },
@@ -130,6 +132,50 @@ export default {
       this.profileLocationLatLong = {lat: location.latitude, lng: location.longitude}
       this.locationString = location.address
     },
+
+    /**
+     * Method to format the details of an activity for the information pop up window
+     * At the moment it has dummy data
+     * Need to put in a variable (activityDetails) into this method
+     */
+    formatActivityDetails() {
+
+      //This variable is dummy data
+      let activityDetails = {
+        activityName: "Doing happy tings",
+        location: "a happy place",
+        lat: 68.174270,
+        lng: 16.329620,
+        activityTypes: ["happy stuff", "really happy stuff"]
+      };
+      const activityTypesString = this.formatActivityTypesString(activityDetails.activityTypes);
+
+      //Had to use inline styling because of scope :(
+      const informationWindowText =
+              `<div style="width: 100vh; height: 100vh;">` +
+              `<h1 style="font-size: 22px">${activityDetails.activityName}</h1>` +
+              `<br>` +
+              `<h1 class="infoWindowHeader">Location: <span>${activityDetails.location}</span></h1>` +
+              `<br>` +
+              `<h1 class="infoWindowHeader">Latitude: <span>${activityDetails.lat}</span></h1>` +
+              `<br>` +
+              `<h1 class="infoWindowHeader">Longitude: <span>${activityDetails.lng}</span></h1>` +
+              `<br>` +
+              `${activityTypesString}` +
+              `</div>`
+      return informationWindowText
+    },
+
+    formatActivityTypesString(activityTypes) {
+      let formattedActivityTypes =
+              `<h1 style="font-size: 16px"> Activity Types:</h1>` +
+              `<br>`
+      let typesString = "";
+      for (let i = 0; i < activityTypes.length; i++) {
+        typesString = typesString + `*<span>${activityTypes[i]}</span>` + `<br>`
+      }
+      return formattedActivityTypes + typesString
+    }
 
   },
   async mounted() {
