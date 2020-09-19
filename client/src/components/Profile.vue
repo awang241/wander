@@ -73,6 +73,10 @@
                                 <br>
                                 <h3 class="title is-4">Countries</h3>
                                 <table class="table-profile">
+                                    <caption hidden>Table of Passport countries for profile</caption>
+                                    <tr>
+                                      <th colspan="1" scope="col"></th>
+                                    </tr>
                                     <tr v-for="country in profile.passports" :key="country">
                                         <td>{{country}}</td>
                                     </tr>
@@ -83,6 +87,10 @@
                                 <br>
                                 <h3 class="title is-4">Activity Types</h3>
                                 <table class="table-profile">
+                                    <caption hidden>Table of activity types for profile</caption>
+                                    <tr>
+                                      <th colspan="1" scope="col"></th>
+                                    </tr>
                                     <tr v-for="activityType in profile.activities" :key="activityType">
                                         <td>{{activityType}}</td>
                                     </tr>

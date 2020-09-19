@@ -1,11 +1,11 @@
 <template>
     <div class="container containerColor">
-        <h1 class="title">Are you sure you want to change this activity to <b>{{activityPrivacy}}?</b></h1>
+        <h1 class="title">Are you sure you want to change this activity to <strong>{{activityPrivacy}}?</strong></h1>
         <h2 class="subtitle">This would affect these users access to the activity</h2>
 
-        <h2><b>{{numFollowers}}</b> Followers</h2>
-        <h2><b>{{numParticipants}}</b> Participants</h2>
-        <h2><b>{{numOrganisers}}</b> Organisers</h2>
+        <h2><strong>{{numFollowers}}</strong> Followers</h2>
+        <h2><strong>{{numParticipants}}</strong> Participants</h2>
+        <h2><strong>{{numOrganisers}}</strong> Organisers</h2>
 
         <br>
         <div class="block">
