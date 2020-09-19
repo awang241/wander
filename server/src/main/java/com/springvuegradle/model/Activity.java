@@ -90,8 +90,8 @@ public class Activity {
             @JsonProperty("start_time") String startTime,
             @JsonProperty("end_time") String endTime,
             @JsonProperty("location") String location,
-            @JsonProperty("latitude") double latitude,
-            @JsonProperty("longitude") double longitude){
+            @JsonProperty("latitude") String latitude,
+            @JsonProperty("longitude") String longitude){
         this.activityName = activityName;
         this.description = description;
         this.activityTypes = new HashSet<>();

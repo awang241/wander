@@ -21,7 +21,8 @@
                  :info-window-content="this.informationWindowData"></MapPane>
       </div>
       <div style="width: 50%;float: right; height: auto;">
-        <h2>The quick brown fox jumped over the lazy dog.</h2>
+<!--        This block will be used to hold the activity summary objects. Need to find a way to have the map display over the container as it looks weird otherwise.-->
+<!--        <h2>The quick brown fox jumped over the lazy dog.</h2>-->
       </div>
     </div>
 
