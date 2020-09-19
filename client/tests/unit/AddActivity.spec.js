@@ -1,5 +1,5 @@
 import { shallowMount } from '@vue/test-utils'
-import AddActivity from "../../src/components/AddActivity";
+import AddActivity from "../../src/components/Activities/AddActivity";
 
 let wrapper;
 

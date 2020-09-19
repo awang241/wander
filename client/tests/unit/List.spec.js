@@ -1,5 +1,5 @@
 import { shallowMount } from '@vue/test-utils'
-import List from "../../src/components/List";
+import List from "../../src/components/Misc/HelperComponents/List";
 
 // Mount the component
 const wrapper = shallowMount(List, {
