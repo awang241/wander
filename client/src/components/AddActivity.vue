@@ -59,17 +59,6 @@
                         </b-field>
                     </b-field>
                     <br>
-                </div>
-<!--                <ValidationProvider rules="required|minName" name="Activity Location" v-slot="{ errors, valid }" slim>-->
-<!--                    <b-field label="Activity location"-->
-<!--                             :type="{ 'is-danger': errors[0], 'is-success': valid }"-->
-<!--                             :message="errors"-->
-<!--                             expanded>-->
-<!--                        <template slot="label">Activity Location <span class="requiredStar">*</span></template>-->
-<!--                        <AutoCompleteLocation v-model="activity.location" v-on:locationStringChanged="updateMapLocationFromAutoComplete" v-on:updateMap="updateLocation" ref="autocomplete"></AutoCompleteLocation>-->
-<!--                    </b-field>-->
-<!--                </ValidationProvider>-->
-                <div>
                 <b-field label="Enter a location" expanded>
                     <AutoCompleteLocation v-model="activity.location" v-on:locationStringChanged="updateMapLocationFromAutoComplete" v-on:updateMap="updateLocation" ref="autocomplete"></AutoCompleteLocation>
                 </b-field>
