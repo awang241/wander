@@ -14,8 +14,17 @@
                         :chosenActivityTypes="chosenActivityTypes"
                         :activitySearchType="activitySearchType"></ActivityTypesField>
     <br>
-    <MapPane marker-label="Profile Location" :location-choice-coordinates="profileLocationLatLong" v-bind:address="this.profile.location.address"
-             v-on:locationChoiceChanged="updateLocation"></MapPane>
+    <div style="margin: auto; min-height: 500px;">
+      <div style="width: 50%;float: left; height: 300px;">
+        <MapPane ref="map" marker-label="Profile Location" :location-choice-coordinates="profileLocationLatLong" v-bind:address="this.profile.location.address"
+                 v-on:locationChoiceChanged="updateLocation"></MapPane>
+      </div>
+      <div style="width: 50%;float: right; height: auto;">
+        <h2>The quick brown fox jumped over the lazy dog.</h2>
+      </div>
+    </div>
+
+
     <br>
 
     <div class="row">
@@ -71,12 +80,21 @@ export default {
     search() {
       const searchParameters = this.getSearchParameters();
       Api.getActivitiesByLocation(localStorage.getItem('authToken'), searchParameters).then(response => {
-        this.activityResults = response.data.results
+        if (response.data.results) {
+          this.activityResults = response.data.results;
+          let result;
+          for (result in this.activityResults) {
+            let myLatLng = {lat: result.latitude, lng: result.longitude};
+            this.$refs.map.createSingleMarker({position: myLatLng, title: result.id, id: result.id});
+          }
+        }
+
+
       })
     },
     getSearchParameters() {
       const searchParameters = {};
-      searchParameters.distance = this.maxDistance
+      searchParameters.distance = this.maxDistance * 1000
       searchParameters.latitude = this.profileLocationLatLong.lat
       searchParameters.longitude = this.profileLocationLatLong.lng
       if (this.chosenActivityTypes.length > 0) {
