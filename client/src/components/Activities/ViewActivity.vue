@@ -315,11 +315,10 @@
                 router.push({name: 'editActivity', params: {activityProp: this.activity}});
             },
             getActivity() {
-                api.getActivity(this.activityId, localStorage.getItem('authToken'))
+                api.getActivity(parseInt(this.activityId), localStorage.getItem('authToken'))
                     .then(response => this.activity = response.data)
                     .catch(() => {
-
-                        this.warningToast("Error occurred. blah");
+                        this.warningToast("Error occurred when getting activity");
                         router.go(-1);
                     })
             },
@@ -412,7 +411,7 @@
 
             },
             getUserRole() {
-                api.getSingleUserActivityRole(localStorage.getItem('userId'), this.$route.params.id, localStorage.getItem('authToken'))
+                api.getSingleUserActivityRole(localStorage.getItem('userId'), this.activityId, localStorage.getItem('authToken'))
                     .then(response => {
                         this.userRole = response.data.role})
             },
@@ -437,7 +436,7 @@
             getParticipationResults() {
                 api.getAllActivityParticipations(this.$route.params.id, localStorage.getItem('authToken'))
                     .then(response => {
-                        this.participationResults = response.data.results;
+                        this.participationResults = response.data.allActivityParticipation;
                         })
             }
         },

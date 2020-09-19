@@ -60,18 +60,10 @@
                     </b-field>
                     <br>
                 </div>
-                <ValidationProvider rules="required|minName" name="Activity Location" v-slot="{ errors, valid }" slim>
-                    <b-field label="Activity location"
-                             :type="{ 'is-danger': errors[0], 'is-success': valid }"
-                             :message="errors"
-                             expanded>
-                        <template slot="label">Activity Location <span class="requiredStar">*</span></template>
-                        <b-input v-model="activity.location" placeholder="Enter activity location"></b-input>
-                    </b-field>
-                </ValidationProvider>
-
-                <MapPane marker-label="Activity Location" :location-choice-coordinates="activityLocationLatLong" v-on:locationChoiceChanged="updateLocation"></MapPane>
-
+                <b-field label="Enter a location" expanded>
+                    <AutoCompleteLocation v-model="activity.location" v-on:locationStringChanged="updateMapLocationFromAutoComplete" v-on:updateMap="updateLocation" ref="autocomplete"></AutoCompleteLocation>
+                </b-field>
+                <MapPane marker-label="Activity Location" :location-choice-coordinates="activityLocationLatLong" v-on:locationChoiceChanged="updateLocation" ref="mapPaneRef"></MapPane>
                 <h4 class="label">Add at least one activity type <span class="requiredStar">*</span></h4>
                 <b-field>
                     <b-select placeholder="Select at least one activity type" v-model="newActivityType" expanded>
@@ -113,6 +105,9 @@
     import {ValidationProvider, ValidationObserver} from 'vee-validate'
     import dateTimeMixin from "../../mixins/dateTimeMixin";
     import MapPane from "../Location/MapPane";
+    import MapPane from "./MapPane";
+    import AutoCompleteLocation  from "../Location/AutoCompleteLocation";
+    import googleMapsInit from "../utils/googlemaps";
 
 
     export default {
@@ -120,6 +115,7 @@
         components: {
             MapPane,
             List,
+            AutoCompleteLocation,
             ValidationProvider,
             ValidationObserver
         },
@@ -141,11 +137,12 @@
                         endTime: "",
                         location: "",
                         continuous: true,
-                        creating: true
+                        creating: true,
                     }
                 }
             }
         },
+
         computed: {
             // a computed getter as radio buttons cannot return boolean values
             isContinuous: function () {
@@ -165,18 +162,34 @@
                 newActivityType: "",
                 possibleActivityTypes: [],
                 //The location of the activity in lat and long (will be displayed on map if it exists)
-                activityLocationLatLong: null
+                activityLocationLatLong: null,
+                google: null,
+                geocoder: null,
+                locationString: ""
             }
         },
-        mounted() {
+        async mounted() {
             this.checkAuthenticationStatus()
             this.getPossibleActivityTypes()
             this.activity = this.convertToProp(this.$props.activityProp)
+
+            this.google = await googleMapsInit();
+            this.geocoder = new this.google.maps.Geocoder;
+            this.updateLocationString();
+
+
         },
         methods: {
             //Updates the users location coordinates with the location on the map they have clicked
             updateLocation(location){
-                this.activityLocationLatLong = {lat: location.lat(), lng: location.lng()}
+              this.geocoder.geocode({'location': {lat: location.lat(), lng: location.lng()}}, (results, status) => {
+                if (status === 'OK') {
+                  document.getElementById("autocompleteLocation").value = results[0].formatted_address
+                  this.locationString = results[0].formatted_address
+                  this.activityLocationLatLong = {lat: location.lat(), lng: location.lng()}
+                  this.$refs.mapPaneRef.setZoomLevel(this.locationString)
+                }
+              })
             },
             goBack() {
                 router.go(-1)
@@ -227,7 +240,7 @@
                         "description": this.activity.description,
                         "activity_type": this.activity.chosenActivityTypes,
                         "continuous": this.isContinuous,
-                        "location": this.activity.location,
+                        "location": this.locationString,
                     }
                     if (!this.isContinuous) {
                         activity.start_time = this.combinedStartDate
@@ -293,7 +306,18 @@
 
                 return activityProp
             },
+          updateLocationString() {
+            if (this.activity.location.address) {
+              this.locationString = this.activity.location.address
+            }
+          },
+          updateMapLocationFromAutoComplete(location) {
+            this.activityLocationLatLong = {lat: location.latitude, lng: location.longitude}
+            this.locationString = location.address;
+            this.$refs.mapPaneRef.setZoomLevel(this.locationString)
+          }
         }
+
     }
 </script>
 
