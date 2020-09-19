@@ -60,18 +60,21 @@
                     </b-field>
                     <br>
                 </div>
-                <ValidationProvider rules="required|minName" name="Activity Location" v-slot="{ errors, valid }" slim>
-                    <b-field label="Activity location"
-                             :type="{ 'is-danger': errors[0], 'is-success': valid }"
-                             :message="errors"
-                             expanded>
-                        <template slot="label">Activity Location <span class="requiredStar">*</span></template>
-                      <AutoCompleteLocation v-on:updateMap="updateLocation" v-bind:ActivityLocation="this.activity.location" ref="autocomplete"></AutoCompleteLocation>
-                    </b-field>
-                </ValidationProvider>
-
-                <MapPane marker-label="Activity Location" :location-choice-coordinates="activityLocationLatLong" v-on:locationChoiceChanged="updateLocation"></MapPane>
-
+<!--                <ValidationProvider rules="required|minName" name="Activity Location" v-slot="{ errors, valid }" slim>-->
+<!--                    <b-field label="Activity location"-->
+<!--                             :type="{ 'is-danger': errors[0], 'is-success': valid }"-->
+<!--                             :message="errors"-->
+<!--                             expanded>-->
+<!--                        <template slot="label">Activity Location <span class="requiredStar">*</span></template>-->
+<!--                      <AutoCompleteLocation v-on:locationStringChanged="updateMapLocationFromAutoComplete" v-on:updateMap="updateLocation" v-bind:profileLocation="this.activity.location" ref="autocomplete"></AutoCompleteLocation>-->
+<!--                    </b-field>-->
+<!--                </ValidationProvider>-->
+                <div>
+                <b-field label="Enter a location" expanded>
+                <AutoCompleteLocation v-on:locationStringChanged="updateMapLocationFromAutoComplete" v-on:updateMap="updateLocation" ref="autocomplete"></AutoCompleteLocation>
+                </b-field>
+                <MapPane marker-label="Activity Location" :location-choice-coordinates="activityLocationLatLong" v-on:locationChoiceChanged="updateLocation" ref="mapPaneRef"></MapPane>
+                </div>
                 <h4 class="label">Add at least one activity type <span class="requiredStar">*</span></h4>
                 <b-field>
                     <b-select placeholder="Select at least one activity type" v-model="newActivityType" expanded>
@@ -114,7 +117,7 @@
     import dateTimeMixin from "../mixins/dateTimeMixin";
     import MapPane from "./MapPane";
     import AutoCompleteLocation  from "./AutoCompleteLocation";
-    import googleMapsInit from "@/utils/googlemaps";
+    import googleMapsInit from "../utils/googlemaps";
 
 
     export default {
@@ -145,15 +148,11 @@
                         location: "",
                         continuous: true,
                         creating: true,
-
-                        google: null,
-                        activityLocationLatLong: null,
-                        geocoder: null,
-                        locationString: ""
                     }
                 }
             }
         },
+
         computed: {
             // a computed getter as radio buttons cannot return boolean values
             isContinuous: function () {
@@ -173,7 +172,10 @@
                 newActivityType: "",
                 possibleActivityTypes: [],
                 //The location of the activity in lat and long (will be displayed on map if it exists)
-                activityLocationLatLong: null
+                activityLocationLatLong: null,
+                google: null,
+                geocoder: null,
+                locationString: ""
             }
         },
         async mounted() {
@@ -195,7 +197,7 @@
                   document.getElementById("autocompleteLocation").value = results[0].formatted_address
                   this.locationString = results[0].formatted_address
                   this.activityLocationLatLong = {lat: location.lat(), lng: location.lng()}
-
+                  this.$refs.mapPaneRef.setZoomLevel(this.locationString)
                 }
               })
             },
@@ -321,7 +323,8 @@
           },
           updateMapLocationFromAutoComplete(location) {
             this.activityLocationLatLong = {lat: location.latitude, lng: location.longitude}
-            this.locationString = location.address
+            this.locationString = location.address;
+            this.$refs.mapPaneRef.setZoomLevel(this.locationString)
           }
         }
 

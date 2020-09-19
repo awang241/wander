@@ -137,10 +137,21 @@
             openDetailedMarkerView(id) {
                 alert(`Opening profile ${id}`)
             },
-            setZoomLevel() {
-              let address_parts = this.address.split(',');
-              let zoomLevel = address_parts.length * 3;
-              this.map.setZoom(zoomLevel)
+            setZoomLevel(newAddress) {
+                console.log(this.address)
+                console.log(newAddress)
+
+                if (newAddress){
+                    let address_parts = newAddress.split(',');
+                    let zoomLevel = address_parts.length * 3;
+                    this.map.setZoom(zoomLevel)
+                }
+
+                else if (this.address) {
+                    let address_parts = this.address.split(',');
+                    let zoomLevel = address_parts.length * 3;
+                    this.map.setZoom(zoomLevel)
+                }
             },
           removeMarker() {
               this.locationChoiceMarker.setMap(null)
