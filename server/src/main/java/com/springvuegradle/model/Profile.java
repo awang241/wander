@@ -201,14 +201,15 @@ public class Profile {
      * Adds the email to the set. Does not check repository to see if the email address is already in use. Trying to keep
      * db related queries in Controller classes. Though, it does check if the email is already in the list of emails as
      * well as if the list of emails is already at the max capacity (5).
-     * @param email
-     * @return
+     * @param email The email being added to this profile
+     * @return True if the email was successfully added; false otherwise
      */
     public boolean addEmail(Email email) {
         boolean alreadyInEmails = false;
         for (Email tEmail: emails) {
             if (tEmail.getAddress().equals(email.getAddress())) {
                 alreadyInEmails = true;
+                break;
             }
         }
         if (alreadyInEmails || emails.size() >= 5) {
@@ -420,6 +421,14 @@ public class Profile {
         return firstname;
     }
 
+    /**
+     * Returns the first and last names of the profile, separated by a space.
+     * @return the first and last names of the profile, separated by a space.
+     */
+    public String getFirstAndLastName() {
+        return getFirstname() + " " + getLastname();
+    }
+
     public void setFirstname(String firstname) {
         this.firstname = firstname;
     }
@@ -451,6 +460,7 @@ public class Profile {
     public String getNickname() {
         return nickname;
     }
+
 
     public void setNickname(String nickname) {
         this.nickname = nickname;
