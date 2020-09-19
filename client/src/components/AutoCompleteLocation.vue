@@ -74,7 +74,7 @@
                         if (status === 'OK') {
                             this.location.latitude = results[0].geometry.location.lat()
                             this.location.longitude = results[0].geometry.location.lng()
-                            this.$parent.updateMapLocationFromAutoComplete(this.location);
+                          this.$emit('locationStringChanged', this.location)
                             resolve(true)
                         } else {
                             reject(false);

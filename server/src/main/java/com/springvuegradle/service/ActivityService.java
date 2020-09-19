@@ -84,7 +84,7 @@ public class ActivityService {
         profile.addActivity(activityMembership);
         activity.addMember(activityMembership);
 
-        notificationService.createNotification(NotificationType.ActivityCreated,
+        notificationService.createNotification(NotificationType.ACTIVITY_CREATED,
                 activity,
                 profile,
                 profile.getFullName() + " created a new activity called " + activity.getActivityName() + ".");
@@ -116,7 +116,7 @@ public class ActivityService {
             dbActivity.setActivityTypes(updatedActivityTypes);
             dbActivity.update(activity);
             activityRepo.save(dbActivity);
-            notificationService.createNotification(NotificationType.ActivityEdited, dbActivity, editor.get(),
+            notificationService.createNotification(NotificationType.ACTIVITY_EDITED, dbActivity, editor.get(),
                     editor.get().getFullName() + " edited an activity called " + dbActivity.getActivityName() + ".");
         } else {
             throw new IllegalArgumentException(ActivityResponseMessage.INVALID_ACTIVITY.toString());
@@ -129,8 +129,8 @@ public class ActivityService {
      * @param requiredActivityTypes
      * @return a list of activities that have all activity types
      */
-    public List<Activity> filterByActivityTypes(List<Activity> activities, List<ActivityType> requiredActivityTypes){
-        if(requiredActivityTypes.isEmpty()){return activities;}
+    public List<Activity> filterActivitiesByActivityTypes(List<Activity> activities, List<ActivityType> requiredActivityTypes, String activityTypeSearchMethod){
+        if(requiredActivityTypes.isEmpty() || activityTypeSearchMethod == null){return activities;}
         List<Activity> filteredActivities = new ArrayList<>();
         for(Activity activity: activities) {
             Set<ActivityType> actualActivityTypes = activity.getActivityTypeObjects();
@@ -138,7 +138,9 @@ public class ActivityService {
                     .distinct()
                     .filter(actualActivityTypes::contains)
                     .collect(Collectors.toSet());
-            if(result.size() == requiredActivityTypes.size()){
+            if(result.size() == requiredActivityTypes.size() && activityTypeSearchMethod.equals("all")){
+                filteredActivities.add(activity);
+            } else if(result.size() > 0 && activityTypeSearchMethod.equals("any")){
                 filteredActivities.add(activity);
             }
         }
@@ -182,7 +184,7 @@ public class ActivityService {
             }
             Profile profile = getModelObjectById(profileRepo, profileId);
             Activity activity = getModelObjectById(activityRepo, activityId);
-            notificationService.createNotification(NotificationType.ActivityRemoved, activity, profile,
+            notificationService.createNotification(NotificationType.ACTIVITY_REMOVED, activity, profile,
                     profile.getFullName() + " deleted an activity called " + activity.getActivityName() + ".");
             notificationService.detachActivityFromNotifications(activity);
             for (ActivityType activityType : typeRepo.findAll()) {
@@ -223,13 +225,13 @@ public class ActivityService {
         NotificationType type;
         switch (membership.getRole()) {
             case FOLLOWER:
-                type = NotificationType.ActivityFollowerRemoved;
+                type = NotificationType.NOTIFICATION_TYPE;
                 break;
             case ORGANISER:
-                type = NotificationType.ActivityOrganiserRemoved;
+                type = NotificationType.ACTIVITY_ORGANISER_REMOVED;
                 break;
             case PARTICIPANT:
-                type = NotificationType.ActivityParticipantRemoved;
+                type = NotificationType.ACTIVITY_PARTICIPANT_REMOVED;
                 break;
             default:
                 throw new IllegalArgumentException(ActivityMessage.EDITING_CREATOR.toString());
@@ -346,11 +348,10 @@ public class ActivityService {
 
     /**
      * Returns all the activities that the user is a creator or organiser of.
-     *
-     * @param count      the number of activities to return. The function may return less if the last page is returned.
-     * @param authLevel  the user's authorisation level.
+     * @param count the number of activities to return. The function may return less if the last page is returned.
+     * @param authLevel the user's authorisation level.
      * @param startIndex the index of an items to be returned; the page containing this item is returned.
-     * @param profileId  the id of the user we want to check is the creator or organiser of an activity
+     * @param profileId the id of the user we want to check is the creator or organiser of an activity
      * @return list of activities
      */
     public List<Activity> getActivitiesUserCanModify(Long profileId, Integer startIndex, Integer count, Integer authLevel) {
@@ -440,7 +441,7 @@ public class ActivityService {
 
     /**
      * Return an activity by activity id.
-     * <p>
+     *
      * Return an activity by activity id and profile id based on the privacy activity and role of the user.
      *
      * @param profileId  The ID of the profile that is requesting the Activity
@@ -578,10 +579,10 @@ public class ActivityService {
         if (optionalEditor.isPresent()) {
             editor = optionalEditor.get();
         }
-        notificationService.createNotification(NotificationType.ActivityPrivacyChanged,
+        notificationService.createNotification(NotificationType.ACTIVITY_PRIVACY_CHANGED,
                 activity,
                 editor,
-                "Activity " + activity.getActivityName() + "'s privacy level has been changed to " + privacy);
+                "Activity " + activity.getActivityName() +"'s privacy level has been changed to " + privacy);
     }
 
     /**
@@ -758,7 +759,7 @@ public class ActivityService {
         profile.addParticipation(participation);
         profileRepo.save(profile);
         activity.addParticipation(participation);
-        notificationService.createNotification(NotificationType.ParticipantCreated, activity, profile,
+        notificationService.createNotification(NotificationType.PARTICIPANT_CREATED, activity, profile,
                 profile.getFullName() + " added participation results to an activity called " + activity.getActivityName() + ".\n" +
                         "Outcome: " + participation.getOutcome() + "\nDetails: " + participation.getDetails());
         activityRepo.save(activity);
@@ -784,7 +785,7 @@ public class ActivityService {
         ActivityParticipation dbParticipation = participationResult.get();
         dbParticipation.updateActivityParticipation(participation);
         participationRepo.save(dbParticipation);
-        notificationService.createNotification(NotificationType.ParticipationEdited, activity, profile,
+        notificationService.createNotification(NotificationType.PARTICIPATION_EDITED, activity, profile,
                 profile.getFullName() + " edited participation results of activity called " + activity.getActivityName() + ".\n" +
                         "Outcome:" + participation.getOutcome() + "\nDetails: " + participation.getDetails());
     }
@@ -880,11 +881,11 @@ public class ActivityService {
      * @param activityId  the ID of the activity being cleared
      * @param roleToClear the ENUM String of the role to clear
      */
-    public void clearActivityRoleList(Long activityId, String roleToClear) {
+    public void clearActivityRoleList(Long editorID, Long activityId, String roleToClear) {
         List<ActivityMemberProfileResponse> memberships = getActivityMembers(activityId);
         for (ActivityMemberProfileResponse membership : memberships) {
             if (membership.getRole().name().equals(roleToClear)) {
-                removeMembership(membership.getId(), activityId);
+                removeUserRoleFromActivity(editorID, membership.getId(), activityId);
             }
         }
     }
@@ -906,7 +907,6 @@ public class ActivityService {
 
     /**
      * Wrapper method for getting a generic object from a repository.
-     *
      * @param repository The repository the object is being retrieved from.
      * @param id         The id of the object.
      * @param <T>        The type of the object.

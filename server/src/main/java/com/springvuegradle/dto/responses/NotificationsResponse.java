@@ -1,8 +1,8 @@
 package com.springvuegradle.dto.responses;
 
 import com.springvuegradle.model.Notification;
-import java.util.List;
 import lombok.Data;
+import java.util.List;
 
 @Data
 public class NotificationsResponse {

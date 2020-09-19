@@ -1,6 +1,5 @@
 package com.springvuegradle.service;
 
-import com.springvuegradle.enums.ActivityMessage;
 import com.springvuegradle.enums.NotificationType;
 import com.springvuegradle.enums.ProfileErrorMessage;
 import com.springvuegradle.model.Activity;
@@ -86,13 +85,7 @@ public class NotificationService {
      * @param notificationsList the list of notifications to be sorted
      */
     private void sortNotifications(List<Notification> notificationsList) {
-        Collections.sort(notificationsList, new Comparator<Notification>() {
-            @Override
-            public int compare(Notification o1, Notification o2)
-            {
-                return o2.getTimeStamp().compareTo(o1.getTimeStamp());
-            }
-        });
+        Collections.sort(notificationsList, (o1, o2) -> o2.getTimeStamp().compareTo(o1.getTimeStamp()));
     }
 
     /**

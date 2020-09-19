@@ -7,7 +7,10 @@ import com.springvuegradle.enums.NotificationType;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 
 @Entity
@@ -69,6 +72,18 @@ public class Notification {
     public int hashCode() {
         return Objects.hash(id, message, activity, profile, notificationType);
     }
+
+    @Override
+    public boolean equals(Object o){
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Notification comparedNotification = (Notification)o;
+        return ((message.equals(comparedNotification.message))&&
+                (activity.equals(comparedNotification.activity))&&
+                (profile.equals(comparedNotification.profile))&&
+                (notificationType.equals(comparedNotification.notificationType)));
+    }
+
 
     public String getMessage() { return message; }
 

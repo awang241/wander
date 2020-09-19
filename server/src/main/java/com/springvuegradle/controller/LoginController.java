@@ -1,16 +1,19 @@
 package com.springvuegradle.controller;
 
-import com.springvuegradle.utilities.JwtUtil;
 import com.springvuegradle.dto.requests.LoginRequest;
 import com.springvuegradle.dto.responses.LoginResponse;
 import com.springvuegradle.model.Profile;
 import com.springvuegradle.repositories.EmailRepository;
+import com.springvuegradle.utilities.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.*;
+import java.util.List;
 
 /**
  * Basic implementation of a login controller class.

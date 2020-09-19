@@ -1,9 +1,6 @@
 package com.springvuegradle.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
-
-import java.time.OffsetDateTime;
 
 /**
  * DTO for posting the details of activity participation

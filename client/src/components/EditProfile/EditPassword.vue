@@ -103,8 +103,8 @@
                 return message;
             },
             checkLoggedInUserIsAdmin() {
-                if (!store.getters.getAuthenticationLevel === 0 ||
-                    !store.getters.getAuthenticationLevel === 1) {
+                if (!store.getters.getAuthenticationLevel == 0 ||
+                    !store.getters.getAuthenticationLevel == 1) {
                     return null;
                 } else {
                     return "required|minPassword";

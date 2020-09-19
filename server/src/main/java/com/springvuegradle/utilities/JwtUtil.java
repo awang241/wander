@@ -23,7 +23,7 @@ public class JwtUtil {
 
     public static final String PERMISSION_KEY = "authLevel";
 
-    SecretKey SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    SecretKey secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
     public Long extractId(String token) {
         return Long.parseLong(extractClaim(token, Claims::getSubject));
@@ -43,7 +43,7 @@ public class JwtUtil {
         return claimsResolver.apply(claims);
     }
     private Claims extractAllClaims(String token) {
-        return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
+        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
     }
 
     public Boolean isTokenExpired(String token) {
@@ -71,7 +71,7 @@ public class JwtUtil {
 
         return Jwts.builder().setClaims(claims).setSubject(userId).setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
-                .signWith(SignatureAlgorithm.HS256, SECRET_KEY).compact();
+                .signWith(SignatureAlgorithm.HS256, secretKey).compact();
     }
 
     /**
@@ -81,7 +81,7 @@ public class JwtUtil {
      */
     public Boolean validateToken(String token) {
         try {
-            Jwts.parserBuilder().setSigningKey(SECRET_KEY).build().parseClaimsJws(token);
+            Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
             return true;
         } catch (JwtException e){
             return false;

@@ -1109,10 +1109,6 @@ class ActivityServiceTest {
         assertEquals(expectedProfiles.size(),actualProfiles.getSize());
     }
 
-    @Test
-    void deleteMembersFromActivityAsAdminTest(){
-
-    }
 
     @Test
     void getActivityMembersByRoleWithPaginationNormalTest() {
@@ -1157,7 +1153,7 @@ class ActivityServiceTest {
 
     @Test
     void clearRolesOfActivityThatDoesntExistThrowsExceptionTest(){
-        assertThrows(IllegalArgumentException.class, ()-> service.clearActivityRoleList(915730971L, "FOLLOWER"));
+        assertThrows(IllegalArgumentException.class, ()-> service.clearActivityRoleList(1l,915730971L, "FOLLOWER"));
     }
 
     /**
@@ -1202,21 +1198,47 @@ class ActivityServiceTest {
     void filterByActivityTypesWithEmptyTypeListTest(){
         Activity activityOne = activityRepository.save(createNormalActivity());
         Activity activityTwo = activityRepository.save(createNormalActivity());
-        assertEquals(service.filterByActivityTypes(List.of(activityOne, activityTwo), new ArrayList<ActivityType>()), List.of(activityOne, activityTwo));
+        assertEquals(service.filterActivitiesByActivityTypes(List.of(activityOne, activityTwo), new ArrayList<ActivityType>(), "all"), List.of(activityOne, activityTwo));
     }
 
     @Test
-    void filterByActivityTypesTest(){
+    void filterByAllActivityTypesTest(){
         Activity activityOne = activityRepository.save(createNormalActivity());
         Activity activityTwo = activityRepository.save(createNormalActivity());
-        ActivityType myCoolType = new ActivityType("myCoolType");
-        typeRepository.save(myCoolType);
-        activityOne.addActivityType(myCoolType);
+        Activity activityThree = activityRepository.save(createNormalActivity());
+        ActivityType xbox = new ActivityType("xbox");
+        ActivityType playstation = new ActivityType("playstation");
+        typeRepository.save(xbox);
+        typeRepository.save(playstation);
+        activityOne.addActivityType(xbox);
+        activityOne.addActivityType(playstation);
+        activityTwo.addActivityType(xbox);
         activityRepository.save(activityOne);
-        ArrayList<ActivityType> requiredActivities = new ArrayList<>();
-        requiredActivities.add(myCoolType);
-        assertEquals(service.filterByActivityTypes(List.of(activityOne, activityTwo), requiredActivities), List.of(activityOne));
+        activityRepository.save(activityTwo);
+        ArrayList<ActivityType> requiredActivityTypes = new ArrayList<>();
+        requiredActivityTypes.add(xbox);
+        requiredActivityTypes.add(playstation);
+        assertEquals(service.filterActivitiesByActivityTypes(List.of(activityOne, activityTwo, activityThree), requiredActivityTypes, "all"), List.of(activityOne));
+    }
 
+    @Test
+    void filterByAnyActivityTypeTest(){
+        Activity activityOne = activityRepository.save(createNormalActivity());
+        Activity activityTwo = activityRepository.save(createNormalActivity());
+        Activity activityThree = activityRepository.save(createNormalActivity());
+        ActivityType xbox = new ActivityType("xbox");
+        ActivityType playstation = new ActivityType("playstation");
+        typeRepository.save(xbox);
+        typeRepository.save(playstation);
+        activityOne.addActivityType(xbox);
+        activityOne.addActivityType(playstation);
+        activityTwo.addActivityType(xbox);
+        activityRepository.save(activityOne);
+        activityRepository.save(activityTwo);
+        ArrayList<ActivityType> requiredActivityTypes = new ArrayList<>();
+        requiredActivityTypes.add(xbox);
+        requiredActivityTypes.add(playstation);
+        assertEquals(service.filterActivitiesByActivityTypes(List.of(activityOne, activityTwo, activityThree), requiredActivityTypes, "any"), List.of(activityOne, activityTwo));
     }
 
     /**
@@ -1337,7 +1359,6 @@ class ActivityServiceTest {
         }
         return actualActivity;
     }
-
 
     public static Profile createNormalProfileBen() {
 

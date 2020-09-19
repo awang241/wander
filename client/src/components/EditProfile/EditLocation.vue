@@ -2,7 +2,7 @@
   <div class="container">
     <h1 class="title is-5">Edit Your Location </h1>
 
-    <AutoCompleteLocation v-on:updateMap="updateLocation" v-bind:profileLocation="this.profile.location" ref="autocomplete"></AutoCompleteLocation>
+    <AutoCompleteLocation v-on:locationStringChanged="updateMapLocationFromAutoComplete" v-on:updateMap="updateLocation" v-bind:profileLocation="this.profile.location" ref="autocomplete"></AutoCompleteLocation>
 
     <MapPane v-bind:address="this.locationString" marker-label="Profile Location" :location-choice-coordinates="profileLocationLatLong" v-on:locationChoiceChanged="updateLocation" ref="map"></MapPane>
     <br>
