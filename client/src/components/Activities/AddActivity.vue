@@ -105,9 +105,8 @@
     import {ValidationProvider, ValidationObserver} from 'vee-validate'
     import dateTimeMixin from "../../mixins/dateTimeMixin";
     import MapPane from "../Location/MapPane";
-    import MapPane from "./MapPane";
     import AutoCompleteLocation  from "../Location/AutoCompleteLocation";
-    import googleMapsInit from "../utils/googlemaps";
+    import googleMapsInit from "../../utils/googlemaps";
 
 
     export default {
