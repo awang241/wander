@@ -40,7 +40,6 @@
                 autocompleteLocation = new this.google.maps.places.Autocomplete(document.getElementById("autocompleteLocation"), options)
                 autocompleteLocation.setFields(['address_components']);
                 autocompleteLocation.addListener('place_changed', () => {
-                    console.log("this is it")
                     this.location.address = this.formatLocationTextField(autocompleteLocation.getPlace());
                     document.getElementById("autocompleteLocation").value = this.location.address;
                     this.checkValidGeoCode(this.location.address)

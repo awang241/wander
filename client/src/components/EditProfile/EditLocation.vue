@@ -93,7 +93,6 @@ import AutoCompleteLocation  from "../AutoCompleteLocation";
             }
             await this.$refs.autocomplete.updateLocation(document.getElementById("autocompleteLocation").value);
             let check = await this.checkValidLocation(document.getElementById("autocompleteLocation").value);
-            console.log(check)
             const location = this.$refs.autocomplete.returnLocation();
             if (location.address === "" || location.latitude === "" || location.longitude === "") {
               this.warningToast("Please enter a location")

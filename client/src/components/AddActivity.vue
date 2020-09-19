@@ -59,11 +59,11 @@
                         </b-field>
                     </b-field>
                     <br>
+                </div>
                 <b-field label="Enter a location" expanded>
                     <AutoCompleteLocation v-model="activity.location" v-on:locationStringChanged="updateMapLocationFromAutoComplete" v-on:updateMap="updateLocation" ref="autocomplete"></AutoCompleteLocation>
                 </b-field>
                 <MapPane marker-label="Activity Location" :location-choice-coordinates="activityLocationLatLong" v-on:locationChoiceChanged="updateLocation" ref="mapPaneRef"></MapPane>
-                </div>
                 <h4 class="label">Add at least one activity type <span class="requiredStar">*</span></h4>
                 <b-field>
                     <b-select placeholder="Select at least one activity type" v-model="newActivityType" expanded>
