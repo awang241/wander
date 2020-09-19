@@ -3,9 +3,7 @@
         <h1 class="title">Activity Search</h1>
         <b-field group-multiline grouped>
             <b-field label="Enter a location" expanded>
-                <AutoCompleteLocation v-on:locationStringChanged="updateMapLocationFromAutoComplete"
-                                      v-on:updateMap="updateLocation" v-bind:profileLocation="this.profile.location"
-                                      ref="autocomplete"></AutoCompleteLocation>
+                <AutoCompleteLocation v-on:locationStringChanged="updateMapLocationFromAutoComplete" v-on:updateMap="updateLocation" v-bind:profileLocation="this.profile.location" ref="autocomplete"></AutoCompleteLocation>
             </b-field>
             <b-field label="Max distance (km)">
                 <b-numberinput v-model="maxDistance" type="is-primary" :min="1" :max="200"></b-numberinput>
@@ -15,6 +13,11 @@
                             v-on:updateChosenActivityTypes="newActivityTypes => chosenActivityTypes = newActivityTypes"
                             :chosenActivityTypes="chosenActivityTypes"
                             :activitySearchType="activitySearchType"></ActivityTypesField>
+        <br>
+        <MapPane marker-label="Profile Location" :location-choice-coordinates="profileLocationLatLong" v-bind:address="this.profile.location.address"
+                 v-on:locationChoiceChanged="updateLocation" :info-window-content="this.informationWindowData"></MapPane>
+        <br>
+
         <div class="row">
             <br>
             <b-field style="float:left">
@@ -25,13 +28,6 @@
             </b-field>
             <br>
         </div>
-        <br>
-        <div class="container">
-            <div class="col"><MapPane></MapPane></div>
-            <div class="col"><h1> testgin!</h1></div>
-
-        </div>
-        <br>
         <br/>
     </div>
 </template>
@@ -45,11 +41,10 @@
     import toastMixin from "../..//mixins/toastMixin";
     import AutoCompleteLocation from "../Reusables/AutoCompleteLocation";
 
-
     export default {
         name: "ActivitySearch",
         components: {
-            MapPane, ActivityTypesField, AutoCompleteLocation
+            MapPane, ActivityTypesField, AutoCompleteLocation,
         },
         mixins: [toastMixin],
         data() {
@@ -63,7 +58,6 @@
                 store: store,
                 profileLocationLatLong: null,
                 locationString: ""
-
             }
         },
         methods: {
