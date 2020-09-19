@@ -51,9 +51,10 @@
             address: {
                 type: String
             },
-            //Should be a list of strings, something along those lines
+            //If pins are being made one at a time this should be a string
+            //Else if pins are made all at once this should be a list of strings
             infoWindowContent: {
-                type: Object
+                type: String
             }
         },
 
@@ -128,6 +129,7 @@
             },
             //Creates a singular marker on the map
             createSingleMarker({position, text, id}) {
+                //content is just a place holder
                 const infowindow = new this.google.maps.InfoWindow({
                     content: "contentString"
                 });

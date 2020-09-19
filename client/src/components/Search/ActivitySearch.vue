@@ -15,7 +15,7 @@
                         :activitySearchType="activitySearchType"></ActivityTypesField>
     <br>
     <MapPane marker-label="Profile Location" :location-choice-coordinates="profileLocationLatLong" v-bind:address="this.profile.location.address"
-             v-on:locationChoiceChanged="updateLocation"></MapPane>
+             v-on:locationChoiceChanged="updateLocation" :info-window-content="this.informationWindowData"></MapPane>
     <br>
 
     <div class="row">
@@ -58,7 +58,8 @@ export default {
       activityResults: [],
       store: store,
       profileLocationLatLong: null,
-      locationString: ""
+      locationString: "",
+      informationWindowData: ""
 
     }
   },
@@ -113,25 +114,25 @@ export default {
       this.locationString = location.address
     },
 
-      /**
-       * Method to format the details of an activity for the information pop up window
-       * At the moment it has dummy data
-       * Need to put in a variable (activityDetails) into this method
-       */
-      formatActivityDetails() {
+    /**
+     * Method to format the details of an activity for the information pop up window
+     * At the moment it has dummy data
+     * Need to put in a variable (activityDetails) into this method
+     */
+    formatActivityDetails() {
 
-          //This variable is dummy data
-          let activityDetails = {
-              activityName : "Doing happy tings",
-              location: "a happy place",
-              lat: 68.174270,
-              lng: 16.329620,
-              activityTypes: ["happy stuff", "really happy stuff"]
-          };
-          const activityTypesString = this.formatActivityTypesString(activityDetails.activityTypes);
+      //This variable is dummy data
+      let activityDetails = {
+        activityName: "Doing happy tings",
+        location: "a happy place",
+        lat: 68.174270,
+        lng: 16.329620,
+        activityTypes: ["happy stuff", "really happy stuff"]
+      };
+      const activityTypesString = this.formatActivityTypesString(activityDetails.activityTypes);
 
-          //Had to use inline styling because of scope :(
-          const informationWindowText =
+      //Had to use inline styling because of scope :(
+      const informationWindowText =
               `<div style="width: 100vh; height: 100vh;">` +
               `<h1 style="font-size: 22px">${activityDetails.activityName}</h1>` +
               `<br>` +
@@ -143,19 +144,19 @@ export default {
               `<br>` +
               `${activityTypesString}` +
               `</div>`
-          return informationWindowText
-      },
+      return informationWindowText
+    },
 
-      formatActivityTypesString(activityTypes) {
-          let formattedActivityTypes =
+    formatActivityTypesString(activityTypes) {
+      let formattedActivityTypes =
               `<h1 style="font-size: 16px"> Activity Types:</h1>` +
               `<br>`
-          let typesString = "";
-          for (let i = 0; i < activityTypes.length; i++) {
-              typesString =  typesString + `*<span>${activityTypes[i]}</span>` + `<br>`
-          }
-          return formattedActivityTypes + typesString
+      let typesString = "";
+      for (let i = 0; i < activityTypes.length; i++) {
+        typesString = typesString + `*<span>${activityTypes[i]}</span>` + `<br>`
       }
+      return formattedActivityTypes + typesString
+    }
 
   },
   async mounted() {
