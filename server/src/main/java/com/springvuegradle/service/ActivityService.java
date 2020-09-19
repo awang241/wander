@@ -127,8 +127,8 @@ public class ActivityService {
      * @param requiredActivityTypes
      * @return a list of activities that have all activity types
      */
-    public List<Activity> filterByActivityTypes(List<Activity> activities, List<ActivityType> requiredActivityTypes){
-        if(requiredActivityTypes.isEmpty()){return activities;}
+    public List<Activity> filterActivitiesByActivityTypes(List<Activity> activities, List<ActivityType> requiredActivityTypes, String activityTypeSearchMethod){
+        if(requiredActivityTypes.isEmpty() || activityTypeSearchMethod == null){return activities;}
         List<Activity> filteredActivities = new ArrayList<>();
         for(Activity activity: activities) {
             Set<ActivityType> actualActivityTypes = activity.getActivityTypeObjects();
@@ -136,7 +136,9 @@ public class ActivityService {
                     .distinct()
                     .filter(actualActivityTypes::contains)
                     .collect(Collectors.toSet());
-            if(result.size() == requiredActivityTypes.size()){
+            if(result.size() == requiredActivityTypes.size() && activityTypeSearchMethod.equals("all")){
+                filteredActivities.add(activity);
+            } else if(result.size() > 0 && activityTypeSearchMethod.equals("any")){
                 filteredActivities.add(activity);
             }
         }
