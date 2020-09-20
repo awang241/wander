@@ -245,8 +245,8 @@
     import Observer from "../Misc/Observer";
     import ActivityParticipationSummary from "../Summaries/ActivityParticipationSummary";
     import toastMixin from "../../mixins/toastMixin";
-    import googleMapsInit from "../utils/googlemaps";
-    import MapPane from "./MapPane";
+    import googleMapsInit from "../../utils/googlemaps";
+    import MapPane from "../Location/MapPane";
 
 
     const DEFAULT_RESULT_COUNT = 50;
