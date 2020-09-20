@@ -242,6 +242,8 @@
                         "activity_type": this.activity.chosenActivityTypes,
                         "continuous": this.isContinuous,
                         "location": this.locationString,
+                        "latitude": this.activityLocationLatLong.lat,
+                        "longitude": this.activityLocationLatLong.lng
                     }
                     if (!this.isContinuous) {
                         activity.start_time = this.combinedStartDate

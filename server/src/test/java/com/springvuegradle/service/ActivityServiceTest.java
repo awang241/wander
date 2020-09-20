@@ -1271,13 +1271,13 @@ class ActivityServiceTest {
 
     public static Activity createNormalActivity() {
         return new Activity("Kaikoura Coast Track race", "A big and nice race on a lovely peninsula",
-                new String[]{"Tramping", "Hiking"}, false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ", 100, 100);
+                new String[]{"Tramping", "Hiking"}, false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ", 100.0, 100.0);
     }
 
     public Activity createNormalActivityKaikoura() {
         Activity activity =  new Activity("Kaikoura Coast Track race", "A big and nice race on a lovely peninsula",
                 new String[]{"Hiking"}, false, "2020-02-20T08:00:00+1300",
-                "2020-02-20T08:00:00+1300", "Kaikoura, NZ", 100, 100);
+                "2020-02-20T08:00:00+1300", "Kaikoura, NZ", 100.0, 100.0);
         Set<ActivityType> updatedActivityType = new HashSet<>();
         for(ActivityType activityType : activity.retrieveActivityTypes()){
             List<ActivityType> resultActivityTypes = typeRepository.findByActivityTypeName(activityType.getActivityTypeName());{
@@ -1290,7 +1290,7 @@ class ActivityServiceTest {
 
     private Activity createNormalActivitySilly() {
         return new Activity("Wibble", "A bald man", new String[]{"Hockey"}, true,
-                "2020-02-20T08:00:00+1300","2020-02-20T08:00:00+1300", "K2", 100, 100);
+                "2020-02-20T08:00:00+1300","2020-02-20T08:00:00+1300", "K2", 100.0, 100.0);
     }
 
     private Activity createBadActivityNoName() {
@@ -1325,17 +1325,17 @@ class ActivityServiceTest {
 
     private Activity createBadActivityNoActivityTypes() {
         return new Activity("", "A big and nice race on a lovely peninsula",null, false,
-                "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ", 100, 100);
+                "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ", 100.0, 100.0);
     }
 
     private Activity createBadActivityEmptyActivityTypes() {
         return new Activity("", "A big and nice race on a lovely peninsula", new String[]{},
-                false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ", 100, 100);
+                false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ", 100.0, 100.0);
     }
 
     private Activity createBadActivityInvalidActivityTypes() {
         return new Activity("", "A big and nice race on a lovely peninsula", new String[]{"nugts"},
-                false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ", 100, 100);
+                false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ", 100.0, 100.0);
     }
 
     /**

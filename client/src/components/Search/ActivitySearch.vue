@@ -14,9 +14,19 @@
                         :chosenActivityTypes="chosenActivityTypes"
                         :activitySearchType="activitySearchType"></ActivityTypesField>
     <br>
-    <MapPane marker-label="Profile Location" :location-choice-coordinates="profileLocationLatLong" v-bind:address="this.profile.location.address"
-             v-on:locationChoiceChanged="updateLocation" :info-window-content="this.informationWindowData" :default_width="500" :default_height="500"></MapPane>
-      <br>
+    <div style="margin: auto; min-height: 500px;">
+      <div style="width: 50%;float: left; height: 300px;">
+        <MapPane ref="map" marker-label="Profile Location" :location-choice-coordinates="profileLocationLatLong" v-bind:address="this.profile.location.address"
+                 v-on:locationChoiceChanged="updateLocation"
+                 :info-window-content="this.informationWindowData" :default_width="500" :default_height="500"></MapPane>
+      </div>
+      <div style="width: 50%;float: right; height: auto;">
+<!--        This block will be used to hold the activity summary objects. Need to find a way to have the map display over the container as it looks weird otherwise.-->
+      </div>
+    </div>
+
+
+    <br>
 
     <div class="row">
       <br>
@@ -71,12 +81,20 @@ export default {
     search() {
       const searchParameters = this.getSearchParameters();
       Api.getActivitiesByLocation(localStorage.getItem('authToken'), searchParameters).then(response => {
-        this.activityResults = response.data.results
+        if (response.data.results) {
+          this.activityResults = response.data.results;
+          let result;
+          for (result in this.activityResults) {
+            let myLatLng = {lat: result.latitude, lng: result.longitude};
+            this.$refs.map.createSingleMarker({position: myLatLng, title: result.activityName, id: result.id});
+          }
+        }
       })
     },
     getSearchParameters() {
+      const M_TO_KM = 1000;
       const searchParameters = {};
-      searchParameters.distance = this.maxDistance
+      searchParameters.distance = this.maxDistance * M_TO_KM
       searchParameters.latitude = this.profileLocationLatLong.lat
       searchParameters.longitude = this.profileLocationLatLong.lng
       if (this.chosenActivityTypes.length > 0) {
