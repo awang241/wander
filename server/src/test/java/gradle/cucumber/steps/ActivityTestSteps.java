@@ -83,7 +83,6 @@ public class ActivityTestSteps {
 
     private Activity activity;
 
-    private ActivityPOJO activityPOJO;
 
     private SimplifiedActivitiesResponse simplifiedActivitiesResponse;
 
@@ -230,10 +229,6 @@ public class ActivityTestSteps {
                 new String[]{"Running"}, true, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "UC, CHCH, NZ", 100.0, 100.0);
     }
 
-    static ActivityPOJO createNormalActivityPOJO(String title, String location) {
-        return new ActivityPOJO(title, "description doesn't matter atm",
-                new String[]{"Running"}, true, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "UC, CHCH, NZ", 100.0, 100.0);
-    }
 
     @And("I am a {string} of this activity")
     public void iAmAOfThisActivity(String roleString) {

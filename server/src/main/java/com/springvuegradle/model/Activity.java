@@ -3,7 +3,6 @@ package com.springvuegradle.model;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.springvuegradle.dto.ActivityPOJO;
 import com.springvuegradle.utilities.FormatHelper;
 
 import javax.persistence.*;
@@ -118,21 +117,6 @@ public class Activity {
         this.members = new HashSet<>();
     }
 
-    public Activity(ActivityPOJO activity){
-        this.activityName = activity.activityName;
-        this.description = activity.description;
-        this.continuous = activity.continuous;
-        this.startTime = activity.startTime;
-        this.endTime = activity.endTime;
-        this.location = activity.location;
-        this.latitude = activity.latitude;
-        this.longitude = activity.longitude;
-        this.privacyLevel = activity.privacyLevel;
-        this.activityTypes = activity.activityTypes;
-        this.members = activity.members;
-        this.activityParticipations = activity.activityParticipations;
-        this.notifications = activity.notifications;
-    }
 
     public void update(Activity activity) {
         this.activityName = activity.activityName;

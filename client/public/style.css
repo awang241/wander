@@ -13,3 +13,9 @@ body {
     border-radius: 10px;
     position: center;
 }
+
+button:hover {
+    background-color: #38b6ff;
+}
+
+

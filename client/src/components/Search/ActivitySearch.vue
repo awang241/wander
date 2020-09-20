@@ -44,14 +44,13 @@
 </template>
 
 <script>
-import googleMapsInit from '../../utils/googlemaps'
-import MapPane from "../MapPane";
-import ActivityTypesField from "../ActivityTypesField";
-import Api from "../../Api";
-import store from "../../store";
-import toastMixin from "../..//mixins/toastMixin";
-import AutoCompleteLocation  from "../AutoCompleteLocation";
-
+    import googleMapsInit from '../../utils/googlemaps'
+    import MapPane from "../Location/MapPane";
+    import ActivityTypesField from "./SearchReusables/ActivityTypesField";
+    import Api from "../../Api";
+    import store from "../../store";
+    import toastMixin from "../..//mixins/toastMixin";
+    import AutoCompleteLocation from "../Location/AutoCompleteLocation";
 
 export default {
   name: "ActivitySearch",

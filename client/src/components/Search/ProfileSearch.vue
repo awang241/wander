@@ -69,16 +69,16 @@
 
 <script>
     import Api from "../../Api";
-    import ProfileSummary from "../ProfileSummary";
-    import Observer from "../Observer";
+    import ProfileSummary from "../Summaries/ProfileSummary";
+    import Observer from "../Misc/Observer";
     import toastMixin from "../../mixins/toastMixin";
     import {eventBus} from "../../main";
-    import NavBar from "../NavBar";
+    import NavBar from "../General/NavBar";
     import store from "../../store";
-    import Profile from "../Profile";
-    import EditProfile from "../EditProfile/EditProfile";
+    import Profile from "../Profile/Profile";
+    import EditProfile from "../Profile/EditProfile/EditProfile";
     import router from "../../router";
-    import ActivityTypesField from "../ActivityTypesField";
+    import ActivityTypesField from "./SearchReusables/ActivityTypesField";
 
     const DEFAULT_RESULT_COUNT = 10
 

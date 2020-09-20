@@ -1,5 +1,5 @@
 import { shallowMount } from '@vue/test-utils'
-import EditEmails from "../../src/components/EditProfile/EditEmails";
+import EditEmails from "../../src/components/Profile/EditProfile/EditEmails";
 
 let wrapper;
 
