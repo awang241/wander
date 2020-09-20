@@ -21,8 +21,23 @@
                  :info-window-content="this.informationWindowData"></MapPane>
       </div>
       <div style="width: 50%;float: right; height: auto;">
-<!--        This block will be used to hold the activity summary objects. Need to find a way to have the map display over the container as it looks weird otherwise.-->
-<!--        <h2>The quick brown fox jumped over the lazy dog.</h2>-->
+        <div id="results" v-if="activityResults.length">
+          <h1><b>Activities returned from Search:</b></h1>
+          <br>
+          <div style="overflow-y: auto; overflow-x: hidden">
+            <div
+                    v-for="activity in activityResults"
+                    :key="activity.id">
+              <ActivitySummary :activity="activity">
+              </ActivitySummary>
+              <br>
+            </div>
+          </div>
+
+        </div>
+        <div v-else id="noMatches">
+          <h1><b>{{noActivitiesInRangeString}}</b></h1>
+        </div>
       </div>
     </div>
 
@@ -34,7 +49,7 @@
       <b-field style="float:left">
         <b-button type="is-danger" @click="clearLocation()">Clear</b-button>
       </b-field>
-      <b-field style="float:right">
+      <b-field style="float:right;">
         <b-button type="is-primary" @click="search()">Search</b-button>
       </b-field>
       <br>
@@ -44,7 +59,8 @@
 </template>
 
 <script>
-    import googleMapsInit from '../../utils/googlemaps'
+    import ActivitySummary from '../Summaries/ActivitySummary';
+    import googleMapsInit from '../../utils/googlemaps';
     import MapPane from "../Location/MapPane";
     import ActivityTypesField from "./SearchReusables/ActivityTypesField";
     import Api from "../../Api";
@@ -55,7 +71,7 @@
 export default {
   name: "ActivitySearch",
   components: {
-    MapPane, ActivityTypesField, AutoCompleteLocation
+    MapPane, ActivityTypesField, AutoCompleteLocation, ActivitySummary
   },
   mixins: [toastMixin],
   data() {
@@ -69,7 +85,8 @@ export default {
       store: store,
       profileLocationLatLong: null,
       locationString: "",
-      informationWindowData: ""
+      informationWindowData: "",
+      noActivitiesInRangeString: "Please click the 'Search' button below!"
 
     }
   },
@@ -82,13 +99,15 @@ export default {
     search() {
       const searchParameters = this.getSearchParameters();
       Api.getActivitiesByLocation(localStorage.getItem('authToken'), searchParameters).then(response => {
-        if (response.data.results) {
-          this.activityResults = response.data.results;
+        if (response.data.length) {
+          this.activityResults = response.data;
           let result;
           for (result in this.activityResults) {
             let myLatLng = {lat: result.latitude, lng: result.longitude};
             this.$refs.map.createSingleMarker({position: myLatLng, title: result.activityName, id: result.id});
           }
+        } else {
+          this.noActivitiesInRangeString = "Sorry, your search didn't return any activities in the specified range."
         }
 
 
