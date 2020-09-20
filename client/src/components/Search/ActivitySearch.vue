@@ -36,7 +36,7 @@
 
         </div>
         <div v-else id="noMatches">
-          <h1><b>{{noActivitiesInRangeString}}</b></h1>
+          <h1><b>{{searchResultString}}</b></h1>
         </div>
       </div>
     </div>
@@ -86,7 +86,7 @@ export default {
       profileLocationLatLong: null,
       locationString: "",
       informationWindowData: "",
-      noActivitiesInRangeString: "Please click the 'Search' button below!"
+      searchResultString: "Please click the 'Search' button below!"
 
     }
   },
@@ -105,12 +105,12 @@ export default {
           this.activityResults = response.data;
           // add new pins
           for (let i = 0; i < this.activityResults.length; i++) {
-              let myLatLng = {lat: this.activityResults[i].latitude, lng: this.activityResults[i].longitude};
-              this.$refs.map.createSingleMarker({position: myLatLng, text: this.activityResults[i].activityName, id: this.activityResults[i].id});
+              let activityLatLong = {lat: this.activityResults[i].latitude, lng: this.activityResults[i].longitude};
+              this.$refs.map.createSingleMarker({position: activityLatLong, text: this.activityResults[i].activityName, id: this.activityResults[i].id});
           }
         } else {
           this.activityResults = [];
-          this.noActivitiesInRangeString = "Sorry, your search didn't return any activities in the specified range."
+          this.searchResultString = "Sorry, your search didn't return any activities in the specified range."
         }
       })
     },
