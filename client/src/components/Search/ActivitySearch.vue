@@ -97,16 +97,15 @@ export default {
       this.chosenActivityTypes = []
     },
     search() {
+      // remove old pins
+      this.$refs.map.clearAdditionalMarkers();
       const searchParameters = this.getSearchParameters();
       Api.getActivitiesByLocation(localStorage.getItem('authToken'), searchParameters).then(response => {
         if (response.data.length) {
           this.activityResults = response.data;
-          let lats = [];
-          let lngs = [];
+          // add new pins
           for (let i = 0; i < this.activityResults.length; i++) {
               let myLatLng = {lat: this.activityResults[i].latitude, lng: this.activityResults[i].longitude};
-              lats.push(this.activityResults[i].latitude);
-              lngs.push(this.activityResults[i].longitude);
               this.$refs.map.createSingleMarker({position: myLatLng, text: this.activityResults[i].activityName, id: this.activityResults[i].id});
           }
         } else {

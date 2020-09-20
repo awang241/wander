@@ -65,6 +65,7 @@
                 locationChoiceMarker: null,
                 map: null,
                 google: null,
+                // keeps track of pins on map
                 markers: []
             }
         },
@@ -144,6 +145,7 @@
                     infowindow.open(this.map, marker);
                 });
                 marker.setMap(this.map);
+                // add markers to list so that we can select what pins to remove
                 this.markers.push(marker);
             },
             //Method that should show users profile, or route to their profile in the future
@@ -168,8 +170,12 @@
                 this.map.setZoom(DEFAULT_ZOOM);
                 this.map.setCenter(DEFAULT_LOCATION)
             },
-            createMarkerCluster() {
-                //implement this later if needed
+            // method is used to remove the additional pins from the map when the search is reset
+            clearAdditionalMarkers() {
+                for (let i = 1; i < this.markers.length; i++) {
+                    this.markers[i].setMap(null);
+                    this.markers.splice(i, 1);
+                }
             }
         }
     }
