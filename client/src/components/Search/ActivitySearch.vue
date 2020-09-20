@@ -22,7 +22,6 @@
       </div>
       <div style="width: 50%;float: right; height: auto;">
 <!--        This block will be used to hold the activity summary objects. Need to find a way to have the map display over the container as it looks weird otherwise.-->
-<!--        <h2>The quick brown fox jumped over the lazy dog.</h2>-->
       </div>
     </div>
 
@@ -53,6 +52,7 @@
     import AutoCompleteLocation from "../Location/AutoCompleteLocation";
 
 export default {
+
   name: "ActivitySearch",
   components: {
     MapPane, ActivityTypesField, AutoCompleteLocation
@@ -95,8 +95,9 @@ export default {
       })
     },
     getSearchParameters() {
+      const M_TO_KM = 1000;
       const searchParameters = {};
-      searchParameters.distance = this.maxDistance * 1000
+      searchParameters.distance = this.maxDistance * M_TO_KM
       searchParameters.latitude = this.profileLocationLatLong.lat
       searchParameters.longitude = this.profileLocationLatLong.lng
       if (this.chosenActivityTypes.length > 0) {
