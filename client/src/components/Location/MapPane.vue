@@ -177,8 +177,8 @@
             clearAdditionalMarkers() {
                 for (let i = 1; i < this.markers.length; i++) {
                     this.markers[i].setMap(null);
-                    this.markers.splice(i, 1);
                 }
+                this.markers = [this.markers[0]];
             }
         }
     }
