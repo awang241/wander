@@ -14,14 +14,13 @@
                         :chosenActivityTypes="chosenActivityTypes"
                         :activitySearchType="activitySearchType"></ActivityTypesField>
     <br>
+
     <div style="margin: auto; min-height: 500px;">
-      <div style="width: 50%;float: left; height: 300px;">
-        <MapPane ref="map" marker-label="Profile Location" :location-choice-coordinates="profileLocationLatLong" v-bind:address="this.profile.location.address"
-                 v-on:locationChoiceChanged="updateLocation"
-                 :info-window-content="this.informationWindowData" :default_width="500" :default_height="500"></MapPane>
-      </div>
+      <MapPane ref="map" marker-label="Profile Location" :location-choice-coordinates="profileLocationLatLong" v-bind:address="this.profile.location.address"
+               v-on:locationChoiceChanged="updateLocation"
+               :info-window-content="this.informationWindowData" :default_width="500" :default_height="500"></MapPane>
       <div style="width: 50%;float: right; height: auto;">
-<!--        This block will be used to hold the activity summary objects. Need to find a way to have the map display over the container as it looks weird otherwise.-->
+        <!--        This block will be used to hold the activity summary objects. Need to find a way to have the map display over the container as it looks weird otherwise.-->
       </div>
     </div>
 
