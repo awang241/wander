@@ -109,6 +109,7 @@ export default {
               this.$refs.map.createSingleMarker({position: myLatLng, text: this.activityResults[i].activityName, id: this.activityResults[i].id});
           }
         } else {
+          this.activityResults = [];
           this.noActivitiesInRangeString = "Sorry, your search didn't return any activities in the specified range."
         }
       })
