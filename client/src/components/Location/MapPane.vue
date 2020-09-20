@@ -16,24 +16,6 @@
     const DEFAULT_LOCATION = {lat: -43.4341, lng: 172.6397}
     const DEFAULT_ZOOM = 4;
 
-    const locations = [
-        {
-            position: {
-                lat: 48.160910,
-                lng: 16.383330,
-            },
-            text: "Marker one",
-            id: 7
-        },
-        {
-            position: {
-                lat: 68.174270,
-                lng: 16.329620,
-            },
-            text: "Marker two",
-            id: 8
-        },
-    ];
     export default {
         name: "MapPane",
         components: {VueResizable},
@@ -85,7 +67,6 @@
         async mounted() {
             this.google = await googleMapsInit()
             await this.createMap()
-            this.createMarkers()
             if (this.locationChoiceCoordinates) {
                 this.setLocationWithMarker(this.locationChoiceCoordinates)
             }
@@ -107,7 +88,7 @@
               if (!this.locationChoiceMarker) {
                 this.locationChoiceMarker = new this.google.maps.Marker({
                   position: position,
-                  label: {text: this.markerLabel},
+                  icon: {url: "http://maps.google.com/mapfiles/kml/paddle/red-circle.png"}
                 });
                 this.locationChoiceMarker.setMap(this.map)
               } else if (this.locationChoiceMarker.map === null) {
@@ -128,12 +109,8 @@
                     this.setLocationWithMarker(e.latLng);
                 })
             },
-            //Loops through locations and creates marker for each one
-            createMarkers() {
-                locations.forEach(location => this.createSingleMarker(location))
-            },
             //Creates a singular marker on the map
-            createSingleMarker({position, text, id}) {
+            createSingleMarker({position, id}) {
                 //content is just a place holder
                 const infowindow = new this.google.maps.InfoWindow({
                     content: "contentString"
@@ -141,8 +118,8 @@
                 const marker = new this.google.maps.Marker({
                     position: position,
                     map: this.map,
-                    label: {text: text},
-                    id: id
+                    id: id,
+                    icon: {url: "http://maps.google.com/mapfiles/kml/paddle/blu-circle.png"}
                 });
                 marker.addListener("click", () => {
                     infowindow.open(this.map, marker);
