@@ -101,10 +101,13 @@ export default {
       Api.getActivitiesByLocation(localStorage.getItem('authToken'), searchParameters).then(response => {
         if (response.data.length) {
           this.activityResults = response.data;
-          let result;
-          for (result in this.activityResults) {
-            let myLatLng = {lat: result.latitude, lng: result.longitude};
-            this.$refs.map.createSingleMarker({position: myLatLng, title: result.activityName, id: result.id});
+          let lats = [];
+          let lngs = [];
+          for (let i = 0; i < this.activityResults.length; i++) {
+              let myLatLng = {lat: this.activityResults[i].latitude, lng: this.activityResults[i].longitude};
+              lats.push(this.activityResults[i].latitude);
+              lngs.push(this.activityResults[i].longitude);
+              this.$refs.map.createSingleMarker({position: myLatLng, text: this.activityResults[i].activityName, id: this.activityResults[i].id});
           }
         } else {
           this.noActivitiesInRangeString = "Sorry, your search didn't return any activities in the specified range."

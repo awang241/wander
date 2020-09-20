@@ -64,7 +64,8 @@
                 width: DEFAULT_WIDTH,
                 locationChoiceMarker: null,
                 map: null,
-                google: null
+                google: null,
+                markers: []
             }
         },
 
@@ -142,7 +143,8 @@
                 marker.addListener("click", () => {
                     infowindow.open(this.map, marker);
                 });
-                marker.setMap(this.map)
+                marker.setMap(this.map);
+                this.markers.push(marker);
             },
             //Method that should show users profile, or route to their profile in the future
             openDetailedMarkerView(id) {
@@ -165,6 +167,9 @@
                 this.locationChoiceMarker.setMap(null)
                 this.map.setZoom(DEFAULT_ZOOM);
                 this.map.setCenter(DEFAULT_LOCATION)
+            },
+            createMarkerCluster() {
+                //implement this later if needed
             }
         }
     }
