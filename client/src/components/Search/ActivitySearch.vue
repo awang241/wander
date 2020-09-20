@@ -18,7 +18,7 @@
       <div style="width: 50%;float: left; height: 300px;">
         <MapPane ref="map" marker-label="Profile Location" :location-choice-coordinates="profileLocationLatLong" v-bind:address="this.profile.location.address"
                  v-on:locationChoiceChanged="updateLocation"
-                 :info-window-content="this.informationWindowData"></MapPane>
+                 :info-window-content="this.informationWindowData" :default_width="500" :default_height="500"></MapPane>
       </div>
       <div style="width: 50%;float: right; height: auto;">
 <!--        This block will be used to hold the activity summary objects. Need to find a way to have the map display over the container as it looks weird otherwise.-->
@@ -52,7 +52,6 @@
     import AutoCompleteLocation from "../Location/AutoCompleteLocation";
 
 export default {
-
   name: "ActivitySearch",
   components: {
     MapPane, ActivityTypesField, AutoCompleteLocation
@@ -90,8 +89,6 @@ export default {
             this.$refs.map.createSingleMarker({position: myLatLng, title: result.activityName, id: result.id});
           }
         }
-
-
       })
     },
     getSearchParameters() {

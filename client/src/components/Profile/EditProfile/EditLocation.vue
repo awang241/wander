@@ -11,9 +11,9 @@
              marker-label="Profile Location"
              :location-choice-coordinates="profileLocationLatLong"
              v-on:locationChoiceChanged="updateLocation"
-             ref="map"></MapPane>
+             ref="map"
+             :default_height="600"></MapPane>
     <br>
-
     <div class="row">
       <br>
       <b-field style="float:left">
