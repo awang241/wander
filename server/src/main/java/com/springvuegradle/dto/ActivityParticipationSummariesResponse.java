@@ -1,6 +1,5 @@
 package com.springvuegradle.dto;
 
-import com.springvuegradle.model.Activity;
 import com.springvuegradle.model.ActivityParticipation;
 
 import java.util.List;
@@ -36,9 +35,6 @@ public class ActivityParticipationSummariesResponse {
         this.message = message;
     }
 
-    public List<ActivityParticipation> getResults() {
-        return results;
-    }
     /**
      * Returns all of a users participation of an activity.
      * @return

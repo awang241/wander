@@ -121,7 +121,7 @@ class ActivityNotificationServiceTest {
         long activityId = aRepo.getLastInsertedId();
         ActivityParticipation participation = ActivityTestUtils.createNormalParticipation();
         aService.createParticipation(activityId, profileId, participation);
-        assertEquals(NotificationType.ParticipantCreated, nRepo.findAll().get(1).getNotificationType());
+        assertEquals(NotificationType.PARTICIPANT_CREATED, nRepo.findAll().get(1).getNotificationType());
     }
 
     /**
@@ -155,7 +155,7 @@ class ActivityNotificationServiceTest {
         long participationId = activityParticipation.getId();
         ActivityParticipation editedParticipation = ActivityTestUtils.createEditedNormalParticipation();
         aService.editParticipation(activityId, profileId, participationId, editedParticipation);
-        assertEquals(NotificationType.ParticipationEdited, nRepo.findAll().get(2).getNotificationType());
+        assertEquals(NotificationType.PARTICIPATION_EDITED, nRepo.findAll().get(2).getNotificationType());
     }
 
     /**
@@ -179,7 +179,7 @@ class ActivityNotificationServiceTest {
         Profile profile = pRepo.save(ben);
         Activity activity = aRepo.save(createNormalActivity());
         aService.addActivityRole(activity.getId(), profile.getId(), "follower");
-        assertEquals(NotificationType.ActivityFollowerAdded, nRepo.findAll().get(0).getNotificationType());
+        assertEquals(NotificationType.ACTIVITY_FOLLOWER_ADDED, nRepo.findAll().get(0).getNotificationType());
     }
 
     /**

@@ -8,9 +8,7 @@ import com.springvuegradle.model.ActivityMembership;
 import com.springvuegradle.model.Notification;
 import com.springvuegradle.model.Profile;
 import com.springvuegradle.repositories.*;
-import org.aspectj.weaver.ast.Not;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -88,12 +86,42 @@ public class NotificationService {
      * @param notificationsList the list of notifications to be sorted
      */
     private void sortNotifications(List<Notification> notificationsList) {
-        Collections.sort(notificationsList, new Comparator<Notification>() {
-            @Override
-            public int compare(Notification o1, Notification o2)
-            {
-                return o2.getTimeStamp().compareTo(o1.getTimeStamp());
-            }
-        });
+        Collections.sort(notificationsList, (o1, o2) -> o2.getTimeStamp().compareTo(o1.getTimeStamp()));
+    }
+
+    /**
+     * Returns the notification type generated when an activity membership is created with the given role.
+     * @param role The given role as an enum.
+     * @return the notification type generated when an activity membership is created with the given role.
+     */
+    public static NotificationType getTypeForAddingRole(ActivityMembership.Role role) {
+        NotificationType notificationType;
+        switch (role) {
+            case FOLLOWER:
+                notificationType = NotificationType.ACTIVITY_FOLLOWER_ADDED;
+                break;
+            case ORGANISER:
+                notificationType = NotificationType.ACTIVITY_ORGANISER_ADDED;
+                break;
+            case PARTICIPANT:
+                notificationType = NotificationType.ACTIVITY_PARTICIPANT_ADDED;
+                break;
+            case CREATOR:
+                notificationType = NotificationType.ACTIVITY_CREATOR_ADDED;
+                break;
+            default:
+                throw new IllegalArgumentException(ActivityMessage.INVALID_ROLE.getMessage());
+        }
+        return notificationType;
+    }
+
+    /**
+     * Returns the notification type generated when an activity membership is created with the given role.
+     * @param roleName The name of the given role.
+     * @return the notification type generated when an activity membership is created with the given role.
+     */
+    public static NotificationType getTypeForAddingRole(String roleName) {
+        ActivityMembership.Role role = ActivityMembership.Role.valueOf(roleName.toUpperCase());
+        return getTypeForAddingRole(role);
     }
 }

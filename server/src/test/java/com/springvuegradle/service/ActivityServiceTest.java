@@ -2,10 +2,10 @@ package com.springvuegradle.service;
 
 import com.springvuegradle.controller.ActivityController;
 import com.springvuegradle.dto.ActivityRoleCountResponse;
+import com.springvuegradle.dto.responses.ActivityMemberProfileResponse;
 import com.springvuegradle.enums.ActivityMessage;
 import com.springvuegradle.enums.ActivityPrivacy;
-import com.springvuegradle.model.*;
-import com.springvuegradle.dto.responses.ActivityMemberProfileResponse;
+import com.springvuegradle.enums.NotificationType;
 import com.springvuegradle.model.*;
 import com.springvuegradle.repositories.*;
 import com.springvuegradle.utilities.ActivityTestUtils;
@@ -18,11 +18,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.util.StringUtils;
 
 import java.security.AccessControlException;
 import java.util.*;
@@ -873,7 +872,7 @@ class ActivityServiceTest {
      * Tests that an exception error is thrown when attempting to change a role of a non existent user.
      */
     @Test
-    void setProfileRoleForNonexistentMembershipThrowsIllegalArgumentExceptionTest() {
+    void setProfileRoleForNonexistentProfileThrowsNoSuchElementExceptionTest() {
         Profile editor = profileRepository.save(createNormalProfileBen());
         assertThrows(IllegalArgumentException.class, ()-> service.setProfileRole(0, editor.getId(), 3, ActivityMembership.Role.FOLLOWER));
     }
@@ -900,11 +899,71 @@ class ActivityServiceTest {
         }
     }
 
+    @Test
+    void setProfileRoleWhenProfileIsNotAnActivityMemberThrowsNoSuchElementExceptionTest() {
+        Profile creator = profileRepository.save(createNormalProfileBen());
+        Profile follower = profileRepository.save(createNormalProfileJohnny());
+        Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        ActivityMembership creatorMembership = new ActivityMembership(activity, creator, ActivityMembership.Role.CREATOR);
+        activityMembershipRepository.save(creatorMembership);
+
+        assertThrows(NoSuchElementException.class, () ->
+                service.setProfileRole(follower.getId(), creator.getId(), activity.getId(), ActivityMembership.Role.PARTICIPANT));
+    }
+
+    @Test
+    void setProfileRoleWhenChangingOwnActivityMembershipCreatesCorrectNotificationTest() {
+        Profile follower = profileRepository.save(createNormalProfileJohnny());
+        Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        ActivityMembership followerMembership = new ActivityMembership(activity, follower, ActivityMembership.Role.FOLLOWER);
+        activityMembershipRepository.save(followerMembership);
+
+        String followerName = follower.getFirstAndLastName();
+        String roleName = StringUtils.capitalize(ActivityMembership.Role.PARTICIPANT.toString().toLowerCase());
+        String message = String.format("%s changed their role in %s to %s.", followerName, activity.getActivityName(), roleName);
+        NotificationType type = NotificationService.getTypeForAddingRole(ActivityMembership.Role.PARTICIPANT);
+
+        service.setProfileRole(follower.getId(), follower.getId(), activity.getId(), ActivityMembership.Role.PARTICIPANT);
+        Notification expectedNotification = new Notification(message, activity, follower, type);
+        Optional<Notification> result = notificationRepository.findById(notificationRepository.getLastInsertedId());
+        if (result.isEmpty()) {
+            fail("Test notification could not be found");
+        } else {
+            assertTrue(expectedNotification.equalsExceptTimestamp(result.get()));
+        }
+    }
+
+    @Test
+    void setProfileRoleWhenChangingAnotherMembersActivityMembershipCreatesCorrectNotificationTest() {
+        Profile creator = profileRepository.save(createNormalProfileBen());
+        Profile follower = profileRepository.save(createNormalProfileJohnny());
+        Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        ActivityMembership creatorMembership = new ActivityMembership(activity, creator, ActivityMembership.Role.CREATOR);
+        ActivityMembership followerMembership = new ActivityMembership(activity, follower, ActivityMembership.Role.FOLLOWER);
+        activityMembershipRepository.save(creatorMembership);
+        activityMembershipRepository.save(followerMembership);
+
+        String followerName = follower.getFirstAndLastName();
+        String roleName = StringUtils.capitalize(ActivityMembership.Role.PARTICIPANT.toString().toLowerCase());
+        String message = String.format("%s had their role in %s changed to %s.", followerName, activity.getActivityName(), roleName);
+        NotificationType type = NotificationService.getTypeForAddingRole(ActivityMembership.Role.PARTICIPANT);
+
+        service.setProfileRole(follower.getId(), creator.getId(), activity.getId(), ActivityMembership.Role.PARTICIPANT);
+        Notification expectedNotification = new Notification(message, activity, creator, type);
+        Optional<Notification> result = notificationRepository.findById(notificationRepository.getLastInsertedId());
+        if (result.isEmpty()) {
+            fail("Test notification could not be found");
+        } else {
+            assertTrue(expectedNotification.equalsExceptTimestamp(result.get()));
+        }
+
+    }
+
     /**
      * Tests that setting a role to an ORGANISER as an ADMIN works.
      */
     @Test
-    void setProfileRoleToOrganiserAsAdmin() {
+    void setProfileRoleToOrganiserAsAdminSucceedsTest() {
         Profile admin = profileRepository.save(createNormalProfileBen());
         admin.setAuthLevel(1);
         Profile follower = profileRepository.save(createNormalProfileJohnny());
@@ -920,7 +979,7 @@ class ActivityServiceTest {
      * Tests that setting a role to an ORGANISER as a CREATOR works.
      */
     @Test
-    void setProfileRoleToOrganiserAsCreator() {
+    void setProfileRoleToOrganiserAsCreatorSucceedsTest() {
         Profile creator = profileRepository.save(createNormalProfileBen());
         Profile follower = profileRepository.save(createNormalProfileJohnny());
         Activity activity = activityRepository.save(createNormalActivityKaikoura());
@@ -1050,10 +1109,6 @@ class ActivityServiceTest {
         assertEquals(expectedProfiles.size(),actualProfiles.getSize());
     }
 
-    @Test
-    void deleteMembersFromActivityAsAdminTest(){
-
-    }
 
     @Test
     void getActivityMembersByRoleWithPaginationNormalTest() {
@@ -1098,7 +1153,7 @@ class ActivityServiceTest {
 
     @Test
     void clearRolesOfActivityThatDoesntExistThrowsExceptionTest(){
-        assertThrows(IllegalArgumentException.class, ()-> service.clearActivityRoleList(915730971L, "FOLLOWER"));
+        assertThrows(IllegalArgumentException.class, ()-> service.clearActivityRoleList(1l,915730971L, "FOLLOWER"));
     }
 
     /**
@@ -1109,6 +1164,81 @@ class ActivityServiceTest {
         ActivityParticipation participation = createNormalParticipationWithoutProfileActivity();
         activityParticipationRepository.save(participation);
         assertEquals(participation, service.readParticipation(participation.getId()));
+    }
+
+    @Test
+    void getActivityTypesWithInvalidTypeThrowsExceptionTest(){
+        assertThrows(IllegalArgumentException.class, ()->service.getActivityTypesFromStringArray(new String[] {"beans"}));
+    }
+
+    @Test
+    void getActivityTypesWithEmptyArrayReturnsEmptyListTest(){
+        String[] emptyArray = {};
+        assertTrue(service.getActivityTypesFromStringArray(emptyArray).size() == 0);
+    }
+
+    @Test
+    void getActivityTypesWithSingleTypeTest(){
+        List<ActivityType> types = service.getActivityTypesFromStringArray(new String[] {"Tramping"});
+        assertTrue(types.size() == 1);
+        assertEquals("Tramping", types.get(0).getActivityTypeName());
+
+    }
+
+    @Test
+    void getActivityTypesWithMultipleTypesTest(){
+        List<ActivityType> types = service.getActivityTypesFromStringArray(new String[] {"Tramping", "Yoga"});
+        assertTrue(types.size() == 2);
+        assertEquals("Tramping", types.get(0).getActivityTypeName());
+        assertEquals("Yoga", types.get(1).getActivityTypeName());
+    }
+
+
+    @Test
+    void filterByActivityTypesWithEmptyTypeListTest(){
+        Activity activityOne = activityRepository.save(createNormalActivity());
+        Activity activityTwo = activityRepository.save(createNormalActivity());
+        assertEquals(service.filterActivitiesByActivityTypes(List.of(activityOne, activityTwo), new ArrayList<ActivityType>(), "all"), List.of(activityOne, activityTwo));
+    }
+
+    @Test
+    void filterByAllActivityTypesTest(){
+        Activity activityOne = activityRepository.save(createNormalActivity());
+        Activity activityTwo = activityRepository.save(createNormalActivity());
+        Activity activityThree = activityRepository.save(createNormalActivity());
+        ActivityType xbox = new ActivityType("xbox");
+        ActivityType playstation = new ActivityType("playstation");
+        typeRepository.save(xbox);
+        typeRepository.save(playstation);
+        activityOne.addActivityType(xbox);
+        activityOne.addActivityType(playstation);
+        activityTwo.addActivityType(xbox);
+        activityRepository.save(activityOne);
+        activityRepository.save(activityTwo);
+        ArrayList<ActivityType> requiredActivityTypes = new ArrayList<>();
+        requiredActivityTypes.add(xbox);
+        requiredActivityTypes.add(playstation);
+        assertEquals(service.filterActivitiesByActivityTypes(List.of(activityOne, activityTwo, activityThree), requiredActivityTypes, "all"), List.of(activityOne));
+    }
+
+    @Test
+    void filterByAnyActivityTypeTest(){
+        Activity activityOne = activityRepository.save(createNormalActivity());
+        Activity activityTwo = activityRepository.save(createNormalActivity());
+        Activity activityThree = activityRepository.save(createNormalActivity());
+        ActivityType xbox = new ActivityType("xbox");
+        ActivityType playstation = new ActivityType("playstation");
+        typeRepository.save(xbox);
+        typeRepository.save(playstation);
+        activityOne.addActivityType(xbox);
+        activityOne.addActivityType(playstation);
+        activityTwo.addActivityType(xbox);
+        activityRepository.save(activityOne);
+        activityRepository.save(activityTwo);
+        ArrayList<ActivityType> requiredActivityTypes = new ArrayList<>();
+        requiredActivityTypes.add(xbox);
+        requiredActivityTypes.add(playstation);
+        assertEquals(service.filterActivitiesByActivityTypes(List.of(activityOne, activityTwo, activityThree), requiredActivityTypes, "any"), List.of(activityOne, activityTwo));
     }
 
     /**
@@ -1229,7 +1359,6 @@ class ActivityServiceTest {
         }
         return actualActivity;
     }
-
 
     public static Profile createNormalProfileBen() {
 

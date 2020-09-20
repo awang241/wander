@@ -1,5 +1,5 @@
 import {createLocalVue, shallowMount} from '@vue/test-utils'
-import Notification from "../../src/components/Notification";
+import Notification from "../../src/components/Misc/Notification";
 import dateTimeMixin from "../../src/mixins/dateTimeMixin";
 import Vuex from 'vuex';
 

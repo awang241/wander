@@ -60,20 +60,20 @@ public class Activity {
     /**
      * Each activity object can have multiple activities.
      */
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinTable(name = "activity_activity_type",
             inverseJoinColumns = @JoinColumn(name = "activity_type_id", referencedColumnName = "id"),
             joinColumns = @JoinColumn(name = "activity_id", referencedColumnName = "id"))
     private Set<ActivityType> activityTypes;
 
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "activity")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "activity")
     private Set<ActivityMembership> members;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "activity")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "activity")
     private Set<ActivityParticipation> activityParticipations = new HashSet<>();
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "activity")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "activity")
     private Set<Notification> notifications = new HashSet<>();
 
     public Activity(){}
@@ -114,6 +114,7 @@ public class Activity {
         this.longitude = longitude;
         this.members = new HashSet<>();
     }
+
 
     public void update(Activity activity) {
         this.activityName = activity.activityName;
@@ -200,15 +201,17 @@ public class Activity {
         return location;
     }
 
+
+    public Double getLongitude(){
+        return longitude;
+    }
+
     public void setLocation(String location) {
         this.location = location;
     }
 
-    public double getLatitude() { return latitude; }
-
     public void setLatitude(double latitude) { this.latitude = latitude; }
 
-    public double getLongitude() { return longitude; }
 
     public void setLongitude(double longitude) { this.longitude = longitude; }
 
@@ -223,6 +226,10 @@ public class Activity {
             result.add(activityType.getActivityTypeName());
         }
         return result;
+    }
+
+    public Set<ActivityType> getActivityTypeObjects(){
+        return this.activityTypes;
     }
 
     @JsonIgnore
@@ -322,5 +329,9 @@ public class Activity {
 
     public void removeNotification(Notification notification) {
         this.notifications.remove(notification);
+    }
+
+    public double getLatitude() {
+        return latitude;
     }
 }

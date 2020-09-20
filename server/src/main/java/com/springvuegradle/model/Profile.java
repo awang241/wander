@@ -1,6 +1,9 @@
 package com.springvuegradle.model;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.*;
 import javax.validation.constraints.Max;
@@ -122,10 +125,10 @@ public class Profile {
     @JoinColumn(name = "location_id", referencedColumnName = "id")
     private ProfileLocation location;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "profile")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "profile")
     private Set<ActivityMembership> activities = new HashSet<>();
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "profile")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "profile")
     private Set<ActivityParticipation> activityParticipations = new HashSet<>();
 
     @ManyToMany(mappedBy = "recipients")
@@ -198,14 +201,15 @@ public class Profile {
      * Adds the email to the set. Does not check repository to see if the email address is already in use. Trying to keep
      * db related queries in Controller classes. Though, it does check if the email is already in the list of emails as
      * well as if the list of emails is already at the max capacity (5).
-     * @param email
-     * @return
+     * @param email The email being added to this profile
+     * @return True if the email was successfully added; false otherwise
      */
     public boolean addEmail(Email email) {
         boolean alreadyInEmails = false;
         for (Email tEmail: emails) {
             if (tEmail.getAddress().equals(email.getAddress())) {
                 alreadyInEmails = true;
+                break;
             }
         }
         if (alreadyInEmails || emails.size() >= 5) {
@@ -417,6 +421,14 @@ public class Profile {
         return firstname;
     }
 
+    /**
+     * Returns the first and last names of the profile, separated by a space.
+     * @return the first and last names of the profile, separated by a space.
+     */
+    public String getFirstAndLastName() {
+        return getFirstname() + " " + getLastname();
+    }
+
     public void setFirstname(String firstname) {
         this.firstname = firstname;
     }
@@ -448,6 +460,7 @@ public class Profile {
     public String getNickname() {
         return nickname;
     }
+
 
     public void setNickname(String nickname) {
         this.nickname = nickname;
@@ -546,7 +559,7 @@ public class Profile {
         return notifications.add(notification);
     }
 
-    public boolean removeNotification(Notification participation) {
-        return activityParticipations.remove(participation);
+    public boolean removeNotification(Notification notification) {
+        return notifications.remove(notification);
     }
 }

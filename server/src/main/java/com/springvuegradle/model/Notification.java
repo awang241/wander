@@ -7,7 +7,10 @@ import com.springvuegradle.enums.NotificationType;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 
 @Entity
@@ -27,12 +30,12 @@ public class Notification {
     @NotNull
     private String message;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "activity_id")
     @JsonBackReference(value = "activity")
     private Activity activity;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "profile_id")
     @JsonBackReference(value = "profile")
     private Profile profile;
@@ -41,7 +44,7 @@ public class Notification {
      * Holds the user's notifications and estabishes a Many to Many relationship as a Profile object can be associated with
      * multiple Notifications.
      */
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "profile_notification",
             inverseJoinColumns = @JoinColumn(name = "notification_id", referencedColumnName = "id"),
             joinColumns = @JoinColumn(name = "profile_id", referencedColumnName = "id"))
@@ -61,7 +64,7 @@ public class Notification {
         this.activity = activity;
         this.profile = profile;
         this.notificationType = notificationType;
-    };
+    }
 
     public Notification() {}
 
@@ -69,6 +72,18 @@ public class Notification {
     public int hashCode() {
         return Objects.hash(id, message, activity, profile, notificationType);
     }
+
+    @Override
+    public boolean equals(Object o){
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Notification comparedNotification = (Notification)o;
+        return ((message.equals(comparedNotification.message))&&
+                (activity.equals(comparedNotification.activity))&&
+                (profile.equals(comparedNotification.profile))&&
+                (notificationType.equals(comparedNotification.notificationType)));
+    }
+
 
     public String getMessage() { return message; }
 
@@ -108,4 +123,18 @@ public class Notification {
         return recipients.remove(recipient);
     }
 
+    /**
+     * Returns true if the argument has the same details as this notification, excluding the id and timestamp fields.
+     * This is for testing purposes only - checking if notifications are equal should include checking the timestamps.
+     * @param notification the target notification.
+     * @return true if the argument has the same details as this notification
+     */
+    public boolean equalsExceptTimestamp(Notification notification) {
+        if (notification == null) return false;
+        return this.message.equals(notification.message) &&
+                this.activity.equals(notification.activity) &&
+                this.profile.equals(notification.profile) &&
+                this.recipients.equals(notification.recipients) &&
+                this.notificationType.equals(notification.notificationType);
+    }
 }
