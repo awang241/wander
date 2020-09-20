@@ -1,6 +1,5 @@
 <template>
     <VueResizable
-            style="border: 2px solid black;"
             :width=width
             :height=height
     >
@@ -14,8 +13,6 @@
     import googleMapsInit from '../../utils/googlemaps'
     //Fake data until API endpoint is set up
 
-    const DEFAULT_HEIGHT = 500;
-    const DEFAULT_WIDTH = 1075;
     const DEFAULT_LOCATION = {lat: -43.4341, lng: 172.6397}
     const DEFAULT_ZOOM = 4;
 
@@ -55,13 +52,19 @@
             //Else if pins are made all at once this should be a list of strings
             infoWindowContent: {
                 type: String
-            }
+            },
+          default_width: {
+              type: Number
+          },
+          default_height: {
+              type: Number
+          }
         },
 
         data() {
             return {
-                height: DEFAULT_HEIGHT,
-                width: DEFAULT_WIDTH,
+                height: this.default_height,
+                width: this.default_width,
                 locationChoiceMarker: null,
                 map: null,
                 google: null,
@@ -96,8 +99,8 @@
             //Minimizes the map pane if it is not already minimized
             //Restores the pane to its default size if it is minimized
             resizePane() {
-                this.height = this.height === 0 ? DEFAULT_HEIGHT : 0
-                this.width = this.width === 0 ? DEFAULT_WIDTH : 0
+                this.height = this.height === 0 ? this.default_height : 0
+                this.width = this.width === 0 ? this.default_width : 0
             },
             //Allows user to choose their location by clicking on the map
             setLocationWithMarker(position) {

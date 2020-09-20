@@ -18,7 +18,7 @@
       <div style="width: 50%;float: left; height: 300px;">
         <MapPane ref="map" marker-label="Profile Location" :location-choice-coordinates="profileLocationLatLong" v-bind:address="this.profile.location.address"
                  v-on:locationChoiceChanged="updateLocation"
-                 :info-window-content="this.informationWindowData"></MapPane>
+                 :info-window-content="this.informationWindowData" :default_width="500" :default_height="500"></MapPane>
       </div>
       <div style="width: 50%;float: right; height: auto;">
         <div id="results" v-if="activityResults.length">
@@ -111,13 +111,12 @@ export default {
         } else {
           this.noActivitiesInRangeString = "Sorry, your search didn't return any activities in the specified range."
         }
-
-
       })
     },
     getSearchParameters() {
+      const M_TO_KM = 1000;
       const searchParameters = {};
-      searchParameters.distance = this.maxDistance * 1000
+      searchParameters.distance = this.maxDistance * M_TO_KM
       searchParameters.latitude = this.profileLocationLatLong.lat
       searchParameters.longitude = this.profileLocationLatLong.lng
       if (this.chosenActivityTypes.length > 0) {

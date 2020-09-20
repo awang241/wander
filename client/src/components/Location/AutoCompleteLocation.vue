@@ -60,7 +60,7 @@
                         locationString = locationString + " " + locationObject.address_components[i].long_name
                     } else {
                         if (locationObject.address_components[i].long_name !== locationObject.address_components[i - 1].long_name) {
-                            locationString = locationString + " " + locationObject.address_components[i].long_name + ", ";
+                            locationString = locationString + " " + locationObject.address_components[i].long_name + ",";
                         }
                     }
                 }
@@ -88,7 +88,6 @@
                 await this.checkValidGeoCode(locationAddress)
             },
 
-
             async setLocation() {
                 if (this.profileLocation.address != "") {
                     this.location.address = this.profileLocation.address;
@@ -101,7 +100,6 @@
             clearLocation() {
                 this.location = {location: "", latitude: "", longitude: ""}
             },
-
 
             returnLocation() {
                 return this.location;

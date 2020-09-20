@@ -135,7 +135,7 @@
                         if (this.moreMyActivitiesExist) {
                             let searchParameters = { count: DEFAULT_RESULT_COUNT, startIndex: this.myActivitiesStartIndex, role: role };
                             api.getNextActivities(this.store.getters.getUserId, localStorage.getItem("authToken"), searchParameters).then(response => {
-                                if (response.data.results.length == 0) {
+                                if (response.data.results.length === 0) {
                                     this.moreMyActivitiesExist = false;
                                 } else {
                                     this.myActivitiesStartIndex += DEFAULT_RESULT_COUNT;

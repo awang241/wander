@@ -27,7 +27,14 @@ import dateTimeMixin from "../../mixins/dateTimeMixin";
  * @type {{types: number[], colour: string}}
  */
 const ACTIVITY_ADDITIONS = {
-  types: ['ActivityCreated', 'ActivityOrganiserAdded', 'ActivityCreatorAdded', 'ActivityFollowerAdded', 'ActivityParticipantAdded', 'ParticipantCreated'],
+  types: [
+      'ACTIVITY_CREATED',
+      'ACTIVITY_CREATOR_ADDED',
+      'ACTIVITY_ORGANISER_ADDED',
+      'ACTIVITY_FOLLOWER_ADDED',
+      'ACTIVITY_PARTICIPANT_ADDED',
+      'PARTICIPANT_CREATED'
+  ],
   colour: "#99ff94"
 };
 
@@ -36,7 +43,12 @@ const ACTIVITY_ADDITIONS = {
  * @type {{types: number[], colour: string}}
  */
 const ACTIVITY_REMOVALS = {
-  types: ['ActivityRemoved', 'ActivityOrganiserRemoved', 'ActivityFollowerRemoved', 'ActivityParticipantRemoved'],
+  types: [
+      'ACTIVITY_REMOVED',
+      'ACTIVITY_ORGANISER_REMOVED',
+      'ACTIVITY_FOLLOWER_REMOVED',
+      'ACTIVITY_PARTICIPANT_REMOVED'
+  ],
   colour: "#f56e7a"
 };
 
@@ -45,7 +57,11 @@ const ACTIVITY_REMOVALS = {
  * @type {{types: number[], colour: string}}
  */
 const ACTIVITY_CHANGES = {
-  types: ['ActivityEdited', 'ActivityPrivacyChanged', 'ParticipationEdited'],
+  types: [
+      'ACTIVITY_EDITED',
+      'ACTIVITY_PRIVACY_CHANGED',
+      'PARTICIPATION_EDITED'
+  ],
   colour: "#faf689"
 };
 
@@ -100,6 +116,9 @@ export default {
     }
   },
   methods: {
+      /**
+       * Given an activity's ID, routes to that activity's page.
+       */
     goToActivity(id) {
       router.push({path: 'Activities/' + id})
     },
