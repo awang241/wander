@@ -70,7 +70,9 @@
                 width: this.default_width,
                 locationChoiceMarker: null,
                 map: null,
-                google: null
+                google: null,
+                // keeps track of pins on map
+                markers: []
             }
         },
 
@@ -150,7 +152,9 @@
                 marker.addListener("click", () => {
                     infowindow.open(this.map, marker);
                 });
-                marker.setMap(this.map)
+                marker.setMap(this.map);
+                // add markers to list so that we can select what pins to remove
+                this.markers.push(marker);
             },
             //Method that should show users profile, or route to their profile in the future
             openDetailedMarkerView(id) {
@@ -171,6 +175,13 @@
                 this.locationChoiceMarker.setMap(null)
                 this.map.setZoom(DEFAULT_ZOOM);
                 this.map.setCenter(DEFAULT_LOCATION)
+            },
+            // method is used to remove the additional pins from the map when the search is reset
+            clearAdditionalMarkers() {
+                for (let i = 1; i < this.markers.length; i++) {
+                    this.markers[i].setMap(null);
+                }
+                this.markers = [this.markers[0]];
             }
         }
     }

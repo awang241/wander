@@ -10,13 +10,13 @@
                                 <div class="buttons">
                                     <b-button v-if="userRole !== 'follower'" style="float:right" @click="updateRole(store.getters.getUserId,roles.FOLLOWER)"
                                               id="followButton" type="is-primary">
-                                        Follow
+                                        Become Follower
                                     </b-button>
 
 
                                     <b-button id="participateButton" v-if="userRole !== 'participant'" style="float:right" @click="updateRole(store.getters.getUserId, roles.PARTICIPANT)"
                                               type="is-primary">
-                                        Participate
+                                        Become Participant
                                     </b-button>
 
 
@@ -252,7 +252,8 @@
         CREATOR: "creator",
         ORGANISER: "organiser",
         PARTICIPANT: "participant",
-        FOLLOWER: "follower"
+        FOLLOWER: "follower",
+        NONE: "None"
     });
 
     function RolePagingData() {
@@ -267,7 +268,7 @@
         data() {
             return {
                 roles: ROLES,
-                userRole: null,
+                userRole: ROLES.NONE,
                 activityId: this.$route.params.id,
                 activity: null,
                 activityLocationLatLong: null,
@@ -316,7 +317,7 @@
 
             },
             updateRole(profileId, newRole) {
-                if (this.userRole == null) {
+                if (this.userRole === ROLES.NONE) {
                     this.addRole(newRole);
                 } else if (this.userRole !== newRole) {
                     this.changeRole(profileId, this.userRole, newRole);
