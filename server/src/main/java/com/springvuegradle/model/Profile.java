@@ -425,6 +425,7 @@ public class Profile {
      * Returns the first and last names of the profile, separated by a space.
      * @return the first and last names of the profile, separated by a space.
      */
+    @JsonIgnore
     public String getFirstAndLastName() {
         return getFirstname() + " " + getLastname();
     }
@@ -453,6 +454,7 @@ public class Profile {
         this.middlename = middlename;
     }
 
+    @JsonIgnore
     public String getFullName(){
         return firstname + " " + middlename + " " + lastname;
     }

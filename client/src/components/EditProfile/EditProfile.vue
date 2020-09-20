@@ -5,12 +5,12 @@
     <h3 class="title is-4">Profile Settings</h3>
     <div class="tabs is-centered">
       <ul>
-        <li :class="{'is-active': tabIndex === 0}"><a v-on:click="changeToPersonal">Basic Info</a></li>
-        <li :class="{'is-active': tabIndex === 1}"><a v-on:click="changeToPassword">Change Password</a></li>
-        <li :class="{'is-active': tabIndex === 2}"><a v-on:click="changeToCountries">Passport Countries</a></li>
-        <li :class="{'is-active': tabIndex === 3}"><a v-on:click="changeToActivityTypes">Activity Types</a></li>
-        <li :class="{'is-active': tabIndex === 4}"><a v-on:click="changeToEmail">Emails</a></li>
-        <li :class="{'is-active': tabIndex === 5}"><a v-on:click="changeToLocation">Location</a></li>
+        <li :class="{'is-active': tabIndex === 0}"><a v-on:click="setTabIndex(0)">Basic Info</a></li>
+        <li :class="{'is-active': tabIndex === 1}"><a v-on:click="setTabIndex(1)">Change Password</a></li>
+        <li :class="{'is-active': tabIndex === 2}"><a v-on:click="setTabIndex(2)">Passport Countries</a></li>
+        <li :class="{'is-active': tabIndex === 3}"><a v-on:click="setTabIndex(3)">Activity Types</a></li>
+        <li :class="{'is-active': tabIndex === 4}"><a v-on:click="setTabIndex(4)">Emails</a></li>
+        <li :class="{'is-active': tabIndex === 5}"><a v-on:click="setTabIndex(5)">Location</a></li>
         <li>
           <a v-if="store.getters.getAuthenticationLevel > 0 && !editingThroughDashboard"
              @click="changeToProfile">Back to Profile</a>
@@ -37,122 +37,110 @@ import store from "../../store";
 import {eventBus} from '../../main';
 import toastMixin from "../../mixins/toastMixin";
 
+const COMPONENT_MAP = {
+    0: editPersonal,
+    1: editPassword,
+    2: editCountries,
+    3: editActivityTypes,
+    4: editEmails,
+    5: editLocation
+};
+Object.freeze(COMPONENT_MAP);
 
 export default {
-  name: "EditProfile",
-  mixins: [toastMixin],
 
-  props: ['id'],
-  data() {
-    return {
-        tabIndex: 0,
-        component: "editPersonal",
-        profile: {},
-        store: store
-    }
-  },
-  computed: {
-    editingThroughDashboard: function () {
-      return this.$route.params.id == null
-    }
-  },
-  mounted() {
-    this.getProfile();
-    this.changeToPersonal();
-  },
+    name: "EditProfile",
+    mixins: [toastMixin],
+
+    props: ['id'],
+    data() {
+        return {
+            tabIndex: 0,
+            profile: {},
+            store: store
+        }
+    },
+    computed: {
+        editingThroughDashboard: function () {
+          return this.$route.params.id == null
+        },
+        component: function () {
+            return COMPONENT_MAP[this.tabIndex]
+        }
+    },
+    mounted() {
+        this.getProfile();
+    },
   // These methods are used to dynamically swap between components on click
-  methods: {
-    changeToPassword() {
-      this.component = editPassword;
-        this.tabIndex = 1;
-    },
-    changeToPersonal() {
-        this.component = editPersonal;
-        this.tabIndex = 0;
-    },
-    changeToCountries() {
-      this.component = editCountries;
-        this.tabIndex = 2;
-    },
-    changeToActivityTypes() {
-      this.component = editActivityTypes;
-        this.tabIndex = 3;
-    },
-    changeToLocation() {
-      this.component = editLocation;
-        this.tabIndex = 5;
-    },
-    changeToEmail() {
-      this.component = editEmails;
-        this.tabIndex = 4;
-    },
-    changeToProfile() {
-      router.push({path: '/Profile/' + store.getters.getUserId});
-    },
-    changeToDashboard() {
-      router.push({path: '/AdminDashboard'});
-    },
+    methods: {
+        setTabIndex(index) {
+            this.tabIndex = index
+        },
+        changeToProfile() {
+            router.push({path: '/Profile/' + store.getters.getUserId});
+        },
+        changeToDashboard() {
+            router.push({path: '/AdminDashboard'});
+        },
 
-    getProfile() {
-      if (!(this.id === store.getters.getUserId || store.getters.getAuthenticationLevel < 2)) {
-        router.push({path: '/EditProfile/' + store.getters.getUserId})
-      }
-      api.getProfile(this.id, localStorage.getItem('authToken'))
-          .then(response => this.profile = response.data)
-          .catch(() => {
-            this.warningToast("Error occurred while getting Profile details.");
-            router.go(-1)
-          })
-    },
-    updateCountries(newCountries) {
-      this.profile.passports = newCountries;
-      api.editProfile(this.id, this.profile, localStorage.getItem('authToken'))
-    },
-    updateActivityTypes(newActivities) {
-      this.profile.activities = newActivities;
-      eventBus.$emit('profileWasEdited', this.profile);
-      api.editProfile(this.id, this.profile, localStorage.getItem('authToken'))
-    },
-    updateEmails(primaryEmail, optionalEmails) {
-      this.profile.primary_email = primaryEmail;
-      this.profile.optional_email = optionalEmails;
-      eventBus.$emit('profileWasEdited', this.profile);
-      api.editEmail({
-        "primary_email": primaryEmail,
-        "additional_email": optionalEmails
-      }, this.id, localStorage.getItem('authToken'))
-    },
-    updateLocation(location) {
-      this.profile.location = location;
-      api.editProfileLocation(this.id, this.profile.location, localStorage.getItem('authToken'))
-          .then(() => {
-            this.successToast("Location updated")
-          })
-          .catch(error => this.warningToast(error.response.data))
-    },
-    clearLocation() {
-      api.deleteLocation(this.id, localStorage.getItem('authToken'))
-        .then(() => {
-          this.successToast("Location removed");
-        })
-        .catch(error => this.warningToast(error.response.data))
-    },
-    updatePersonal(personalDetails) {
-      this.profile.firstname = personalDetails.firstname;
-      this.profile.lastname = personalDetails.lastname;
-      this.profile.middlename = personalDetails.middlename;
-      this.profile.nickname = personalDetails.nickname;
-      this.profile.bio = personalDetails.bio;
-      this.profile.date_of_birth = personalDetails.date_of_birth;
-      this.profile.gender = personalDetails.gender;
-      this.profile.fitness = personalDetails.fitness;
-      eventBus.$emit('profileWasEdited', this.profile);
-      api.editProfile(this.id, this.profile, localStorage.getItem('authToken'))
-    },
-    getId() {
-      return this.id;
+        getProfile() {
+            if (!(this.id === store.getters.getUserId || store.getters.getAuthenticationLevel < 2)) {
+                router.push({path: '/EditProfile/' + store.getters.getUserId})
+            }
+        api.getProfile(this.id, localStorage.getItem('authToken'))
+            .then(response => this.profile = response.data)
+            .catch(() => {
+                this.warningToast("Error occurred while getting Profile details.");
+                router.go(-1)
+            })
+        },
+        updateCountries(newCountries) {
+            this.profile.passports = newCountries;
+            api.editProfile(this.id, this.profile, localStorage.getItem('authToken'))
+        },
+        updateActivityTypes(newActivities) {
+            this.profile.activities = newActivities;
+            eventBus.$emit('profileWasEdited', this.profile);
+            api.editProfile(this.id, this.profile, localStorage.getItem('authToken'))
+        },
+        updateEmails(primaryEmail, optionalEmails) {
+            this.profile.primary_email = primaryEmail;
+            this.profile.optional_email = optionalEmails;
+            eventBus.$emit('profileWasEdited', this.profile);
+            const emails = {
+                "primary_email": primaryEmail,
+                "additional_email": optionalEmails
+            };
+            api.editEmail(emails, this.id, localStorage.getItem('authToken'))
+        },
+        updateLocation(location) {
+            this.profile.location = location;
+            api.editProfileLocation(this.id, this.profile.location, localStorage.getItem('authToken'))
+                .then(() => {
+                    this.successToast("Location updated")
+                })
+                .catch(error => this.warningToast(error.response.data))
+        },
+        clearLocation() {
+            api.deleteLocation(this.id, localStorage.getItem('authToken'))
+                .then(() => {
+                    this.successToast("Location removed");
+                })
+                .catch(error => this.warningToast(error.response.data))
+        },
+        updatePersonal(personalDetails) {
+            this.profile.firstname = personalDetails.firstname;
+            this.profile.lastname = personalDetails.lastname;
+            this.profile.middlename = personalDetails.middlename;
+            this.profile.nickname = personalDetails.nickname;
+            this.profile.bio = personalDetails.bio;
+            this.profile.date_of_birth = personalDetails.date_of_birth;
+            this.profile.gender = personalDetails.gender;
+            this.profile.fitness = personalDetails.fitness;
+            eventBus.$emit('profileWasEdited', this.profile);
+            api.editProfile(this.id, this.profile, localStorage.getItem('authToken'))
+        }
     }
-  }
 }
 </script>
 

@@ -1,5 +1,5 @@
 import { shallowMount } from '@vue/test-utils'
-import EditCountries from "../../src/components/EditProfile/EditCountries";
+import EditCountries from "../../../src/components/EditProfile/EditCountries";
 
 let wrapper;
 
