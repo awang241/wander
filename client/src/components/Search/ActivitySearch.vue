@@ -14,13 +14,30 @@
                         :chosenActivityTypes="chosenActivityTypes"
                         :activitySearchType="activitySearchType"></ActivityTypesField>
     <br>
+    <div class="columns is-desktop">
+      <div class="column">
+        <MapPane ref="map" marker-label="Search Location" :location-choice-coordinates="profileLocationLatLong" v-bind:address="this.profile.location.address"
+                 v-on:locationChoiceChanged="updateLocation"
+                 :info-window-content="this.informationWindowData" :default_width="500" :default_height="500"></MapPane>
+      </div>
+      <div class="column">
+        <div id="results" v-if="activityResults.length">
+          <h1><b>Activities returned from Search:</b></h1>
+          <br>
+          <div style="overflow-y: auto; overflow-x: hidden">
+            <div
+                    v-for="activity in activityResults"
+                    :key="activity.id">
+              <ActivitySummary :activity="activity">
+              </ActivitySummary>
+              <br>
+            </div>
+          </div>
 
-    <div style="margin: auto; min-height: 500px;">
-      <MapPane ref="map" marker-label="Profile Location" :location-choice-coordinates="profileLocationLatLong" v-bind:address="this.profile.location.address"
-               v-on:locationChoiceChanged="updateLocation"
-               :info-window-content="this.informationWindowData" :default_width="500" :default_height="500"></MapPane>
-      <div style="width: 50%;float: right; height: auto;">
-        <!--        This block will be used to hold the activity summary objects. Need to find a way to have the map display over the container as it looks weird otherwise.-->
+        </div>
+        <div v-else id="noMatches">
+          <h1><b>{{searchResultString}}</b></h1>
+        </div>
       </div>
     </div>
 
@@ -32,7 +49,7 @@
       <b-field style="float:left">
         <b-button type="is-danger" @click="clearLocation()">Clear</b-button>
       </b-field>
-      <b-field style="float:right">
+      <b-field style="float:right;">
         <b-button type="is-primary" @click="search()">Search</b-button>
       </b-field>
       <br>
@@ -42,7 +59,8 @@
 </template>
 
 <script>
-    import googleMapsInit from '../../utils/googlemaps'
+    import ActivitySummary from '../Summaries/ActivitySummary';
+    import googleMapsInit from '../../utils/googlemaps';
     import MapPane from "../Location/MapPane";
     import ActivityTypesField from "./SearchReusables/ActivityTypesField";
     import Api from "../../Api";
@@ -53,7 +71,7 @@
 export default {
   name: "ActivitySearch",
   components: {
-    MapPane, ActivityTypesField, AutoCompleteLocation
+    MapPane, ActivityTypesField, AutoCompleteLocation, ActivitySummary
   },
   mixins: [toastMixin],
   data() {
@@ -67,7 +85,8 @@ export default {
       store: store,
       profileLocationLatLong: null,
       locationString: "",
-      informationWindowData: ""
+      informationWindowData: "",
+      searchResultString: "Please click the 'Search' button below!"
 
     }
   },
@@ -78,15 +97,20 @@ export default {
       this.chosenActivityTypes = []
     },
     search() {
+      // remove old pins
+      this.$refs.map.clearAdditionalMarkers();
       const searchParameters = this.getSearchParameters();
       Api.getActivitiesByLocation(localStorage.getItem('authToken'), searchParameters).then(response => {
-        if (response.data.results) {
-          this.activityResults = response.data.results;
-          let result;
-          for (result in this.activityResults) {
-            let myLatLng = {lat: result.latitude, lng: result.longitude};
-            this.$refs.map.createSingleMarker({position: myLatLng, title: result.activityName, id: result.id});
+        if (response.data.length) {
+          this.activityResults = response.data;
+          // add new pins
+          for (let i = 0; i < this.activityResults.length; i++) {
+              let activityLatLong = {lat: this.activityResults[i].latitude, lng: this.activityResults[i].longitude};
+              this.$refs.map.createSingleMarker({position: activityLatLong, text: this.activityResults[i].activityName, id: this.activityResults[i].id});
           }
+        } else {
+          this.activityResults = [];
+          this.searchResultString = "Sorry, your search didn't return any activities in the specified range."
         }
       })
     },
