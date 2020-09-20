@@ -15,8 +15,8 @@
                         :activitySearchType="activitySearchType"></ActivityTypesField>
     <br>
     <MapPane marker-label="Profile Location" :location-choice-coordinates="profileLocationLatLong" v-bind:address="this.profile.location.address"
-             v-on:locationChoiceChanged="updateLocation" :info-window-content="this.informationWindowData"></MapPane>
-    <br>
+             v-on:locationChoiceChanged="updateLocation" :info-window-content="this.informationWindowData" :default_width="500" :default_height="500"></MapPane>
+      <br>
 
     <div class="row">
       <br>
