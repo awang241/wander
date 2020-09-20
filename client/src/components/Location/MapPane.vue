@@ -13,8 +13,6 @@
     import googleMapsInit from '../../utils/googlemaps'
     //Fake data until API endpoint is set up
 
-    // const DEFAULT_HEIGHT = 500;
-    // const DEFAULT_WIDTH = 1075;
     const DEFAULT_LOCATION = {lat: -43.4341, lng: 172.6397}
     const DEFAULT_ZOOM = 4;
 
