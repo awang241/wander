@@ -49,8 +49,6 @@
                                         Leave Activity
                                     </b-dropdown-item>
                                 </div>
-
-
                             </b-dropdown>
                         </div>
                     </div>
@@ -64,7 +62,6 @@
                         <h2 v-if="userRole != null" class="subtitle is-5">
                             My Role: {{userRole}}
                         </h2>
-
                     <div>
                         <h3 class="title is-5">{{privacy}}</h3>
                     </div>
@@ -230,7 +227,7 @@
                 </b-tab-item>
 
                 <b-tab-item label="Location">
-                    <MapPane marker-label="View Activity Location" :location-choice-coordinates="activityLocationLatLong"></MapPane>
+                    <MapPane marker-label="View Activity Location" :location-choice-coordinates="activityLocationLatLong" v-bind:marker-enabled="false" :default_width="1200" :default_height="550"></MapPane>
                 </b-tab-item>
             </b-tabs>
         </div>
@@ -277,7 +274,7 @@
                 google: null,
                 geocoder:null,
                 location: {
-                    address: "Chicago, Cook County, Illinois, United States",
+                    address: "",
                     latitude: "",
                     longitude: ""
                 },
@@ -314,7 +311,6 @@
                         } else {
                             reject(false);
                         }
-                        console.log(this.location);
                     })
                 })
 
@@ -346,7 +342,11 @@
             },
             getActivity() {
                 api.getActivity(parseInt(this.activityId), localStorage.getItem('authToken'))
-                    .then(response => this.activity = response.data)
+                    .then(response => {
+                        this.activity = response.data
+                        this.location.address = this.activity.location
+                        this.activityLocationLatLong = {lat: this.activity.latitude, lng: this.activity.longitude};
+                    })
                     .catch(() => {
                         this.warningToast("Error occurred when getting activity");
                         router.go(-1);
@@ -489,25 +489,21 @@
             hasOrganiserPermissions: function () {
                 return (this.hasCreatorPermissions || this.userRole === this.roles.ORGANISER)
             }
-
         },
         async mounted() {
             this.google = await googleMapsInit();
-            this.geocoder = new this.google.maps.Geocoder();
-            await this.getValidGeoCode();
             this.getActivity();
             this.getRoleCounts();
             this.getParticipationResults();
             this.getAllActivityMembers();
-
+            await this.getValidGeoCode();
+            this.geocoder = new this.google.maps.Geocoder();
             setTimeout(() => {
                 this.getUserRole()
             }, 400);
-
             this.activity = {
                 continuous: false
             };
-
         }
     }
 </script>
