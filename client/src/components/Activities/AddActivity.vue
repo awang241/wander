@@ -3,7 +3,7 @@
         <h1 class="title">Activity</h1>
         <ValidationObserver v-slot="{ handleSubmit }">
 
-            <form @submit.prevent="handleSubmit(createActivity)">
+            <form @submit.prevent="handleSubmit(createActivity)" onkeydown="return event.key !== 'Enter';">
                 <ValidationProvider rules="required|minName" name="Activity Name" v-slot="{ errors, valid }" slim>
                     <b-field label="Activity Name"
                              :type="{ 'is-danger': errors[0], 'is-success': valid }"
