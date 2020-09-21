@@ -5,7 +5,7 @@
     >
         <b-button id="resizeButton" @click="resizePane">{{isMinimized ? "Restore Map" : "Minimize Map"}}</b-button>
         <div id="map"></div>
-        <div id="legend"></div>
+        <div id="legend" v-if="$parent.$options.name == 'ActivitySearch'"></div>
 
     </VueResizable>
 </template>
