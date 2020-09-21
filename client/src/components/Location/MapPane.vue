@@ -5,6 +5,8 @@
     >
         <b-button id="resizeButton" @click="resizePane">{{isMinimized ? "Restore Map" : "Minimize Map"}}</b-button>
         <div id="map"></div>
+        <div id="legend"></div>
+
     </VueResizable>
 </template>
 
@@ -52,6 +54,8 @@
                 google: null,
                 // keeps track of pins on map
                 markers: []
+
+
             }
         },
 
@@ -88,7 +92,7 @@
               if (!this.locationChoiceMarker) {
                 this.locationChoiceMarker = new this.google.maps.Marker({
                   position: position,
-                  icon: {url: "http://maps.google.com/mapfiles/kml/paddle/red-circle.png"}
+                  icon: {url: "http://labs.google.com/ridefinder/images/mm_20_red.png"}
                 });
                 this.locationChoiceMarker.setMap(this.map)
               } else if (this.locationChoiceMarker.map === null) {
@@ -108,6 +112,8 @@
                 this.google.maps.event.addListener(this.map, 'click', e => {
                     this.setLocationWithMarker(e.latLng);
                 })
+
+              this.createLegend();
             },
             //Creates a singular marker on the map
             createSingleMarker({position, id}) {
@@ -119,7 +125,7 @@
                     position: position,
                     map: this.map,
                     id: id,
-                    icon: {url: "http://maps.google.com/mapfiles/kml/paddle/blu-circle.png"}
+                    icon: {url: "http://labs.google.com/ridefinder/images/mm_20_blue.png"}
                 });
                 marker.addListener("click", () => {
                     infowindow.open(this.map, marker);
@@ -127,6 +133,29 @@
                 marker.setMap(this.map);
                 // add markers to list so that we can select what pins to remove
                 this.markers.push(marker);
+            },
+            createLegend(){
+              var icons = {
+                searchBaseIcon: {
+                  name: 'Search Centre',
+                  icon: 'http://labs.google.com/ridefinder/images/mm_20_red.png'
+                },
+                activityIcon: {
+                  name: 'Activity',
+                  icon: 'http://labs.google.com/ridefinder/images/mm_20_blue.png'
+                },
+              }
+
+              var legend = document.getElementById('legend');
+              for (var key in icons) {
+                var type = icons[key];
+                var name = type.name;
+                var icon = type.icon;
+                var div = document.createElement('div');
+                div.innerHTML = '<img src="' + icon + '"> ' + name;
+                legend.appendChild(div);
+              }
+              this.map.controls[this.google.maps.ControlPosition.LEFT_BOTTOM].push(legend);
             },
             //Method that should show users profile, or route to their profile in the future
             openDetailedMarkerView(id) {
@@ -167,4 +196,13 @@
         height: 90%;
         position: relative;
     }
+
+    #legend {
+      font-family: Arial, sans-serif;
+      background: #fff;
+      padding: 10px;
+      margin: 10px;
+      border: 1px solid #000;
+    }
+
 </style>
