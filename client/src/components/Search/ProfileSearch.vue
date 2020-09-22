@@ -193,7 +193,8 @@
                 const searchParameters = this.getSearchParameters();
                 Api.getUserProfiles(localStorage.getItem('authToken'), searchParameters).then(response => {
                     this.startIndex += DEFAULT_RESULT_COUNT;
-                    this.profiles = response.data.results
+                    this.profiles = response.data.results;
+                    console.log(this.name);
                 })
             },
             getSearchParameters() {

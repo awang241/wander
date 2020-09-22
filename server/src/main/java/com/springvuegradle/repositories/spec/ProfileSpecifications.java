@@ -46,6 +46,16 @@ public class ProfileSpecifications {
     }
 
     /**
+     * Creates a specification matching all profiles whose first name equals the given string.
+     * @param string The string to be matched to.
+     * @return A specification matching all profiles whose first name equals the given string.
+     */
+    public static Specification<Profile> firstNameEquals(String string) {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.like(
+                criteriaBuilder.lower(root.get("firstname")), string);
+    }
+
+    /**
      * Creates a specification matching all profiles whose middle name contains the given substring.
      * @param substring The string pattern to be matched to.
      * @return A specification matching all profiles whose middle name contains the given substring.
@@ -54,6 +64,16 @@ public class ProfileSpecifications {
         String pattern = "%" + substring.toLowerCase() + "%";
         return (root, query, criteriaBuilder) -> criteriaBuilder.like(
                 criteriaBuilder.lower(root.get("middlename")), pattern);
+    }
+
+    /**
+     * Creates a specification matching all profiles whose middle name equals the given string.
+     * @param string The string to be matched to.
+     * @return A specification matching all profiles whose middle name equals the given string.
+     */
+    public static Specification<Profile> middleNameEquals(String string) {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.like(
+                criteriaBuilder.lower(root.get("middlename")), string);
     }
 
     /**
@@ -68,6 +88,16 @@ public class ProfileSpecifications {
     }
 
     /**
+     * Creates a specification matching all profiles whose nickname equals the given string.
+     * @param string The string to be matched to.
+     * @return A specification matching all profiles whose nickname equals the given string.
+     */
+    public static Specification<Profile> nicknameEquals(String string) {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.like(
+                criteriaBuilder.lower(root.get("nickname")), string);
+    }
+
+    /**
      * Creates a specification matching all profiles whose last name contains the given substring.
      * @param substring The string pattern to be matched to.
      * @return A specification matching all profiles whose last name contains the given substring.
@@ -77,6 +107,16 @@ public class ProfileSpecifications {
 
         return (root, query, criteriaBuilder) -> criteriaBuilder.like(
                 criteriaBuilder.lower(root.get("lastname")), pattern);
+    }
+
+    /**
+     * Creates a specification matching all profiles whose last name equals the given string.
+     * @param string The string to be matched to.
+     * @return A specification matching all profiles whose last name equals the given string.
+     */
+    public static Specification<Profile> lastNameEquals(String string) {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(
+                criteriaBuilder.lower(root.get("lastname")), string);
     }
 
     /**

@@ -14,6 +14,7 @@ public class ProfileSearchCriteria {
     private String searchMethod;
     private String[] activityTypes;
     private String anyName;
+    private Boolean wholeProfileNameSearch;
 
     /**
      * Creates a blank ProfileSearchCriteria with all criteria set to null.
@@ -27,6 +28,7 @@ public class ProfileSearchCriteria {
         activityTypes = null;
         searchMethod = null;
         anyName = null;
+        wholeProfileNameSearch = null;
     }
 
     /**
@@ -43,6 +45,14 @@ public class ProfileSearchCriteria {
     public ProfileSearchCriteria(String anyName, String email) {
         this.anyName = anyName;
         this.emailAddress = email;
+    }
+
+    public Boolean getWholeProfileNameSearch() {
+        return wholeProfileNameSearch;
+    }
+
+    public void setWholeProfileNameSearch(Boolean wholeProfileNameSearch) {
+        this.wholeProfileNameSearch = wholeProfileNameSearch;
     }
 
     public String getFirstName() {

@@ -289,15 +289,36 @@ public class Profile_Controller {
 
             if (fullName != null) {
                 fullName = fullName.strip();
+                boolean whole = false;
+                if (fullName.startsWith("\"") && (fullName.endsWith("\""))) {
+                    fullName = fullName.replace("\"", "");
+                    whole = true;
+                    criteria.setWholeProfileNameSearch(true);
+                } else {
+                    criteria.setWholeProfileNameSearch(false);
+                }
                 List<String> names = Arrays.asList(fullName.split(" "));
                 if (names.size() == 1) {
+                    if (whole) {
+                        criteria.setFirstName(names.get(0));
+                        criteria.setMiddleName("");
+                        criteria.setLastName("");
+                        criteria.setNickname("");
+                        criteria.setAnyName("");
+                    } else {
+                        criteria.setAnyName(names.get(0));
+                    }
 
-                    criteria.setAnyName(names.get(0));
-
-                } else if (names.size() > 1){
+                } else if (names.size() == 2){
                     criteria.setFirstName(names.get(0));
-                    criteria.setLastName(names.get(names.size() - 1));
-                    criteria.setMiddleName(String.join(" ", names.subList(1, names.size() - 1)));
+                    criteria.setLastName(names.get(1));
+                    criteria.setMiddleName("");
+                    criteria.setNickname("");
+                } else if (names.size() == 3) {
+                    criteria.setFirstName(names.get(0));
+                    criteria.setLastName(names.get(2));
+                    criteria.setMiddleName(names.get(1));
+                    criteria.setNickname("");
                 }
             }
 
