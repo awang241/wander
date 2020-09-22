@@ -22,7 +22,11 @@
 
                                 </div>
                             </div>
-                            <b-dropdown v-if="userRole !== null || hasCreatorPermissions" aria-role="list" class="is-pulled-right" position="is-bottom-left">
+                            <b-button id="viewFullButton" v-if="viewingThroughModal" @click="viewFullActivity"
+                                      type="is-primary">
+                                View full activity
+                            </b-button>
+                            <b-dropdown v-if="hasCreatorPermissions && !viewingThroughModal" aria-role="list" class="is-pulled-right" position="is-bottom-left">
                                 <b-icon icon="ellipsis-v" slot="trigger"/>
                                 <b-dropdown-item id="shareButton" @click="shareActivity"
                                                  v-if="hasCreatorPermissions">
@@ -266,6 +270,10 @@
             idProp: {
                 type: Number,
                 required: true
+            },
+            viewingThroughModal: {
+                type: Boolean,
+                default: false,
             }
         },
         data() {
@@ -445,6 +453,10 @@
                     .then(response => {
                         this.participationResults = response.data.allActivityParticipation;
                         })
+            },
+            viewFullActivity(){
+                router.push({path: 'Activities/' + this.activityId})
+                this.$parent.close()
             }
         },
         computed: {

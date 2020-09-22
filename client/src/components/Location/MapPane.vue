@@ -178,7 +178,7 @@
             openActivityModal(id) {
                 this.$buefy.modal.open({
                     parent: this,
-                    props: {idProp: id},
+                    props: {idProp: id, viewingThroughModal: true},
                     component: ViewActivity,
                     trapFocus: true,
                     scroll: "clip"
