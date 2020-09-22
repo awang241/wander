@@ -1181,7 +1181,7 @@ class ActivityServiceTest {
     void getActivityTypesWithSingleTypeTest(){
         List<ActivityType> types = service.getActivityTypesFromStringArray(new String[] {"Tramping"});
         assertTrue(types.size() == 1);
-        assertEquals(types.get(0).getActivityTypeName(), "Tramping");
+        assertEquals("Tramping", types.get(0).getActivityTypeName());
 
     }
 
@@ -1189,8 +1189,8 @@ class ActivityServiceTest {
     void getActivityTypesWithMultipleTypesTest(){
         List<ActivityType> types = service.getActivityTypesFromStringArray(new String[] {"Tramping", "Yoga"});
         assertTrue(types.size() == 2);
-        assertEquals(types.get(0).getActivityTypeName(), "Tramping");
-        assertEquals(types.get(1).getActivityTypeName(), "Yoga");
+        assertEquals("Tramping", types.get(0).getActivityTypeName());
+        assertEquals("Yoga", types.get(1).getActivityTypeName());
     }
 
 

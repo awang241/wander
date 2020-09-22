@@ -1,19 +1,19 @@
 import VueRouter from 'vue-router'
-import LoginComponent from "./components/Login.vue"
-import RegistrationComponent from "./components/Registration.vue"
-import NavBarComponent from "./components/NavBar.vue";
-import ProfileComponent from "./components/Profile.vue";
-import MainpageComponent from "./components/Mainpage.vue";
-import EditProfileComponent from "./components/EditProfile/EditProfile.vue";
-import ActivitiesComponent from "./components/Activities";
-import AdminDashboardComponent from "./components/AdminDashboard";
-import AddActivityComponent from "./components/AddActivity";
-import ViewActivityComponent from "./components/ViewActivity.vue"
-import ShareActivityComponent from "./components/ShareActivity.vue";
-import ParticipationComponent from "./components/ParticipationForm.vue";
+import LoginComponent from "./components/General/Login.vue"
+import RegistrationComponent from "./components/General/Registration.vue"
+import NavBarComponent from "./components/General/NavBar.vue";
+import ProfileComponent from "./components/Profile/Profile.vue";
+import MainpageComponent from "./components/Main/Mainpage.vue";
+import EditProfileComponent from "./components/Profile/EditProfile/EditProfile.vue";
+import ActivitiesComponent from "./components/Activities/Activities";
+import AdminDashboardComponent from "./components/Main/AdminDashboard";
+import AddActivityComponent from "./components/Activities/AddActivity";
+import ViewActivityComponent from "./components/Activities/ViewActivity.vue"
+import ShareActivityComponent from "./components/Activities/ShareActivity.vue";
+import ParticipationComponent from "./components/Participation/ParticipationForm.vue";
 import SearchComponent from "./components/Search/Search";
 import store from "./store";
-import HomeFeed from "./components/HomeFeed";
+import HomeFeed from "./components/Main/HomeFeed";
 
 
 const routes = [
@@ -42,7 +42,7 @@ const routes = [
     {path: "/Profile/:id", name: "profile", component:ProfileComponent, props: true},
     {
         //This route is only accessible if the user is authenticated, else it sends them back to the main page
-        path: "/EditProfile/:id", name: "EditProfile", props: true, component: EditProfileComponent, beforeEnter: (to, from, next) => {
+        path: "/EditProfile/:id", name: "editProfile", props: true, component: EditProfileComponent, beforeEnter: (to, from, next) => {
             if (store.getters.getAuthenticationStatus) {
                 next()
             } else {

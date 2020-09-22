@@ -1,5 +1,5 @@
 import { shallowMount } from '@vue/test-utils'
-import ShareActivity from "../../src/components/ShareActivity";
+import ShareActivity from "../../src/components/Activities/ShareActivity";
 
 let wrapper;
 
