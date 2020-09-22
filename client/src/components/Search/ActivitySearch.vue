@@ -16,12 +16,12 @@
     <br>
     <div class="columns is-desktop">
       <div class="column">
-        <MapPane ref="map" :location-choice-coordinates="profileLocationLatLong" v-bind:address="this.profile.location.address"
+        <MapPane ref="map" marker-label="Search Location" :location-choice-coordinates="profileLocationLatLong" v-bind:address="this.profile.location.address"
                  v-on:locationChoiceChanged="updateLocation"
                  :info-window-content="this.informationWindowData" :default_width="500" :default_height="500"></MapPane>
       </div>
       <div class="column">
-        <div id="results" v-if="activityResults.length">
+      <div id="results" v-if="activityResults.length">
           <h1><b>Activities returned from Search:</b></h1>
           <br>
           <div style="overflow-y: auto; overflow-x: hidden">
@@ -98,7 +98,7 @@ export default {
           // add new pins
           for (let i = 0; i < this.activityResults.length; i++) {
               let activityLatLong = {lat: this.activityResults[i].latitude, lng: this.activityResults[i].longitude};
-              this.$refs.map.createSingleMarker({position: activityLatLong, text: this.activityResults[i].activityName, id: this.activityResults[i].id});
+              this.$refs.map.createSingleMarker({position: activityLatLong, id: this.activityResults[i].id});
               this.$refs.map.setZoomWithMarkers();
           }
         } else {
