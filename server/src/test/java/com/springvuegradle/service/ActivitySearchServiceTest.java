@@ -15,10 +15,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -89,13 +93,16 @@ public class ActivitySearchServiceTest {
 
         creator = ProfileTestUtils.createProfileJimmyAlternate();
         profileRepository.save(creator);
-        for(Activity activity: List.of(publicActivityWellington,
+
+        List<Activity> activities = List.of(publicActivityWellington,
                 publicActivityChristchurch,
                 publicActivityDelaware,
                 membersActivityChristchurch,
                 membersActivitySydney,
                 privateActivityChristchurch,
-                privateActivityManila)){
+                privateActivityManila);
+
+        for(Activity activity: activities){
             activityRepository.save(activity);
             ActivityMembership membership = new ActivityMembership(activity, creator, ActivityMembership.Role.CREATOR);
             membership.setActivity(activity);
@@ -260,5 +267,38 @@ public class ActivitySearchServiceTest {
     @Test
     void distanceBetweenDifferentLocationsTest() {
         assertThat(activitySearchService.distance(10, 30, 30, 50)).isBetween(3040600D, 3040610D);
+    }
+
+    @Test
+    void getActivitiesByNameWhenMethodIsAnyReturnsActivitiesMatchingAnyKeywordTest() {
+        Pageable pageable = PageRequest.of(0, 5);
+        List<String> keywords = List.of("Christchurch", "Manila");
+        Set<Activity> expectedActivities = Set.of(
+                publicActivityChristchurch, privateActivityChristchurch, privateActivityManila, membersActivityChristchurch);
+
+        Page<Activity> activities = activitySearchService.getByName(keywords, creator.getId(), true, "any", pageable);
+        Set<Activity> actualActivities = activities.toSet();
+        assertEquals(expectedActivities, actualActivities);
+    }
+
+    @Test
+    void getActivitiesByNameWhenMethodIsAllReturnsActivitiesMatchingAllKeywordsTest() {
+        Pageable pageable = PageRequest.of(0, 5);
+        List<String> keywords = List.of("Christchurch", "Public");
+        Set<Activity> expectedActivities = Set.of(publicActivityChristchurch);
+
+        Page<Activity> activities = activitySearchService.getByName(keywords, creator.getId(), true, "all", pageable);
+        Set<Activity> actualActivities = activities.toSet();
+        assertEquals(expectedActivities, actualActivities);
+    }
+
+    @Test
+    void getActivitiesByNameWhenNoActivitiesMatchReturnsEmptyPageTest() {
+        Pageable pageable = PageRequest.of(0, 5);
+        List<String> keywords = List.of("Don't match any activities");
+        Set<Activity> expectedActivities = Set.of(publicActivityChristchurch);
+
+        Page<Activity> activities = activitySearchService.getByName(keywords, creator.getId(), false, "all", pageable);
+        assertTrue(activities.isEmpty(), actualActivities);
     }
 }

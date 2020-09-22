@@ -5,7 +5,11 @@ import com.springvuegradle.model.Activity;
 import com.springvuegradle.model.ActivityMembership;
 import com.springvuegradle.model.ActivityType;
 import com.springvuegradle.repositories.ActivityRepository;
+import com.springvuegradle.repositories.spec.ActivitySpecifications;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -31,7 +35,40 @@ public class ActivitySearchService {
     static final int MAXIMUM_LATITUDE = 90;
     static final int MAXIMUM_LONGITUDE = 180;
 
+    /**
+     * Returns a page from the list of activities whose name matches the search criteria. An activity name matches with
+     * a keyword if the keyword is a substring
+     * activity name contains
+     * @param keywords The keywords being matched against the activity names.
+     * @param profileId The profileId
+     * @param isAdmin
+     * @param searchMethod
+     * @param request
+     * @return
+     */
+    public Page<Activity> getActivitiesByName(List<String> keywords, long profileId, boolean isAdmin, String searchMethod, Pageable request) {
+        Specification<Activity> spec = Specification.where(null);
+        if (searchMethod.equalsIgnoreCase("any")) {
+            for (String keyword: keywords) {
+                spec = spec.or(ActivitySpecifications.nameContains(keyword));
+            }
+        } else if (searchMethod.equalsIgnoreCase("all")){
+            for (String keyword: keywords) {
+                spec = spec.and(ActivitySpecifications.nameContains(keyword));
+            }
+        } else {
+            throw new IllegalArgumentException();
+        }
 
+        if (!isAdmin) {
+            Specification<Activity> userIsCreator = ActivitySpecifications.hasMember(profileId, ActivityMembership.Role.CREATOR);
+            Specification<Activity> userIsMember = ActivitySpecifications.hasMember(profileId);
+            Specification<Activity> isMemberOfRestricted = userIsMember.and(ActivitySpecifications.hasPrivacyLevel(1));
+            Specification<Activity> isVisible = ActivitySpecifications.hasPrivacyLevel(2).or(isMemberOfRestricted).or(userIsCreator);
+            spec = spec.and(isVisible);
+        }
+        return activityRepository.findAll(spec, request);
+    }
     /**
      * Returns a list of simplified activities which are both within the specified distance
      * of the specified point AND visible to the user
