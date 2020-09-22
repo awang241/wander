@@ -319,6 +319,11 @@ public class Profile_Controller {
                     criteria.setLastName(names.get(2));
                     criteria.setMiddleName(names.get(1));
                     criteria.setNickname("");
+                } else {
+                    criteria.setFirstName(names.get(0));
+                    criteria.setLastName(names.get(-1));
+                    criteria.setMiddleName(String.join(" ", names.subList(1, names.size() - 1)));
+                    criteria.setNickname("");
                 }
             }
 
