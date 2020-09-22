@@ -16,24 +16,6 @@
     const DEFAULT_LOCATION = {lat: -43.4341, lng: 172.6397}
     const DEFAULT_ZOOM = 4;
 
-    const locations = [
-        {
-            position: {
-                lat: 48.160910,
-                lng: 16.383330,
-            },
-            text: "Marker one",
-            id: 7
-        },
-        {
-            position: {
-                lat: 68.174270,
-                lng: 16.329620,
-            },
-            text: "Marker two",
-            id: 8
-        },
-    ];
     export default {
         name: "MapPane",
         components: {VueResizable},
@@ -128,10 +110,7 @@
                     this.setLocationWithMarker(e.latLng);
                 })
             },
-            //Loops through locations and creates marker for each one
-            createMarkers() {
-                locations.forEach(location => this.createSingleMarker(location))
-            },
+
             //Creates a singular marker on the map
             createSingleMarker({position, text, id}) {
                 //content is just a place holder
@@ -156,16 +135,22 @@
                 alert(`Opening profile ${id}`)
             },
             setZoomLevel(newAddress) {
-                if (newAddress){
+                  if (newAddress){
                     let address_parts = newAddress.split(',');
                     let zoomLevel = address_parts.length * 4;
                     this.map.setZoom(zoomLevel)
-                }
-                else if (this.address) {
+                } else if (this.address) {
                     let address_parts = this.address.split(',');
                     let zoomLevel = address_parts.length * 4;
                     this.map.setZoom(zoomLevel)
                 }
+            },
+            setZoomWithMarkers() {
+                let bounds = new this.google.maps.LatLngBounds();
+                for (let i = 1; i < this.markers.length; i++) {
+                  bounds.extend(this.markers[i].position);
+                }
+                this.map.fitBounds(bounds);
             },
             removeMarker() {
                 this.locationChoiceMarker.setMap(null)
