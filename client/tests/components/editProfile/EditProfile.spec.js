@@ -1,5 +1,5 @@
 import {createLocalVue, shallowMount} from '@vue/test-utils'
-import EditProfile from "../../../src/components/EditProfile/EditProfile";
+import EditProfile from "../../../src/components/Profile/EditProfile/EditProfile";
 import VueRouter from "vue-router";
 import api from "../../../src/Api"
 import Vuex from "vuex";
