@@ -16,7 +16,7 @@
     <br>
     <div class="columns is-desktop">
       <div class="column">
-        <MapPane ref="map" marker-label="Search Location" :location-choice-coordinates="profileLocationLatLong" v-bind:address="this.profile.location.address"
+        <MapPane ref="map" marker-label="Search Location" :location-choice-coordinates="profileLocationLatLong" v-bind:address="profile.location.address"
                  v-on:locationChoiceChanged="updateLocation" :default_width="500" :default_height="500"></MapPane>
       </div>
       <div class="column">
@@ -77,7 +77,6 @@ export default {
       profileLocationLatLong: null,
       locationString: "",
       searchResultString: "Please click the 'Search' button below!"
-
     }
   },
   methods: {
@@ -150,24 +149,37 @@ export default {
 
     /**
      * Method to format the details of an activity for the information pop up window
-     * At the moment it has dummy data
-     * Need to put in a variable (activityDetails) into this method
      */
     formatActivityDetails(activityDetails) {
       const activityTypesString = this.formatActivityTypesString(activityDetails.activityTypes);
+      let informationWindowText = ""
 
-      //if dates exist do ting different
-      let informationWindowText =
-              `<div style="width: 100vh; height: 100vh;">` +
-              `<h1 style="font-size: 22px; font-weight: bold; font-style: italic">${activityDetails.activityName}</h1>` +
-              `<h1 style="font-weight: bold">${activityDetails.location}</h1>` +
-              `<br>` +
-              `<h1 style="font-weight: bold">Start date: Now</h1>` +
-              `<br>` +
-              `<h1 style="font-weight: bold">End date: Never! "${activityDetails.activityName}" is continuous!</h1>` +
-              `<br>` +
-              `${activityTypesString}` +
-              `</div>`
+      if (activityDetails.startTime && activityDetails.endTime) {
+        informationWindowText =
+                `<div style="width: 100vh; height: 100vh;">` +
+                `<h1 style="font-size: 22px; font-weight: bold; font-style: italic">${activityDetails.activityName}</h1>` +
+                `<h1 style="font-weight: bold">${activityDetails.location}</h1>` +
+                `<br>` +
+                `<h1 style="font-weight: bold">Start date and time: <span>${activityDetails.startTime}</span></h1>` +
+                `<br>` +
+                `<h1 style="font-weight: bold">End date and time: <span>${activityDetails.endTime}</span></h1>` +
+                `<br>` +
+                `${activityTypesString}` +
+                `</div>`
+      } else {
+        informationWindowText =
+                `<div style="width: 100vh; height: 100vh;">` +
+                `<h1 style="font-size: 22px; font-weight: bold; font-style: italic">${activityDetails.activityName}</h1>` +
+                `<h1 style="font-weight: bold">${activityDetails.location}</h1>` +
+                `<br>` +
+                `<h1 style="font-weight: bold">Start date: Now</h1>` +
+                `<br>` +
+                `<h1 style="font-weight: bold">End date: Never! "${activityDetails.activityName}" is continuous!</h1>` +
+                `<br>` +
+                `${activityTypesString}` +
+                `</div>`
+      }
+
       return informationWindowText
     },
 
