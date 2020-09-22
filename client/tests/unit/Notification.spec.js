@@ -95,7 +95,7 @@ describe('Notification.vue', () => {
     it('Displays the view activity button if the notification has an activity ID', () => {
         let data = {};
         Object.assign(data, dataTemplate);
-        data.activityId = 7
+        data.activityId = 7;
         const wrapper = shallowMount(Notification, {
             store, localVue, propsData: {notification: data}
         });
@@ -105,7 +105,7 @@ describe('Notification.vue', () => {
     it('Does not displays the view activity button if the notification does not have an activity ID', () => {
         let data = {};
         Object.assign(data, dataTemplate);
-        data.activityId = null
+        data.activityId = null;
         const wrapper = shallowMount(Notification, {
             store, localVue, propsData: {notification: data}
         });

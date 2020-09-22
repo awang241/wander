@@ -153,7 +153,7 @@
                         if (this.moreParticipatingActivitiesExist) {
                             let searchParameters = { count: DEFAULT_RESULT_COUNT, startIndex: this.participatingActivitiesStartIndex, role: role };
                             api.getNextActivities(this.store.getters.getUserId, localStorage.getItem("authToken"), searchParameters).then(response => {
-                                if (response.data.results.length == 0) {
+                                if (response.data.results.length === 0) {
                                     this.moreParticipatingActivitiesExist = false;
                                 } else {
                                     this.participatingActivitiesStartIndex += DEFAULT_RESULT_COUNT;
