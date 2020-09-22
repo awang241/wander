@@ -1,5 +1,5 @@
 import { shallowMount } from '@vue/test-utils'
-import EditActivityTypes from "../../src/components/Profile/EditProfile/EditActivityTypes";
+import EditActivityTypes from "../../../src/components/Profile/EditProfile/EditActivityTypes";
 
 let wrapper;
 
