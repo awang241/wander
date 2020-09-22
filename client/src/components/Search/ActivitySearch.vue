@@ -76,7 +76,6 @@ export default {
       store: store,
       profileLocationLatLong: null,
       locationString: "",
-      informationWindowData: "",
       searchResultString: "Please click the 'Search' button below!"
 
     }
