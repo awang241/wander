@@ -49,8 +49,6 @@
                                         Leave Activity
                                     </b-dropdown-item>
                                 </div>
-
-
                             </b-dropdown>
                         </div>
                     </div>
@@ -64,7 +62,6 @@
                         <h2 v-if="userRole != null" class="subtitle is-5">
                             My Role: {{userRole}}
                         </h2>
-
                     <div>
                         <h3 class="title is-5">{{privacy}}</h3>
                     </div>
@@ -228,6 +225,10 @@
                         <p>This activity has no participation results.</p>
                     </div>
                 </b-tab-item>
+
+                <b-tab-item label="Location">
+                    <MapPane marker-label="View Activity Location" :location-choice-coordinates="activityLocationLatLong" v-bind:marker-enabled="false" :default_width="900" :default_height="550"></MapPane>
+                </b-tab-item>
             </b-tabs>
         </div>
     </div>
@@ -241,6 +242,8 @@
     import Observer from "../Misc/Observer";
     import ActivityParticipationSummary from "../Summaries/ActivityParticipationSummary";
     import toastMixin from "../../mixins/toastMixin";
+    import googleMapsInit from "../../utils/googlemaps";
+    import MapPane from "../Location/MapPane";
 
 
     const DEFAULT_RESULT_COUNT = 50;
@@ -260,7 +263,7 @@
 
     export default {
         name: "ViewActivity",
-        components: {ProfileSummary, ActivityParticipationSummary, Observer},
+        components: {MapPane, ProfileSummary, ActivityParticipationSummary, Observer},
         mixins: [toastMixin],
         data() {
             return {
@@ -268,6 +271,14 @@
                 userRole: ROLES.NONE,
                 activityId: this.$route.params.id,
                 activity: null,
+                activityLocationLatLong: null,
+                google: null,
+                geocoder:null,
+                location: {
+                    address: "",
+                    latitude: "",
+                    longitude: ""
+                },
                 members: {
                     "organiser": [],
                     "participant": [],
@@ -317,7 +328,11 @@
             },
             getActivity() {
                 api.getActivity(parseInt(this.activityId), localStorage.getItem('authToken'))
-                    .then(response => this.activity = response.data)
+                    .then(response => {
+                        this.activity = response.data
+                        this.location.address = this.activity.location
+                        this.activityLocationLatLong = {lat: this.activity.latitude, lng: this.activity.longitude};
+                    })
                     .catch(() => {
                         this.warningToast("Error occurred when getting activity");
                         router.go(-1);
@@ -460,22 +475,20 @@
             hasOrganiserPermissions: function () {
                 return (this.hasCreatorPermissions || this.userRole === this.roles.ORGANISER)
             }
-
         },
-        mounted() {
+        async mounted() {
+            this.google = await googleMapsInit();
             this.getActivity();
             this.getRoleCounts();
             this.getParticipationResults();
             this.getAllActivityMembers();
-
+            this.geocoder = new this.google.maps.Geocoder();
             setTimeout(() => {
                 this.getUserRole()
             }, 400);
-
             this.activity = {
                 continuous: false
             };
-
         }
     }
 </script>

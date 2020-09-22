@@ -15,7 +15,6 @@
 
     const DEFAULT_LOCATION = {lat: -43.4341, lng: 172.6397}
     const DEFAULT_ZOOM = 4;
-
     const locations = [
         {
             position: {
@@ -53,12 +52,16 @@
             infoWindowContent: {
                 type: String
             },
-          default_width: {
-              type: Number
-          },
-          default_height: {
-              type: Number
-          }
+            default_width: {
+                type: Number
+            },
+            default_height: {
+                type: Number
+            },
+            markerEnabled: {
+                type: Boolean,
+                default: true
+            }
         },
 
         data() {
@@ -76,8 +79,8 @@
         watch: {
             locationChoiceCoordinates: function (newCoords) {
                 if (newCoords) {
-                  this.setLocationWithMarker(newCoords)
-                  this.map.setCenter(newCoords)
+                    this.setLocationWithMarker(newCoords)
+                    this.map.setCenter(newCoords)
                 }
             }
         },
@@ -104,19 +107,19 @@
             },
             //Allows user to choose their location by clicking on the map
             setLocationWithMarker(position) {
-              if (!this.locationChoiceMarker) {
-                this.locationChoiceMarker = new this.google.maps.Marker({
-                  position: position,
-                  label: {text: this.markerLabel},
-                });
-                this.locationChoiceMarker.setMap(this.map)
-              } else if (this.locationChoiceMarker.map === null) {
-                this.locationChoiceMarker.setMap(this.map)
-              } else {
-                this.locationChoiceMarker.setPosition(position)
-              }
-              this.setZoomLevel()
-              this.$emit('locationChoiceChanged', position)
+                if (!this.locationChoiceMarker) {
+                    this.locationChoiceMarker = new this.google.maps.Marker({
+                        position: position,
+                        label: {text: this.markerLabel},
+                    });
+                    this.locationChoiceMarker.setMap(this.map)
+                } else if (this.locationChoiceMarker.map === null) {
+                    this.locationChoiceMarker.setMap(this.map)
+                } else {
+                    this.locationChoiceMarker.setPosition(position)
+                }
+                this.setZoomLevel()
+                this.$emit('locationChoiceChanged', position)
             },
             //Dynamically creates the google map
             createMap() {
@@ -124,9 +127,11 @@
                     zoom: DEFAULT_ZOOM,
                     center: this.locationChoiceCoordinates ? this.locationChoiceCoordinates : DEFAULT_LOCATION,
                 });
-                this.google.maps.event.addListener(this.map, 'click', e => {
-                    this.setLocationWithMarker(e.latLng);
-                })
+                if (this.markerEnabled == true) {
+                    this.google.maps.event.addListener(this.map, 'click', e => {
+                        this.setLocationWithMarker(e.latLng);
+                    })
+                }
             },
             //Loops through locations and creates marker for each one
             createMarkers() {
@@ -156,7 +161,7 @@
                 alert(`Opening profile ${id}`)
             },
             setZoomLevel(newAddress) {
-                if (newAddress){
+                if (newAddress) {
                     let address_parts = newAddress.split(',');
                     let zoomLevel = address_parts.length * 4;
                     this.map.setZoom(zoomLevel)
