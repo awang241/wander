@@ -77,6 +77,6 @@ describe('EditProfile.vue', () => {
         const components = wrapper.vm.componentMap;
         let expectedIndex = 0;
         let component = components[expectedIndex];
-        expect(wrapper.findComponent(component).isVisible());
+        expect(wrapper.find(component).isVisible());
     });
 });
