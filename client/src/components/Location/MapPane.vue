@@ -48,17 +48,12 @@
             address: {
                 type: String
             },
-            //If pins are being made one at a time this should be a string
-            //Else if pins are made all at once this should be a list of strings
-            infoWindowContent: {
-                type: String
-            },
-          default_width: {
-              type: Number
-          },
-          default_height: {
-              type: Number
-          }
+              default_width: {
+                  type: Number
+              },
+              default_height: {
+                  type: Number
+              }
         },
 
         data() {
@@ -133,10 +128,10 @@
                 locations.forEach(location => this.createSingleMarker(location))
             },
             //Creates a singular marker on the map
-            createSingleMarker({position, text, id}) {
+            createSingleMarker({position, text, id}, infoWindowContent) {
                 //content is just a place holder
                 const infowindow = new this.google.maps.InfoWindow({
-                    content: "contentString"
+                    content: infoWindowContent
                 });
                 const marker = new this.google.maps.Marker({
                     position: position,
@@ -144,16 +139,13 @@
                     label: {text: text},
                     id: id
                 });
-                marker.addListener("click", () => {
+
+                marker.addListener("mouseover", () => {
                     infowindow.open(this.map, marker);
                 });
                 marker.setMap(this.map);
                 // add markers to list so that we can select what pins to remove
                 this.markers.push(marker);
-            },
-            //Method that should show users profile, or route to their profile in the future
-            openDetailedMarkerView(id) {
-                alert(`Opening profile ${id}`)
             },
             setZoomLevel(newAddress) {
                 if (newAddress){
