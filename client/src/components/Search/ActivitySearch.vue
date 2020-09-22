@@ -125,6 +125,8 @@ export default {
             this.profile = response.data;
             if (this.profile.location) {
               this.profileLocationLatLong = {lat: this.profile.location.latitude, lng: this.profile.location.longitude};
+            } else {
+              this.profile.location = {address: "", latitude: null, longitude: null}
             }
           })
           .catch(() => {
