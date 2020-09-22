@@ -10,12 +10,58 @@ import java.util.List;
 public class ActivityTestUtils {
 
     /**
-     * Creates a new activity.
+     * Creates a new activity with the following details:
+     * <br>Name:        Kaikoura Coast Track race
+     * <br>Description: A big and nice race on a lovely peninsula
+     * <br>Types:       Hiking
+     * <br>Continuous:  False
+     * <br>Start Time:  2020-02-20 08:00:00+1300
+     * <br>End Time:    2020-02-20 08:00:00+1300
+     * <br>Location:    Kaikoura, NZ
+     * <br>Longitude:   100.00
+     * <br>Latitude:    100.00
      * @return a new activity.
      */
     public static Activity createNormalActivity() {
         return new Activity("Kaikoura Coast Track race", "A big and nice race on a lovely peninsula",
                 new String[]{"Hiking"}, false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ", 100, 100);
+    }
+
+    /**
+     * Creates a new activity with the following details:
+     * <br>Name:        Blazer Tag
+     * <br>Description: It's lazer tag in blazers
+     * <br>Types:       Running
+     * <br>Continuous:  True
+     * <br>Start Time:  null
+     * <br>End Time:    null
+     * <br>Location:    Christchurch, NZ
+     * <br>Longitude:   90.00
+     * <br>Latitude:    90.00
+     * @return a new activity.
+     */
+    public static Activity createNormalActivityTwo() {
+        return new Activity("Blazer Tag", "It's lazer tag in blazers", new String[]{"Running"},
+                true, null, null, "Christchurch, NZ", 90, 90);
+    }
+
+    /**
+     * Creates a new activity with the following details:
+     * <br>Name:        Bicycle Race
+     * <br>Description: I WANT TO RIDE MY
+     * <br>Types:       Cycling
+     * <br>Continuous:  False
+     * <br>Start Time:  1978-10-13 01:00:00+1300
+     * <br>End Time:    1979-10-13 01:00:00+1300
+     * <br>Location:    Invercargill, NZ
+     * <br>Longitude:   55.00
+     * <br>Latitude:    0.00
+     * @return a new activity.
+     */
+    public static Activity createNormalActivityThree() {
+        return new Activity("Bicycle Race", "I WANT TO RIDE MY", new String[]{"Cycling"},
+            false, "1978-10-13T01:00:00+1300", "1979-10-13T01:00:00+1300",
+                "Invercargill, NZ", 55.00, 0.00);
     }
 
     public static Activity createActivity(String name, Double latitude, Double longitude) {

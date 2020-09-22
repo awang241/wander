@@ -5,6 +5,7 @@ import com.springvuegradle.model.ActivityMembership;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
@@ -12,16 +13,13 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import java.util.List;
 
 @RepositoryRestResource
-public interface ActivityRepository extends JpaRepository<Activity, Long> {
+public interface ActivityRepository extends JpaRepository<Activity, Long>, JpaSpecificationExecutor<Activity> {
 
     @Query("SELECT a FROM Activity a WHERE a.activityName = :activityName")
     List<Activity> findByActivityNames(@Param("activityName") String activityName);
 
     @Query("SELECT max(id) from Activity")
-    public Long getLastInsertedId();
-
-    @Query("SELECT a.activityName FROM Activity a")
-    List<String> findAllActivityNames();
+    Long getLastInsertedId();
 
     @Query("SELECT a FROM Activity a WHERE a.privacyLevel = :privacyLevel")
     List<Activity> findAllByPrivacyLevel(@Param("privacyLevel") int privacyLevel);
