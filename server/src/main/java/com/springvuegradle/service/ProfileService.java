@@ -130,21 +130,11 @@ public class ProfileService {
                 spec = spec.and(ProfileSpecifications.nicknameContains(criteria.getNickname()));
             }
         } else {
-            if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getFirstName()))) {
-                spec = spec.and(ProfileSpecifications.firstNameEquals(criteria.getFirstName()));
-            }
-
-            if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getMiddleName()))) {
+            spec = spec.and(ProfileSpecifications.firstNameEquals(criteria.getFirstName()));
+            if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getLastName()))) {
                 spec = spec.and(ProfileSpecifications.middleNameEquals(criteria.getMiddleName()));
             }
-
-            if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getLastName()))) {
-                spec = spec.and(ProfileSpecifications.lastNameEquals(criteria.getLastName()));
-            }
-
-            if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getNickname()))) {
-                spec = spec.and(ProfileSpecifications.nicknameEquals(criteria.getNickname()));
-            }
+            spec = spec.and(ProfileSpecifications.lastNameEquals(criteria.getLastName()));
         }
 
         if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getEmailAddress()))) {

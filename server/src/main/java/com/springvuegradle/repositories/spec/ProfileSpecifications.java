@@ -52,7 +52,7 @@ public class ProfileSpecifications {
      */
     public static Specification<Profile> firstNameEquals(String string) {
         return (root, query, criteriaBuilder) -> criteriaBuilder.like(
-                criteriaBuilder.lower(root.get("firstname")), string);
+                root.get("firstname"), string);
     }
 
     /**
@@ -73,7 +73,7 @@ public class ProfileSpecifications {
      */
     public static Specification<Profile> middleNameEquals(String string) {
         return (root, query, criteriaBuilder) -> criteriaBuilder.like(
-                criteriaBuilder.lower(root.get("middlename")), string);
+                root.get("middlename"), string);
     }
 
     /**
@@ -94,7 +94,7 @@ public class ProfileSpecifications {
      */
     public static Specification<Profile> nicknameEquals(String string) {
         return (root, query, criteriaBuilder) -> criteriaBuilder.like(
-                criteriaBuilder.lower(root.get("nickname")), string);
+                root.get("nickname"), string);
     }
 
     /**
@@ -115,8 +115,8 @@ public class ProfileSpecifications {
      * @return A specification matching all profiles whose last name equals the given string.
      */
     public static Specification<Profile> lastNameEquals(String string) {
-        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(
-                criteriaBuilder.lower(root.get("lastname")), string);
+        return (root, query, criteriaBuilder) -> criteriaBuilder.like(
+                root.get("lastname"), string);
     }
 
     /**

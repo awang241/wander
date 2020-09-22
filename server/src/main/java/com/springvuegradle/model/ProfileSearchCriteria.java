@@ -28,7 +28,7 @@ public class ProfileSearchCriteria {
         activityTypes = null;
         searchMethod = null;
         anyName = null;
-        wholeProfileNameSearch = null;
+        wholeProfileNameSearch = false;
     }
 
     /**
@@ -40,6 +40,7 @@ public class ProfileSearchCriteria {
         this.lastName = lastName;
         this.nickname = nickname;
         this.emailAddress = email;
+        this.wholeProfileNameSearch = false;
     }
 
     public ProfileSearchCriteria(String anyName, String email) {
