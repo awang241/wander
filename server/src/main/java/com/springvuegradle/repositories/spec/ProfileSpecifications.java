@@ -96,7 +96,7 @@ public class ProfileSpecifications {
      */
     public static Specification<Profile> activityTypesContains(String[] types, String searchMethod) {
         Specification<Profile> spec = Specification.where(null);
-        for(int i = 0; i < types.length; i++) {
+        for (int i = 0; i < types.length; i++) {
             final String type = types[i];
             Specification<Profile> activitySpec = (root, query, criteriaBuilder) -> {
                 query.distinct(true);

@@ -10,6 +10,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+/**
+ * Service-layer class that provides methods for searching activities.
+ */
 @Service
 public class ActivitySearchService {
 
@@ -23,10 +26,10 @@ public class ActivitySearchService {
     ProfileService profileService;
 
 
-    final int MINIMUM_LATITUDE = -90;
-    final int MINIMUM_LONGITUDE = -90;
-    final int MAXIMUM_LATITUDE = 90;
-    final int MAXIMUM_LONGITUDE = 180;
+    static final int MINIMUM_LATITUDE = -90;
+    static final int MINIMUM_LONGITUDE = -90;
+    static final int MAXIMUM_LATITUDE = 90;
+    static final int MAXIMUM_LONGITUDE = 180;
 
 
     /**
@@ -48,7 +51,7 @@ public class ActivitySearchService {
         List<Activity> activities = getVisibleActivities(profileId, isAdmin);
         activities = filterActivitiesByDistance(activities, latitude, longitude, maximumDistance);
         activities = activityService.filterActivitiesByActivityTypes(activities, activityTypeList, activityTypeSearchMethod);
-        return activityService.createActivityLocationResponse(activities);
+        return ActivityService.createActivityLocationResponse(activities);
     }
 
     /**
@@ -97,7 +100,7 @@ public class ActivitySearchService {
      * @return a list of activities sorted by distance from the center of the search
      */
     private List<Activity> sortActivitiesByDistance(HashMap<Activity, Double> activityDistanceHashMap) {
-        List<Map.Entry<Activity, Double>> list = new LinkedList<Map.Entry<Activity, Double>>(activityDistanceHashMap.entrySet());
+        List<Map.Entry<Activity, Double>> list = new LinkedList<>(activityDistanceHashMap.entrySet());
         Collections.sort(list, Comparator.comparing(Map.Entry::getValue));
         ArrayList<Activity> sortedActivities = new ArrayList<>();
         for (Map.Entry<Activity, Double> aa : list) {
