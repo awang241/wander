@@ -227,7 +227,7 @@
                 </b-tab-item>
 
                 <b-tab-item label="Location">
-                    <MapPane marker-label="View Activity Location" :location-choice-coordinates="activityLocationLatLong" :address="this.location.address" v-bind:marker-enabled="false" :default_width="900" :default_height="550"></MapPane>
+                    <MapPane :location-choice-coordinates="activityLocationLatLong" :address="this.location.address" v-bind:marker-enabled="false" :default_width="900" :default_height="550"></MapPane>
                 </b-tab-item>
             </b-tabs>
         </div>

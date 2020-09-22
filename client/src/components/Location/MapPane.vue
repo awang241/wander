@@ -23,10 +23,6 @@
             locationChoiceCoordinates: {
                 type: Object,
             },
-            markerLabel: {
-                type: String,
-                default: "Location"
-            },
             address: {
                 type: String
             },
@@ -93,7 +89,6 @@
                 if (!this.locationChoiceMarker) {
                     this.locationChoiceMarker = new this.google.maps.Marker({
                         position: position,
-                        label: {text: this.markerLabel},
                     });
                     this.locationChoiceMarker.setMap(this.map)
                 } else if (this.locationChoiceMarker.map === null) {

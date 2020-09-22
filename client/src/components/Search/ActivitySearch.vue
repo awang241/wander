@@ -16,7 +16,7 @@
     <br>
     <div class="columns is-desktop">
       <div class="column">
-        <MapPane ref="map" marker-label="Search Location" :location-choice-coordinates="profileLocationLatLong" v-bind:address="this.profile.location.address"
+        <MapPane ref="map" :location-choice-coordinates="profileLocationLatLong" v-bind:address="this.profile.location.address"
                  v-on:locationChoiceChanged="updateLocation"
                  :info-window-content="this.informationWindowData" :default_width="500" :default_height="500"></MapPane>
       </div>
