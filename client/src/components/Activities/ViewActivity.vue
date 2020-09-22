@@ -10,13 +10,13 @@
                                 <div class="buttons">
                                     <b-button v-if="userRole !== 'follower'" style="float:right" @click="updateRole(store.getters.getUserId,roles.FOLLOWER)"
                                               id="followButton" type="is-primary">
-                                        Follow
+                                        Become Follower
                                     </b-button>
 
 
                                     <b-button id="participateButton" v-if="userRole !== 'participant'" style="float:right" @click="updateRole(store.getters.getUserId, roles.PARTICIPANT)"
                                               type="is-primary">
-                                        Participate
+                                        Become Participant
                                     </b-button>
 
 
@@ -49,8 +49,6 @@
                                         Leave Activity
                                     </b-dropdown-item>
                                 </div>
-
-
                             </b-dropdown>
                         </div>
                     </div>
@@ -64,7 +62,6 @@
                         <h2 v-if="userRole != null" class="subtitle is-5">
                             My Role: {{userRole}}
                         </h2>
-
                     <div>
                         <h3 class="title is-5">{{privacy}}</h3>
                     </div>
@@ -228,6 +225,10 @@
                         <p>This activity has no participation results.</p>
                     </div>
                 </b-tab-item>
+
+                <b-tab-item label="Location">
+                    <MapPane marker-label="View Activity Location" :location-choice-coordinates="activityLocationLatLong" v-bind:marker-enabled="false" :default_width="900" :default_height="550"></MapPane>
+                </b-tab-item>
             </b-tabs>
         </div>
     </div>
@@ -241,6 +242,8 @@
     import Observer from "../Misc/Observer";
     import ActivityParticipationSummary from "../Summaries/ActivityParticipationSummary";
     import toastMixin from "../../mixins/toastMixin";
+    import googleMapsInit from "../../utils/googlemaps";
+    import MapPane from "../Location/MapPane";
 
 
     const DEFAULT_RESULT_COUNT = 50;
@@ -249,7 +252,8 @@
         CREATOR: "creator",
         ORGANISER: "organiser",
         PARTICIPANT: "participant",
-        FOLLOWER: "follower"
+        FOLLOWER: "follower",
+        NONE: "None"
     });
 
     function RolePagingData() {
@@ -259,14 +263,22 @@
 
     export default {
         name: "ViewActivity",
-        components: {ProfileSummary, ActivityParticipationSummary, Observer},
+        components: {MapPane, ProfileSummary, ActivityParticipationSummary, Observer},
         mixins: [toastMixin],
         data() {
             return {
                 roles: ROLES,
-                userRole: null,
+                userRole: ROLES.NONE,
                 activityId: this.$route.params.id,
                 activity: null,
+                activityLocationLatLong: null,
+                google: null,
+                geocoder:null,
+                location: {
+                    address: "",
+                    latitude: "",
+                    longitude: ""
+                },
                 members: {
                     "organiser": [],
                     "participant": [],
@@ -290,7 +302,7 @@
         },
         methods: {
             updateRole(profileId, newRole) {
-                if (this.userRole == null) {
+                if (this.userRole === ROLES.NONE) {
                     this.addRole(newRole);
                 } else if (this.userRole !== newRole) {
                     this.changeRole(profileId, this.userRole, newRole);
@@ -316,7 +328,11 @@
             },
             getActivity() {
                 api.getActivity(parseInt(this.activityId), localStorage.getItem('authToken'))
-                    .then(response => this.activity = response.data)
+                    .then(response => {
+                        this.activity = response.data
+                        this.location.address = this.activity.location
+                        this.activityLocationLatLong = {lat: this.activity.latitude, lng: this.activity.longitude};
+                    })
                     .catch(() => {
                         this.warningToast("Error occurred when getting activity");
                         router.go(-1);
@@ -459,22 +475,20 @@
             hasOrganiserPermissions: function () {
                 return (this.hasCreatorPermissions || this.userRole === this.roles.ORGANISER)
             }
-
         },
-        mounted() {
+        async mounted() {
+            this.google = await googleMapsInit();
             this.getActivity();
             this.getRoleCounts();
             this.getParticipationResults();
             this.getAllActivityMembers();
-
+            this.geocoder = new this.google.maps.Geocoder();
             setTimeout(() => {
                 this.getUserRole()
             }, 400);
-
             this.activity = {
                 continuous: false
             };
-
         }
     }
 </script>

@@ -34,38 +34,15 @@
              There is a lot of logic within the add listener because Google Maps is not in the same scope as Vue. **/
             initAutoCompleteLocation() {
                 let options = {
-                    types: ['geocode'],
+                    types: ['geocode', 'establishment'],
                 };
 
                 autocompleteLocation = new this.google.maps.places.Autocomplete(document.getElementById("autocompleteLocation"), options)
                 autocompleteLocation.setFields(['address_components']);
                 autocompleteLocation.addListener('place_changed', () => {
-                    this.location.address = this.formatLocationTextField(autocompleteLocation.getPlace());
-                    document.getElementById("autocompleteLocation").value = this.location.address;
+                    this.location.address = document.getElementById("autocompleteLocation").value
                     this.checkValidGeoCode(this.location.address)
                 })
-            },
-
-            formatLocationTextField(locationObject) {
-                let locationString = "";
-                let addressSize = (locationObject.address_components).length
-                for (let i = 0; i < addressSize; i++) {
-                    if (i === 0) {
-                      const regexCriteria = /^[0-9]*[a-zA-Z]?$/;
-                      locationString = locationObject.address_components[0].long_name;
-                      if(!locationString.match(regexCriteria) && i + 1 !== addressSize) {
-                        locationString = locationString + ","
-                      }
-                    } else if (i === addressSize - 1) {
-                        locationString = locationString + " " + locationObject.address_components[i].long_name
-                    } else {
-                        if (locationObject.address_components[i].long_name !== locationObject.address_components[i - 1].long_name) {
-                            locationString = locationString + " " + locationObject.address_components[i].long_name + ",";
-                        }
-                    }
-                }
-                return locationString
-
             },
 
             checkValidGeoCode(locationAddress) {
