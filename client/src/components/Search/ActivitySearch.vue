@@ -167,7 +167,6 @@ export default {
       let informationWindowText =
               `<div style="width: 100vh; height: 100vh;">` +
               `<h1 style="font-size: 22px; font-weight: bold; font-style: italic">${activityDetails.activityName}</h1>` +
-              `<br>` +
               `<h1 style="font-weight: bold">${activityDetails.location}</h1>` +
               `<br>` +
               `<h1 style="font-weight: bold">Start date: Now</h1>` +
@@ -180,12 +179,13 @@ export default {
     },
 
     formatActivityTypesString(activityTypes) {
-      let formattedActivityTypes =
-              `<h1 style="font-size: 16px; font-weight: bold"> Activity Types:</h1>` +
-              `<br>`
+      let formattedActivityTypes = `<h1 style="font-size: 16px; font-weight: bold"> Activity Types:</h1>`
       let typesString = "";
       for (let i = 0; i < activityTypes.length; i++) {
-        typesString = typesString + `<span style="color:red; font-weight: bold">*</span><span> ${activityTypes[i]}</span>` + `<br>`
+        typesString = typesString + `<span style="color:red; font-weight: bold">*</span><span> ${activityTypes[i]} </span>`
+        if (i % 5 === 0 && i !== 0) {
+          typesString = typesString + `<br>`
+        }
       }
       return formattedActivityTypes + typesString
     }

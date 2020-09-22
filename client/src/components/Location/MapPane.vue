@@ -143,6 +143,9 @@
                 marker.addListener("mouseover", () => {
                     infowindow.open(this.map, marker);
                 });
+                marker.addListener("mouseout", () => {
+                    infowindow.close();
+                });
                 marker.setMap(this.map);
                 // add markers to list so that we can select what pins to remove
                 this.markers.push(marker);
