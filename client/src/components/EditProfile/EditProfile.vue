@@ -11,14 +11,15 @@
         <li :class="{'is-active': tabIndex === 3}"><a v-on:click="setTabIndex(3)">Activity Types</a></li>
         <li :class="{'is-active': tabIndex === 4}"><a v-on:click="setTabIndex(4)">Emails</a></li>
         <li :class="{'is-active': tabIndex === 5}"><a v-on:click="setTabIndex(5)">Location</a></li>
-        <li>
-          <a v-if="store.getters.getAuthenticationLevel > 0 && !editingThroughDashboard"
-             @click="changeToProfile">Back to Profile</a>
+        <li v-if="$store.getters.getAuthenticationLevel > 0 && !editingThroughDashboard">
+            <a @click="changeToProfile">
+                Back to Profile
+            </a>
         </li>
       </ul>
     </div>
     <div>
-      <component v-bind:is="component"
+      <component v-bind:is="componentMap[tabIndex]"
                  v-bind:profile="profile"/>
     </div>
   </div>
@@ -33,7 +34,6 @@ import editEmails from "./EditEmails";
 import editLocation from "./EditLocation";
 import api from '../../Api';
 import router from "../../router";
-import store from "../../store";
 import {eventBus} from '../../main';
 import toastMixin from "../../mixins/toastMixin";
 
@@ -57,42 +57,39 @@ export default {
         return {
             tabIndex: 0,
             profile: {},
-            store: store
         }
     },
     computed: {
         editingThroughDashboard: function () {
           return this.$route.params.id == null
-        },
-        component: function () {
-            return COMPONENT_MAP[this.tabIndex]
         }
+    },
+    created() {
+        this.componentMap = COMPONENT_MAP
     },
     mounted() {
         this.getProfile();
     },
-  // These methods are used to dynamically swap between components on click
     methods: {
         setTabIndex(index) {
             this.tabIndex = index
         },
         changeToProfile() {
-            router.push({path: '/Profile/' + store.getters.getUserId});
+            router.push({path: '/Profile/' + this.$store.getters.getUserId});
         },
         changeToDashboard() {
             router.push({path: '/AdminDashboard'});
         },
-
         getProfile() {
-            if (!(this.id === store.getters.getUserId || store.getters.getAuthenticationLevel < 2)) {
-                router.push({path: '/EditProfile/' + store.getters.getUserId})
+            if (!(this.id === this.$store.getters.getUserId || this.$store.getters.getAuthenticationLevel < 2)) {
+                router.push({path: '/EditProfile/' + this.$store.getters.getUserId})
             }
-        api.getProfile(this.id, localStorage.getItem('authToken'))
-            .then(response => this.profile = response.data)
-            .catch(() => {
-                this.warningToast("Error occurred while getting Profile details.");
-                router.go(-1)
-            })
+            api.getProfile(this.id, localStorage.getItem('authToken'))
+                .then(response => this.profile = response.data)
+                .catch(() => {
+                    this.warningToast("Error occurred while getting Profile details.");
+                    router.go(-1)
+                })
         },
         updateCountries(newCountries) {
             this.profile.passports = newCountries;
