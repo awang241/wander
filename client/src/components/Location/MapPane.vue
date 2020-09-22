@@ -11,6 +11,7 @@
 <script>
     import VueResizable from 'vue-resizable'
     import googleMapsInit from '../../utils/googlemaps'
+    import ViewActivity from "../Activities/ViewActivity";
     //Fake data until API endpoint is set up
 
     const DEFAULT_LOCATION = {lat: -43.4341, lng: 172.6397}
@@ -48,12 +49,12 @@
             address: {
                 type: String
             },
-              default_width: {
-                  type: Number
-              },
-              default_height: {
-                  type: Number
-              }
+            default_width: {
+                type: Number
+            },
+            default_height: {
+                type: Number
+            }
         },
 
         data() {
@@ -71,8 +72,8 @@
         watch: {
             locationChoiceCoordinates: function (newCoords) {
                 if (newCoords) {
-                  this.setLocationWithMarker(newCoords)
-                  this.map.setCenter(newCoords)
+                    this.setLocationWithMarker(newCoords)
+                    this.map.setCenter(newCoords)
                 }
             }
         },
@@ -99,19 +100,19 @@
             },
             //Allows user to choose their location by clicking on the map
             setLocationWithMarker(position) {
-              if (!this.locationChoiceMarker) {
-                this.locationChoiceMarker = new this.google.maps.Marker({
-                  position: position,
-                  label: {text: this.markerLabel},
-                });
-                this.locationChoiceMarker.setMap(this.map)
-              } else if (this.locationChoiceMarker.map === null) {
-                this.locationChoiceMarker.setMap(this.map)
-              } else {
-                this.locationChoiceMarker.setPosition(position)
-              }
-              this.setZoomLevel()
-              this.$emit('locationChoiceChanged', position)
+                if (!this.locationChoiceMarker) {
+                    this.locationChoiceMarker = new this.google.maps.Marker({
+                        position: position,
+                        label: {text: this.markerLabel},
+                    });
+                    this.locationChoiceMarker.setMap(this.map)
+                } else if (this.locationChoiceMarker.map === null) {
+                    this.locationChoiceMarker.setMap(this.map)
+                } else {
+                    this.locationChoiceMarker.setPosition(position)
+                }
+                this.setZoomLevel()
+                this.$emit('locationChoiceChanged', position)
             },
             //Dynamically creates the google map
             createMap() {
@@ -146,18 +147,17 @@
                 marker.addListener("mouseout", () => {
                     infowindow.close();
                 });
+                marker.addListener('click', () => this.openActivityModal(id))
                 marker.setMap(this.map);
                 // add markers to list so that we can select what pins to remove
                 this.markers.push(marker);
             },
             setZoomLevel(newAddress) {
-                if (newAddress){
+                if (newAddress) {
                     let address_parts = newAddress.split(',');
                     let zoomLevel = address_parts.length * 3;
                     this.map.setZoom(zoomLevel)
-                }
-
-                else if (this.address) {
+                } else if (this.address) {
                     let address_parts = this.address.split(',');
                     let zoomLevel = address_parts.length * 3;
                     this.map.setZoom(zoomLevel)
@@ -174,7 +174,17 @@
                     this.markers[i].setMap(null);
                 }
                 this.markers = [this.markers[0]];
-            }
+            },
+            openActivityModal(id) {
+                this.$buefy.modal.open({
+                    parent: this,
+                    props: {idProp: id},
+                    component: ViewActivity,
+                    trapFocus: true,
+                    scroll: "clip"
+                })
+            },
+
         }
     }
 </script>
