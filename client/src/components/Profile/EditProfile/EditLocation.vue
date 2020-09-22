@@ -8,7 +8,6 @@
                           ref="autocomplete"></AutoCompleteLocation>
 
     <MapPane v-bind:address="this.locationString"
-             marker-label="Profile Location"
              :location-choice-coordinates="profileLocationLatLong"
              v-on:locationChoiceChanged="updateLocation"
              ref="map"

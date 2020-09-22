@@ -25,10 +25,6 @@
             locationChoiceCoordinates: {
                 type: Object,
             },
-            markerLabel: {
-                type: String,
-                default: "Location"
-            },
             address: {
                 type: String
             },
@@ -171,12 +167,18 @@
                     let address_parts = newAddress.split(',');
                     let zoomLevel = address_parts.length * 4;
                     this.map.setZoom(zoomLevel)
-                }
-                else if (this.address) {
+                } else if (this.address) {
                     let address_parts = this.address.split(',');
                     let zoomLevel = address_parts.length * 4;
                     this.map.setZoom(zoomLevel)
                 }
+            },
+            setZoomWithMarkers() {
+                let bounds = new this.google.maps.LatLngBounds();
+                for (let i = 1; i < this.markers.length; i++) {
+                  bounds.extend(this.markers[i].position);
+                }
+                this.map.fitBounds(bounds);
             },
             removeMarker() {
                 this.locationChoiceMarker.setMap(null)

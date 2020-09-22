@@ -99,6 +99,7 @@ export default {
           for (let i = 0; i < this.activityResults.length; i++) {
               let activityLatLong = {lat: this.activityResults[i].latitude, lng: this.activityResults[i].longitude};
               this.$refs.map.createSingleMarker({position: activityLatLong, id: this.activityResults[i].id});
+              this.$refs.map.setZoomWithMarkers();
           }
         } else {
           this.activityResults = [];
