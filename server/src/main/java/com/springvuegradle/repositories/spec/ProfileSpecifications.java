@@ -7,6 +7,9 @@ import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.Join;
 
+import java.util.Objects;
+
+
 /**
  * Helper class containing methods to create Specifications to use in ProfileRepository. Specifications can be passed to
  * findAll() to filter results. The specifications can be chained using the and()/or()/not() etc. methods to create more
@@ -38,7 +41,8 @@ public class ProfileSpecifications {
      */
     public static Specification<Profile> firstNameContains(String substring) {
         String pattern = "%" + substring.toLowerCase() + "%";
-        return (root, query, criteriaBuilder) -> criteriaBuilder.like(criteriaBuilder.lower(root.get("firstname")), pattern);
+        return (root, query, criteriaBuilder) -> criteriaBuilder.like(
+                criteriaBuilder.lower(root.get("firstname")), pattern);
     }
 
     /**
@@ -48,7 +52,8 @@ public class ProfileSpecifications {
      */
     public static Specification<Profile> middleNameContains(String substring) {
         String pattern = "%" + substring.toLowerCase() + "%";
-        return (root, query, criteriaBuilder) -> criteriaBuilder.like(criteriaBuilder.lower(root.get("middlename")), pattern);
+        return (root, query, criteriaBuilder) -> criteriaBuilder.like(
+                criteriaBuilder.lower(root.get("middlename")), pattern);
     }
 
     /**
@@ -69,6 +74,7 @@ public class ProfileSpecifications {
      */
     public static Specification<Profile> lastNameContains(String substring) {
         String pattern = "%" + substring.toLowerCase() + "%";
+
         return (root, query, criteriaBuilder) -> criteriaBuilder.like(
                 criteriaBuilder.lower(root.get("lastname")), pattern);
     }
@@ -111,5 +117,27 @@ public class ProfileSpecifications {
             }
         }
         return spec;
+    }
+
+    /**
+     * Creates a specification matching all profiles whose first, middle, last, or nickname contains the given substring.
+     * @param substring The string pattern to be matched to.
+     * @return A specification matching all profiles whose middle first, middle, last, or nickname contains the given substring.
+     */
+    public static Specification<Profile> anyNameContains(String substring) {
+        String pattern = "%" + substring.toLowerCase() + "%";
+        Specification<Profile> checkFirstName = (root, query, criteriaBuilder) ->
+            criteriaBuilder.like(
+                    criteriaBuilder.lower(root.get("firstname")), pattern);
+        Specification<Profile>  checkMiddleName = (root, query, criteriaBuilder) ->
+                criteriaBuilder.like(
+                        criteriaBuilder.lower(root.get("middlename")), pattern);
+        Specification<Profile>  checkLastName = (root, query, criteriaBuilder) ->
+                criteriaBuilder.like(
+                        criteriaBuilder.lower(root.get("lastname")), pattern);
+        Specification<Profile>  checkNickname = (root, query, criteriaBuilder) ->
+                criteriaBuilder.like(
+                        criteriaBuilder.lower(root.get("nickname")), pattern);
+        return Objects.requireNonNull(Objects.requireNonNull(checkFirstName.or(checkMiddleName)).or(checkLastName)).or(checkNickname);
     }
 }

@@ -291,7 +291,9 @@ public class Profile_Controller {
                 fullName = fullName.strip();
                 List<String> names = Arrays.asList(fullName.split(" "));
                 if (names.size() == 1) {
-                    criteria.setLastName(names.get(0));
+
+                    criteria.setAnyName(names.get(0));
+
                 } else if (names.size() > 1){
                     criteria.setFirstName(names.get(0));
                     criteria.setLastName(names.get(names.size() - 1));

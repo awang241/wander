@@ -109,6 +109,10 @@ public class ProfileService {
     public Page<Profile> getUsers(ProfileSearchCriteria criteria, Pageable request) {
         Specification<Profile> spec = ProfileSpecifications.notDefaultAdmin();
 
+        if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getAnyName()))) {
+            spec = spec.and(ProfileSpecifications.anyNameContains(criteria.getAnyName()));
+        }
+
         if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getFirstName()))) {
             spec = spec.and(ProfileSpecifications.firstNameContains(criteria.getFirstName()));
         }
@@ -132,7 +136,6 @@ public class ProfileService {
         if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getActivityTypes()))) {
             spec = spec.and(ProfileSpecifications.activityTypesContains(criteria.getActivityTypes(), criteria.getSearchMethod()));
         }
-
         return profileRepository.findAll(spec, request);
     }
 
