@@ -18,12 +18,13 @@
             </div>
             <b-menu-item class="is-vertical-center">
                 <template slot="label">
-                    <b-dropdown aria-role="list" class="is-pulled-right" position="is-bottom-left">
+                    <b-dropdown v-if="store.getters.getAuthenticationLevel <= 1" aria-role="list" class="is-pulled-right" position="is-bottom-left">
                         <b-icon icon="ellipsis-v" slot="trigger"></b-icon>
                         <b-dropdown-item aria-role="listitem" @click="goToActivity(activity)">View activity</b-dropdown-item>
-                        <b-dropdown-item v-if="store.getters.getAuthenticationLevel <= 1" aria-role="listitem" @click="editActivity(activity)">Edit activity </b-dropdown-item>
-                        <b-dropdown-item v-if="store.getters.getAuthenticationLevel <= 1" aria-role="listitem" @click="deleteActivity(activity.id)">Delete activity</b-dropdown-item>
+                        <b-dropdown-item aria-role="listitem" @click="editActivity(activity)">Edit activity </b-dropdown-item>
+                        <b-dropdown-item aria-role="listitem" @click="deleteActivity(activity.id)">Delete activity</b-dropdown-item>
                     </b-dropdown>
+                    <b-button v-else type="is-text" @click="goToActivity(activity)">View activity</b-button>
                 </template>
             </b-menu-item>
         </div>

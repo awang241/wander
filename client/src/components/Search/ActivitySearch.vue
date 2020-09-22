@@ -39,19 +39,11 @@
         </div>
       </div>
     </div>
-
-
     <br>
-
     <div class="row">
-      <br>
-      <b-field style="float:left">
-        <b-button type="is-danger" @click="clearLocation()">Clear</b-button>
-      </b-field>
       <b-field style="float:right;">
         <b-button type="is-primary" @click="search()">Search</b-button>
       </b-field>
-      <br>
     </div>
     <br/>
   </div>
@@ -106,8 +98,8 @@ export default {
           for (let i = 0; i < this.activityResults.length; i++) {
               let activityLatLong = {lat: this.activityResults[i].latitude, lng: this.activityResults[i].longitude};
               let contentInformation = this.formatActivityDetails(this.activityResults[i]);
-              console.log(this.activityResults[i])
               this.$refs.map.createSingleMarker({position: activityLatLong, text: this.activityResults[i].activityName, id: this.activityResults[i].id}, contentInformation);
+              this.$refs.map.setZoomWithMarkers();
           }
         } else {
           this.activityResults = [];
@@ -134,6 +126,8 @@ export default {
             this.profile = response.data;
             if (this.profile.location) {
               this.profileLocationLatLong = {lat: this.profile.location.latitude, lng: this.profile.location.longitude};
+            } else {
+              this.profile.location = {address: "", latitude: null, longitude: null}
             }
           })
           .catch(() => {

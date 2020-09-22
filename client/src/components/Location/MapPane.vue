@@ -5,6 +5,8 @@
     >
         <b-button id="resizeButton" @click="resizePane">{{isMinimized ? "Restore Map" : "Minimize Map"}}</b-button>
         <div id="map"></div>
+        <div id="legend" v-if="$parent.$options.name == 'ActivitySearch'"></div>
+
     </VueResizable>
 </template>
 
@@ -17,34 +19,12 @@
     const DEFAULT_LOCATION = {lat: -43.4341, lng: 172.6397}
     const DEFAULT_ZOOM = 4;
 
-    const locations = [
-        {
-            position: {
-                lat: 48.160910,
-                lng: 16.383330,
-            },
-            text: "Marker one",
-            id: 7
-        },
-        {
-            position: {
-                lat: 68.174270,
-                lng: 16.329620,
-            },
-            text: "Marker two",
-            id: 8
-        },
-    ];
     export default {
         name: "MapPane",
         components: {VueResizable},
         props: {
             locationChoiceCoordinates: {
                 type: Object,
-            },
-            markerLabel: {
-                type: String,
-                default: "Location"
             },
             address: {
                 type: String
@@ -65,7 +45,19 @@
                 map: null,
                 google: null,
                 // keeps track of pins on map
-                markers: []
+                markers: [],
+                icons: {
+                  searchBaseIcon: {
+                    name: 'Search Centre',
+                    icon: 'http://labs.google.com/ridefinder/images/mm_20_red.png'
+                  },
+                  activityIcon: {
+                    name: 'Activity',
+                    icon: 'http://labs.google.com/ridefinder/images/mm_20_blue.png'
+                  },
+                }
+
+
             }
         },
 
@@ -81,7 +73,6 @@
         async mounted() {
             this.google = await googleMapsInit()
             await this.createMap()
-            this.createMarkers()
             if (this.locationChoiceCoordinates) {
                 this.setLocationWithMarker(this.locationChoiceCoordinates)
             }
@@ -103,7 +94,7 @@
                 if (!this.locationChoiceMarker) {
                     this.locationChoiceMarker = new this.google.maps.Marker({
                         position: position,
-                        label: {text: this.markerLabel},
+                        icon: this.icons.searchBaseIcon.icon
                     });
                     this.locationChoiceMarker.setMap(this.map)
                 } else if (this.locationChoiceMarker.map === null) {
@@ -120,13 +111,13 @@
                     zoom: DEFAULT_ZOOM,
                     center: this.locationChoiceCoordinates ? this.locationChoiceCoordinates : DEFAULT_LOCATION,
                 });
-                this.google.maps.event.addListener(this.map, 'click', e => {
-                    this.setLocationWithMarker(e.latLng);
-                })
-            },
-            //Loops through locations and creates marker for each one
-            createMarkers() {
-                locations.forEach(location => this.createSingleMarker(location))
+                if (this.markerEnabled == true) {
+                    this.google.maps.event.addListener(this.map, 'click', e => {
+                        this.setLocationWithMarker(e.latLng);
+                    })
+                }
+
+              this.createLegend();
             },
             //Creates a singular marker on the map
             createSingleMarker({position, text, id}, infoWindowContent) {
@@ -137,8 +128,8 @@
                 const marker = new this.google.maps.Marker({
                     position: position,
                     map: this.map,
-                    label: {text: text},
-                    id: id
+                    id: id,
+                    icon: this.icons.activityIcon.icon
                 });
 
                 marker.addListener("mouseover", () => {
@@ -152,16 +143,39 @@
                 // add markers to list so that we can select what pins to remove
                 this.markers.push(marker);
             },
+            createLegend(){
+              let legend = document.getElementById('legend');
+              for (let key in this.icons) {
+                let type = this.icons[key];
+                let name = type.name;
+                let icon = type.icon;
+                let div = document.createElement('div');
+                div.innerHTML = '<img src="' + icon + '"> ' + name;
+                legend.appendChild(div);
+              }
+              this.map.controls[this.google.maps.ControlPosition.LEFT_BOTTOM].push(legend);
+            },
+            //Method that should show users profile, or route to their profile in the future
+            openDetailedMarkerView(id) {
+                alert(`Opening profile ${id}`)
+            },
             setZoomLevel(newAddress) {
                 if (newAddress) {
                     let address_parts = newAddress.split(',');
-                    let zoomLevel = address_parts.length * 3;
+                    let zoomLevel = address_parts.length * 4;
                     this.map.setZoom(zoomLevel)
                 } else if (this.address) {
                     let address_parts = this.address.split(',');
-                    let zoomLevel = address_parts.length * 3;
+                    let zoomLevel = address_parts.length * 4;
                     this.map.setZoom(zoomLevel)
                 }
+            },
+            setZoomWithMarkers() {
+                let bounds = new this.google.maps.LatLngBounds();
+                for (let i = 1; i < this.markers.length; i++) {
+                  bounds.extend(this.markers[i].position);
+                }
+                this.map.fitBounds(bounds);
             },
             removeMarker() {
                 this.locationChoiceMarker.setMap(null)
@@ -195,4 +209,13 @@
         height: 90%;
         position: relative;
     }
+
+    #legend {
+      font-family: Arial, sans-serif;
+      background: #fff;
+      padding: 10px;
+      margin: 10px;
+      border: 1px solid #000;
+    }
+
 </style>
