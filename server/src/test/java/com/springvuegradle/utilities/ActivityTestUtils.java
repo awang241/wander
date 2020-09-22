@@ -42,7 +42,7 @@ public class ActivityTestUtils {
      */
     public static Activity createNormalActivityTwo() {
         return new Activity("Blazer Tag", "It's lazer tag in blazers", new String[]{"Running"},
-                true, null, null, "Christchurch, NZ", 90, 90);
+                true, null, null, "Christchurch, NZ", 90.0, 90.0);
     }
 
     /**
