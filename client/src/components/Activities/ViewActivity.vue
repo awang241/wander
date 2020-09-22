@@ -227,7 +227,7 @@
                 </b-tab-item>
 
                 <b-tab-item label="Location">
-                    <MapPane marker-label="View Activity Location" :location-choice-coordinates="activityLocationLatLong" v-bind:marker-enabled="false" :default_width="1200" :default_height="550"></MapPane>
+                    <MapPane marker-label="View Activity Location" :location-choice-coordinates="activityLocationLatLong" v-bind:marker-enabled="false" :default_width="900" :default_height="550"></MapPane>
                 </b-tab-item>
             </b-tabs>
         </div>
@@ -301,21 +301,6 @@
           }
         },
         methods: {
-            getValidGeoCode() {
-                return new Promise((resolve, reject) => {
-                    this.geocoder.geocode({'address': this.location.address}, (results, status) => {
-                        if (status === 'OK') {
-                            this.location.latitude = results[0].geometry.location.lat()
-                            this.location.longitude = results[0].geometry.location.lng()
-                            this.activityLocationLatLong = {lat: this.location.latitude, lng: this.location.longitude}
-                            resolve(true)
-                        } else {
-                            reject(false);
-                        }
-                    })
-                })
-
-            },
             updateRole(profileId, newRole) {
                 if (this.userRole === ROLES.NONE) {
                     this.addRole(newRole);
@@ -497,7 +482,6 @@
             this.getRoleCounts();
             this.getParticipationResults();
             this.getAllActivityMembers();
-            await this.getValidGeoCode();
             this.geocoder = new this.google.maps.Geocoder();
             setTimeout(() => {
                 this.getUserRole()
