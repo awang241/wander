@@ -53,7 +53,17 @@
                 map: null,
                 google: null,
                 // keeps track of pins on map
-                markers: []
+                markers: [],
+                icons: {
+                  searchBaseIcon: {
+                    name: 'Search Centre',
+                    icon: 'http://labs.google.com/ridefinder/images/mm_20_red.png'
+                  },
+                  activityIcon: {
+                    name: 'Activity',
+                    icon: 'http://labs.google.com/ridefinder/images/mm_20_blue.png'
+                  },
+                }
 
 
             }
@@ -92,7 +102,7 @@
               if (!this.locationChoiceMarker) {
                 this.locationChoiceMarker = new this.google.maps.Marker({
                   position: position,
-                  icon: {url: "http://labs.google.com/ridefinder/images/mm_20_red.png"}
+                  icon: this.icons.searchBaseIcon.icon
                 });
                 this.locationChoiceMarker.setMap(this.map)
               } else if (this.locationChoiceMarker.map === null) {
@@ -125,7 +135,7 @@
                     position: position,
                     map: this.map,
                     id: id,
-                    icon: {url: "http://labs.google.com/ridefinder/images/mm_20_blue.png"}
+                    icon: this.icons.activityIcon.icon
                 });
                 marker.addListener("click", () => {
                     infowindow.open(this.map, marker);
@@ -135,23 +145,12 @@
                 this.markers.push(marker);
             },
             createLegend(){
-              var icons = {
-                searchBaseIcon: {
-                  name: 'Search Centre',
-                  icon: 'http://labs.google.com/ridefinder/images/mm_20_red.png'
-                },
-                activityIcon: {
-                  name: 'Activity',
-                  icon: 'http://labs.google.com/ridefinder/images/mm_20_blue.png'
-                },
-              }
-
-              var legend = document.getElementById('legend');
-              for (var key in icons) {
-                var type = icons[key];
-                var name = type.name;
-                var icon = type.icon;
-                var div = document.createElement('div');
+              let legend = document.getElementById('legend');
+              for (let key in this.icons) {
+                let type = this.icons[key];
+                let name = type.name;
+                let icon = type.icon;
+                let div = document.createElement('div');
                 div.innerHTML = '<img src="' + icon + '"> ' + name;
                 legend.appendChild(div);
               }
