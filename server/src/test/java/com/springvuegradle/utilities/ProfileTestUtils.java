@@ -33,6 +33,12 @@ public class ProfileTestUtils {
                 28), "male", 1, new String[]{"New Zealand", "India"}, new String[]{});
     }
 
+    public static Profile createProfileNoPassportCountry() {
+        return new Profile(null, "Jimmy", "Quick", "Jones", "Jim-Jam", "jimjam@hotmail.com", new String[]{"additional@email.com"}, "hushhush",
+                "The quick brown fox jumped over the lazy dog.", new GregorianCalendar(1999, Calendar.NOVEMBER,
+                28), "male", 1, new String[] {}, new String[]{});
+    }
+
     /**
      * Creates a new profile with the same names as profile created by createNormalProfileJimmy().
      * @return a new profile.

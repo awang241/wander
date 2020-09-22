@@ -226,7 +226,7 @@ public class ActivityTestSteps {
 
     static Activity createNormalActivity(String title, String location) {
         return new Activity(title, "description doesn't matter atm",
-                new String[]{"Running"}, true, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "UC, CHCH, NZ", 100, 100);
+                new String[]{"Running"}, true, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "UC, CHCH, NZ", 100.0, 100.0);
     }
 
 

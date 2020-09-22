@@ -15,17 +15,59 @@ public class ActivityTestUtils {
      */
     public static Activity createNormalActivity() {
         return new Activity("Kaikoura Coast Track race", "A big and nice race on a lovely peninsula",
-                new String[]{"Hiking"}, false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ", 100, 100);
+                new String[]{"Hiking"}, false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ", 100.00, 100.00);
     }
 
     public static Activity createActivity(String name, Double latitude, Double longitude) {
-        return new Activity(name, "A big and nice race on a lovely peninsula",
-                new String[]{"Hiking"}, false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ", latitude, longitude);
+        return new Activity(
+                name,
+                "A big and nice race on a lovely peninsula",
+                new String[]{"Hiking"},
+                false,
+                "2020-02-20T08:00:00+1300",
+                "2020-02-20T08:00:00+1300",
+                "Kaikoura, NZ",
+                latitude,
+                longitude);
+    }
+
+    public static Activity updateNormalActivity(String name, String description, String[] activityTypes, Boolean continuous,
+                                                String startTime, String endTime, String location, double latitude, double longitude) {
+        if (name == "default") {
+            name = "Kaikoura Coast Track race";
+        }
+        if (description == "default") {
+            description = "Kaikoura Coast Track race";
+        }
+        if(activityTypes == null) {
+            activityTypes =  new String[]{"Hiking"};
+        }
+        if (startTime == "default") {
+            startTime = "2020-02-20T08:00:00+1300";
+        }
+        if (endTime == "default") {
+            endTime = "2020-03-20T08:00:00+1300";
+        }
+        if (location == "default") {
+            location = "Kaikoura, NZ";
+        }
+        return new Activity(name, description, activityTypes, continuous, startTime, endTime, location, latitude, longitude);
+    }
+
+
+    public static Activity createNormalActivitySilly() {
+        return new Activity("Wibble", "A bald man", new String[]{"Hockey"}, true,
+                "2020-02-20T08:00:00+1300","2020-02-20T08:00:00+1300", "K2", 100.00, 100.00);
+    }
+
+    public static Activity createNormalActivitySillyNoActivityName() {
+        return new Activity(null, "A bald man", new String[]{"Hockey"}, true,
+                "2020-02-20T08:00:00+1300","2020-02-20T08:00:00+1300", "K2", 100.00, 100.00);
     }
 
     public static Activity createDifferentLocationActivity() {
         return new Activity("Kaikoura Coast Track race", "A big and nice race on a lovely peninsula",
-                new String[]{"Hiking"}, false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Dunedin, NZ", 50, 200);
+                new String[]{"Hiking"}, false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Dunedin, NZ", 50.00, 200.00);
     }
 
     public static ActivityParticipation createNormalParticipation() {

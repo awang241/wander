@@ -14,26 +14,45 @@
                         :chosenActivityTypes="chosenActivityTypes"
                         :activitySearchType="activitySearchType"></ActivityTypesField>
     <br>
-    <MapPane marker-label="Profile Location" :location-choice-coordinates="profileLocationLatLong" v-bind:address="this.profile.location.address"
-             v-on:locationChoiceChanged="updateLocation" :info-window-content="this.informationWindowData"></MapPane>
-    <br>
+    <div class="columns is-desktop">
+      <div class="column">
+        <MapPane ref="map" marker-label="Search Location" :location-choice-coordinates="profileLocationLatLong" v-bind:address="this.profile.location.address"
+                 v-on:locationChoiceChanged="updateLocation"
+                 :info-window-content="this.informationWindowData" :default_width="500" :default_height="500"></MapPane>
+      </div>
+      <div class="column">
+      <div id="results" v-if="activityResults.length">
+          <h1><b>Activities returned from Search:</b></h1>
+          <br>
+          <div style="overflow-y: auto; overflow-x: hidden">
+            <div
+                    v-for="activity in activityResults"
+                    :key="activity.id">
+              <ActivitySummary :activity="activity">
+              </ActivitySummary>
+              <br>
+            </div>
+          </div>
 
+        </div>
+        <div v-else id="noMatches">
+          <h1><b>{{searchResultString}}</b></h1>
+        </div>
+      </div>
+    </div>
+    <br>
     <div class="row">
-      <br>
-      <b-field style="float:left">
-        <b-button type="is-danger" @click="clearLocation()">Clear</b-button>
-      </b-field>
-      <b-field style="float:right">
+      <b-field style="float:right;">
         <b-button type="is-primary" @click="search()">Search</b-button>
       </b-field>
-      <br>
     </div>
     <br/>
   </div>
 </template>
 
 <script>
-    import googleMapsInit from '../../utils/googlemaps'
+    import ActivitySummary from '../Summaries/ActivitySummary';
+    import googleMapsInit from '../../utils/googlemaps';
     import MapPane from "../Location/MapPane";
     import ActivityTypesField from "./SearchReusables/ActivityTypesField";
     import Api from "../../Api";
@@ -44,7 +63,7 @@
 export default {
   name: "ActivitySearch",
   components: {
-    MapPane, ActivityTypesField, AutoCompleteLocation
+    MapPane, ActivityTypesField, AutoCompleteLocation, ActivitySummary
   },
   mixins: [toastMixin],
   data() {
@@ -58,7 +77,8 @@ export default {
       store: store,
       profileLocationLatLong: null,
       locationString: "",
-      informationWindowData: ""
+      informationWindowData: "",
+      searchResultString: "Please click the 'Search' button below!"
 
     }
   },
@@ -69,14 +89,28 @@ export default {
       this.chosenActivityTypes = []
     },
     search() {
+      // remove old pins
+      this.$refs.map.clearAdditionalMarkers();
       const searchParameters = this.getSearchParameters();
       Api.getActivitiesByLocation(localStorage.getItem('authToken'), searchParameters).then(response => {
-        this.activityResults = response.data.results
+        if (response.data.length) {
+          this.activityResults = response.data;
+          // add new pins
+          for (let i = 0; i < this.activityResults.length; i++) {
+              let activityLatLong = {lat: this.activityResults[i].latitude, lng: this.activityResults[i].longitude};
+              this.$refs.map.createSingleMarker({position: activityLatLong, id: this.activityResults[i].id});
+              this.$refs.map.setZoomWithMarkers();
+          }
+        } else {
+          this.activityResults = [];
+          this.searchResultString = "Sorry, your search didn't return any activities in the specified range."
+        }
       })
     },
     getSearchParameters() {
+      const M_TO_KM = 1000;
       const searchParameters = {};
-      searchParameters.distance = this.maxDistance
+      searchParameters.distance = this.maxDistance * M_TO_KM
       searchParameters.latitude = this.profileLocationLatLong.lat
       searchParameters.longitude = this.profileLocationLatLong.lng
       if (this.chosenActivityTypes.length > 0) {
@@ -92,6 +126,8 @@ export default {
             this.profile = response.data;
             if (this.profile.location) {
               this.profileLocationLatLong = {lat: this.profile.location.latitude, lng: this.profile.location.longitude};
+            } else {
+              this.profile.location = {address: "", latitude: null, longitude: null}
             }
           })
           .catch(() => {

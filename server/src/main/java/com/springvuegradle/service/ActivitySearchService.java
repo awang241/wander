@@ -80,9 +80,11 @@ public class ActivitySearchService {
         }
         HashMap<Activity, Double> activityDistanceHashMap = new HashMap<>();
         for (Activity activity : activities) {
-            Double activityDistanceFromPoint = distance(latitude, activity.getLatitude(), longitude, activity.getLongitude());
-            if (activityDistanceFromPoint < maximumDistance) {
-                activityDistanceHashMap.put(activity, activityDistanceFromPoint);
+            if (activity.getLatitude() != null) {
+                Double activityDistanceFromPoint = distance(latitude, activity.getLatitude(), longitude, activity.getLongitude());
+                if (activityDistanceFromPoint < maximumDistance) {
+                    activityDistanceHashMap.put(activity, activityDistanceFromPoint);
+                }
             }
         }
         return sortActivitiesByDistance(activityDistanceHashMap);
