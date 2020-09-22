@@ -3,7 +3,7 @@
         <h1 class="title">Activity</h1>
         <ValidationObserver v-slot="{ handleSubmit }">
 
-            <form @submit.prevent="handleSubmit(createActivity)">
+            <form @submit.prevent="handleSubmit(createActivity)" onkeydown="return event.key !== 'Enter';">
                 <ValidationProvider rules="required|minName" name="Activity Name" v-slot="{ errors, valid }" slim>
                     <b-field label="Activity Name"
                              :type="{ 'is-danger': errors[0], 'is-success': valid }"
@@ -61,7 +61,7 @@
                     <br>
                 </div>
                 <b-field label="Enter a location" expanded>
-                    <AutoCompleteLocation v-model="activity.location" v-on:locationStringChanged="updateMapLocationFromAutoComplete" v-on:updateMap="updateLocation" ref="autocomplete"></AutoCompleteLocation>
+                    <AutoCompleteLocation v-on:locationStringChanged="updateMapLocationFromAutoComplete" v-on:updateMap="updateLocation" ref="autocomplete" v-bind:profileLocation="locationObject"></AutoCompleteLocation>
                 </b-field>
                 <MapPane marker-label="Activity Location" :location-choice-coordinates="activityLocationLatLong" v-on:locationChoiceChanged="updateLocation" ref="mapPaneRef" :default_width="720" :default_height="500"></MapPane>
               <br>
@@ -139,6 +139,8 @@
                         location: "",
                         continuous: true,
                         creating: true,
+                        latitude: null,
+                        longitude: null
                     }
                 }
             }
@@ -166,10 +168,18 @@
                 activityLocationLatLong: null,
                 google: null,
                 geocoder: null,
-                locationString: ""
+                locationString: "",
+                locationObject: {
+                  address: "",
+                  latitude: null,
+                  longitude: null
+                }
             }
         },
         async mounted() {
+            if(this.activityProp.location !== "") {
+              this.getLocation()
+            }
             this.checkAuthenticationStatus()
             this.getPossibleActivityTypes()
             this.activity = this.convertToProp(this.$props.activityProp)
@@ -177,16 +187,20 @@
             this.google = await googleMapsInit();
             this.geocoder = new this.google.maps.Geocoder;
             this.updateLocationString();
-
-
         },
         methods: {
-            //Updates the users location coordinates with the location on the map they have clicked
+          getLocation() {
+            this.locationObject = {address: this.activityProp.location, latitude: this.activityProp.latitude, longitude: this.activityProp.longitude}
+          },
+          //Updates the users location coordinates with the location on the map they have clicked
             updateLocation(location){
               this.geocoder.geocode({'location': {lat: location.lat(), lng: location.lng()}}, (results, status) => {
                 if (status === 'OK') {
                   document.getElementById("autocompleteLocation").value = results[0].formatted_address
                   this.locationString = results[0].formatted_address
+                  this.activity.location = results[0].formatted_address
+                  this.activity.latitude = location.lat()
+                  this.activity.longitude = location.lng()
                   this.activityLocationLatLong = {lat: location.lat(), lng: location.lng()}
                   this.$refs.mapPaneRef.setZoomLevel(this.locationString)
                 }
@@ -290,7 +304,9 @@
                     "description": activity.description,
                     "location": activity.location,
                     "chosenActivityTypes": activity.activity_type,
-                    "id": activity.id
+                    "id": activity.id,
+                    "latitude": activity.latitude,
+                    "longitude": activity.longitude
                 }
                 if (activity.continuous) {
                     activityProp.activityDuration = "Continuous"
@@ -316,6 +332,9 @@
           },
           updateMapLocationFromAutoComplete(location) {
             this.activityLocationLatLong = {lat: location.latitude, lng: location.longitude}
+            this.activity.location = location.address
+            this.activity.latitude = location.latitude
+            this.activity.longitude = location.longitude
             this.locationString = location.address;
             this.$refs.mapPaneRef.setZoomLevel(this.locationString)
           }

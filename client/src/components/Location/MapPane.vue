@@ -163,11 +163,12 @@
             setZoomLevel(newAddress) {
                 if (newAddress) {
                     let address_parts = newAddress.split(',');
-                    let zoomLevel = address_parts.length * 3;
+                    let zoomLevel = address_parts.length * 4;
                     this.map.setZoom(zoomLevel)
-                } else if (this.address) {
+                }
+                else if (this.address) {
                     let address_parts = this.address.split(',');
-                    let zoomLevel = address_parts.length * 3;
+                    let zoomLevel = address_parts.length * 4;
                     this.map.setZoom(zoomLevel)
                 }
             },

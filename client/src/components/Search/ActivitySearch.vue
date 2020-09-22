@@ -40,19 +40,11 @@
         </div>
       </div>
     </div>
-
-
     <br>
-
     <div class="row">
-      <br>
-      <b-field style="float:left">
-        <b-button type="is-danger" @click="clearLocation()">Clear</b-button>
-      </b-field>
       <b-field style="float:right;">
         <b-button type="is-primary" @click="search()">Search</b-button>
       </b-field>
-      <br>
     </div>
     <br/>
   </div>
@@ -133,6 +125,8 @@ export default {
             this.profile = response.data;
             if (this.profile.location) {
               this.profileLocationLatLong = {lat: this.profile.location.latitude, lng: this.profile.location.longitude};
+            } else {
+              this.profile.location = {address: "", latitude: null, longitude: null}
             }
           })
           .catch(() => {
