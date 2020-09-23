@@ -6,13 +6,17 @@ import com.springvuegradle.model.ActivityMembership;
 import com.springvuegradle.model.ActivityType;
 import com.springvuegradle.repositories.ActivityRepository;
 import com.springvuegradle.repositories.spec.ActivitySpecifications;
+import com.springvuegradle.utilities.FieldValidationHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Service-layer class that provides methods for searching activities.
@@ -35,29 +39,53 @@ public class ActivitySearchService {
     static final int MAXIMUM_LATITUDE = 90;
     static final int MAXIMUM_LONGITUDE = 180;
 
+
+    protected List<String> splitKeywordString(String keywordString) {
+        if (keywordString == null) {
+            return List.of();
+        } else if (keywordString.isBlank()) {
+            return List.of("");
+        }
+        List<String> keywords = new ArrayList<>();
+        List<String> splitKeywords = Arrays.asList(keywordString.split("\""));
+        List<String> regularKeywords = new ArrayList<>();
+        for (int i = 0; i < splitKeywords.size(); i++) {
+            if (i % 2 == 1) {
+                keywords.add(splitKeywords.get(i));
+            } else {
+                String fragment = splitKeywords.get(i);
+                regularKeywords.addAll(Arrays.asList(fragment.split(" ")));
+            }
+        }
+        keywords.addAll(regularKeywords.stream().filter(Predicate.not(FieldValidationHelper::isNullOrEmpty)).collect(Collectors.toList()));
+        return keywords;
+    }
+
     /**
      * Returns a page from the list of activities whose name matches the search criteria. An activity name matches with
      * a keyword if the keyword is a substring
      * activity name contains
-     * @param keywords The keywords being matched against the activity names.
+     * @param keywordString  The keywords being matched against the activity names as a string.
      * @param profileId The profileId
-     * @param isAdmin
-     * @param searchMethod
-     * @param request
-     * @return
+     * @param isAdmin   true if the user is an admin, false otherwise
+     * @param searchMethod Either the string "any" or "all"; sets whether activities need to match all keywords or just
+                            one.
+     * @param request   A Pageable specifying the page index and size to be returned (See the Spring documentation for
+     *                  more details)
+     * @return A page of activities that match the keywords and of the specified size and page index.
      */
-    public Page<Activity> getActivitiesByName(String keywords, long profileId, boolean isAdmin, String searchMethod, Pageable request) {
+    public Page<Activity> getActivitiesByName(String keywordString, long profileId, boolean isAdmin, String searchMethod, Pageable request) {
         Specification<Activity> spec = Specification.where(null);
-        List<String> myList = new ArrayList();
-
-        myList.add("test");
-
+        List<String> keywords = splitKeywordString(keywordString);
+        if (keywords.isEmpty()) {
+            return new PageImpl<>(List.of(), request, 0);
+        }
         if (searchMethod.equalsIgnoreCase("any")) {
-            for (String keyword: myList) {
+            for (String keyword: keywords) {
                 spec = spec.or(ActivitySpecifications.nameContains(keyword));
             }
         } else if (searchMethod.equalsIgnoreCase("all")){
-            for (String keyword: myList) {
+            for (String keyword: keywords) {
                 spec = spec.and(ActivitySpecifications.nameContains(keyword));
             }
         } else {

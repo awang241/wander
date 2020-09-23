@@ -11,6 +11,7 @@ import com.springvuegradle.utilities.ActivityTestUtils;
 import com.springvuegradle.utilities.ProfileTestUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
-public class ActivitySearchServiceTest {
+class ActivitySearchServiceTest {
 
     @Autowired
     ProfileRepository profileRepository;
@@ -269,36 +270,121 @@ public class ActivitySearchServiceTest {
         assertThat(activitySearchService.distance(10, 30, 30, 50)).isBetween(3040600D, 3040610D);
     }
 
-//    @Test
-//    void getActivitiesByNameWhenMethodIsAnyReturnsActivitiesMatchingAnyKeywordTest() {
-//        Pageable pageable = PageRequest.of(0, 5);
-//        List<String> keywords = List.of("Christchurch", "Manila");
-//        Set<Activity> expectedActivities = Set.of(
-//                publicActivityChristchurch, privateActivityChristchurch, privateActivityManila, membersActivityChristchurch);
-//
-//        Page<Activity> activities = activitySearchService.getByName(keywords, creator.getId(), true, "any", pageable);
-//        Set<Activity> actualActivities = activities.toSet();
-//        assertEquals(expectedActivities, actualActivities);
-//    }
-//
-//    @Test
-//    void getActivitiesByNameWhenMethodIsAllReturnsActivitiesMatchingAllKeywordsTest() {
-//        Pageable pageable = PageRequest.of(0, 5);
-//        List<String> keywords = List.of("Christchurch", "Public");
-//        Set<Activity> expectedActivities = Set.of(publicActivityChristchurch);
-//
-//        Page<Activity> activities = activitySearchService.getByName(keywords, creator.getId(), true, "all", pageable);
-//        Set<Activity> actualActivities = activities.toSet();
-//        assertEquals(expectedActivities, actualActivities);
-//    }
-//
-//    @Test
-//    void getActivitiesByNameWhenNoActivitiesMatchReturnsEmptyPageTest() {
-//        Pageable pageable = PageRequest.of(0, 5);
-//        List<String> keywords = List.of("Don't match any activities");
-//        Set<Activity> expectedActivities = Set.of(publicActivityChristchurch);
-//
-//        Page<Activity> activities = activitySearchService.getByName(keywords, creator.getId(), false, "all", pageable);
-//        assertTrue(activities.isEmpty(), actualActivities);
-//    }
+    @Test
+    void getActivitiesByNameWhenMethodIsAnyReturnsActivitiesMatchingAnyKeywordTest() {
+        Pageable pageable = PageRequest.of(0, 5);
+        String keywords = "Christchurch Manila";
+        //List<String> keywords = List.of("Christchurch", "Manila");
+        Set<Activity> expectedActivities = Set.of(
+                publicActivityChristchurch, privateActivityChristchurch, privateActivityManila, membersActivityChristchurch);
+
+        Page<Activity> activities = activitySearchService.getActivitiesByName(keywords, creator.getId(), true, "any", pageable);
+        Set<Activity> actualActivities = activities.toSet();
+        assertEquals(expectedActivities, actualActivities);
+    }
+
+    @Test
+    void getActivitiesByNameWhenMethodIsAllReturnsActivitiesMatchingAllKeywordsTest() {
+        Pageable pageable = PageRequest.of(0, 5);
+        String keywords = "Christchurch Public";
+        //List<String> keywords = List.of("Christchurch", "Public");
+        Set<Activity> expectedActivities = Set.of(publicActivityChristchurch);
+
+        Page<Activity> activities = activitySearchService.getActivitiesByName(keywords, creator.getId(), true, "all", pageable);
+        Set<Activity> actualActivities = activities.toSet();
+        assertEquals(expectedActivities, actualActivities);
+    }
+
+    @Test
+    void getActivitiesByNameWhenNoActivitiesMatchReturnsEmptyPageTest() {
+        Pageable pageable = PageRequest.of(0, 5);
+        String keywords = "\"Don't match any activities\"";
+        //List<String> keywords = List.of("Don't match any activities");
+
+        Page<Activity> activities = activitySearchService.getActivitiesByName(keywords, creator.getId(), false, "all", pageable);
+        assertTrue(activities.isEmpty());
+    }
+
+    @Test
+    void getActivitiesByNameWhenKeywordsAreEmptyReturnsEmptyPageTest() {
+        Pageable pageable = PageRequest.of(0, 5);
+        String keywords = null;
+        //List<String> keywords = List.of();
+
+        Page<Activity> activities = activitySearchService.getActivitiesByName(keywords, creator.getId(), false, "all", pageable);
+        assertTrue(activities.isEmpty());
+    }
+
+    @Test
+    void getActivitiesByNameWhenKeywordIsEmptyStringAndUserIsAdminReturnsAllActivitiesTest() {
+        Pageable pageable = PageRequest.of(0, Math.toIntExact(activityRepository.count()));
+        String keywords = "";
+        //List<String> keywords = List.of("");
+        Set<Activity> expectedActivities = new HashSet<>(activityRepository.findAll());
+        Page<Activity> activities = activitySearchService.getActivitiesByName(keywords, creator.getId(), true, "all", pageable);
+        assertEquals(expectedActivities, activities.toSet());
+    }
+
+    /**
+     * A visible activity means the activity is public, the activity is restricted and the user is a member, or the
+     * user is the creator of the activity.
+     */
+    @Test
+    void getActivitiesByNameWhenUserIsNotAdminOnlyReturnsVisibleActivitiesTest() {
+        Pageable pageable = PageRequest.of(0, Math.toIntExact(activityRepository.count()));
+        String keywords = "";
+        //List<String> keywords = List.of("");
+
+        Activity newActivity = ActivityTestUtils.createNormalActivity();
+        newActivity = activityRepository.save(newActivity);
+        Profile profile = profileRepository.save(ProfileTestUtils.createProfileNoPassportCountry());
+        activityMembershipRepository.save(new ActivityMembership(membersActivitySydney, profile, ActivityMembership.Role.FOLLOWER));
+        activityMembershipRepository.save(new ActivityMembership(newActivity, profile, ActivityMembership.Role.CREATOR));
+
+        Set<Activity> expectedActivities = Set.of(newActivity, membersActivitySydney, publicActivityDelaware,
+                publicActivityChristchurch, publicActivityWellington);
+        Page<Activity> activities = activitySearchService.getActivitiesByName(keywords, profile.getId(), false, "all", pageable);
+        assertEquals(expectedActivities, activities.toSet());
+    }
+
+    @Test
+    void splitKeywordsTest() {
+        String keywordString = "blue cheese \"armadillo hat\"";
+        Set<String> expected = Set.of("blue", "cheese", "armadillo hat");
+        assertEquals(expected, new HashSet<String>(activitySearchService.splitKeywordString(keywordString)));
+    }
+
+    @Test
+    void splitKeywordsWhenStringIsEmptyTest() {
+        String keywordString = "";
+        Set<String> expected = Set.of("");
+        assertEquals(expected, new HashSet<String>(activitySearchService.splitKeywordString(keywordString)));
+    }
+
+    @Test
+    void splitKeywordsWhenStringIsBlankTest() {
+        String keywordString = "    ";
+        Set<String> expected = Set.of("");
+        assertEquals(expected, new HashSet<String>(activitySearchService.splitKeywordString(keywordString)));
+    }
+
+    @Test
+    void splitKeywordsWhenStringHasMultipleQuotedKeywordsTest() {
+        String keywordString = "blue cheese \"CSSE Fun Run\" fish \"Funnus Runnus\" umbrella ";
+        Set<String> expected = Set.of("blue", "cheese", "CSSE Fun Run", "Funnus Runnus", "umbrella", "fish");
+        assertEquals(expected, new HashSet<String>(activitySearchService.splitKeywordString(keywordString)));
+    }
+
+    @Test
+    void splitKeywordsWhenStringHasAdjacentQuotedKeywordsTest() {
+        String keywordString = "blue cheese \"CSSE Fun Run\"\"Funnus Runnus\" umbrella ";
+        Set<String> expected = Set.of("blue", "cheese", "CSSE Fun Run", "Funnus Runnus", "umbrella");
+        assertEquals(expected, new HashSet<String>(activitySearchService.splitKeywordString(keywordString)));
+    }
+
+    @Test
+    void splitKeywordsWhenStringIsNullReturnsEmptyListTest() {
+        String keywordString = null;
+        assertTrue(activitySearchService.splitKeywordString(keywordString).isEmpty());
+    }
 }

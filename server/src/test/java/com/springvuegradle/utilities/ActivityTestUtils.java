@@ -165,4 +165,3 @@ public class ActivityTestUtils {
         return activities;
     }
 }
-
