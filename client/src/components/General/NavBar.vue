@@ -38,7 +38,7 @@
                         Register
                     </b-button>
                     <b-button  @click="goToSearch"
-                               v-if="store.getters.getAuthenticationStatus"
+                               v-if="store.getters.getAuthenticationLevel > 1"
                                type="is-light">
                         Search
                     </b-button>
