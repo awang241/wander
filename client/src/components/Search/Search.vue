@@ -8,9 +8,13 @@
                     </template>
                 </ProfileSearch>
             </b-tab-item>
+            <b-tab-item label="Activity Location">
+                <ActivitySearchByLocation>
+                </ActivitySearchByLocation>
+            </b-tab-item>
             <b-tab-item label="Activity Search">
-                <ActivitySearch>
-                </ActivitySearch>
+                <ActivitySearchByName>
+                </ActivitySearchByName>
             </b-tab-item>
         </b-tabs>
 
@@ -19,12 +23,13 @@
 
 <script>
     import ProfileSearch from "./ProfileSearch";
-    import ActivitySearch from"./ActivitySearch"
+    import ActivitySearchByLocation from "./ActivitySearchByLocation"
+    import ActivitySearchByName from "./ActivitySearchByName"
     import store from "../../store/index"
 
     export default {
         name: "Search",
-        components: {ProfileSearch, ActivitySearch},
+        components: {ProfileSearch, ActivitySearchByLocation, ActivitySearchByName},
         data() {
             return {
                 store: store
