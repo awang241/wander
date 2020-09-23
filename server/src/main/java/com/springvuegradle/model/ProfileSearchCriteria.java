@@ -13,6 +13,8 @@ public class ProfileSearchCriteria {
     private String emailAddress;
     private String searchMethod;
     private String[] activityTypes;
+    private String anyName;
+    private Boolean wholeProfileNameSearch;
 
     /**
      * Creates a blank ProfileSearchCriteria with all criteria set to null.
@@ -25,6 +27,8 @@ public class ProfileSearchCriteria {
         emailAddress = null;
         activityTypes = null;
         searchMethod = null;
+        anyName = null;
+        wholeProfileNameSearch = false;
     }
 
     /**
@@ -36,6 +40,20 @@ public class ProfileSearchCriteria {
         this.lastName = lastName;
         this.nickname = nickname;
         this.emailAddress = email;
+        this.wholeProfileNameSearch = false;
+    }
+
+    public ProfileSearchCriteria(String anyName, String email) {
+        this.anyName = anyName;
+        this.emailAddress = email;
+    }
+
+    public Boolean getWholeProfileNameSearch() {
+        return wholeProfileNameSearch;
+    }
+
+    public void setWholeProfileNameSearch(Boolean wholeProfileNameSearch) {
+        this.wholeProfileNameSearch = wholeProfileNameSearch;
     }
 
     public String getFirstName() {
@@ -44,6 +62,14 @@ public class ProfileSearchCriteria {
 
     public void setFirstName(String firstName) {
         this.firstName = firstName;
+    }
+
+    public String getAnyName() {
+        return anyName;
+    }
+
+    public void setAnyName(String anyName) {
+        this.anyName = anyName;
     }
 
     public String getMiddleName() {
@@ -90,6 +116,18 @@ public class ProfileSearchCriteria {
 
     public String getSearchMethod(){return this.searchMethod;}
 
+    public String getFullName() {
+        if (this.anyName == null) {
+            if (this.middleName == null) {
+                return String.format("%s %s", this.firstName, this.lastName);
+            } else {
+                return String.format("%s %s %s", this.firstName, this.middleName, this.lastName);
+            }
+        } else {
+            return this.anyName;
+        }
+    }
+
 
     @Override
     public boolean equals(Object o) {
@@ -100,6 +138,7 @@ public class ProfileSearchCriteria {
                 Objects.equals(middleName, criteria.middleName) &&
                 Objects.equals(lastName, criteria.lastName) &&
                 Objects.equals(nickname, criteria.nickname) &&
+                Objects.equals(anyName, criteria.anyName) &&
                 Objects.equals(emailAddress, criteria.emailAddress);
     }
 
