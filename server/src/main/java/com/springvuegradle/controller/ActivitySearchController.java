@@ -1,14 +1,16 @@
 package com.springvuegradle.controller;
 
 import com.springvuegradle.dto.SimplifiedActivitiesResponse;
+import com.springvuegradle.dto.SimplifiedActivity;
 import com.springvuegradle.dto.responses.ActivityLocationResponse;
+import com.springvuegradle.model.Activity;
 import com.springvuegradle.service.ActivitySearchService;
 import com.springvuegradle.service.ActivityService;
 import com.springvuegradle.service.SecurityService;
 import com.springvuegradle.utilities.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -79,12 +81,13 @@ public class ActivitySearchController {
      */
     @GetMapping("/activities")
     public @ResponseBody
-    ResponseEntity<List<SimplifiedActivitiesResponse>> getActivitiesByName(
+    ResponseEntity<SimplifiedActivitiesResponse> getActivitiesByName(
             @RequestParam(name = "name", required = true) String name,
             @RequestParam(name = "method", required = false) String method,
             @RequestParam(name = "count") int count,
             @RequestParam(name = "startIndex") int startIndex,
             @RequestHeader("authorization") String token) {
+        SimplifiedActivitiesResponse searchResponse;
         if (!jwtUtil.validateToken(token)) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         } else if (count <= 0) {
@@ -95,13 +98,13 @@ public class ActivitySearchController {
         boolean isAdmin = jwtUtil.extractPermission(token) < 2;
         Long profileId = jwtUtil.extractId(token);
         try {
-            List<SimplifiedActivitiesResponse> activities = activitySearchService.getActivitiesByName(name, profileId, isAdmin, method, request);
-            return new ResponseEntity<>(activities, HttpStatus.OK);
+            Page<Activity> activities = activitySearchService.getActivitiesByName(name, profileId, isAdmin, method, request);
+            List<SimplifiedActivity> simplifiedActivities = activityService.createSimplifiedActivities(activities.getContent());
+            searchResponse = new SimplifiedActivitiesResponse(simplifiedActivities);
+            return new ResponseEntity<>(searchResponse, HttpStatus.OK);
         } catch(IllegalArgumentException e){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
-
-
 
 }

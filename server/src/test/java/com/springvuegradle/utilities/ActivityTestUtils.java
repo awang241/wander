@@ -3,8 +3,11 @@ package com.springvuegradle.utilities;
 import com.springvuegradle.dto.ActivityParticipationRequest;
 import com.springvuegradle.model.Activity;
 import com.springvuegradle.model.ActivityParticipation;
+import com.springvuegradle.model.Profile;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 public class ActivityTestUtils {
@@ -42,7 +45,7 @@ public class ActivityTestUtils {
      */
     public static Activity createNormalActivityTwo() {
         return new Activity("Blazer Tag", "It's lazer tag in blazers", new String[]{"Running"},
-                true, null, null, "Christchurch, NZ", 90, 90);
+                true, null, null, "Christchurch, NZ", 90.00, 90.00);
     }
 
     /**
@@ -144,4 +147,22 @@ public class ActivityTestUtils {
         activityParticipations.add(normalActivityParticpation1);
         return activityParticipations;
     }
+
+    public static List<Activity> createListOfActivities() {
+        List<Activity> activities = new ArrayList<>();
+        activities.add(new Activity("Kaikoura Coast Track race", "A big and nice race on a lovely peninsula",
+                new String[]{"Hiking"}, false, "2020-02-20T08:00:00+1300",
+                "2020-02-20T08:00:00+1300", "Kaikoura, NZ", 100.00, 100.00));
+
+        activities.add(new Activity("Kaikoura Coast Track race2", "A big and nice race on a lovely peninsula",
+                new String[]{"Hiking"}, false, "2020-02-20T08:00:00+1300",
+                "2020-02-20T08:00:00+1300", "Kaikoura, NZ", 100.00, 100.00));
+
+        activities.add(new Activity("Kaikoura Coast Track race3", "A big and nice race on a lovely peninsula",
+                new String[]{"Hiking"}, false, "2020-02-20T08:00:00+1300",
+                "2020-02-20T08:00:00+1300", "Kaikoura, NZ", 100.00, 100.00));
+
+        return activities;
+    }
 }
+

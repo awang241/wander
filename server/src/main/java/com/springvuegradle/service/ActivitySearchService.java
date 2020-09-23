@@ -46,14 +46,18 @@ public class ActivitySearchService {
      * @param request
      * @return
      */
-    public Page<Activity> getActivitiesByName(List<String> keywords, long profileId, boolean isAdmin, String searchMethod, Pageable request) {
+    public Page<Activity> getActivitiesByName(String keywords, long profileId, boolean isAdmin, String searchMethod, Pageable request) {
         Specification<Activity> spec = Specification.where(null);
+        List<String> myList = new ArrayList();
+
+        myList.add("test");
+
         if (searchMethod.equalsIgnoreCase("any")) {
-            for (String keyword: keywords) {
+            for (String keyword: myList) {
                 spec = spec.or(ActivitySpecifications.nameContains(keyword));
             }
         } else if (searchMethod.equalsIgnoreCase("all")){
-            for (String keyword: keywords) {
+            for (String keyword: myList) {
                 spec = spec.and(ActivitySpecifications.nameContains(keyword));
             }
         } else {
