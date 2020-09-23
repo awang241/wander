@@ -79,9 +79,9 @@ public class ActivitySearchController {
      * @return response entity containing a list of simplified profiles and an OK status code if the request was successful;
      * otherwise an empty response with the appropriate error code is returned.
      */
-    @GetMapping("/activities")
+    @GetMapping("/activitiesSearch")
     public @ResponseBody
-    ResponseEntity<SimplifiedActivitiesResponse> getActivitiesByName(
+    ResponseEntity<SimplifiedActivitiesResponse> searchActivitiesByName(
             @RequestParam(name = "name", required = true) String name,
             @RequestParam(name = "method", required = false) String method,
             @RequestParam(name = "count") int count,

@@ -559,7 +559,7 @@ class ActivityControllerMockedTest {
                 searchMethod, mockRequest)).thenReturn(mockPage);
         Mockito.when(mockService.createSimplifiedActivities(mockPage.getContent())).thenReturn(activitySummaries);
         ResponseEntity<SimplifiedActivitiesResponse> actualResponse =
-                activitySearchController.getActivitiesByName(mockActivityName, searchMethod, count, startIndex, mockToken);
+                activitySearchController.searchActivitiesByName(mockActivityName, searchMethod, count, startIndex, mockToken);
         assertEquals(expectedResponse, actualResponse);
     }
 
@@ -569,7 +569,7 @@ class ActivityControllerMockedTest {
      */
     @Test
     void getActivitiesByNameWithNoTokenReturnsUnauthorizedResponseTest(){
-        ResponseEntity<SimplifiedActivitiesResponse> response = activitySearchController.getActivitiesByName(null,
+        ResponseEntity<SimplifiedActivitiesResponse> response = activitySearchController.searchActivitiesByName(null,
                 null, 0, 0, null);
         assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
     }
@@ -581,7 +581,7 @@ class ActivityControllerMockedTest {
     void getActivitiesByNameWithInvalidCountParameterReturnsBadRequestResponseTest(){
         String mockToken = "mockToken";
         Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
-        ResponseEntity<SimplifiedActivitiesResponse> response = activitySearchController.getActivitiesByName(null,
+        ResponseEntity<SimplifiedActivitiesResponse> response = activitySearchController.searchActivitiesByName(null,
                 null, 0, 0, mockToken);
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
