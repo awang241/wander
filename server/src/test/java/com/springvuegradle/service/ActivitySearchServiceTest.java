@@ -305,21 +305,19 @@ class ActivitySearchServiceTest {
         assertTrue(activities.isEmpty());
     }
 
-    @Disabled
     @Test
     void getActivitiesByNameWhenKeywordsAreEmptyReturnsEmptyPageTest() {
         Pageable pageable = PageRequest.of(0, 5);
-        String keywords = "";
+        String keywords = null;
         //List<String> keywords = List.of();
 
         Page<Activity> activities = activitySearchService.getActivitiesByName(keywords, creator.getId(), false, "all", pageable);
         assertTrue(activities.isEmpty());
     }
 
-    @Disabled
     @Test
-    void getActivitiesByNameWhenUserIsAdminReturnsAllMatchingActivitiesTest() {
-        Pageable pageable = PageRequest.of(0, 5);
+    void getActivitiesByNameWhenKeywordIsEmptyStringAndUserIsAdminReturnsAllActivitiesTest() {
+        Pageable pageable = PageRequest.of(0, Math.toIntExact(activityRepository.count()));
         String keywords = "";
         //List<String> keywords = List.of("");
         Set<Activity> expectedActivities = new HashSet<>(activityRepository.findAll());
@@ -331,10 +329,9 @@ class ActivitySearchServiceTest {
      * A visible activity means the activity is public, the activity is restricted and the user is a member, or the
      * user is the creator of the activity.
      */
-    @Disabled
     @Test
     void getActivitiesByNameWhenUserIsNotAdminOnlyReturnsVisibleActivitiesTest() {
-        Pageable pageable = PageRequest.of(0, 5);
+        Pageable pageable = PageRequest.of(0, Math.toIntExact(activityRepository.count()));
         String keywords = "";
         //List<String> keywords = List.of("");
 
@@ -383,5 +380,11 @@ class ActivitySearchServiceTest {
         String keywordString = "blue cheese \"CSSE Fun Run\"\"Funnus Runnus\" umbrella ";
         Set<String> expected = Set.of("blue", "cheese", "CSSE Fun Run", "Funnus Runnus", "umbrella");
         assertEquals(expected, new HashSet<String>(activitySearchService.splitKeywordString(keywordString)));
+    }
+
+    @Test
+    void splitKeywordsWhenStringIsNullReturnsEmptyListTest() {
+        String keywordString = null;
+        assertTrue(activitySearchService.splitKeywordString(keywordString).isEmpty());
     }
 }

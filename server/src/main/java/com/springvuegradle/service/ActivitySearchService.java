@@ -9,6 +9,7 @@ import com.springvuegradle.repositories.spec.ActivitySpecifications;
 import com.springvuegradle.utilities.FieldValidationHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -40,7 +41,11 @@ public class ActivitySearchService {
 
 
     protected List<String> splitKeywordString(String keywordString) {
-        if (keywordString.isBlank()) return List.of("");
+        if (keywordString == null) {
+            return List.of();
+        } else if (keywordString.isBlank()) {
+            return List.of("");
+        }
         List<String> keywords = new ArrayList<>();
         List<String> splitKeywords = Arrays.asList(keywordString.split("\""));
         List<String> regularKeywords = new ArrayList<>();
@@ -72,6 +77,9 @@ public class ActivitySearchService {
     public Page<Activity> getActivitiesByName(String keywordString, long profileId, boolean isAdmin, String searchMethod, Pageable request) {
         Specification<Activity> spec = Specification.where(null);
         List<String> keywords = splitKeywordString(keywordString);
+        if (keywords.isEmpty()) {
+            return new PageImpl<>(List.of(), request, 0);
+        }
         if (searchMethod.equalsIgnoreCase("any")) {
             for (String keyword: keywords) {
                 spec = spec.or(ActivitySpecifications.nameContains(keyword));
