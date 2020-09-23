@@ -8,11 +8,11 @@
                     </template>
                 </ProfileSearch>
             </b-tab-item>
-            <b-tab-item label="Activity Location">
+            <b-tab-item label="Activity Location Search">
                 <ActivitySearchByLocation>
                 </ActivitySearchByLocation>
             </b-tab-item>
-            <b-tab-item label="Activity Search">
+            <b-tab-item label="Activity Name Search">
                 <ActivitySearchByName>
                 </ActivitySearchByName>
             </b-tab-item>

@@ -213,7 +213,6 @@
 
             loadMoreProfiles() {
                 if (this.moreProfilesExist) {
-
                     const searchParameters = this.getSearchParameters()
                     Api.getUserProfiles(localStorage.getItem('authToken'), searchParameters).then(response => {
                         if (response.data.results.length == 0) {
