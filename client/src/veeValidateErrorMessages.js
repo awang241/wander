@@ -71,7 +71,7 @@ extend("confirmed", {
 });
 
 extend("maxDistanceInRange", value => {
-    if (!isNaN(value) && value >= 1 && value <= 200) {
+    if (value >= 1 && value <= 200) {
         return true;
     }
     return "{_field_} must be an integer between 1 and 200";
