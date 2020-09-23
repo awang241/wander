@@ -251,7 +251,6 @@ class ActivityControllerMockedTest {
         String roleName = "iohfad";
         int count = 5;
         int startIndex = 0;
-
         long mockId = 10;
         String mockToken = "token";
         Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);

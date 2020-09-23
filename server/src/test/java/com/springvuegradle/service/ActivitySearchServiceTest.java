@@ -273,7 +273,6 @@ class ActivitySearchServiceTest {
     void getActivitiesByNameWhenMethodIsAnyReturnsActivitiesMatchingAnyKeywordTest() {
         Pageable pageable = PageRequest.of(0, 5);
         String keywords = "Christchurch Manila";
-        //List<String> keywords = List.of("Christchurch", "Manila");
         Set<Activity> expectedActivities = Set.of(
                 publicActivityChristchurch, privateActivityChristchurch, privateActivityManila, membersActivityChristchurch);
 
