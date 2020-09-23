@@ -22,7 +22,10 @@ public class ActivitySpecifications {
      */
     public static Specification<Activity> nameContains(String substring) {
         String pattern = "%" + substring.toLowerCase() + "%";
-        return (root, query, criteriaBuilder) -> criteriaBuilder.like(criteriaBuilder.lower(root.get("activityName")), pattern);
+        return (root, query, criteriaBuilder) -> {
+            query.distinct(true);
+            return criteriaBuilder.like(criteriaBuilder.lower(root.get("activityName")), pattern);
+        };
     }
 
     /**
@@ -31,7 +34,11 @@ public class ActivitySpecifications {
      * @return a specification matching all activities with the given privacy level.
      */
     public static Specification<Activity> hasPrivacyLevel(int level) {
-        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("privacyLevel"), level);
+
+        return (root, query, criteriaBuilder) -> {
+            query.distinct(true);
+            return criteriaBuilder.equal(root.get("privacyLevel"), level);
+        };
     }
 
     /**
@@ -41,6 +48,7 @@ public class ActivitySpecifications {
      */
     public static Specification<Activity> hasMember(long memberId) {
         return (root, query, criteriaBuilder) -> {
+            query.distinct(true);
             Join<Activity, ActivityMembership> join = root.joinSet("members");
             return criteriaBuilder.equal(join.get("profile").get("id"), memberId);
         };
@@ -54,6 +62,7 @@ public class ActivitySpecifications {
      */
     public static Specification<Activity> hasMember(long memberId, ActivityMembership.Role role) {
         Specification<Activity> hasRole = (root, query, criteriaBuilder) -> {
+            query.distinct(true);
             Join<Activity, ActivityMembership> join = root.joinSet("members");
             return criteriaBuilder.equal(join.get("role"), role);
         };
