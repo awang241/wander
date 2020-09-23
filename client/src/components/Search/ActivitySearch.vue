@@ -73,9 +73,6 @@
     import AutoCompleteLocation from "../Location/AutoCompleteLocation";
     import {ValidationProvider, ValidationObserver} from 'vee-validate'
 
-
-    const MAX_DISTANCE = 200;
-
 export default {
   name: "ActivitySearch",
   components: {
@@ -138,17 +135,17 @@ export default {
 
     setDefaultProfileLocation() {
       Api.getProfile(this.store.getters.getUserId, localStorage.getItem('authToken'))
-          .then((response) => {
-            this.profile = response.data;
-            if (this.profile.location) {
-              this.profileLocationLatLong = {lat: this.profile.location.latitude, lng: this.profile.location.longitude};
-            } else {
-              this.profile.location = {address: "", latitude: null, longitude: null}
-            }
-          })
-          .catch(() => {
-            this.warningToast("Error occurred while getting your location details.");
-          })
+              .then((response) => {
+                this.profile = response.data;
+                if (this.profile.location) {
+                  this.profileLocationLatLong = {lat: this.profile.location.latitude, lng: this.profile.location.longitude};
+                } else {
+                  this.profile.location = {address: "", latitude: null, longitude: null}
+                }
+              })
+              .catch(() => {
+                this.warningToast("Error occurred while getting your location details.");
+              })
     },
     updateLocation(location) {
       this.geocoder.geocode({'location': {lat: location.lat(), lng: location.lng()}}, (results, status) => {
@@ -164,14 +161,6 @@ export default {
       this.profileLocationLatLong = {lat: location.latitude, lng: location.longitude}
       this.locationString = location.address
     },
-
-
-    validMaxDistance() {
-      console.log(typeof this.maxDistance);
-      console.log(this.maxDistance);
-      return (typeof this.maxDistance) === "number" && this.maxDistance <= MAX_DISTANCE;
-    },
-
     /**
      * Method to format the details of an activity for the information pop up window
      * At the moment it has dummy data
@@ -215,7 +204,6 @@ export default {
       }
       return formattedActivityTypes + typesString
     }
-
   },
   async mounted() {
     this.google = await googleMapsInit();
