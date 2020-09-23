@@ -155,14 +155,16 @@ export default {
       let informationWindowText = ""
 
       if (activityDetails.startTime && activityDetails.endTime) {
+        const formattedStartTime = activityDetails.startTime.slice(8, 10) + "/" + activityDetails.startTime.slice(5, 7) + "/" + activityDetails.startTime.slice(0, 4) +  " at " + activityDetails.startTime.slice(11, 19);
+        const formattedEndTime = activityDetails.endTime.slice(8, 10) + "/" + activityDetails.endTime.slice(5, 7) + "/" + activityDetails.endTime.slice(0, 4) +  " at " + activityDetails.endTime.slice(11, 19);
         informationWindowText =
                 `<div style="width: 100vh; height: 100vh;">` +
                 `<h1 style="font-size: 22px; font-weight: bold; font-style: italic">${activityDetails.activityName}</h1>` +
                 `<h1 style="font-weight: bold">${activityDetails.location}</h1>` +
                 `<br>` +
-                `<h1 style="font-weight: bold">Start date and time: <span>${activityDetails.startTime}</span></h1>` +
+                `<h1 style="font-weight: bold">Start date and time: <span>${formattedStartTime}</span></h1>` +
                 `<br>` +
-                `<h1 style="font-weight: bold">End date and time: <span>${activityDetails.endTime}</span></h1>` +
+                `<h1 style="font-weight: bold">End date and time: <span>${formattedEndTime}</span></h1>` +
                 `<br>` +
                 `${activityTypesString}` +
                 `</div>`
