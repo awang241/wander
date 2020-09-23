@@ -58,13 +58,14 @@
     import store from "../../store";
     import toastMixin from "../../mixins/toastMixin";
     import AutoCompleteLocation from "../Location/AutoCompleteLocation";
+    import dateTimeMixin from "../../mixins/dateTimeMixin";
 
 export default {
   name: "ActivitySearch",
   components: {
     MapPane, ActivityTypesField, AutoCompleteLocation, ActivitySummary
   },
-  mixins: [toastMixin],
+  mixins: [toastMixin, dateTimeMixin],
   data() {
     return {
       geocoder: null,
@@ -155,8 +156,8 @@ export default {
       let informationWindowText = ""
 
       if (activityDetails.startTime && activityDetails.endTime) {
-        const formattedStartTime = activityDetails.startTime.slice(8, 10) + "/" + activityDetails.startTime.slice(5, 7) + "/" + activityDetails.startTime.slice(0, 4) +  " at " + activityDetails.startTime.slice(11, 19);
-        const formattedEndTime = activityDetails.endTime.slice(8, 10) + "/" + activityDetails.endTime.slice(5, 7) + "/" + activityDetails.endTime.slice(0, 4) +  " at " + activityDetails.endTime.slice(11, 19);
+        const formattedStartTime = this.dateFormat(activityDetails.startTime)
+        const formattedEndTime = this.dateFormat(activityDetails.endTime)
         informationWindowText =
                 `<div style="width: 100vh; height: 100vh;">` +
                 `<h1 style="font-size: 22px; font-weight: bold; font-style: italic">${activityDetails.activityName}</h1>` +
@@ -174,9 +175,9 @@ export default {
                 `<h1 style="font-size: 22px; font-weight: bold; font-style: italic">${activityDetails.activityName}</h1>` +
                 `<h1 style="font-weight: bold">${activityDetails.location}</h1>` +
                 `<br>` +
-                `<h1 style="font-weight: bold">Start date: Now</h1>` +
+                `<h1 style="font-weight: bold">Start date: Now!</h1>` +
                 `<br>` +
-                `<h1 style="font-weight: bold">End date: Never! "${activityDetails.activityName}" is continuous!</h1>` +
+                `<h1 style="font-weight: bold">End date: "${activityDetails.activityName}" is continuous!</h1>` +
                 `<br>` +
                 `${activityTypesString}` +
                 `</div>`

@@ -14,7 +14,6 @@
     import VueResizable from 'vue-resizable'
     import googleMapsInit from '../../utils/googlemaps'
     import ViewActivity from "../Activities/ViewActivity";
-    //Fake data until API endpoint is set up
 
     const DEFAULT_LOCATION = {lat: -43.4341, lng: 172.6397}
     const DEFAULT_ZOOM = 4;
