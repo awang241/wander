@@ -73,6 +73,12 @@ public class ActivityTestSteps {
 
     private Profile profile;
 
+    private String location;
+
+    private Double latitude;
+
+    private Double longitude;
+
     private LoginResponse loginResponse;
 
     private ResponseEntity<List<ActivityMemberProfileResponse>> expectedMemberProfileResponse;
@@ -229,6 +235,11 @@ public class ActivityTestSteps {
                 new String[]{"Running"}, true, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "UC, CHCH, NZ", 100.0, 100.0);
     }
 
+    static Activity createNormalActivity(String title, String location, Double latitude, Double longitude) {
+        return new Activity(title, "description doesn't matter atm",
+                new String[]{"Running"}, true, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", location, latitude, longitude);
+    }
+
 
     @And("I am a {string} of this activity")
     public void iAmAOfThisActivity(String roleString) {
@@ -372,5 +383,34 @@ public class ActivityTestSteps {
         else if(role.equals("ORGANISER")) {
             assertEquals(roleCount, roleCounts.getOrganisers());
         }
+    }
+
+    @When("I create a continuous activity with location {string} and the latitude {double} and the longitude {double}")
+    public void iCreateAContinuousActivityWithLocationAndTheLatitudeAndTheLongitude(String location, Double latitude, Double longitude) {
+        this.location = location;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        typeRepository.save(new ActivityType("Running"));
+        assertEquals(201, activityController.createActivity(jwtUtil.extractId(loginResponse.getToken()), activity = createNormalActivity("Cool activity", location, latitude, longitude), loginResponse.getToken()).getStatusCodeValue());
+    }
+
+    @Then("The activities location and latitude and longitude will be stored")
+    public void theActivitiesLocationAndLatitudeAndLongitudeWillBeStored() {
+        List<Activity> activities = activityRepository.findAll();
+        assertEquals(activities.get(0).getLatitude(), this.latitude);
+        assertEquals(activities.get(0).getLongitude(), this.longitude);
+        assertEquals(activities.get(0).getLocation(), this.location);
+    }
+
+    @When("I choose to edit the activity by changing the location to {string} and its latitude to {double} and longitude to {double}")
+    public void iChooseToEditTheActivityByChangingTheLocationToAndItsLatitudeToAndLongitudeTo(String location, Double latitude, Double longitude) {
+        activity.setLatitude(latitude);
+        activity.setLongitude(longitude);
+        activity.setLocation(location);
+        Long activityId = activityRepository.getLastInsertedId();
+        PageRequest pageable = PageRequest.of(0, 1);
+        Page<ActivityMembership> page = membershipRepository.findByActivityAndRole(activityId, ActivityMembership.Role.CREATOR, pageable);
+        Profile creator = page.getContent().get(0).getProfile();
+        responseEntity = activityController.updateActivity(activity, loginResponse.getToken(), creator.getId(), activityId);
     }
 }
