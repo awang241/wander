@@ -15,7 +15,6 @@ import SearchComponent from "./components/Search/Search";
 import store from "./store";
 import HomeFeed from "./components/Main/HomeFeed";
 
-
 const routes = [
     {path:"/search", name: "search", component: SearchComponent , beforeEnter: (to, from, next) => {
             if (store.getters.getAuthenticationStatus) {

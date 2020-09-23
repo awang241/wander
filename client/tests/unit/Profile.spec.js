@@ -6,7 +6,7 @@ const $route = {
     params: {
         id: 1
     }
-}
+};
 
 beforeEach(() => {
     wrapper = shallowMount(Profile, {

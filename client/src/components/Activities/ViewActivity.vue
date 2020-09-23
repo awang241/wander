@@ -22,11 +22,7 @@
 
                                 </div>
                             </div>
-                            <b-button id="viewFullButton" v-if="viewingThroughModal" @click="viewFullActivity"
-                                      type="is-primary">
-                                View full activity
-                            </b-button>
-                            <b-dropdown v-if="hasCreatorPermissions && !viewingThroughModal" aria-role="list" class="is-pulled-right" position="is-bottom-left">
+                            <b-dropdown v-if="userRole !== 'None' || hasCreatorPermissions" aria-role="list" class="is-pulled-right" position="is-bottom-left">
                                 <b-icon icon="ellipsis-v" slot="trigger"/>
                                 <b-dropdown-item id="shareButton" @click="shareActivity"
                                                  v-if="hasCreatorPermissions">
@@ -63,7 +59,7 @@
                     <h2 class="subtitle is-5">
                         Created by: {{ activity.creator }}
                     </h2>
-                        <h2 v-if="userRole != null" class="subtitle is-5">
+                        <h2 v-if="userRole != 'None'" class="subtitle is-5">
                             My Role: {{userRole}}
                         </h2>
                     <div>
@@ -405,7 +401,7 @@
                         this.members[oldRole] = this.members[oldRole].filter(member => member.id !== profileId);
                         this.successToast("Removed user from activity!");
                         if (parseInt(profileId) === parseInt(store.getters.getUserId)) {
-                            this.userRole = null
+                            this.userRole = ROLES.NONE
                         }
                         this.getRoleCounts();
                     })
