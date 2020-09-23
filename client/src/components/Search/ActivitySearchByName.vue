@@ -73,8 +73,9 @@
                 activitySearchType: "all",
                 activityResults: [],
                 searchResultString: "Please click the 'Search' button below!",
-                moreActivitiesExist: null,
-                activityName: ""
+                activityName: "",
+                startIndex: 0,
+                moreActivitiesExist: true,
             }
         },
         methods: {
@@ -84,6 +85,9 @@
                 Api.getActivitiesByName(localStorage.getItem('authToken'), searchParameters).then(response => {
                     this.startIndex += DEFAULT_RESULT_COUNT;
                     this.activityResults = response.data.results
+                    if (response.data.results.length == 0) {
+                        this.searchResultString = "No activities found"
+                    }
                 })
             },
             getSearchParameters() {
@@ -99,7 +103,7 @@
                     const searchParameters = this.getSearchParameters()
                     Api.getActivitiesByName(localStorage.getItem('authToken'), searchParameters).then(response => {
                         if (response.data.results.length === 0) {
-                            this.moreProfilesExist = false;
+                            this.moreActivitiesExist = false;
                         } else {
                             this.startIndex += DEFAULT_RESULT_COUNT
                             const activities = response.data.results
