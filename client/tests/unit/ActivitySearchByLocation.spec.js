@@ -1,11 +1,11 @@
 import {shallowMount} from "@vue/test-utils";
-import ActivitySearch from "../../src/components/Search/ActivitySearch";
+import ActivitySearchByLocation from "../../src/components/Search/ActivitySearchByLocation";
 import store from "../../src/store";
 
 let wrapper;
 
 beforeEach(() => {
-    wrapper = shallowMount(ActivitySearch, {
+    wrapper = shallowMount(ActivitySearchByLocation, {
         propsData: {},
         mocks: {},
         data: function(){
@@ -31,7 +31,7 @@ afterEach(() => {
     wrapper.destroy();
 });
 
-describe('ActivitySearch.vue', () => {
+describe('ActivitySearchByLocation.vue', () => {
     test('Search parameters are correctly formatted without specified activity types', () => {
         const distance = 50;
         wrapper.vm.maxDistance = distance;
