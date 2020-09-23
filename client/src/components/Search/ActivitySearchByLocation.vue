@@ -57,7 +57,7 @@
     import ActivityTypesField from "./SearchReusables/ActivityTypesField";
     import Api from "../../Api";
     import store from "../../store";
-    import toastMixin from "../..//mixins/toastMixin";
+    import toastMixin from "../../mixins/toastMixin";
     import AutoCompleteLocation from "../Location/AutoCompleteLocation";
 
 export default {
