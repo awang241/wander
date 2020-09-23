@@ -1,52 +1,64 @@
 <template>
   <div class="container">
     <h1 class="title">Activity Search</h1>
-    <b-field group-multiline grouped>
-      <b-field label="Enter a location" expanded>
-        <AutoCompleteLocation v-on:locationStringChanged="updateMapLocationFromAutoComplete" v-on:updateMap="updateLocation" v-bind:profileLocation="this.profile.location" ref="autocomplete"></AutoCompleteLocation>
-      </b-field>
-      <b-field label="Max distance (km)">
-        <b-numberinput v-model="maxDistance" type="is-primary" :min="1" :max="200"></b-numberinput>
-      </b-field>
-    </b-field>
-    <ActivityTypesField v-on:updateSearchMethod="newSearchMethod => activitySearchType = newSearchMethod"
-                        v-on:updateChosenActivityTypes="newActivityTypes => chosenActivityTypes = newActivityTypes"
-                        :chosenActivityTypes="chosenActivityTypes"
-                        :activitySearchType="activitySearchType"></ActivityTypesField>
-    <br>
-    <div class="columns is-desktop">
-      <div class="column">
-        <MapPane ref="map" marker-label="Search Location" :location-choice-coordinates="profileLocationLatLong" v-bind:address="this.profile.location.address"
-                 v-on:locationChoiceChanged="updateLocation"
-                 :info-window-content="this.informationWindowData" :default_width="500" :default_height="500"></MapPane>
-      </div>
-      <div class="column">
-      <div id="results" v-if="activityResults.length">
-          <h1><b>Activities returned from Search:</b></h1>
-          <br>
-          <div style="overflow-y: auto; overflow-x: hidden">
-            <div
-                    v-for="activity in activityResults"
-                    :key="activity.id">
-              <ActivitySummary :activity="activity">
-              </ActivitySummary>
+
+    <ValidationObserver v-slot="{ handleSubmit }">
+      <form ref="form" @submit.prevent="handleSubmit(search)">
+
+        <b-field group-multiline grouped>
+            <b-field label="Enter a location" expanded>
+              <AutoCompleteLocation v-on:locationStringChanged="updateMapLocationFromAutoComplete" v-on:updateMap="updateLocation" v-bind:profileLocation="profile.location" ref="autocomplete"></AutoCompleteLocation>
+            </b-field>
+          <ValidationProvider rules="required|integer|maxDistanceInRange" name="Max distance (km)" v-slot="{ errors, valid }" slim>
+          <b-field label="Max distance (km)"
+
+                   :type="{ 'is-danger': errors[0], 'is-success': valid }"
+                   :message="errors">
+            <template slot="label">Max distance (km)<span>*</span></template>
+            <b-input id="maxDistanceInput" v-model="maxDistance" type="is-primary" ></b-input>
+          </b-field>
+          </ValidationProvider>
+        </b-field>
+        <ActivityTypesField v-on:updateSearchMethod="newSearchMethod => activitySearchType = newSearchMethod"
+                            v-on:updateChosenActivityTypes="newActivityTypes => chosenActivityTypes = newActivityTypes"
+                            :chosenActivityTypes="chosenActivityTypes"
+                            :activitySearchType="activitySearchType"></ActivityTypesField>
+        <br>
+        <div class="columns is-desktop">
+          <div class="column">
+            <MapPane ref="map" marker-label="Search Location" :location-choice-coordinates="profileLocationLatLong" v-bind:address="profile.location.address"
+                     v-on:locationChoiceChanged="updateLocation"
+                     :info-window-content="informationWindowData" :default_width="500" :default_height="500"></MapPane>
+          </div>
+          <div class="column">
+          <div id="results" v-if="activityResults.length">
+              <h1><b>Activities returned from Search:</b></h1>
               <br>
+              <div style="overflow-y: auto; overflow-x: hidden; height: 450px;">
+                <div
+                        v-for="activity in activityResults"
+                        :key="activity.id">
+                  <ActivitySummary :activity="activity">
+                  </ActivitySummary>
+                  <br>
+                </div>
+              </div>
+
+            </div>
+            <div v-else id="noMatches">
+              <h1><b>{{searchResultString}}</b></h1>
             </div>
           </div>
-
         </div>
-        <div v-else id="noMatches">
-          <h1><b>{{searchResultString}}</b></h1>
+        <br>
+        <div class="row">
+          <b-field style="float:right;">
+            <b-button native-type="submit" type="is-primary">Search</b-button>
+          </b-field>
         </div>
-      </div>
-    </div>
-    <br>
-    <div class="row">
-      <b-field style="float:right;">
-        <b-button type="is-primary" @click="search()">Search</b-button>
-      </b-field>
-    </div>
-    <br/>
+        <br/>
+      </form>
+    </ValidationObserver>
   </div>
 </template>
 
@@ -59,11 +71,12 @@
     import store from "../../store";
     import toastMixin from "../../mixins/toastMixin";
     import AutoCompleteLocation from "../Location/AutoCompleteLocation";
+    import {ValidationProvider, ValidationObserver} from 'vee-validate'
 
 export default {
   name: "ActivitySearch",
   components: {
-    MapPane, ActivityTypesField, AutoCompleteLocation, ActivitySummary
+    MapPane, ActivityTypesField, AutoCompleteLocation, ActivitySummary, ValidationObserver, ValidationProvider
   },
   mixins: [toastMixin],
   data() {
@@ -122,17 +135,17 @@ export default {
 
     setDefaultProfileLocation() {
       Api.getProfile(this.store.getters.getUserId, localStorage.getItem('authToken'))
-          .then((response) => {
-            this.profile = response.data;
-            if (this.profile.location) {
-              this.profileLocationLatLong = {lat: this.profile.location.latitude, lng: this.profile.location.longitude};
-            } else {
-              this.profile.location = {address: "", latitude: null, longitude: null}
-            }
-          })
-          .catch(() => {
-            this.warningToast("Error occurred while getting your location details.");
-          })
+              .then((response) => {
+                this.profile = response.data;
+                if (this.profile.location) {
+                  this.profileLocationLatLong = {lat: this.profile.location.latitude, lng: this.profile.location.longitude};
+                } else {
+                  this.profile.location = {address: "", latitude: null, longitude: null}
+                }
+              })
+              .catch(() => {
+                this.warningToast("Error occurred while getting your location details.");
+              })
     },
     updateLocation(location) {
       this.geocoder.geocode({'location': {lat: location.lat(), lng: location.lng()}}, (results, status) => {
@@ -148,7 +161,6 @@ export default {
       this.profileLocationLatLong = {lat: location.latitude, lng: location.longitude}
       this.locationString = location.address
     },
-
     /**
      * Method to format the details of an activity for the information pop up window
      * At the moment it has dummy data
@@ -192,7 +204,6 @@ export default {
       }
       return formattedActivityTypes + typesString
     }
-
   },
   async mounted() {
     this.google = await googleMapsInit();
