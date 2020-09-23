@@ -11,6 +11,7 @@
             </b-field>
           <ValidationProvider rules="required|integer|maxDistanceInRange" name="Max distance (km)" v-slot="{ errors, valid }" slim>
           <b-field label="Max distance (km)"
+
                    :type="{ 'is-danger': errors[0], 'is-success': valid }"
                    :message="errors">
             <template slot="label">Max distance (km)<span>*</span></template>
