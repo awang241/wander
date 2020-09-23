@@ -4,26 +4,33 @@
 
     <ValidationObserver v-slot="{ handleSubmit }">
       <form ref="form" @submit.prevent="handleSubmit(search)">
-
         <b-field group-multiline grouped>
-            <b-field label="Enter a location" expanded>
-              <AutoCompleteLocation v-on:locationStringChanged="updateMapLocationFromAutoComplete" v-on:updateMap="updateLocation" v-bind:profileLocation="profile.location" ref="autocomplete"></AutoCompleteLocation>
-            </b-field>
-          <ValidationProvider rules="required|integer|maxDistanceInRange" name="Max distance (km)" v-slot="{ errors, valid }" slim>
-          <b-field label="Max distance (km)"
-
-                   :type="{ 'is-danger': errors[0], 'is-success': valid }"
-                   :message="errors">
-            <template slot="label">Max distance (km)<span>*</span></template>
-            <b-input id="maxDistanceInput" v-model="maxDistance" type="is-primary" ></b-input>
+          <b-field label="Enter a location" expanded>
+            <AutoCompleteLocation v-on:locationStringChanged="updateMapLocationFromAutoComplete" v-on:updateMap="updateLocation" v-bind:profileLocation="profile.location" ref="autocomplete"></AutoCompleteLocation>
           </b-field>
+          <ValidationProvider rules="required|integer|maxDistanceInRange" name="Max distance (km)" v-slot="{ errors, valid }" slim>
+            <b-field label="Max distance (km)"
+
+                     :type="{ 'is-danger': errors[0], 'is-success': valid }"
+                     :message="errors">
+              <template slot="label">Max distance (km)<span>*</span></template>
+              <b-input id="maxDistanceInput" v-model="maxDistance" type="is-primary" ></b-input>
+            </b-field>
           </ValidationProvider>
         </b-field>
         <ActivityTypesField v-on:updateSearchMethod="newSearchMethod => activitySearchType = newSearchMethod"
-                            v-on:updateChosenActivityTypes="newActivityTypes => chosenActivityTypes = newActivityTypes"
-                            :chosenActivityTypes="chosenActivityTypes"
-                            :activitySearchType="activitySearchType"></ActivityTypesField>
+                          v-on:updateChosenActivityTypes="newActivityTypes => chosenActivityTypes = newActivityTypes"
+                          :chosenActivityTypes="chosenActivityTypes"
+                          :activitySearchType="activitySearchType"></ActivityTypesField>
         <br>
+        <div class="row">
+          <b-field style="float:right;">
+            <b-button type="is-primary" @click="search()">Search</b-button>
+          </b-field>
+        </div>
+        <br>
+        <br>
+
         <div class="columns is-desktop">
           <div class="column">
             <MapPane ref="map" marker-label="Search Location" :location-choice-coordinates="profileLocationLatLong" v-bind:address="profile.location.address"
@@ -31,7 +38,7 @@
                      :info-window-content="informationWindowData" :default_width="500" :default_height="500"></MapPane>
           </div>
           <div class="column">
-          <div id="results" v-if="activityResults.length">
+            <div id="results" v-if="activityResults.length">
               <h1><b>Activities returned from Search:</b></h1>
               <br>
               <div style="overflow-y: auto; overflow-x: hidden; height: 450px;">
@@ -40,17 +47,19 @@
                         :key="activity.id">
                   <ActivitySummary :activity="activity">
                   </ActivitySummary>
-                  <br>
+                <br>
                 </div>
               </div>
 
+              </div>
+            <div v-else id="noMatches">
+              <h1><b>{{searchResultString}}</b></h1>
+            </div>
+          </div>
         </div>
-        <div v-else id="noMatches">
-          <h1><b>{{searchResultString}}</b></h1>
-        </div>
-      </div>
-    </div>
-    <br>
+        <br>
+      </form>
+    </ValidationObserver>
   </div>
 </template>
 
@@ -83,7 +92,7 @@ export default {
       profileLocationLatLong: null,
       locationString: "",
       informationWindowData: "",
-      searchResultString: "Please click the 'Search' button below!"
+      searchResultString: "Please click the 'Search' button!"
 
     }
   },
