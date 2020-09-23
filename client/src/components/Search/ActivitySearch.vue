@@ -13,6 +13,13 @@
                         v-on:updateChosenActivityTypes="newActivityTypes => chosenActivityTypes = newActivityTypes"
                         :chosenActivityTypes="chosenActivityTypes"
                         :activitySearchType="activitySearchType"></ActivityTypesField>
+
+    <div class="row">
+      <b-field style="float:right;">
+        <b-button type="is-primary" @click="search()">Search</b-button>
+      </b-field>
+    </div>
+    <br>
     <br>
     <div class="columns is-desktop">
       <div class="column">
@@ -22,6 +29,7 @@
       </div>
       <div class="column">
       <div id="results" v-if="activityResults.length">
+          <br>
           <h1><b>Activities returned from Search:</b></h1>
           <br>
           <div style="overflow-y: auto; overflow-x: hidden">
@@ -41,12 +49,6 @@
       </div>
     </div>
     <br>
-    <div class="row">
-      <b-field style="float:right;">
-        <b-button type="is-primary" @click="search()">Search</b-button>
-      </b-field>
-    </div>
-    <br/>
   </div>
 </template>
 
