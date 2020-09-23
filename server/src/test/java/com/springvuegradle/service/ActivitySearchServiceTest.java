@@ -285,7 +285,6 @@ class ActivitySearchServiceTest {
     void getActivitiesByNameWhenMethodIsAllReturnsActivitiesMatchingAllKeywordsTest() {
         Pageable pageable = PageRequest.of(0, 5);
         String keywords = "Christchurch Public";
-        //List<String> keywords = List.of("Christchurch", "Public");
         Set<Activity> expectedActivities = Set.of(publicActivityChristchurch);
 
         Page<Activity> activities = activitySearchService.getActivitiesByName(keywords, creator.getId(), true, "all", pageable);
@@ -297,7 +296,6 @@ class ActivitySearchServiceTest {
     void getActivitiesByNameWhenNoActivitiesMatchReturnsEmptyPageTest() {
         Pageable pageable = PageRequest.of(0, 5);
         String keywords = "\"Don't match any activities\"";
-        //List<String> keywords = List.of("Don't match any activities");
 
         Page<Activity> activities = activitySearchService.getActivitiesByName(keywords, creator.getId(), false, "all", pageable);
         assertTrue(activities.isEmpty());
@@ -307,7 +305,6 @@ class ActivitySearchServiceTest {
     void getActivitiesByNameWhenKeywordsAreEmptyReturnsEmptyPageTest() {
         Pageable pageable = PageRequest.of(0, 5);
         String keywords = null;
-        //List<String> keywords = List.of();
 
         Page<Activity> activities = activitySearchService.getActivitiesByName(keywords, creator.getId(), false, "all", pageable);
         assertTrue(activities.isEmpty());
@@ -317,7 +314,6 @@ class ActivitySearchServiceTest {
     void getActivitiesByNameWhenKeywordIsEmptyStringAndUserIsAdminReturnsAllActivitiesTest() {
         Pageable pageable = PageRequest.of(0, Math.toIntExact(activityRepository.count()));
         String keywords = "";
-        //List<String> keywords = List.of("");
         Set<Activity> expectedActivities = new HashSet<>(activityRepository.findAll());
         Page<Activity> activities = activitySearchService.getActivitiesByName(keywords, creator.getId(), true, "all", pageable);
         assertEquals(expectedActivities, activities.toSet());
@@ -331,7 +327,6 @@ class ActivitySearchServiceTest {
     void getActivitiesByNameWhenUserIsNotAdminOnlyReturnsVisibleActivitiesTest() {
         Pageable pageable = PageRequest.of(0, Math.toIntExact(activityRepository.count()));
         String keywords = "";
-        //List<String> keywords = List.of("");
 
         Activity newActivity = ActivityTestUtils.createNormalActivity();
         newActivity = activityRepository.save(newActivity);
