@@ -74,13 +74,14 @@
     import toastMixin from "../../mixins/toastMixin";
     import AutoCompleteLocation from "../Location/AutoCompleteLocation";
     import {ValidationProvider, ValidationObserver} from 'vee-validate'
+    import dateTimeMixin from "../../mixins/dateTimeMixin";
 
 export default {
   name: "ActivitySearch",
   components: {
     MapPane, ActivityTypesField, AutoCompleteLocation, ActivitySummary, ValidationObserver, ValidationProvider
   },
-  mixins: [toastMixin],
+  mixins: [toastMixin, dateTimeMixin],
   data() {
     return {
       geocoder: null,
@@ -113,7 +114,8 @@ export default {
           // add new pins
           for (let i = 0; i < this.activityResults.length; i++) {
               let activityLatLong = {lat: this.activityResults[i].latitude, lng: this.activityResults[i].longitude};
-              this.$refs.map.createSingleMarker({position: activityLatLong, id: this.activityResults[i].id});
+              let contentInformation = this.formatActivityDetails(this.activityResults[i]);
+              this.$refs.map.createSingleMarker({position: activityLatLong, text: this.activityResults[i].activityName, id: this.activityResults[i].id}, contentInformation);
               this.$refs.map.setZoomWithMarkers();
           }
         } else {
@@ -166,44 +168,50 @@ export default {
 
     /**
      * Method to format the details of an activity for the information pop up window
-     * At the moment it has dummy data
-     * Need to put in a variable (activityDetails) into this method
      */
-    formatActivityDetails() {
-
-      //This variable is dummy data
-      let activityDetails = {
-        activityName: "Doing happy tings",
-        location: "a happy place",
-        lat: 68.174270,
-        lng: 16.329620,
-        activityTypes: ["happy stuff", "really happy stuff"]
-      };
+    formatActivityDetails(activityDetails) {
       const activityTypesString = this.formatActivityTypesString(activityDetails.activityTypes);
+      let informationWindowText = ""
 
-      //Had to use inline styling because of scope :(
-      const informationWindowText =
-              `<div style="width: 100vh; height: 100vh;">` +
-              `<h1 style="font-size: 22px">${activityDetails.activityName}</h1>` +
-              `<br>` +
-              `<h1 class="infoWindowHeader">Location: <span>${activityDetails.location}</span></h1>` +
-              `<br>` +
-              `<h1 class="infoWindowHeader">Latitude: <span>${activityDetails.lat}</span></h1>` +
-              `<br>` +
-              `<h1 class="infoWindowHeader">Longitude: <span>${activityDetails.lng}</span></h1>` +
-              `<br>` +
-              `${activityTypesString}` +
-              `</div>`
+      if (activityDetails.startTime && activityDetails.endTime) {
+        const formattedStartTime = this.dateFormat(activityDetails.startTime)
+        const formattedEndTime = this.dateFormat(activityDetails.endTime)
+        informationWindowText =
+                `<div style="width: 100vh; height: 100vh;">` +
+                `<h1 style="font-size: 22px; font-weight: bold; font-style: italic">${activityDetails.activityName}</h1>` +
+                `<h1 style="font-weight: bold">${activityDetails.location}</h1>` +
+                `<br>` +
+                `<h1 style="font-weight: bold">Start date and time: <span>${formattedStartTime}</span></h1>` +
+                `<br>` +
+                `<h1 style="font-weight: bold">End date and time: <span>${formattedEndTime}</span></h1>` +
+                `<br>` +
+                `${activityTypesString}` +
+                `</div>`
+      } else {
+        informationWindowText =
+                `<div style="width: 100vh; height: 100vh;">` +
+                `<h1 style="font-size: 22px; font-weight: bold; font-style: italic">${activityDetails.activityName}</h1>` +
+                `<h1 style="font-weight: bold">${activityDetails.location}</h1>` +
+                `<br>` +
+                `<h1 style="font-weight: bold">Start date: Now!</h1>` +
+                `<br>` +
+                `<h1 style="font-weight: bold">End date: "${activityDetails.activityName}" is continuous!</h1>` +
+                `<br>` +
+                `${activityTypesString}` +
+                `</div>`
+      }
+
       return informationWindowText
     },
 
     formatActivityTypesString(activityTypes) {
-      let formattedActivityTypes =
-              `<h1 style="font-size: 16px"> Activity Types:</h1>` +
-              `<br>`
+      let formattedActivityTypes = `<h1 style="font-size: 16px; font-weight: bold"> Activity Types:</h1>`
       let typesString = "";
       for (let i = 0; i < activityTypes.length; i++) {
-        typesString = typesString + `*<span>${activityTypes[i]}</span>` + `<br>`
+        typesString = typesString + `<span style="color:red; font-weight: bold">*</span><span> ${activityTypes[i]} </span>`
+        if (i % 5 === 0 && i !== 0) {
+          typesString = typesString + `<br>`
+        }
       }
       return formattedActivityTypes + typesString
     }
