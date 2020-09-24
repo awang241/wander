@@ -11,7 +11,9 @@
                         <b-field label="Email"
                                  :type="{ 'is-danger': errors[0], 'is-success' : valid}"
                                  :message="errors">
-                            <template slot="label">Email <span>*</span></template>
+                            <template slot="label">
+                                <i class="fas fa-envelope" style="font-size: 1em; color: #38eeff"></i>
+                                Email <span>*</span></template>
                             <b-input class="help"
                                      placeholder="Email"
                                      v-model="email">
@@ -24,7 +26,9 @@
                                  :type="{ 'is-danger': errors[0], 'is-success': valid}"
                                  :message="errors"
                                  expanded>
-                            <template slot="label">Password <span>*</span></template>
+                            <template slot="label">
+                                <i class="fas fa-key" style="font-size: 1em; color: #38eeff"></i>
+                                Password <span>*</span></template>
                             <b-input placeholder="Password"
                                      v-model="password"
                                      type="password">
