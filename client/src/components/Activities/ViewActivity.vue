@@ -266,11 +266,21 @@
         name: "ViewActivity",
         components: {MapPane, ProfileSummary, ActivityParticipationSummary, Observer},
         mixins: [toastMixin, dateTimeMixin],
+        props: {
+            idProp: {
+                type: Number,
+                required: true
+            },
+            viewingThroughModal: {
+                type: Boolean,
+                default: false,
+            }
+        },
         data() {
             return {
                 roles: ROLES,
                 userRole: ROLES.NONE,
-                activityId: this.$route.params.id,
+                activityId: this.idProp,
                 activity: null,
                 activityLocationLatLong: null,
                 google: null,
@@ -310,7 +320,7 @@
                 }
             },
             getRoleCounts(){
-                api.getRoleCountsForActivity(this.$route.params.id, localStorage.getItem('authToken'))
+                api.getRoleCountsForActivity(this.activityId, localStorage.getItem('authToken'))
                     .then(response => {
                         this.numFollowers = response.data.followers;
                         this.numParticipants = response.data.participants
@@ -318,7 +328,7 @@
                     )
             },
             deleteActivity() {
-                api.deleteActivity(this.store.getters.getUserId, localStorage.getItem('authToken'), this.$route.params.id)
+                api.deleteActivity(this.store.getters.getUserId, localStorage.getItem('authToken'), this.activityId)
                     .then(() => {
                         router.push({name: 'activities', params: {activityProp: this.activity}});
                         this.successToast("Activity successfully deleted")
@@ -402,7 +412,7 @@
                 router.push("/ShareActivity/" + this.activity.id + "/" + this.privacy.toLowerCase())
             },
             addRole(role) {
-                api.addActivityRole(this.store.getters.getUserId, this.$route.params.id, localStorage.getItem('authToken'), role)
+                api.addActivityRole(this.store.getters.getUserId, this.activityId, localStorage.getItem('authToken'), role)
                     .then(() => {
                         this.userRole = role;
                         this.getActivityMembers(role);
@@ -444,6 +454,10 @@
                     .then(response => {
                         this.participationResults = response.data.allActivityParticipation;
                         })
+            },
+            viewFullActivity(){
+                router.push({path: 'Activities/' + this.activityId})
+                this.$parent.close()
             }
         },
         computed: {

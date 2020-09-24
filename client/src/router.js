@@ -15,7 +15,6 @@ import SearchComponent from "./components/Search/Search";
 import store from "./store";
 import HomeFeed from "./components/Main/HomeFeed";
 
-
 const routes = [
     {path:"/search", name: "search", component: SearchComponent , beforeEnter: (to, from, next) => {
             if (store.getters.getAuthenticationStatus) {
@@ -38,7 +37,7 @@ const routes = [
     {path: '/ShareActivity/:id/:activityPrivacy', name:"shareActivity", component: ShareActivityComponent, props: true},
 
     {path: "/EditActivity/:", name:"editActivity", component:AddActivityComponent, props: true},
-    {path: "/Activities/:id", name:"viewActivity", component:ViewActivityComponent, props: true},
+    {path: "/Activities/:idProp", name:"viewActivity", component:ViewActivityComponent, props: true},
     {path: "/Profile/:id", name: "profile", component:ProfileComponent, props: true},
     {
         //This route is only accessible if the user is authenticated, else it sends them back to the main page

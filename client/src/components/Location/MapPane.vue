@@ -13,7 +13,7 @@
 <script>
     import VueResizable from 'vue-resizable'
     import googleMapsInit from '../../utils/googlemaps'
-    //Fake data until API endpoint is set up
+    import ViewActivity from "../Activities/ViewActivity";
 
     const DEFAULT_LOCATION = {lat: -43.4341, lng: 172.6397}
     const DEFAULT_ZOOM = 4;
@@ -28,20 +28,11 @@
             address: {
                 type: String
             },
-            //If pins are being made one at a time this should be a string
-            //Else if pins are made all at once this should be a list of strings
-            infoWindowContent: {
-                type: String
-            },
             default_width: {
                 type: Number
             },
             default_height: {
                 type: Number
-            },
-            markerEnabled: {
-                type: Boolean,
-                default: true
             }
         },
 
@@ -128,10 +119,9 @@
               this.createLegend();
             },
             //Creates a singular marker on the map
-            createSingleMarker({position, id}) {
-                //content is just a place holder
+            createSingleMarker({position, id}, infoWindowContent) {
                 const infowindow = new this.google.maps.InfoWindow({
-                    content: "contentString"
+                    content: infoWindowContent
                 });
                 const marker = new this.google.maps.Marker({
                     position: position,
@@ -139,9 +129,14 @@
                     id: id,
                     icon: this.icons.activityIcon.icon
                 });
-                marker.addListener("click", () => {
+
+                marker.addListener("mouseover", () => {
                     infowindow.open(this.map, marker);
                 });
+                marker.addListener("mouseout", () => {
+                    infowindow.close();
+                });
+                marker.addListener('click', () => this.openActivityModal(id))
                 marker.setMap(this.map);
                 // add markers to list so that we can select what pins to remove
                 this.markers.push(marker);
@@ -157,10 +152,6 @@
                 legend.appendChild(div);
               }
               this.map.controls[this.google.maps.ControlPosition.LEFT_BOTTOM].push(legend);
-            },
-            //Method that should show users profile, or route to their profile in the future
-            openDetailedMarkerView(id) {
-                alert(`Opening profile ${id}`)
             },
             setZoomLevel(newAddress) {
                 if (newAddress) {
@@ -191,7 +182,17 @@
                     this.markers[i].setMap(null);
                 }
                 this.markers = [this.markers[0]];
-            }
+            },
+            openActivityModal(id) {
+                this.$buefy.modal.open({
+                    parent: this,
+                    props: {idProp: id, viewingThroughModal: true},
+                    component: ViewActivity,
+                    trapFocus: true,
+                    scroll: "clip"
+                })
+            },
+
         }
     }
 </script>

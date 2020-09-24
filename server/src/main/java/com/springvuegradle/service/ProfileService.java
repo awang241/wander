@@ -109,20 +109,32 @@ public class ProfileService {
     public Page<Profile> getUsers(ProfileSearchCriteria criteria, Pageable request) {
         Specification<Profile> spec = ProfileSpecifications.notDefaultAdmin();
 
-        if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getFirstName()))) {
-            spec = spec.and(ProfileSpecifications.firstNameContains(criteria.getFirstName()));
-        }
+        if (Boolean.FALSE.equals(criteria.getWholeProfileNameSearch())) {
+            if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getAnyName()))) {
+                spec = spec.and(ProfileSpecifications.anyNameContains(criteria.getAnyName()));
+            }
 
-        if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getMiddleName()))) {
-            spec = spec.and(ProfileSpecifications.middleNameContains(criteria.getMiddleName()));
-        }
+            if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getFirstName()))) {
+                spec = spec.and(ProfileSpecifications.firstNameContains(criteria.getFirstName()));
+            }
 
-        if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getLastName()))) {
-            spec = spec.and(ProfileSpecifications.lastNameContains(criteria.getLastName()));
-        }
+            if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getMiddleName()))) {
+                spec = spec.and(ProfileSpecifications.middleNameContains(criteria.getMiddleName()));
+            }
 
-        if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getNickname()))) {
-            spec = spec.and(ProfileSpecifications.nicknameContains(criteria.getNickname()));
+            if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getLastName()))) {
+                spec = spec.and(ProfileSpecifications.lastNameContains(criteria.getLastName()));
+            }
+
+            if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getNickname()))) {
+                spec = spec.and(ProfileSpecifications.nicknameContains(criteria.getNickname()));
+            }
+        } else {
+            spec = spec.and(ProfileSpecifications.firstNameEquals(criteria.getFirstName()));
+            if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getLastName()))) {
+                spec = spec.and(ProfileSpecifications.middleNameEquals(criteria.getMiddleName()));
+            }
+            spec = spec.and(ProfileSpecifications.lastNameEquals(criteria.getLastName()));
         }
 
         if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getEmailAddress()))) {
@@ -132,7 +144,6 @@ public class ProfileService {
         if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getActivityTypes()))) {
             spec = spec.and(ProfileSpecifications.activityTypesContains(criteria.getActivityTypes(), criteria.getSearchMethod()));
         }
-
         return profileRepository.findAll(spec, request);
     }
 

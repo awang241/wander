@@ -102,10 +102,9 @@ class ProfileServiceTest {
         expectedProfiles.add(jimmyTwo);
 
         PageRequest request = PageRequest.of(0, (int) profileRepository.count());
-        ProfileSearchCriteria criteria = new ProfileSearchCriteria(jimmyOne.getFirstname(), null,
-                null, null, null);
+        ProfileSearchCriteria criteria = new ProfileSearchCriteria();
+        criteria.setAnyName(jimmyOne.getFirstname());
         Page<Profile> actualProfiles = testService.getUsers(criteria, request);
-
         assertTrue(expectedProfiles.containsAll(actualProfiles.getContent()), "Check page contains the correct profiles.");
         assertEquals(2, actualProfiles.getTotalElements(), "Check page is of the right size.");
     }
@@ -123,8 +122,8 @@ class ProfileServiceTest {
         expectedProfiles.add(maurice);
 
         PageRequest request = PageRequest.of(0, (int) profileRepository.count());
-        ProfileSearchCriteria criteria = new ProfileSearchCriteria(null, maurice.getMiddlename(),
-                null, null, null);
+        ProfileSearchCriteria criteria = new ProfileSearchCriteria();
+        criteria.setAnyName(maurice.getMiddlename());
         Page<Profile> actualProfiles = testService.getUsers(criteria, request);
 
         assertTrue(expectedProfiles.containsAll(actualProfiles.getContent()), "Check page contains the correct profiles.");
@@ -141,8 +140,11 @@ class ProfileServiceTest {
         Set<Profile> expectedProfiles = new HashSet<>();
         expectedProfiles.add(jimmyOne);
         expectedProfiles.addAll(profilesWithSameSurnameAsJimmy);
-        ProfileSearchCriteria criteria = new ProfileSearchCriteria(null, null, jimmyOne.getLastname(),
+        ProfileSearchCriteria criteria = new ProfileSearchCriteria(null, null, null,
                 null, null);
+        criteria.setAnyName(jimmyOne.getLastname());
+        criteria.setWholeProfileNameSearch(false);
+
         PageRequest request = PageRequest.of(0, Math.toIntExact(profileRepository.count()));
 
         Page<Profile> actualProfiles = testService.getUsers(criteria, request);
@@ -164,25 +166,23 @@ class ProfileServiceTest {
         PageRequest request = PageRequest.of(0, Math.toIntExact(profileRepository.count()));
 
         ProfileSearchCriteria criteria = new ProfileSearchCriteria(jimmyOne.getFirstname(), jimmyOne.getMiddlename(),
-                jimmyOne.getLastname(), null, null);
+                jimmyOne.getLastname(), jimmyOne.getNickname(), null);
+        criteria.setWholeProfileNameSearch(true);
         Page<Profile> actualProfiles = testService.getUsers(criteria, request);
         assertTrue(expectedProfiles.containsAll(actualProfiles.getContent()), "Check page contains the correct profiles.");
         assertEquals(expectedProfiles.size(), actualProfiles.getTotalElements(), "Check page is of the right size.");
     }
 
     @Test
-    void getUsersByNicknameNormalTest() {profileRepository.save(jimmyOne);
-        profileRepository.save(jimmyTwo);
+    void getUsersByNicknameNormalTest() {
         nicknamedQuick = profileRepository.save(nicknamedQuick);
-        profileRepository.save(steven);
-        profileRepository.saveAll(profilesWithSameSurnameAsJimmy);
 
         Set<Profile> expectedProfiles = new HashSet<>();
         expectedProfiles.add(nicknamedQuick);
 
         PageRequest request = PageRequest.of(0, Math.toIntExact(profileRepository.count()));
-        ProfileSearchCriteria criteria = new ProfileSearchCriteria(null, null, null,
-                nicknamedQuick.getNickname(), null);
+        ProfileSearchCriteria criteria = new ProfileSearchCriteria();
+        criteria.setAnyName(nicknamedQuick.getNickname());
         Page<Profile> actualProfiles = testService.getUsers(criteria, request);
         assertTrue(expectedProfiles.containsAll(actualProfiles.getContent()), "Check page contains the correct profiles.");
         assertEquals(expectedProfiles.size(), actualProfiles.getTotalElements(), "Check page is of the right size.");
