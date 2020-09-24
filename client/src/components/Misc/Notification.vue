@@ -3,7 +3,7 @@
     <div class="columns">
       <div class="column">
         <p style="white-space: pre-wrap; font-weight:bolder" id="message">{{ notification.message }}</p>
-        <p id="date">{{ dateFormat(notification.timeStamp) }}</p>
+        <p id="date">{{ dateTimeFormat(notification.timeStamp) }}</p>
       </div>
       <b-button
               v-if="notification.activityId !== null"

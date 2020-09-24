@@ -9,25 +9,37 @@ export default {
 
             if (dateParts && timeParts) {
                 dateParts[1] -= 1;
-                return new Date(Date.UTC.apply(undefined, dateParts.concat(timeParts))).toISOString();
+                date = new Date(Date.UTC.apply(undefined, dateParts.concat(timeParts)));
+                const adjustedDate = new Date(date.getTime() + date.getTimezoneOffset() * 60000);
+                return adjustedDate.toISOString()
             }
             return null;
         },
         /**
          * Converts a date-time string from the JSON format (yyyy-mm-ddThh:mm:ss(+|-)hhmm) to presentation format
-         * (hh:hh dd/mm/yyyy). 24 hour time is used, and at the current stage time zone is ignored.
+         * (hh:hh dd/mm/yyyy). 24 hour time is used, and the date is adjusted to UTC.
          *
-         * For example, the string 2020-09-05T08:00:00+1300 is converted to 08:00 05/09/2020.
-         * @param date - the date-time as a JSON format string.
+         * For example, the string 2020-09-05T19:00:00+1300 is converted to 06:00 05/09/2020.
+         * @param dateTimeString - the date-time as a JSON format string.
          * @returns {string} the date-time string in presentation format.
          */
-        dateFormat(date) {
-            let year = date.slice(0, 4);
-            let month = date.slice(5, 7);
-            let day = date.slice(8, 10);
-            let hour = date.slice(11, 13);
-            let min = date.slice(14, 16);
-            return hour + ":" + min + " " + day + "/" + month + "/" + year;
+        dateTimeFormat(dateTimeString) {
+            let date = new Date(dateTimeString);
+            let timeDateArray =  date.toLocaleDateString('en-NZ', {
+                hour12: false,
+                year: "numeric",
+                month: "numeric",
+                day: "numeric",
+                hour: "numeric",
+                minute: "numeric"
+            }).split(',').reverse();
+            if (date.getDate() < 10){
+                timeDateArray[1] = '0' + timeDateArray[1]
+            }
+            return timeDateArray.join(' ').trim();
+        },
+        getTimeZone(dateString) {
+            return dateString.split("+")[1]
         }
     }
 };

@@ -42,7 +42,7 @@ describe('Notification.vue', () => {
             store, localVue, propsData: {notification: dataTemplate}
         });
         const date = wrapper.find("#date");
-        expect(date.text()).toBe(dateTimeMixin.methods.dateFormat(dataTemplate.timeStamp));
+        expect(date.text()).toBe(dateTimeMixin.methods.dateTimeFormat(dataTemplate.timeStamp));
     });
 
     it('Loads a self-triggered notification with the right colour', () => {
