@@ -54,7 +54,7 @@ describe('Notification.vue', () => {
             store, localVue, propsData: {notification: data}
         });
 
-        expect(wrapper.vm.$data.cardStyle.borderColor).toBe("#ffffb0");
+        expect(wrapper.vm.$data.cardStyle.backgroundColor).toBe("rgb(250,246,137, 0.2)");
     });
 
     it('Loads an activity addition notification with the right colour', () => {
@@ -66,7 +66,7 @@ describe('Notification.vue', () => {
             store, localVue, propsData: {notification: data}
         });
 
-        expect(wrapper.vm.$data.cardStyle.borderColor).toBe("#99ff94");
+        expect(wrapper.vm.$data.cardStyle.backgroundColor).toBe("rgb(153,255,148, 0.2)");
     });
 
     it('Loads an activity removal notification with the right colour', () => {
@@ -78,7 +78,7 @@ describe('Notification.vue', () => {
             store, localVue, propsData: {notification: data}
         });
 
-        expect(wrapper.vm.$data.cardStyle.borderColor).toBe("#f56e7a");
+        expect(wrapper.vm.$data.cardStyle.backgroundColor).toBe("rgb(245,110,122, 0.2)");
     });
 
     it('Loads an activity change notification with the right colour', () => {
@@ -90,7 +90,7 @@ describe('Notification.vue', () => {
             store, localVue, propsData: {notification: data}
         });
 
-        expect(wrapper.vm.$data.cardStyle.borderColor).toBe("#faf689");
+        expect(wrapper.vm.$data.cardStyle.backgroundColor).toBe("rgb(250,246,137, 0.2)");
     });
     it('Displays the view activity button if the notification has an activity ID', () => {
         let data = {};
