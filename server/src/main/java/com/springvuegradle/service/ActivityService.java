@@ -179,6 +179,7 @@ public class ActivityService {
             Activity activity = getModelObjectById(activityRepo, activityId);
             notificationService.createNotification(NotificationType.ACTIVITY_REMOVED, activity, profile,
                     profile.getFullName() + " deleted an activity called " + activity.getActivityName() + ".");
+            notificationService.detachActivityFromNotifications(activity);
 
             for (ActivityMembership membership : membershipRepo.findAll()) {
                 if (membership.getActivity().getId() == activityId) {
@@ -196,7 +197,6 @@ public class ActivityService {
                 }
             }
 
-            notificationService.detachActivityFromNotifications(activity);
             for (ActivityType activityType : typeRepo.findAll()) {
                 if (activityType.getActivities().contains(activity)) {
                     activityType.removeActivity(activity);
