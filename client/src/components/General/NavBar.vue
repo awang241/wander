@@ -78,7 +78,7 @@
         },
         methods: {
             logout(){
-                localStorage.clear()
+                localStorage.clear();
                 let payload = {'token': null, 'userId': null, 'authenticationStatus': false, 'authenticationLevel': 5}
                 store.dispatch('resetUserData', payload, {root:true});
                 router.push({path: '/Login'});
@@ -106,21 +106,7 @@
 </script>
 
 <style>
-    #main-navbar{
-        display: flex;
-        flex-wrap: wrap;
-        height: 30px;
-        padding: 1rem;
-        justify-content: space-between;
-    }
-
-    .container{
-        width: 100%;
-    }
-
-    buttons{
-        padding: 10px;
-    }
+    img { cursor: pointer; }
 
     .crop-banner {
         width: 200px;

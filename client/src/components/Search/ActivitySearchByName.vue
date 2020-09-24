@@ -33,7 +33,7 @@
             <div class="column">
                 <div class="is-pulled-right">
                     <b-field>
-                        <b-button native-type="submit" class="is-primary" @click="search()">Search</b-button>
+                        <b-button native-type="submit" class="is-primary">Search</b-button>
                     </b-field>
                 </div>
             </div>
@@ -43,7 +43,7 @@
         <hr>
 
         <div id="results" v-if="activityResults.length">
-            <h1><b>Activities returned from Search:</b></h1>
+            <h1><strong>Activities returned from Search:</strong></h1>
             <br>
             <div style="overflow-y: auto; overflow-x: hidden">
                 <div
@@ -57,9 +57,10 @@
 
         </div>
         <div v-else id="noMatches">
-            <h1><b>{{searchResultString}}</b></h1>
+            <h1><strong>{{searchResultString}}</strong></h1>
         </div>
 
+        <observer v-on:intersect="loadMoreActivities"></observer>
     </div>
 
 
@@ -69,13 +70,14 @@
     import ActivitySummary from '../Summaries/ActivitySummary';
     import Api from "../../Api";
     import {ValidationProvider, ValidationObserver} from 'vee-validate'
+    import Observer from "../Misc/Observer";
 
     const DEFAULT_RESULT_COUNT = 10
 
     export default {
         name: "ActivitySearchByName",
         components: {
-            ActivitySummary, ValidationObserver, ValidationProvider
+            ActivitySummary, ValidationObserver, ValidationProvider, Observer
         },
         data() {
             return {
@@ -108,7 +110,7 @@
                 return searchParameters
             },
             loadMoreActivities() {
-                if (this.moreActivitiesExist) {
+                if (this.activityResults.length > 0 && this.moreActivitiesExist) {
                     const searchParameters = this.getSearchParameters()
                     Api.getActivitiesByName(localStorage.getItem('authToken'), searchParameters).then(response => {
                         if (response.data.results.length === 0) {
@@ -117,6 +119,9 @@
                             this.startIndex += DEFAULT_RESULT_COUNT
                             const activities = response.data.results
                             this.activityResults = [...this.activityResults, ...activities]
+                            if (activities.length < DEFAULT_RESULT_COUNT) {
+                                this.moreActivitiesExist = false;
+                            }
                         }
                     })
                 }

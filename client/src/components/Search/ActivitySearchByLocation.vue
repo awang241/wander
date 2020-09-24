@@ -26,9 +26,11 @@
         <br>
         <div class="row">
           <b-field style="float:right;">
-            <b-button type="is-primary" @click="search()">Search</b-button>
+            <b-button type="is-primary" native-type="submit">Search</b-button>
           </b-field>
         </div>
+      </form>
+    </ValidationObserver>
         <br>
         <br>
 
@@ -40,7 +42,7 @@
           </div>
           <div class="column">
             <div id="results" v-if="activityResults.length">
-              <h1><b>Activities returned from Search:</b></h1>
+              <h1><strong>Activities returned from Search:</strong></h1>
               <br>
               <div style="overflow-y: auto; overflow-x: hidden; height: 450px;">
                 <div
@@ -54,13 +56,11 @@
 
               </div>
             <div v-else id="noMatches">
-              <h1><b>{{searchResultString}}</b></h1>
+              <h1><strong>{{searchResultString}}</strong></h1>
             </div>
           </div>
         </div>
         <br>
-      </form>
-    </ValidationObserver>
   </div>
 </template>
 
@@ -174,8 +174,8 @@ export default {
       let informationWindowText = ""
 
       if (activityDetails.startTime && activityDetails.endTime) {
-        const formattedStartTime = this.dateFormat(activityDetails.startTime)
-        const formattedEndTime = this.dateFormat(activityDetails.endTime)
+        const formattedStartTime = this.dateTimeFormat(activityDetails.startTime)
+        const formattedEndTime = this.dateTimeFormat(activityDetails.endTime)
         informationWindowText =
                 `<div style="width: 100vh; height: 100vh;">` +
                 `<h1 style="font-size: 22px; font-weight: bold; font-style: italic">${activityDetails.activityName}</h1>` +
