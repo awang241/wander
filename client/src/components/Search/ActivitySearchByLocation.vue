@@ -26,9 +26,11 @@
         <br>
         <div class="row">
           <b-field style="float:right;">
-            <b-button type="is-primary" @click="search()">Search</b-button>
+            <b-button type="is-primary" native-type="submit">Search</b-button>
           </b-field>
         </div>
+      </form>
+    </ValidationObserver>
         <br>
         <br>
 
@@ -59,8 +61,6 @@
           </div>
         </div>
         <br>
-      </form>
-    </ValidationObserver>
   </div>
 </template>
 
