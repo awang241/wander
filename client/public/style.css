@@ -12,6 +12,7 @@ body {
     margin-top: 60px;
     border-radius: 10px;
     position: center;
+    margin-bottom: 50px;
 }
 
 button:hover {

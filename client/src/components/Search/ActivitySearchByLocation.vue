@@ -177,9 +177,9 @@ export default {
         const formattedStartTime = this.dateFormat(activityDetails.startTime)
         const formattedEndTime = this.dateFormat(activityDetails.endTime)
         informationWindowText =
-                `<div style="width: 100vh; height: 100vh;">` +
+                `<div>` +
                 `<h1 style="font-size: 22px; font-weight: bold; font-style: italic">${activityDetails.activityName}</h1>` +
-                `<h1 style="font-weight: bold">${activityDetails.location}</h1>` +
+                `<h1 style="font-weight: bold">${activityDetails.activityName}</h1>` +
                 `<br>` +
                 `<h1 style="font-weight: bold">Start date and time: <span>${formattedStartTime}</span></h1>` +
                 `<br>` +
@@ -189,7 +189,7 @@ export default {
                 `</div>`
       } else {
         informationWindowText =
-                `<div style="width: 100vh; height: 100vh;">` +
+                `<div>` +
                 `<h1 style="font-size: 22px; font-weight: bold; font-style: italic">${activityDetails.activityName}</h1>` +
                 `<h1 style="font-weight: bold">${activityDetails.location}</h1>` +
                 `<br>` +
