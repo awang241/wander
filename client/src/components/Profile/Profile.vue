@@ -20,6 +20,7 @@
                     <b-button v-if="viewingOwnProfile"
                               @click="editProfile"
                               type="is-primary">
+                        <i class="fas fa-user-edit iconPadding" style="font-size: 1.3em"></i>
                         Edit Profile
                     </b-button>
                 </div>
@@ -32,7 +33,9 @@
                 <!-- Profile -->
                 <div class="card">
                     <div class="card-content">
-                        <h3 class="title is-4">Basic information</h3>
+                        <h3 class="title is-4">
+                            <i class="fas fa-universal-access" style="font-size: 1.3em; color: #384cff"></i>
+                            Basic information</h3>
 
                         <div class="content">
                             <table class="table-profile">
@@ -71,7 +74,9 @@
 
                             <div v-if="profile.passports != null && profile.passports.length">
                                 <br>
-                                <h3 class="title is-4">Countries</h3>
+                                <h3 class="title is-4">
+                                    <i class="fas fa-globe-asia iconPadding" style="font-size: 1.3em; color: #00d927"></i>
+                                    Countries</h3>
                                 <table class="table-profile">
                                     <caption hidden>Table of Passport countries for profile</caption>
                                     <tr>
@@ -85,7 +90,9 @@
                             <br>
                             <div v-if="profile.activities != null && profile.activities.length">
                                 <br>
-                                <h3 class="title is-4">Activity Types</h3>
+                                <h3 class="title is-4">
+                                    <i class="fas fa-heartbeat iconPadding" style="font-size: 1.3em; color:  #ff3838"></i>
+                                    Activity Types</h3>
                                 <table class="table-profile">
                                     <caption hidden>Table of activity types for profile</caption>
                                     <tr>

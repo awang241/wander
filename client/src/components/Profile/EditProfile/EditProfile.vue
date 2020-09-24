@@ -5,14 +5,15 @@
     <h3 class="title is-4">Profile Settings</h3>
     <div class="tabs is-centered">
       <ul>
-        <li :class="{'is-active': tabIndex === 0}"><a v-on:click="setTabIndex(0)">Basic Info</a></li>
-        <li :class="{'is-active': tabIndex === 1}"><a v-on:click="setTabIndex(1)">Change Password</a></li>
-        <li :class="{'is-active': tabIndex === 2}"><a v-on:click="setTabIndex(2)">Passport Countries</a></li>
-        <li :class="{'is-active': tabIndex === 3}"><a v-on:click="setTabIndex(3)">Activity Types</a></li>
-        <li :class="{'is-active': tabIndex === 4}"><a v-on:click="setTabIndex(4)">Emails</a></li>
-        <li :class="{'is-active': tabIndex === 5}"><a v-on:click="setTabIndex(5)">Location</a></li>
+        <li :class="{'is-active': tabIndex === 0}"><a v-on:click="setTabIndex(0)"><i class="fas fa-user iconPadding" style="font-size: 1.3em"></i>Basic Info</a></li>
+        <li :class="{'is-active': tabIndex === 1}"><a v-on:click="setTabIndex(1)"><i class="fas fa-key iconPadding" style="font-size: 1.3em"></i>Change Password</a></li>
+        <li :class="{'is-active': tabIndex === 2}"><a v-on:click="setTabIndex(2)"><i class="fas fa-passport iconPadding" style="font-size: 1.3em"></i>Passport Countries</a></li>
+        <li :class="{'is-active': tabIndex === 3}"><a v-on:click="setTabIndex(3)"><i class="fas fa-heartbeat iconPadding" style="font-size: 1.3em"></i>Activity Types</a></li>
+        <li :class="{'is-active': tabIndex === 4}"><a v-on:click="setTabIndex(4)"><i class="fas fa-envelope iconPadding" style="font-size: 1.3em"></i>Emails</a></li>
+        <li :class="{'is-active': tabIndex === 5}"><a v-on:click="setTabIndex(5)"><i class="fas fa-map-marker-alt iconPadding" style="font-size: 1.3em"></i>Location</a></li>
         <li v-if="$store.getters.getAuthenticationLevel > 0 && !editingThroughDashboard">
             <a @click="changeToProfile">
+              <i class="fas fa-chevron-left iconPadding" style="font-size: 1.3em"></i>
                 Back to Profile
             </a>
         </li>
