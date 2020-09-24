@@ -174,8 +174,8 @@ export default {
       let informationWindowText = ""
 
       if (activityDetails.startTime && activityDetails.endTime) {
-        const formattedStartTime = this.dateFormat(activityDetails.startTime)
-        const formattedEndTime = this.dateFormat(activityDetails.endTime)
+        const formattedStartTime = this.dateTimeFormat(activityDetails.startTime)
+        const formattedEndTime = this.dateTimeFormat(activityDetails.endTime)
         informationWindowText =
                 `<div style="width: 100vh; height: 100vh;">` +
                 `<h1 style="font-size: 22px; font-weight: bold; font-style: italic">${activityDetails.activityName}</h1>` +
