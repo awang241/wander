@@ -180,6 +180,14 @@ public class ActivityService {
                     Profile profile = membership.getProfile();
                     membershipRepo.delete(membership);
                     profile.removeActivity(membership);
+                    membershipRepo.deleteActivityMembershipByProfileIdAndActivityId(profile.getId(), activityId);
+                }
+            }
+            for (ActivityParticipation participation : participationRepo.findAll()) {
+                if (participation.getActivity().getId() == activityId) {
+                    Profile profile = participation.getProfile();
+                    participationRepo.delete(participation);
+                    profile.removeParticipation(participation);
                 }
             }
             Profile profile = getModelObjectById(profileRepo, profileId);
