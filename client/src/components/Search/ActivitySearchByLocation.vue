@@ -40,7 +40,7 @@
           </div>
           <div class="column">
             <div id="results" v-if="activityResults.length">
-              <h1><b>Activities returned from Search:</b></h1>
+              <h1><strong>Activities returned from Search:</strong></h1>
               <br>
               <div style="overflow-y: auto; overflow-x: hidden; height: 450px;">
                 <div
@@ -54,7 +54,7 @@
 
               </div>
             <div v-else id="noMatches">
-              <h1><b>{{searchResultString}}</b></h1>
+              <h1><strong>{{searchResultString}}</strong></h1>
             </div>
           </div>
         </div>
