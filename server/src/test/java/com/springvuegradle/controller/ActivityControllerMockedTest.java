@@ -12,6 +12,7 @@ import com.springvuegradle.config.MockServiceConfig;
 import com.springvuegradle.dto.SimplifiedActivitiesResponse;
 import com.springvuegradle.enums.ActivityPrivacy;
 import com.springvuegradle.model.Activity;
+import com.springvuegradle.service.ActivitySearchService;
 import com.springvuegradle.utilities.ActivityTestUtils;
 import com.springvuegradle.repositories.ActivityRepository;
 import com.springvuegradle.service.ActivityService;
@@ -51,11 +52,15 @@ class ActivityControllerMockedTest {
     @Autowired
     ActivityService mockService;
     @Autowired
+    ActivitySearchService mockActivitySearchService;
+    @Autowired
     ActivityRepository activityRepository;
     @Autowired
     JwtUtil mockJwt;
     @Autowired
     ActivityController activityController;
+    @Autowired
+    ActivitySearchController activitySearchController;
     @Autowired
     ActivityRepository mockRepo;
     @Autowired
@@ -65,6 +70,7 @@ class ActivityControllerMockedTest {
     private void tearDown() {
         mockRepo.deleteAll();
         Mockito.reset(mockService);
+        Mockito.reset(mockActivitySearchService);
         Mockito.reset(mockJwt);
         Mockito.reset(mockSecurity);
     }
@@ -245,7 +251,6 @@ class ActivityControllerMockedTest {
         String roleName = "iohfad";
         int count = 5;
         int startIndex = 0;
-
         long mockId = 10;
         String mockToken = "token";
         Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
@@ -522,6 +527,62 @@ class ActivityControllerMockedTest {
         Mockito.when(mockSecurity.checkEditPermission(mockToken, mockProfileId)).thenReturn(true);
         ResponseEntity actualResponse = activityController.getActivityRole(mockToken, mockProfileId,mockActivityID);
         assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
+    }
+
+    /**
+     * Tests the getActivitiesByName method. When all data is as expected, we test it returns a correct response.
+     */
+    @Test
+    void getActivitiesByNameReturnsNormalResponseTest(){
+        long mockProfileId = 987;
+        String searchMethod = "all";
+        String mockActivityName = "Valid Activity Name";
+        String mockToken = "validToken";
+        int mockPermission = 2;
+        int count = 2;
+        int startIndex = 1;
+        List<Activity> expectedActivities = new ArrayList<>();
+        expectedActivities.add(ActivityTestUtils.createNormalActivity());
+        List<SimplifiedActivity> activitySummaries = new ArrayList<>();
+        for (Activity activity: expectedActivities) {
+            activitySummaries.add(new SimplifiedActivity(activity));
+        }
+        SimplifiedActivitiesResponse responseBody = new SimplifiedActivitiesResponse(activitySummaries);
+        ResponseEntity<SimplifiedActivitiesResponse> expectedResponse = new ResponseEntity<>(responseBody, HttpStatus.OK);
+        Page<Activity> mockPage = new PageImpl<>(expectedActivities);
+        Pageable mockRequest = PageRequest.of(startIndex / count, count);
+        Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
+        Mockito.when(mockJwt.extractPermission(mockToken)).thenReturn(mockPermission);
+        Mockito.when(mockJwt.extractId(mockToken)).thenReturn(mockProfileId);
+        Mockito.when(mockActivitySearchService.getActivitiesByName(mockActivityName, mockProfileId, false,
+                searchMethod, mockRequest)).thenReturn(mockPage);
+        Mockito.when(mockService.createSimplifiedActivities(mockPage.getContent())).thenReturn(activitySummaries);
+        ResponseEntity<SimplifiedActivitiesResponse> actualResponse =
+                activitySearchController.searchActivitiesByName(mockActivityName, searchMethod, count, startIndex, mockToken);
+        assertEquals(expectedResponse, actualResponse);
+    }
+
+
+    /**
+     * Tests the getActivitiesByName method returns an unauthorised response when no token is given.
+     */
+    @Test
+    void getActivitiesByNameWithNoTokenReturnsUnauthorizedResponseTest(){
+        ResponseEntity<SimplifiedActivitiesResponse> response = activitySearchController.searchActivitiesByName(null,
+                null, 0, 0, null);
+        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+    }
+
+    /**
+     * Tests the getActivitiesByName method returns a bad request response when an invalid count is given.
+     */
+    @Test
+    void getActivitiesByNameWithInvalidCountParameterReturnsBadRequestResponseTest(){
+        String mockToken = "mockToken";
+        Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
+        ResponseEntity<SimplifiedActivitiesResponse> response = activitySearchController.searchActivitiesByName(null,
+                null, 0, 0, mockToken);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
 

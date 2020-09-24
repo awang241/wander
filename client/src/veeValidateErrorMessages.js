@@ -1,4 +1,4 @@
-import { alpha_spaces, required, confirmed, email } from "vee-validate/dist/rules";
+import { alpha_spaces, required, confirmed, email, integer } from "vee-validate/dist/rules";
 import { extend } from "vee-validate";
 
 extend('minName', value => {
@@ -68,6 +68,18 @@ extend("email", {
 extend("confirmed", {
     ...confirmed,
     message: "These passwords do not match"
+});
+
+extend("maxDistanceInRange", value => {
+    if (value >= 1 && value <= 200) {
+        return true;
+    }
+    return "{_field_} must be an integer between 1 and 200";
+});
+
+extend("integer", {
+    ...integer,
+    message: "The value entered is not an integer"
 });
 
 extend("maxBirthDate", value => {
