@@ -1,11 +1,12 @@
 <template>
   <div class="container">
-    <h1 class="title">Activity Search</h1>
+    <h1 class="title">Activity Search By Location</h1>
 
     <ValidationObserver v-slot="{ handleSubmit }">
       <form ref="form" @submit.prevent="handleSubmit(search)">
         <b-field group-multiline grouped>
-          <b-field label="Enter a location" expanded>
+          <b-field expanded>
+            <template slot="label">Enter a location <span class="red-star">*</span></template>
             <AutoCompleteLocation v-on:locationStringChanged="updateMapLocationFromAutoComplete" v-on:updateMap="updateLocation" v-bind:profileLocation="profile.location" ref="autocomplete"></AutoCompleteLocation>
           </b-field>
           <ValidationProvider rules="required|integer|maxDistanceInRange" name="Max distance (km)" v-slot="{ errors, valid }" slim>
@@ -13,7 +14,7 @@
 
                      :type="{ 'is-danger': errors[0], 'is-success': valid }"
                      :message="errors">
-              <template slot="label">Max distance (km)<span>*</span></template>
+              <template slot="label">Max distance (km) <span class="red-star">*</span></template>
               <b-input id="maxDistanceInput" v-model="maxDistance" type="is-primary" ></b-input>
             </b-field>
           </ValidationProvider>
@@ -220,6 +221,10 @@ export default {
 <style scoped>
   .container {
     margin-top: 0px;
+  }
+
+  .red-star {
+    color: red;
   }
 
 </style>
