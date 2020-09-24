@@ -229,12 +229,6 @@
                         <p>This activity has no participation results.</p>
                     </div>
                 </b-tab-item>
-
-                <b-tab-item label="Location">
-                  <div>
-                    <MapPane :location-choice-coordinates="activityLocationLatLong" :address="location.address" :default_width="1200" :default_height="550" :marker-enabled="false"></MapPane>
-                  </div>
-                </b-tab-item>
             </b-tabs>
         </div>
     </div>
@@ -249,7 +243,6 @@
     import ActivityParticipationSummary from "../Summaries/ActivityParticipationSummary";
     import toastMixin from "../../mixins/toastMixin";
     import googleMapsInit from "../../utils/googlemaps";
-    import MapPane from "../Location/MapPane";
     import dateTimeMixin from "../../mixins/dateTimeMixin";
 
     const DEFAULT_RESULT_COUNT = 50;
@@ -269,7 +262,7 @@
 
     export default {
         name: "ViewActivity",
-        components: {MapPane, ProfileSummary, ActivityParticipationSummary, Observer},
+        components: { ProfileSummary, ActivityParticipationSummary, Observer},
         mixins: [toastMixin, dateTimeMixin],
         props: {
             idProp: {
@@ -505,15 +498,12 @@
 <style scoped>
     .flex {
         display: flex;
-        flex-direction: row;
         flex-wrap: wrap;
-        justify-content: space-between;
     }
     .flex-item {
-        margin: 20px 0;
+        margin: 20px 20px 0 0;
         width: 490px;
         align-items: center;
-        padding-right: 1rem;
     }
 
 </style>

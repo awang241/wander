@@ -13,7 +13,7 @@
 <script>
     import VueResizable from 'vue-resizable'
     import googleMapsInit from '../../utils/googlemaps'
-    import {viewActivity} from "../../main";
+    import ViewActivity from "../Activities/ViewActivity";
 
     const DEFAULT_LOCATION = {lat: -43.4341, lng: 172.6397}
     const DEFAULT_ZOOM = 4;
@@ -190,7 +190,7 @@
                 this.$buefy.modal.open({
                     parent: this,
                     props: {idProp: Number(id), viewingThroughModal: true},
-                    component: viewActivity,
+                    component: ViewActivity,
                     trapFocus: true,
                     scroll: "clip"
                 })
