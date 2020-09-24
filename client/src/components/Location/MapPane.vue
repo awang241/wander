@@ -158,10 +158,6 @@
               }
               this.map.controls[this.google.maps.ControlPosition.LEFT_BOTTOM].push(legend);
             },
-            //Method that should show users profile, or route to their profile in the future
-            openDetailedMarkerView(id) {
-                alert(`Opening profile ${id}`)
-            },
             setZoomLevel(newAddress) {
                 if (newAddress) {
                     let address_parts = newAddress.split(',');
