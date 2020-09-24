@@ -100,11 +100,11 @@
 
                                         <tr v-if="!activity.continuous">
                                             <td>Start Time:</td>
-                                            <td>{{dateFormat(activity.start_time)}}</td>
+                                            <td>{{dateTimeFormat(activity.start_time)}}</td>
                                         </tr>
                                         <tr v-if="!activity.continuous">
                                             <td>End Time:</td>
-                                            <td>{{dateFormat(activity.end_time)}}</td>
+                                            <td>{{dateTimeFormat(activity.end_time)}}</td>
                                         </tr>
 
                                         <tr>
@@ -250,6 +250,7 @@
     import toastMixin from "../../mixins/toastMixin";
     import googleMapsInit from "../../utils/googlemaps";
     import MapPane from "../Location/MapPane";
+    import dateTimeMixin from "../../mixins/dateTimeMixin";
 
     const DEFAULT_RESULT_COUNT = 50;
 
@@ -268,8 +269,8 @@
 
     export default {
         name: "ViewActivity",
-        components: {ProfileSummary, ActivityParticipationSummary, Observer, MapPane},
-        mixins: [toastMixin],
+        components: {MapPane, ProfileSummary, ActivityParticipationSummary, Observer},
+        mixins: [toastMixin, dateTimeMixin],
         props: {
             idProp: {
                 type: String,
@@ -313,7 +314,6 @@
                 moreParticipantsExist: true,
                 moreFollowersExist: true,
                 participationResults: [],
-                marker_enabled: false
           }
         },
         methods: {
@@ -430,17 +430,6 @@
             },
             createParticipation() {
                 router.push('/Activities/' + this.activity.id + '/Participation')
-            },
-            dateFormat(date) {
-                if (date) {
-                    let year = date.slice(0, 4);
-                    let month = date.slice(5, 7);
-                    let day = date.slice(8, 10);
-                    let hour = date.slice(11, 13);
-                    let min = date.slice(14, 16);
-                    return hour + ":" + min + " " + day + "/" + month + "/" + year;
-                }
-
             },
             getUserRole() {
                 api.getSingleUserActivityRole(localStorage.getItem('userId'), this.activityId, localStorage.getItem('authToken'))
