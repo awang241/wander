@@ -153,10 +153,10 @@
             },
 
             combinedStartDate: function () {
-                return this.combineDateAndTime(this.activity.startDate, this.activity.startTime)
+                return this.combineDateAndTime(this.activity.startDate, this.activity.startTime);
             },
             combinedEndDate: function () {
-                return this.combineDateAndTime(this.activity.endDate, this.activity.endTime)
+                return this.combineDateAndTime(this.activity.endDate, this.activity.endTime);
             }
         },
         data() {
@@ -232,17 +232,16 @@
             validateActivity() {
                 let isValid = true;
                 if (this.activity.chosenActivityTypes.length < 1) {
-                    this.warningToast("You must choose at least one activity type")
+                    this.warningToast("You must choose at least one activity type");
                     isValid = false
                 } else if (!this.isContinuous) {
-                    this.continuous = false
-                    const startDate = Date.parse(this.combinedStartDate)
-                    const endDate = Date.parse(this.combinedEndDate)
+                    let startDate = Date.parse(this.combinedStartDate);
+                    const endDate = Date.parse(this.combinedEndDate);
                     if (isNaN(startDate) || isNaN(endDate)) {
-                        this.warningToast("Invalid dates entered!")
+                        this.warningToast("Invalid dates entered!");
                         isValid = false
                     } else if (Date.parse(this.combinedStartDate) > Date.parse(this.combinedEndDate)) {
-                        this.warningToast("The end date must be after the start date")
+                        this.warningToast("The end date must be after the start date");
                         isValid = false
                     }
                 }
@@ -258,9 +257,9 @@
                         "location": this.locationString,
                         "latitude": this.activityLocationLatLong.lat,
                         "longitude": this.activityLocationLatLong.lng
-                    }
+                    };
                     if (!this.isContinuous) {
-                        activity.start_time = this.combinedStartDate
+                        activity.start_time = this.combinedStartDate;
                         activity.end_time = this.combinedEndDate
                     }
 
@@ -268,11 +267,11 @@
                 }
             },
             submitActivity(activity) {
-                const originalActivity = this.convertToProp(this.activityProp)
+                const originalActivity = this.convertToProp(this.activityProp);
                 if (this.activity.creating) {
                     Api.createActivity(store.getters.getUserId, activity, localStorage.getItem('authToken'))
                         .then(() => {
-                            this.successToast("Activity created")
+                            this.successToast("Activity created");
                             router.push({path: '/Activities'})
                         })
                 } else {
@@ -281,7 +280,7 @@
                     } else {
                         Api.updateActivity(store.getters.getUserId, localStorage.getItem('authToken'), activity, this.activityProp.id)
                             .then(() => {
-                                this.successToast("Activity updated")
+                                this.successToast("Activity updated");
                                 router.push({path: '/Activities'})
                             })
                     }
@@ -307,20 +306,21 @@
                     "id": activity.id,
                     "latitude": activity.latitude,
                     "longitude": activity.longitude
-                }
+                };
                 if (activity.continuous) {
-                    activityProp.activityDuration = "Continuous"
-                    activityProp.startDate = null
-                    activityProp.endDate = null
-                    activityProp.startTime = ""
-                    activityProp.endTime = ""
+                    activityProp.activityDuration = "Continuous";
+                    activityProp.startDate = null;
+                    activityProp.endDate = null;
+                    activityProp.startTime = "";
+                    activityProp.endTime = "";
                 } else {
-                    activityProp.activityDuration = "Duration"
-                    //Converting the UTC format to format used by HTML date inputs. Surely a better way to do this
-                    activityProp.startDate = activity.start_time.slice(0, 10)
-                    activityProp.startTime = activity.start_time.slice(11, 16)
-                    activityProp.endDate = activity.end_time.slice(0, 10)
-                    activityProp.endTime = activity.end_time.slice(11, 16)
+                    activityProp.activityDuration = "Duration";
+                    const startTimeDateArray = this.dateTimeFormat(activity.start_time).split(" ");
+                    const endTimeDateArray = this.dateTimeFormat(activity.end_time).split(" ");
+                    activityProp.startDate = startTimeDateArray[1].split('/').reverse().join('-');
+                    activityProp.startTime = startTimeDateArray[0];
+                    activityProp.endDate = endTimeDateArray[1].split('/').reverse().join('-');
+                    activityProp.endTime = endTimeDateArray[0];
                 }
 
                 return activityProp
@@ -332,9 +332,9 @@
           },
           updateMapLocationFromAutoComplete(location) {
             this.activityLocationLatLong = {lat: location.latitude, lng: location.longitude}
-            this.activity.location = location.address
-            this.activity.latitude = location.latitude
-            this.activity.longitude = location.longitude
+            this.activity.location = location.address;
+            this.activity.latitude = location.latitude;
+            this.activity.longitude = location.longitude;
             this.locationString = location.address;
             this.$refs.mapPaneRef.setZoomLevel(this.locationString)
           }
