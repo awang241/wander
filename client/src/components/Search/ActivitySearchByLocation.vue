@@ -179,7 +179,7 @@ export default {
         informationWindowText =
                 `<div>` +
                 `<h1 style="font-size: 22px; font-weight: bold; font-style: italic">${activityDetails.activityName}</h1>` +
-                `<h1 style="font-weight: bold">${activityDetails.activityName}</h1>` +
+                `<h1 style="font-weight: bold">${activityDetails.location}</h1>` +
                 `<br>` +
                 `<h1 style="font-weight: bold">Start date and time: <span>${formattedStartTime}</span></h1>` +
                 `<br>` +

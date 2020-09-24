@@ -60,7 +60,7 @@ describe('ActivitySearchByLocation.vue', () => {
             `<h1 style="font-size: 16px; font-weight: bold"> Activity Types:</h1>` +
             `<span style="color:red; font-weight: bold">*</span><span> ${activity.activityTypes[0]} </span>`
         const expectedFormat =
-            `<div style="width: 100vh; height: 100vh;">` +
+            `<div>` +
             `<h1 style="font-size: 22px; font-weight: bold; font-style: italic">${activity.activityName}</h1>` +
             `<h1 style="font-weight: bold">${activity.location}</h1>` +
             `<br>` +
@@ -89,7 +89,7 @@ describe('ActivitySearchByLocation.vue', () => {
             `<h1 style="font-size: 16px; font-weight: bold"> Activity Types:</h1>` +
             `<span style="color:red; font-weight: bold">*</span><span> ${activity.activityTypes[0]} </span>`
         const expectedFormat =
-            `<div style="width: 100vh; height: 100vh;">` +
+            `<div>` +
             `<h1 style="font-size: 22px; font-weight: bold; font-style: italic">${activity.activityName}</h1>` +
             `<h1 style="font-weight: bold">${activity.location}</h1>` +
             `<br>` +
