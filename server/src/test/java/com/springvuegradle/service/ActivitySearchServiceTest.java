@@ -71,6 +71,7 @@ class ActivitySearchServiceTest {
     Double MANILA_LONGITUDE = 120.1D;
 
     String[] noActivityTypes = new String[] {};
+    List<Activity> activities;
 
 
     @BeforeEach
@@ -379,5 +380,16 @@ class ActivitySearchServiceTest {
     void splitKeywordsWhenStringIsNullReturnsEmptyListTest() {
         String keywordString = null;
         assertTrue(activitySearchService.splitKeywordString(keywordString).isEmpty());
+    }
+
+    @Test
+    void filterActivitiesByDistanceGivesCorrectErrorWithBadLatLong(){
+        Boolean isThrown = false;
+        try {
+            activitySearchService.filterActivitiesByDistance(activities, 190D, 190D, 1000);
+        } catch (IllegalArgumentException e){
+            isThrown = true;
+        }
+        assertTrue(isThrown);
     }
 }
