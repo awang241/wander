@@ -11,9 +11,11 @@ import './veeValidateErrorMessages'
 import {library} from '@fortawesome/fontawesome-svg-core'
 import {faEllipsisV, faPlus, faMinus} from '@fortawesome/free-solid-svg-icons'
 import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
+import ViewActivity from './components/Activities/ViewActivity'
 
 library.add(faEllipsisV, faPlus, faMinus);
 Vue.component('vue-fontawesome', FontAwesomeIcon);
+export const viewActivity = Vue.component('ViewActivity', ViewActivity);
 
 Vue.use(Buefy, {
     defaultIconComponent: 'vue-fontawesome',

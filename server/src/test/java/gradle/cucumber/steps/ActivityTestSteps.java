@@ -413,4 +413,9 @@ public class ActivityTestSteps {
         Profile creator = page.getContent().get(0).getProfile();
         responseEntity = activityController.updateActivity(activity, loginResponse.getToken(), creator.getId(), activityId);
     }
+
+    @Then("I get a notification saying that the activity has been deleted")
+    public void iGetANotificationSayingThatTheActivityHasBeenDeleted() {
+        notifi
+    }
 }
