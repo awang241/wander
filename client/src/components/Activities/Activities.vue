@@ -5,6 +5,7 @@
             <div id="activities-key-info">
                 <div>
                     <h1 class="title is-1">
+                        <i class="fas fa-running" style="font-size: 1.3em; color: rgba(255,175,56,0.84)"></i>
                         Activities
                     </h1>
                   <br>
@@ -13,6 +14,7 @@
                 <div>
                     <b-button v-if="store.getters.getAuthenticationLevel > 0" @click="goToAddActivity"
                               type="is-primary">
+                        <i class="fas fa-plus-circle iconPadding" style="font-size: 1.5em"></i>
                         Add Activity
                     </b-button>
                 </div>

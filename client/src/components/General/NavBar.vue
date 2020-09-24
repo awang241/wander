@@ -34,6 +34,7 @@
                     <b-button  @click="goToAdminDashboard"
                                v-if="store.getters.getAuthenticationLevel <= 1"
                                class="navbarButton">
+                        <i class="fas fa-user-shield" style="font-size: 1.5em; color: #38eeff"></i>
                         Admin Dashboard
                     </b-button>
                     <b-button  @click="goToActivities"
@@ -96,6 +97,9 @@
             },
             goToHomeFeed() {
                 router.push({path: '/Home'})
+            },
+            goToMainPage() {
+                router.push({path: '/'})
             }
         }
     }
