@@ -1,6 +1,6 @@
 import {shallowMount, createLocalVue} from '@vue/test-utils'
 import VueRouter from 'vue-router'
-import {viewActivity} from "../../src/main";
+import ViewActivity from "../../src/components/Activities/ViewActivity";
 
 const localVue = createLocalVue()
 localVue.use(VueRouter)
@@ -10,7 +10,7 @@ let wrapper;
 let adminWrapper;
 
 beforeEach(() => {
-    wrapper = shallowMount(viewActivity, {
+    wrapper = shallowMount(ViewActivity, {
             localVue,
             router,
             computed: {
@@ -21,7 +21,7 @@ beforeEach(() => {
             props: {idProp: 3}
         }
     );
-    adminWrapper = shallowMount(viewActivity, {
+    adminWrapper = shallowMount(ViewActivity, {
             localVue,
             router,
             computed: {
