@@ -1,24 +1,12 @@
 <template>
     <b-navbar>
-        <template slot="start">
-            <div class="buttons">
-                <b-button v-if="!store.getters.getAuthenticationStatus"
-                          tag="router-link"
-                          to="/"
-                          type="is-light">
-                  Home
-                </b-button>
-                <b-button @click=goToHomeFeed
-                          v-if="store.getters.getAuthenticationStatus"
-                          type="is-light">
-                  Home Feed
-                </b-button>
-            </div>
-
-        </template>
-
         <template slot="brand">
-            <img class="crop-banner" src="../../../images/WANDER-day-navbar.png" alt="Wander Logo in Navigation Bar"/>
+            <div v-if="!store.getters.getAuthenticationStatus" @click="goToMainPage">
+                <img class="crop-banner" src="../../../images/WANDER-day-navbar.png" alt="Wander Logo in Navigation Bar"/>
+            </div>
+            <div v-if="store.getters.getAuthenticationStatus" @click="goToHomeFeed">
+                <img class="crop-banner" src="../../../images/WANDER-day-navbar.png" alt="Wander Logo in Navigation Bar"/>
+            </div>
         </template>
 
         <template slot="end">
@@ -39,27 +27,31 @@
                     </b-button>
                     <b-button  @click="goToSearch"
                                v-if="store.getters.getAuthenticationLevel > 1 && store.getters.getAuthenticationStatus"
-                               type="is-light">
+                               class="navbarButton">
+                        <i class="fas fa-search" style="font-size: 1.5em; color: #38eeff"></i>
                         Search
                     </b-button>
                     <b-button  @click="goToAdminDashboard"
                                v-if="store.getters.getAuthenticationLevel <= 1"
-                               type="is-light">
+                               class="navbarButton">
                         Admin Dashboard
                     </b-button>
                     <b-button  @click="goToActivities"
                                v-if="store.getters.getAuthenticationStatus"
-                               type="is-light">
+                               class="navbarButton">
+                        <i class="fas fa-running" style="font-size: 1.5em; color: #38eeff"></i>
                         Activities
                     </b-button>
                     <b-button  @click="goToProfile"
                                v-if="store.getters.getAuthenticationStatus && store.getters.getAuthenticationLevel > 0"
-                               type="is-light">
+                               class="navbarButton">
+                        <i class="fas fa-user" style="font-size: 1.5em; color: #38eeff"></i>
                         Profile
                     </b-button>
                     <b-button  @click="logout"
                                v-if="store.getters.getAuthenticationStatus"
-                               type="is-light">
+                               class="navbarButton">
+                        <i class="fas fa-sign-out-alt" style="font-size: 1.5em; color: #38eeff"></i>
                         Logout
                     </b-button>
                 </div>
@@ -103,7 +95,7 @@
                 router.push({path: '/Search'})
             },
             goToHomeFeed() {
-              router.push({path: '/Home'})
+                router.push({path: '/Home'})
             }
         }
     }
