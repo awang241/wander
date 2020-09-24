@@ -52,6 +52,8 @@ public class ProfileService {
     @Autowired
     private NotificationService notificationService;
 
+    @Autowired NotificationRepository notificationRepository;
+
     /**
      * Way to access Email Repository (Email table in db).
      */
@@ -186,6 +188,15 @@ public class ProfileService {
                 participationRepo.delete(participation);
             }
             notificationService.detachProfileFromNotifications(profileToDelete);
+            
+            for (Notification notification: profileToDelete.getNotifications()) {
+                notification.removeRecipient(profileToDelete);
+                notificationRepository.save(notification);
+            }
+
+            profileToDelete.setNotifications(null);
+            profileToDelete.setActivities(null);
+            profileToDelete.setPassports(null);
             profileToDelete.setActivityTypes(null);
 
             repo.delete(profileToDelete);

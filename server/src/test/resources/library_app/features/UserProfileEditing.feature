@@ -17,3 +17,4 @@ Feature: Editing a user profile
     Given I have registered an account with email "bart@simpson.com" and the password "3atmy5h0rt5" and nickname "Homer"
     When I remove the nickname by setting it to an empty string "" for the account with the primary email "bart@simpson.com"
     Then An account with the email "bart@simpson.com" exists with an empty string "" as the nickname
+

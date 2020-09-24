@@ -184,10 +184,19 @@ Feature: Creating modifying and deleting activities
 
   @U17F4-Clearing-Memberships-Of-An-Activity
   Scenario: I am removing all the organisers from my activity
-    Given I registered account with email "rick@gmail.com" and password "rick'sSecuredPwd"
     And an activity exists in the database with 2 participants, 3 followers and 1 organisers
     And I am the owner of the activity
     When I remove all "ORGANISER"s from the activity
     Then The amount of "ORGANISER"s of the activity is 0
+
+  @U16-DeleteProfileWithNotifications
+  Scenario: Deleting a profile that has associated activities, memberships, and notifications.
+    Given I registered account with email "bart@simpson.com" and password "3atmy5h0rt5"
+    And an activity exists in the database with 2 participants, 3 followers and 1 organisers
+    When I delete the profile with the email "bart@simpson.com"
+    Then The profile is deleted
+    And The activity is deleted
+    And The membership is deleted
+    And No notifications are shared with the deleted user
 
 
