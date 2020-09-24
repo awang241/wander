@@ -227,7 +227,9 @@
                 </b-tab-item>
 
                 <b-tab-item label="Location">
-                    <MapPane :location-choice-coordinates="activityLocationLatLong" :address="this.location.address" v-bind:marker-enabled="false" :default_width="900" :default_height="550"></MapPane>
+                  <div>
+                    <MapPane :location-choice-coordinates="activityLocationLatLong" :address="location.address" :default_width="1200" :default_height="550" :marker-enabled="false"></MapPane>
+                  </div>
                 </b-tab-item>
             </b-tabs>
         </div>
@@ -244,7 +246,6 @@
     import toastMixin from "../../mixins/toastMixin";
     import googleMapsInit from "../../utils/googlemaps";
     import MapPane from "../Location/MapPane";
-
 
     const DEFAULT_RESULT_COUNT = 50;
 
@@ -263,11 +264,11 @@
 
     export default {
         name: "ViewActivity",
-        components: {MapPane, ProfileSummary, ActivityParticipationSummary, Observer},
+        components: {ProfileSummary, ActivityParticipationSummary, Observer, MapPane},
         mixins: [toastMixin],
         props: {
             idProp: {
-                type: Number,
+                type: String,
                 required: true
             },
             viewingThroughModal: {
@@ -279,7 +280,7 @@
             return {
                 roles: ROLES,
                 userRole: ROLES.NONE,
-                activityId: this.idProp,
+                activityId: Number(this.idProp),
                 activity: null,
                 activityLocationLatLong: null,
                 google: null,
@@ -308,6 +309,7 @@
                 moreParticipantsExist: true,
                 moreFollowersExist: true,
                 participationResults: [],
+                marker_enabled: false
           }
         },
         methods: {
@@ -460,7 +462,7 @@
                 return {count: DEFAULT_RESULT_COUNT, index: index, role: role}
             },
             getParticipationResults() {
-                api.getAllActivityParticipations(this.$route.params.id, localStorage.getItem('authToken'))
+                api.getAllActivityParticipations(this.activityId, localStorage.getItem('authToken'))
                     .then(response => {
                         this.participationResults = response.data.allActivityParticipation;
                         })

@@ -1,6 +1,5 @@
 <template>
     <div v-if="store.getters.getAuthenticationStatus" class="container containerColor">
-        <!-- Header -->
         <section>
             <br>
             <div id="activities-key-info">
@@ -8,6 +7,7 @@
                     <h1 class="title is-1">
                         Activities
                     </h1>
+                  <br>
                 </div>
                 <!-- redirect to add activity -->
                 <div>
@@ -22,22 +22,22 @@
             <b-tabs v-model="tabIndex" expanded>
 
                 <b-tab-item label="My Activities">
-                    <ActivityList v-on:loadMoreActivities="loadMoreActivities('creatorOrOrganiser')"
+                    <ActivityList class="remove-padding" v-on:loadMoreActivities="loadMoreActivities('creatorOrOrganiser')"
                                   v-bind:activities="myActivities" v-bind:role="'creatorOrOrganiser'"/>
                 </b-tab-item>
 
                 <b-tab-item label="Participating">
-                    <ActivityList v-on:loadMoreActivities="loadMoreActivities('participant')"
+                    <ActivityList class="remove-padding" v-on:loadMoreActivities="loadMoreActivities('participant')"
                                   v-bind:activities="participatingActivities" v-bind:role="'participant'"/>
                 </b-tab-item>
 
                 <b-tab-item label="Following">
-                    <ActivityList v-on:loadMoreActivities="loadMoreActivities('follower')"
+                    <ActivityList class="remove-padding" v-on:loadMoreActivities="loadMoreActivities('follower')"
                                   v-bind:activities="followingActivities" v-bind:role="'follower'"/>
                 </b-tab-item>
 
                 <b-tab-item label="Discover Activities">
-                    <ActivityList v-on:loadMoreActivities="loadMoreActivities('discover')"
+                    <ActivityList class="remove-padding" v-on:loadMoreActivities="loadMoreActivities('discover')"
                                   v-bind:activities="discoverActivities" v-bind:role="'discover'"/>
                 </b-tab-item>
 
@@ -253,6 +253,9 @@
     .flex-item {
         margin: 20px 0;
         width: 500px;
+    }
+    .remove-padding {
+      margin-top: 0px;
     }
 
 
