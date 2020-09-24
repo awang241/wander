@@ -13,8 +13,8 @@ public enum NotificationType {
     PARTICIPANT_CREATED(9),
     PARTICIPATION_EDITED(10),
     ACTIVITY_PRIVACY_CHANGED(11),
-    ACTIVITY_CREATOR_ADDED(12);
-
+    ACTIVITY_CREATOR_ADDED(12),
+    ACTIVITY_FOLLOWER_REMOVED(13);
     private int num;
 
     NotificationType(int num) {

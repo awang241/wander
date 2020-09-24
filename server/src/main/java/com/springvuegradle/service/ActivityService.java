@@ -225,7 +225,7 @@ public class ActivityService {
         NotificationType type;
         switch (membership.getRole()) {
             case FOLLOWER:
-                type = NotificationType.NOTIFICATION_TYPE;
+                type = NotificationType.ACTIVITY_FOLLOWER_REMOVED;
                 break;
             case ORGANISER:
                 type = NotificationType.ACTIVITY_ORGANISER_REMOVED;
