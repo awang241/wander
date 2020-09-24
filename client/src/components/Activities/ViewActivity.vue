@@ -229,10 +229,6 @@
                         <p>This activity has no participation results.</p>
                     </div>
                 </b-tab-item>
-
-                <b-tab-item label="Location">
-                    <MapPane :location-choice-coordinates="activityLocationLatLong" :address="this.location.address" v-bind:marker-enabled="false" :default_width="900" :default_height="550"></MapPane>
-                </b-tab-item>
             </b-tabs>
         </div>
     </div>
@@ -247,9 +243,7 @@
     import ActivityParticipationSummary from "../Summaries/ActivityParticipationSummary";
     import toastMixin from "../../mixins/toastMixin";
     import googleMapsInit from "../../utils/googlemaps";
-    import MapPane from "../Location/MapPane";
     import dateTimeMixin from "../../mixins/dateTimeMixin";
-
 
     const DEFAULT_RESULT_COUNT = 50;
 
@@ -268,7 +262,7 @@
 
     export default {
         name: "ViewActivity",
-        components: {MapPane, ProfileSummary, ActivityParticipationSummary, Observer},
+        components: { ProfileSummary, ActivityParticipationSummary, Observer},
         mixins: [toastMixin, dateTimeMixin],
         props: {
             idProp: {
@@ -454,7 +448,7 @@
                 return {count: DEFAULT_RESULT_COUNT, index: index, role: role}
             },
             getParticipationResults() {
-                api.getAllActivityParticipations(this.$route.params.id, localStorage.getItem('authToken'))
+                api.getAllActivityParticipations(this.activityId, localStorage.getItem('authToken'))
                     .then(response => {
                         this.participationResults = response.data.allActivityParticipation;
                         })
@@ -504,15 +498,12 @@
 <style scoped>
     .flex {
         display: flex;
-        flex-direction: row;
         flex-wrap: wrap;
-        justify-content: space-between;
     }
     .flex-item {
-        margin: 20px 0;
+        margin: 20px 20px 0 0;
         width: 490px;
         align-items: center;
-        padding-right: 1rem;
     }
 
 </style>

@@ -36,11 +36,11 @@
     import toastMixin from "../../mixins/toastMixin";
     import store from "../../store";
     import router from "../../router";
-    import ViewActivity from "../Activities/ViewActivity";
+    import dateTimeMixin from "../../mixins/dateTimeMixin";
 
     export default {
         name: "ActivitySummary",
-        mixins: [toastMixin],
+        mixins: [toastMixin, dateTimeMixin],
         data() {
             return {
                 activityData: {},
@@ -81,7 +81,7 @@
                     .catch(() => this.warningToast("Error occurred while deleting Activity."));
             },
             dateFormat(date) {
-                return ViewActivity.methods.dateFormat(date);
+                return this.dateFormat(date);
             }
         }
     }

@@ -413,4 +413,5 @@ public class ActivityTestSteps {
         Profile creator = page.getContent().get(0).getProfile();
         responseEntity = activityController.updateActivity(activity, loginResponse.getToken(), creator.getId(), activityId);
     }
+
 }
