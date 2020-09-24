@@ -40,11 +40,13 @@ public class NotificationService {
      * @param message string message the contains the content of the notification
      */
     public void createNotification(NotificationType notificationType, Activity activity, Profile notificationCreator, String message){
-        Notification notification = new Notification(message, activity, notificationCreator, notificationType);
+        Notification notification = new Notification(message, notificationType == NotificationType.ACTIVITY_REMOVED ? activity : null, notificationCreator, notificationType);
         for(ActivityMembership membership: activity.getMembers()){
             notification.addRecipient(membership.getProfile());
         }
-        activity.addNotification(notification);
+        if (!(notificationType == NotificationType.ACTIVITY_REMOVED)) {
+            activity.addNotification(notification);
+        }
         notificationCreator.addNotification(notification);
         notificationRepo.save(notification);
     }
