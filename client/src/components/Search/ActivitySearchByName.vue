@@ -1,14 +1,21 @@
 <template>
     <div class="container">
-        <h1 class="title">Activity Search</h1>
-        <form @submit.prevent="searchActivity">
+        <h1 class="title">Activity Search By Name</h1>
+      <ValidationObserver v-slot="{ handleSubmit }">
+        <form ref="form" @submit.prevent="handleSubmit(searchActivity)">
             <b-field group-multiline grouped>
-                <b-field label="Activity Name" expanded>
-                    <b-input type="text"
+
+              <ValidationProvider rules="required" name="Activity Name" v-slot="{ errors, valid }" slim>
+              <b-field label="Activity Name"
+                       :type="{ 'is-danger': errors[0], 'is-success': valid }"
+                       :message="errors" expanded>
+                <template slot="label">Activity Name <span class="red-star">*</span></template>
+                <b-input type="text"
                              v-model="activityName"
                              placeholder="Activity Name">
                     </b-input>
                 </b-field>
+              </ValidationProvider>
             </b-field>
             <br>
             <div>
@@ -31,6 +38,7 @@
                 </div>
             </div>
         </form>
+      </ValidationObserver>
         <br>
         <hr>
 
@@ -60,13 +68,14 @@
 <script>
     import ActivitySummary from '../Summaries/ActivitySummary';
     import Api from "../../Api";
+    import {ValidationProvider, ValidationObserver} from 'vee-validate'
 
     const DEFAULT_RESULT_COUNT = 10
 
     export default {
         name: "ActivitySearchByName",
         components: {
-            ActivitySummary
+            ActivitySummary, ValidationObserver, ValidationProvider
         },
         data() {
             return {
@@ -115,3 +124,15 @@
         }
     }
 </script>
+
+
+<style scoped>
+.container {
+  margin-top: 0px;
+}
+
+.red-star {
+  color: red;
+}
+
+</style>
