@@ -47,6 +47,12 @@ class ProfileServiceTest {
     @Autowired
     ProfileLocationRepository profileLocationRepository;
 
+    @Autowired
+    private NotificationRepository notificationRepository;
+
+    @Autowired
+    private NotificationService notificationService;
+
     @AfterEach
     void tearDown() {
         profileLocationRepository.deleteAll();
@@ -410,6 +416,12 @@ class ProfileServiceTest {
     void checkInvalidEmailExistsInDatabaseTest(){
         String email = "doesNotExistInDatabase@gmail.com";
         assertFalse(testService.checkEmailExistsInDB(email));
+    }
+
+    @Test
+    void deleteProfileSimpleTest() {
+        saveWithEmails(steven);
+        profileService.deleteProfile(steven.getId());
     }
 
     /**

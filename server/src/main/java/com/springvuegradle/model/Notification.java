@@ -100,7 +100,11 @@ public class Notification {
         return activity != null ? activity.getId() : null;
     }
 
-    public long getEditorId() { return profile.getId(); }
+    public Long getEditorId() { return profile != null ? profile.getId() : null; }
+
+    public void setEditor(Profile editor) {
+        this.profile = editor;
+    }
 
     public NotificationType getNotificationType() {
         return notificationType;

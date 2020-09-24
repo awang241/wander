@@ -3,10 +3,7 @@ package com.springvuegradle.service;
 import com.springvuegradle.enums.AuthLevel;
 import com.springvuegradle.enums.ProfileErrorMessage;
 import com.springvuegradle.model.*;
-import com.springvuegradle.repositories.ActivityMembershipRepository;
-import com.springvuegradle.repositories.EmailRepository;
-import com.springvuegradle.repositories.ProfileLocationRepository;
-import com.springvuegradle.repositories.ProfileRepository;
+import com.springvuegradle.repositories.*;
 import com.springvuegradle.repositories.spec.ProfileSpecifications;
 import com.springvuegradle.utilities.FieldValidationHelper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -45,6 +43,15 @@ public class ProfileService {
     @Autowired
     private ProfileRepository repo;
 
+    @Autowired
+    private ActivityMembershipRepository membershipRepo;
+
+    @Autowired
+    private ActivityService activityService;
+
+    @Autowired
+    private NotificationService notificationService;
+
     /**
      * Way to access Email Repository (Email table in db).
      */
@@ -53,6 +60,9 @@ public class ProfileService {
 
     @Autowired
     private ActivityMembershipRepository actMemRepo;
+
+    @Autowired
+    private ActivityParticipationRepository participationRepo;
 
     /**
      * Updates the location associated with a users profile
@@ -157,10 +167,14 @@ public class ProfileService {
         Optional<Profile> result = repo.findById(id);
         if (Boolean.TRUE.equals(result.isPresent())) {
             Profile profileToDelete = result.get();
-            deleteProfileLocation(id);
             if (profileToDelete.getAuthLevel() == 0) {
                 return new ResponseEntity<>("Cannot delete default admin.", HttpStatus.FORBIDDEN);
             }
+            List<Activity> activitiesToDelete = membershipRepo.findAllActivitiesByProfileId(profileToDelete.getId(), ActivityMembership.Role.CREATOR);
+            for (Activity activity: activitiesToDelete) {
+                activityService.delete(activity.getId(), profileToDelete.getId());
+            }
+            deleteProfileLocation(id);
 
             for (Email email: profileToDelete.retrieveEmails()) {
                 eRepo.delete(email);
@@ -168,6 +182,10 @@ public class ProfileService {
             for (ActivityMembership membership: profileToDelete.getActivities()) {
                 actMemRepo.delete(membership);
             }
+            for (ActivityParticipation participation: profileToDelete.getParticipations()) {
+                participationRepo.delete(participation);
+            }
+            notificationService.detachProfileFromNotifications(profileToDelete);
             profileToDelete.setActivityTypes(null);
 
             repo.delete(profileToDelete);

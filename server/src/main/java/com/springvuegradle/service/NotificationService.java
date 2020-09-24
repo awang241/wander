@@ -64,6 +64,15 @@ public class NotificationService {
         }
     }
 
+    public void detachProfileFromNotifications(Profile profile) {
+        for (Notification notification: profile.getNotifications()) {
+            if (notification.getEditorId().equals(profile.getId())) {
+                notification.setEditor(null);
+                notificationRepo.save(notification);
+            }
+        }
+    }
+
     /**
      * Gets all notifications related to the user
      * @param profileId the users ID which is used to get the notifications
