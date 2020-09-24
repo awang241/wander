@@ -87,7 +87,7 @@
             this.google = await googleMapsInit();
             this.geocoder = new this.google.maps.Geocoder;
             this.initAutoCompleteLocation()
-            this.setLocation()
+            await this.setLocation()
         }
     }
 </script>

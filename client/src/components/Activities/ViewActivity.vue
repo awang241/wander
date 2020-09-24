@@ -273,7 +273,7 @@
         mixins: [toastMixin, dateTimeMixin],
         props: {
             idProp: {
-                type: String,
+                type: Number,
                 required: true
             },
             viewingThroughModal: {
@@ -285,7 +285,7 @@
             return {
                 roles: ROLES,
                 userRole: ROLES.NONE,
-                activityId: Number(this.idProp),
+                activityId: this.idProp,
                 activity: null,
                 activityLocationLatLong: null,
                 google: null,
