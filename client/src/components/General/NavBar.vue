@@ -15,44 +15,46 @@
                     <b-button v-if="!store.getters.getAuthenticationStatus"
                               tag="router-link"
                               to="/Login"
-                              type="is-primary">
+                              type="is-primary"
+                    icon-left="sign-in-alt">
                         <strong>Login</strong>
                     </b-button>
                     <b-button v-if="!store.getters.getAuthenticationStatus"
                               tag="router-link"
                               to="/Registration"
                               type="is-light"
-                              id="registrationButton">
+                              id="registrationButton"
+                              icon-left="user">
                         Register
                     </b-button>
                     <b-button  @click="goToSearch"
                                v-if="store.getters.getAuthenticationLevel > 1 && store.getters.getAuthenticationStatus"
                                class="navbarButton">
-                        <i class="fas fa-search" style="font-size: 1.5em; color: #38eeff"></i>
+                        <b-icon icon="envelope" style="color: #38eeff"></b-icon>
                         Search
                     </b-button>
                     <b-button  @click="goToAdminDashboard"
                                v-if="store.getters.getAuthenticationLevel <= 1"
-                               class="navbarButton">
-                        <i class="fas fa-user-shield" style="font-size: 1.5em; color: #38eeff"></i>
+                               class="navbarButton"
+                                icon-left="user-shield">
                         Admin Dashboard
                     </b-button>
                     <b-button  @click="goToActivities"
                                v-if="store.getters.getAuthenticationStatus"
-                               class="navbarButton">
-                        <i class="fas fa-running" style="font-size: 1.5em; color: #38eeff"></i>
+                               class="navbarButton"
+                                icon-left="running">
                         Activities
                     </b-button>
                     <b-button  @click="goToProfile"
                                v-if="store.getters.getAuthenticationStatus && store.getters.getAuthenticationLevel > 0"
-                               class="navbarButton">
-                        <i class="fas fa-user" style="font-size: 1.5em; color: #38eeff"></i>
+                               class="navbarButton"
+                                icon-left="user">
                         Profile
                     </b-button>
                     <b-button  @click="logout"
                                v-if="store.getters.getAuthenticationStatus"
-                               class="navbarButton">
-                        <i class="fas fa-sign-out-alt" style="font-size: 1.5em; color: #38eeff"></i>
+                               class="navbarButton"
+                                icon-left="sign-out-alt">
                         Logout
                     </b-button>
                 </div>

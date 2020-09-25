@@ -12,11 +12,11 @@
                                  :type="{ 'is-danger': errors[0], 'is-success' : valid}"
                                  :message="errors">
                             <template slot="label">
-                                <i class="fas fa-envelope" style="font-size: 1em; color: #38eeff"></i>
                                 Email <span>*</span></template>
                             <b-input class="help"
                                      placeholder="Email"
-                                     v-model="email">
+                                     v-model="email"
+                                    icon="envelope">
                             </b-input>
                         </b-field>
                     </ValidationProvider>
@@ -27,11 +27,11 @@
                                  :message="errors"
                                  expanded>
                             <template slot="label">
-                                <i class="fas fa-key" style="font-size: 1em; color: #38eeff"></i>
                                 Password <span>*</span></template>
                             <b-input placeholder="Password"
                                      v-model="password"
-                                     type="password">
+                                     type="password"
+                            icon="key">
                             </b-input>
                         </b-field>
                     </ValidationProvider>
@@ -39,7 +39,8 @@
                     <br>
 
                     <b-button native-type="submit"
-                              type="is-primary" style="float:right">
+                              type="is-primary" style="float:right"
+                    icon-left="sign-in-alt">
                         Login
                     </b-button>
                     <br>
