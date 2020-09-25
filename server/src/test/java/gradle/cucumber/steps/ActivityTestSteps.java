@@ -347,7 +347,9 @@ public class ActivityTestSteps {
         int[] numRoles = {numParticipants, numFollowers, numOrganisers};
         activity = createNormalActivity("Cool activity");
         activityRepository.save(activity);
+        membershipRepository.save(new ActivityMembership(activity, profile, ActivityMembership.Role.CREATOR));
         List<ActivityMemberProfileResponse> activityMemberProfileResponseList = new ArrayList<>();
+        activityMemberProfileResponseList.add(new ActivityMemberProfileResponse(profile.getId(), profile.getFirstname(), profile.getLastname(), profile.getPrimary_email(), ActivityMembership.Role.CREATOR));
         for(int i = 0; i < roles.size(); i++){
             for(int j = 0; j < numRoles[i]; j++){
                 Profile newProfile = createNormalProfile("email"+j+i, "password");
@@ -416,18 +418,9 @@ public class ActivityTestSteps {
         responseEntity = activityController.updateActivity(activity, loginResponse.getToken(), creator.getId(), activityId);
     }
 
-    @Given("I have created an activity called {string} where the profile with email {string} is assigned as the creator")
-    public void i_have_created_an_activity_called_where_the_profile_with_email_is_assigned_as_the_creator(String activityName, String email) {
-        Profile creator = profileRepository.findByEmail(email).get(0);
-        profile = creator;
-        Activity activity = createNormalActivity(activityName);
-        activityController.createActivity(creator.getId(), activity, loginResponse.getToken());
-        activity = activityRepository.getOne(activityRepository.getLastInsertedId());
-    }
-
     @When("I delete the profile with the email {string}")
     public void i_delete_the_profile_with_the_email(String email) {
-        profileController.deleteProfile(loginResponse.getToken(), profileRepository.findByEmail(email).get(0).getId());
+        assertEquals(200, profileController.deleteProfile(loginResponse.getToken(), profileRepository.findByEmail(email).get(0).getId()).getStatusCodeValue());
     }
 
     @Then("The profile is deleted")
@@ -448,7 +441,7 @@ public class ActivityTestSteps {
     @Then("No notifications are shared with the deleted user")
     public void no_notifications_are_shared_with_the_deleted_user() {
         List<Notification> notifications = notificationRepository.findAll();
-        assertEquals(2, notifications.size());
+        assertEquals(1, notifications.size());
         for (Notification notification: notifications) {
             assertNull(notification.getEditorId());
         }
