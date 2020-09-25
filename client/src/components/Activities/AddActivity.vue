@@ -244,6 +244,9 @@
                         this.warningToast("The end date must be after the start date");
                         isValid = false
                     }
+                } else if (this.activityLocationLatLong === null) {
+                    this.warningToast("Please select a valid location from the map or autocomplete.");
+                    isValid = false
                 }
                 return isValid
             },
