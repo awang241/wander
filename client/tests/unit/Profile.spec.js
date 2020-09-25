@@ -1,12 +1,12 @@
 import { shallowMount } from '@vue/test-utils'
-import Profile from "../../src/components/Profile";
+import Profile from "../../src/components/Profile/Profile";
 
 let wrapper;
 const $route = {
     params: {
         id: 1
     }
-}
+};
 
 beforeEach(() => {
     wrapper = shallowMount(Profile, {

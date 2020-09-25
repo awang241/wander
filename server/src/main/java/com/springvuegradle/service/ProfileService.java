@@ -3,10 +3,7 @@ package com.springvuegradle.service;
 import com.springvuegradle.enums.AuthLevel;
 import com.springvuegradle.enums.ProfileErrorMessage;
 import com.springvuegradle.model.*;
-import com.springvuegradle.repositories.ActivityMembershipRepository;
-import com.springvuegradle.repositories.EmailRepository;
-import com.springvuegradle.repositories.ProfileLocationRepository;
-import com.springvuegradle.repositories.ProfileRepository;
+import com.springvuegradle.repositories.*;
 import com.springvuegradle.repositories.spec.ProfileSpecifications;
 import com.springvuegradle.utilities.FieldValidationHelper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -45,6 +43,17 @@ public class ProfileService {
     @Autowired
     private ProfileRepository repo;
 
+    @Autowired
+    private ActivityMembershipRepository membershipRepo;
+
+    @Autowired
+    private ActivityService activityService;
+
+    @Autowired
+    private NotificationService notificationService;
+
+    @Autowired NotificationRepository notificationRepository;
+
     /**
      * Way to access Email Repository (Email table in db).
      */
@@ -54,6 +63,9 @@ public class ProfileService {
     @Autowired
     private ActivityMembershipRepository actMemRepo;
 
+    @Autowired
+    private ActivityParticipationRepository participationRepo;
+
     /**
      * Updates the location associated with a users profile
      * @param newLocation the new location for the users profile
@@ -61,7 +73,7 @@ public class ProfileService {
      * @return a response status detailing if the operation was successful
      */
     public ResponseEntity<String> updateProfileLocation(ProfileLocation newLocation, Long id) {
-        if(FieldValidationHelper.isNullOrEmpty(newLocation.getCity()) || FieldValidationHelper.isNullOrEmpty(newLocation.getCountry())){
+        if(FieldValidationHelper.isNullOrEmpty(newLocation.getAddress())){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         Optional<Profile> optionalProfile = profileRepository.findById(id);
@@ -109,20 +121,32 @@ public class ProfileService {
     public Page<Profile> getUsers(ProfileSearchCriteria criteria, Pageable request) {
         Specification<Profile> spec = ProfileSpecifications.notDefaultAdmin();
 
-        if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getFirstName()))) {
-            spec = spec.and(ProfileSpecifications.firstNameContains(criteria.getFirstName()));
-        }
+        if (Boolean.FALSE.equals(criteria.getWholeProfileNameSearch())) {
+            if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getAnyName()))) {
+                spec = spec.and(ProfileSpecifications.anyNameContains(criteria.getAnyName()));
+            }
 
-        if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getMiddleName()))) {
-            spec = spec.and(ProfileSpecifications.middleNameContains(criteria.getMiddleName()));
-        }
+            if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getFirstName()))) {
+                spec = spec.and(ProfileSpecifications.firstNameContains(criteria.getFirstName()));
+            }
 
-        if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getLastName()))) {
-            spec = spec.and(ProfileSpecifications.lastNameContains(criteria.getLastName()));
-        }
+            if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getMiddleName()))) {
+                spec = spec.and(ProfileSpecifications.middleNameContains(criteria.getMiddleName()));
+            }
 
-        if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getNickname()))) {
-            spec = spec.and(ProfileSpecifications.nicknameContains(criteria.getNickname()));
+            if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getLastName()))) {
+                spec = spec.and(ProfileSpecifications.lastNameContains(criteria.getLastName()));
+            }
+
+            if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getNickname()))) {
+                spec = spec.and(ProfileSpecifications.nicknameContains(criteria.getNickname()));
+            }
+        } else {
+            spec = spec.and(ProfileSpecifications.firstNameEquals(criteria.getFirstName()));
+            if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getLastName()))) {
+                spec = spec.and(ProfileSpecifications.middleNameEquals(criteria.getMiddleName()));
+            }
+            spec = spec.and(ProfileSpecifications.lastNameEquals(criteria.getLastName()));
         }
 
         if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getEmailAddress()))) {
@@ -132,7 +156,6 @@ public class ProfileService {
         if (Boolean.FALSE.equals(FieldValidationHelper.isNullOrEmpty(criteria.getActivityTypes()))) {
             spec = spec.and(ProfileSpecifications.activityTypesContains(criteria.getActivityTypes(), criteria.getSearchMethod()));
         }
-
         return profileRepository.findAll(spec, request);
     }
 
@@ -146,10 +169,14 @@ public class ProfileService {
         Optional<Profile> result = repo.findById(id);
         if (Boolean.TRUE.equals(result.isPresent())) {
             Profile profileToDelete = result.get();
-            deleteProfileLocation(id);
             if (profileToDelete.getAuthLevel() == 0) {
                 return new ResponseEntity<>("Cannot delete default admin.", HttpStatus.FORBIDDEN);
             }
+            List<Activity> activitiesToDelete = membershipRepo.findAllActivitiesByProfileId(profileToDelete.getId(), ActivityMembership.Role.CREATOR);
+            for (Activity activity: activitiesToDelete) {
+                activityService.delete(activity.getId(), profileToDelete.getId());
+            }
+            deleteProfileLocation(id);
 
             for (Email email: profileToDelete.retrieveEmails()) {
                 eRepo.delete(email);
@@ -157,6 +184,19 @@ public class ProfileService {
             for (ActivityMembership membership: profileToDelete.getActivities()) {
                 actMemRepo.delete(membership);
             }
+            for (ActivityParticipation participation: profileToDelete.getParticipations()) {
+                participationRepo.delete(participation);
+            }
+            notificationService.detachProfileFromNotifications(profileToDelete);
+            
+            for (Notification notification: profileToDelete.getNotifications()) {
+                notification.removeRecipient(profileToDelete);
+                notificationRepository.save(notification);
+            }
+
+            profileToDelete.setNotifications(null);
+            profileToDelete.setActivities(null);
+            profileToDelete.setPassports(null);
             profileToDelete.setActivityTypes(null);
 
             repo.delete(profileToDelete);
@@ -195,9 +235,7 @@ public class ProfileService {
      */
     public boolean checkEmailExistsInDB(String email) {
         Optional<Email> result = emailRepository.findByAddress(email);
-        if (result.isEmpty()) {
-           return false;
-        }
-        return true;
+        return (!result.isEmpty());
     }
+
 }

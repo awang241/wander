@@ -7,13 +7,13 @@ import com.springvuegradle.model.Email;
 import com.springvuegradle.model.Profile;
 import com.springvuegradle.model.ProfileLocation;
 import com.springvuegradle.model.ProfileSearchCriteria;
-import com.springvuegradle.model.ProfileTestUtils;
+import com.springvuegradle.utilities.ProfileTestUtils;
 import com.springvuegradle.repositories.EmailRepository;
 import com.springvuegradle.repositories.ProfileRepository;
+import com.springvuegradle.utilities.ProfileLocationTestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import com.springvuegradle.repositories.*;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +46,12 @@ class ProfileServiceTest {
 
     @Autowired
     ProfileLocationRepository profileLocationRepository;
+
+    @Autowired
+    private NotificationRepository notificationRepository;
+
+    @Autowired
+    private NotificationService notificationService;
 
     @AfterEach
     void tearDown() {
@@ -102,10 +108,9 @@ class ProfileServiceTest {
         expectedProfiles.add(jimmyTwo);
 
         PageRequest request = PageRequest.of(0, (int) profileRepository.count());
-        ProfileSearchCriteria criteria = new ProfileSearchCriteria(jimmyOne.getFirstname(), null,
-                null, null, null);
+        ProfileSearchCriteria criteria = new ProfileSearchCriteria();
+        criteria.setAnyName(jimmyOne.getFirstname());
         Page<Profile> actualProfiles = testService.getUsers(criteria, request);
-
         assertTrue(expectedProfiles.containsAll(actualProfiles.getContent()), "Check page contains the correct profiles.");
         assertEquals(2, actualProfiles.getTotalElements(), "Check page is of the right size.");
     }
@@ -123,8 +128,8 @@ class ProfileServiceTest {
         expectedProfiles.add(maurice);
 
         PageRequest request = PageRequest.of(0, (int) profileRepository.count());
-        ProfileSearchCriteria criteria = new ProfileSearchCriteria(null, maurice.getMiddlename(),
-                null, null, null);
+        ProfileSearchCriteria criteria = new ProfileSearchCriteria();
+        criteria.setAnyName(maurice.getMiddlename());
         Page<Profile> actualProfiles = testService.getUsers(criteria, request);
 
         assertTrue(expectedProfiles.containsAll(actualProfiles.getContent()), "Check page contains the correct profiles.");
@@ -141,8 +146,11 @@ class ProfileServiceTest {
         Set<Profile> expectedProfiles = new HashSet<>();
         expectedProfiles.add(jimmyOne);
         expectedProfiles.addAll(profilesWithSameSurnameAsJimmy);
-        ProfileSearchCriteria criteria = new ProfileSearchCriteria(null, null, jimmyOne.getLastname(),
+        ProfileSearchCriteria criteria = new ProfileSearchCriteria(null, null, null,
                 null, null);
+        criteria.setAnyName(jimmyOne.getLastname());
+        criteria.setWholeProfileNameSearch(false);
+
         PageRequest request = PageRequest.of(0, Math.toIntExact(profileRepository.count()));
 
         Page<Profile> actualProfiles = testService.getUsers(criteria, request);
@@ -164,25 +172,23 @@ class ProfileServiceTest {
         PageRequest request = PageRequest.of(0, Math.toIntExact(profileRepository.count()));
 
         ProfileSearchCriteria criteria = new ProfileSearchCriteria(jimmyOne.getFirstname(), jimmyOne.getMiddlename(),
-                jimmyOne.getLastname(), null, null);
+                jimmyOne.getLastname(), jimmyOne.getNickname(), null);
+        criteria.setWholeProfileNameSearch(true);
         Page<Profile> actualProfiles = testService.getUsers(criteria, request);
         assertTrue(expectedProfiles.containsAll(actualProfiles.getContent()), "Check page contains the correct profiles.");
         assertEquals(expectedProfiles.size(), actualProfiles.getTotalElements(), "Check page is of the right size.");
     }
 
     @Test
-    void getUsersByNicknameNormalTest() {profileRepository.save(jimmyOne);
-        profileRepository.save(jimmyTwo);
+    void getUsersByNicknameNormalTest() {
         nicknamedQuick = profileRepository.save(nicknamedQuick);
-        profileRepository.save(steven);
-        profileRepository.saveAll(profilesWithSameSurnameAsJimmy);
 
         Set<Profile> expectedProfiles = new HashSet<>();
         expectedProfiles.add(nicknamedQuick);
 
         PageRequest request = PageRequest.of(0, Math.toIntExact(profileRepository.count()));
-        ProfileSearchCriteria criteria = new ProfileSearchCriteria(null, null, null,
-                nicknamedQuick.getNickname(), null);
+        ProfileSearchCriteria criteria = new ProfileSearchCriteria();
+        criteria.setAnyName(nicknamedQuick.getNickname());
         Page<Profile> actualProfiles = testService.getUsers(criteria, request);
         assertTrue(expectedProfiles.containsAll(actualProfiles.getContent()), "Check page contains the correct profiles.");
         assertEquals(expectedProfiles.size(), actualProfiles.getTotalElements(), "Check page is of the right size.");
@@ -254,11 +260,11 @@ class ProfileServiceTest {
     }
 
     /**
-     * Test to ensure HTTP Ok response returned when successfully editing profile
+     * Test to ensure HTTP Ok response returned when successfully adding a location to a profile.
      **/
     @Test
     void testAddLocationResponse() {
-        ProfileLocation location = new ProfileLocation("New Zealand", "Christchurch", "Canterbury");
+        ProfileLocation location = ProfileLocationTestUtils.createValidProfileLocation();
         Profile profile = createProfile();
         profileRepository.save(profile);
         ResponseEntity<String> response = profileService.updateProfileLocation(location, profile.getId());
@@ -270,10 +276,10 @@ class ProfileServiceTest {
      **/
     @Test
     void testAddLocationData() {
-        ProfileLocation location = new ProfileLocation("New Zealand", "Christchurch", "Canterbury");
+        ProfileLocation location = ProfileLocationTestUtils.createValidProfileLocation();
         Profile profile = createProfile();
         profileRepository.save(profile);
-        ResponseEntity<String> response = profileService.updateProfileLocation(location, profile.getId());
+        profileService.updateProfileLocation(location, profile.getId());
         assertEquals(profile.getProfileLocation(), location);
     }
 
@@ -282,13 +288,42 @@ class ProfileServiceTest {
      **/
     @Test
     void testChangeLocationData() {
-        ProfileLocation location = new ProfileLocation("New Zealand", "Christchurch", "Canterbury");
+        ProfileLocation location = ProfileLocationTestUtils.createValidProfileLocation();
         Profile profile = createProfile();
         profile.setLocation(location);
         profileRepository.save(profile);
-        ProfileLocation newLocation = new ProfileLocation("Australia", "Sydney", "NSW");
+        ProfileLocation newLocation = ProfileLocationTestUtils.createUpdatedProfileLocation();
         profileService.updateProfileLocation(newLocation, profile.getId());
         assertEquals(profile.getProfileLocation(), newLocation);
+    }
+
+    /**
+     * Tests to ensure when locations update there latitude and longitude, the service method updates it correctly
+     * in the database.
+     */
+    @Test
+    void testChangeLocationCoordinates() {
+        ProfileLocation location = ProfileLocationTestUtils.createValidProfileLocation();
+        ProfileLocation newLocation = ProfileLocationTestUtils.createUpdatedProfileLocation();
+        Profile profile = createProfile();
+        profile.setLocation(location);
+        ArrayList<Double> currentCoordinates = new ArrayList<>();
+        ArrayList<Double> newCoordinates = new ArrayList<>();
+
+        profileRepository.save(profile);
+
+        double currentLatitude = profile.getProfileLocation().getLatitude();
+        double currentLongitude = profile.getProfileLocation().getLongitude();
+        currentCoordinates.add(currentLatitude);
+        currentCoordinates.add(currentLongitude);
+
+        profileService.updateProfileLocation(newLocation, profile.getId());
+        double newLatitude = profile.getProfileLocation().getLatitude();
+        double newLongitude = profile.getProfileLocation().getLongitude();
+        newCoordinates.add(newLatitude);
+        newCoordinates.add(newLongitude);
+
+        assertNotEquals(currentCoordinates, newCoordinates);
     }
 
     /**
@@ -296,7 +331,7 @@ class ProfileServiceTest {
      **/
     @Test
     void testNonExistentProfileIdStatus(){
-        ProfileLocation location = new ProfileLocation("New Zealand", "Christchurch", "Canterbury");
+        ProfileLocation location = ProfileLocationTestUtils.createValidProfileLocation();
         ResponseEntity<String> response = profileService.updateProfileLocation(location,-1L);
         assertEquals(response, new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
@@ -306,7 +341,7 @@ class ProfileServiceTest {
      **/
     @Test
     void testNonExistentProfileData(){
-        ProfileLocation location = new ProfileLocation("New Zealand", "Christchurch", "Canterbury");
+        ProfileLocation location = ProfileLocationTestUtils.createValidProfileLocation();
         ResponseEntity<String> response = profileService.updateProfileLocation(location, -1L);
         assertEquals(0L, profileLocationRepository.count());
     }
@@ -381,6 +416,12 @@ class ProfileServiceTest {
     void checkInvalidEmailExistsInDatabaseTest(){
         String email = "doesNotExistInDatabase@gmail.com";
         assertFalse(testService.checkEmailExistsInDB(email));
+    }
+
+    @Test
+    void deleteProfileSimpleTest() {
+        saveWithEmails(steven);
+        profileService.deleteProfile(steven.getId());
     }
 
     /**

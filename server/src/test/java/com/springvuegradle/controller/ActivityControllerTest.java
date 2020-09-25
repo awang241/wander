@@ -223,17 +223,17 @@ public class ActivityControllerTest {
      */
     static Activity createNormalActivity() {
         return new Activity("Kaikoura Coast Track race", "A big and nice race on a lovely peninsula",
-                new String[]{"Hiking"}, false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ");
+                new String[]{"Hiking"}, false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ", 100.0, 100.0);
     }
 
     static Activity createNormalActivity1() {
         return new Activity("Triathlon", "I hate triathlons",
-                new String[]{"Hiking","Football"}, false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ");
+                new String[]{"Hiking","Football"}, false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ", 100.0, 100.0);
     }
 
     static Activity createIncorrectActivity() {
         return new Activity("Kaikoura Coast Track race", "A big and nice race on a lovely peninsula",
-                new String[]{"Tramping","Hiking"}, false, "2020-02-20T08:00:00+1300", "2020-01-20T08:00:00+1300", "Kaikoura, NZ");
+                new String[]{"Tramping","Hiking"}, false, "2020-02-20T08:00:00+1300", "2020-01-20T08:00:00+1300", "Kaikoura, NZ", 100.0, 100.0);
     }
 
     static ActivityType createActivityType() {

@@ -3,34 +3,23 @@ package com.springvuegradle.service;
 import com.springvuegradle.dto.ActivityRoleCountResponse;
 import com.springvuegradle.dto.MembersRequest;
 import com.springvuegradle.dto.SimplifiedActivity;
+import com.springvuegradle.dto.responses.ActivityLocationResponse;
+import com.springvuegradle.dto.responses.ActivityMemberProfileResponse;
 import com.springvuegradle.enums.*;
 import com.springvuegradle.model.*;
 import com.springvuegradle.repositories.*;
-import com.springvuegradle.dto.requests.ActivityRoleUpdateRequest;
-import com.springvuegradle.dto.responses.ActivityMemberProfileResponse;
-import com.springvuegradle.enums.ActivityMessage;
-import com.springvuegradle.enums.ActivityPrivacy;
-import com.springvuegradle.enums.ActivityResponseMessage;
-import com.springvuegradle.model.Activity;
-import com.springvuegradle.model.ActivityMembership;
-import com.springvuegradle.model.ActivityType;
-import com.springvuegradle.model.Profile;
-import com.springvuegradle.repositories.ActivityMembershipRepository;
-import com.springvuegradle.repositories.ActivityRepository;
-import com.springvuegradle.repositories.ActivityTypeRepository;
-import com.springvuegradle.repositories.ProfileRepository;
-import com.springvuegradle.repositories.EmailRepository;
-import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import javax.persistence.EntityNotFoundException;
 import java.security.AccessControlException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Service-layer class containing business logic handling activities.
@@ -42,8 +31,8 @@ public class ActivityService {
     private ActivityRepository activityRepo;
     private ActivityTypeRepository typeRepo;
     private ActivityMembershipRepository membershipRepo;
-    private EmailRepository emailRepo;
     private ActivityParticipationRepository participationRepo;
+    private NotificationService notificationService;
 
 
     /**
@@ -56,12 +45,14 @@ public class ActivityService {
      */
     @Autowired
     public ActivityService(ProfileRepository profileRepo, ActivityRepository activityRepo, ActivityTypeRepository activityTypeRepo,
-                           ActivityMembershipRepository activityMembershipRepository, ActivityParticipationRepository participationRepo) {
+                           ActivityMembershipRepository activityMembershipRepository, ActivityParticipationRepository participationRepo,
+                           NotificationService notificationService) {
         this.profileRepo = profileRepo;
         this.activityRepo = activityRepo;
         this.typeRepo = activityTypeRepo;
         this.membershipRepo = activityMembershipRepository;
         this.participationRepo = participationRepo;
+        this.notificationService = notificationService;
     }
 
     /**
@@ -72,7 +63,7 @@ public class ActivityService {
      */
     public void create(Activity activity, Long creatorId) {
         validateActivity(activity);
-        Optional<Profile> profileResult =  profileRepo.findById(creatorId);
+        Optional<Profile> profileResult = profileRepo.findById(creatorId);
         if (profileResult.isEmpty()) {
             throw new EntityNotFoundException(ActivityResponseMessage.INVALID_PROFILE.toString());
         }
@@ -83,13 +74,21 @@ public class ActivityService {
             List<ActivityType> resultActivityTypes = typeRepo.findByActivityTypeName(activityType.getActivityTypeName());
             updatedActivityType.add(resultActivityTypes.get(0));
         }
+
         activity.setActivityTypes(updatedActivityType);
 
         Activity result = activityRepo.save(activity);
+
         ActivityMembership activityMembership = new ActivityMembership(result, profile, ActivityMembership.Role.CREATOR);
         membershipRepo.save(activityMembership);
         profile.addActivity(activityMembership);
         activity.addMember(activityMembership);
+
+        notificationService.createNotification(NotificationType.ACTIVITY_CREATED,
+                activity,
+                profile,
+                profile.getFullName() + " created a new activity called " + activity.getActivityName() + ".");
+
         profileRepo.save(profile);
     }
 
@@ -98,8 +97,13 @@ public class ActivityService {
      *
      * @param activity   the new activity object
      * @param activityId the id of the activity to update
+     * @param profileId  the id of the profile updating the activity
      */
-    public void update(Activity activity, Long activityId) {
+    public void update(Activity activity, Long activityId, Long profileId) {
+        Optional<Profile> editor = profileRepo.findById(profileId);
+        if (editor.isEmpty()) {
+            throw new IllegalArgumentException(ProfileErrorMessage.PROFILE_NOT_FOUND.toString());
+        }
         validateActivity(activity);
         Optional<Activity> result = activityRepo.findById(activityId);
         if (result.isPresent()) {
@@ -112,10 +116,56 @@ public class ActivityService {
             dbActivity.setActivityTypes(updatedActivityTypes);
             dbActivity.update(activity);
             activityRepo.save(dbActivity);
+            notificationService.createNotification(NotificationType.ACTIVITY_EDITED, dbActivity, editor.get(),
+                    editor.get().getFullName() + " edited an activity called " + dbActivity.getActivityName() + ".");
         } else {
             throw new IllegalArgumentException(ActivityResponseMessage.INVALID_ACTIVITY.toString());
         }
     }
+
+    /**
+     * Filters a list of activities to ensure only ones containing all of the required activity types are shown
+     * @param activities a list of activites
+     * @param requiredActivityTypes
+     * @return a list of activities that have all activity types
+     */
+    public List<Activity> filterActivitiesByActivityTypes(List<Activity> activities, List<ActivityType> requiredActivityTypes, String activityTypeSearchMethod){
+        if(requiredActivityTypes.isEmpty() || activityTypeSearchMethod == null){return activities;}
+        List<Activity> filteredActivities = new ArrayList<>();
+        for(Activity activity: activities) {
+            Set<ActivityType> actualActivityTypes = activity.getActivityTypeObjects();
+            Set<ActivityType> result = requiredActivityTypes.stream()
+                    .distinct()
+                    .filter(actualActivityTypes::contains)
+                    .collect(Collectors.toSet());
+            if(result.size() == requiredActivityTypes.size() && activityTypeSearchMethod.equals("all")){
+                filteredActivities.add(activity);
+            } else if(result.size() > 0 && activityTypeSearchMethod.equals("any")){
+                filteredActivities.add(activity);
+            }
+        }
+        return filteredActivities;
+    }
+
+    /**
+     * Takes a string array and returns an array of activity types corresponding to those strings
+     * @param activityTypes
+     * @return an array of activity types if types are specified, else none
+     * @throws IllegalArgumentException if an activity type in the list does not exist
+     */
+    public List<ActivityType> getActivityTypesFromStringArray(String[] activityTypes) {
+        if(activityTypes == null){return new ArrayList<>();}
+        List<ActivityType> types = new ArrayList<>();
+        for (String activityTypeString : activityTypes) {
+            ActivityType type = typeRepo.getByActivityTypeName(activityTypeString);
+            if (type == null) {
+                throw new IllegalArgumentException();
+            }
+            types.add(type);
+        }
+        return types;
+    }
+
 
     /**
      * Checks if the activity exists in the repository, deletes the activity.
@@ -123,45 +173,91 @@ public class ActivityService {
      * @param activityId the activity to delete.
      * @return if activity exists then it deletes it and returns true. False otherwise.
      */
-    public boolean delete(Long activityId) {
+    public boolean delete(Long activityId, Long profileId) {
         if (activityRepo.existsById(activityId)) {
+            Profile profile = getModelObjectById(profileRepo, profileId);
+            Activity activity = getModelObjectById(activityRepo, activityId);
+            notificationService.createNotification(NotificationType.ACTIVITY_REMOVED, activity, profile,
+                    profile.getFullName() + " deleted an activity called " + activity.getActivityName() + ".");
+            notificationService.detachActivityFromNotifications(activity);
+
             for (ActivityMembership membership : membershipRepo.findAll()) {
                 if (membership.getActivity().getId() == activityId) {
-                    Profile profile = membership.getProfile();
+                    Profile profile1 = membership.getProfile();
                     membershipRepo.delete(membership);
-                    profile.removeActivity(membership);
+                    profile1.removeActivity(membership);
+                    membershipRepo.deleteActivityMembershipByProfileIdAndActivityId(profile1.getId(), activityId);
                 }
             }
-            Optional<Activity> activity = activityRepo.findById(activityId);
+            for (ActivityParticipation participation : participationRepo.findAll()) {
+                if (participation.getActivity().getId() == activityId) {
+                    Profile profile2 = participation.getProfile();
+                    participationRepo.delete(participation);
+                    profile2.removeParticipation(participation);
+                }
+            }
+
             for (ActivityType activityType : typeRepo.findAll()) {
-                if (activity.isPresent() && activityType.getActivities().contains(activity.get())) {
-                    activityType.removeActivity(activity.get());
+                if (activityType.getActivities().contains(activity)) {
+                    activityType.removeActivity(activity);
                 }
             }
             activityRepo.deleteById(activityId);
-
             return true;
         }
         return false;
     }
 
     /**
-     * Removes an activity membership from an activity
+     * Removes an activity membership from an activity and generates a notification for that activity's remaining members.
      *
-     * @param profileDoingEditingId the ID of the profile doing the editing
-     * @param profileBeingEditedId  the ID of the profile having their membership deleted
-     * @param activityId            the ID of the activity we are removing them from
+     * @param editorId   the ID of the profile doing the editing
+     * @param editedId   the ID of the profile having their membership deleted
+     * @param activityId the ID of the activity we are removing them from
      */
-    public void removeUserRoleFromActivity(Long profileDoingEditingId, Long profileBeingEditedId, Long activityId) {
-        if (isProfileActivityCreator(profileBeingEditedId, profileDoingEditingId)) {
-            throw new IllegalArgumentException();
+    public void removeUserRoleFromActivity(Long editorId, Long editedId, Long activityId) {
+        Optional<ActivityMembership> membershipResult = membershipRepo.findByActivity_IdAndProfile_Id(activityId, editedId);
+        if (membershipResult.isEmpty()) {
+            throw new NoSuchElementException(ActivityMessage.MEMBERSHIP_NOT_FOUND.toString());
         }
-        if (!canChangeRole(profileDoingEditingId, profileBeingEditedId, activityId, null)) {
+        ActivityMembership membership = membershipResult.get();
+
+        if (!canChangeRole(editorId, editedId, activityId, null)) {
             throw new AccessControlException("No permission");
         }
-        if (membershipRepo.deleteActivityMembershipByProfileIdAndActivityId(profileBeingEditedId, activityId) < 1) {
-            throw new NoSuchElementException();
+
+        if (membership.getRole() == ActivityMembership.Role.CREATOR) {
+            throw new IllegalArgumentException(ActivityMessage.EDITING_CREATOR.toString());
         }
+
+        NotificationType type;
+        switch (membership.getRole()) {
+            case FOLLOWER:
+                type = NotificationType.ACTIVITY_FOLLOWER_REMOVED;
+                break;
+            case ORGANISER:
+                type = NotificationType.ACTIVITY_ORGANISER_REMOVED;
+                break;
+            case PARTICIPANT:
+                type = NotificationType.ACTIVITY_PARTICIPANT_REMOVED;
+                break;
+            default:
+                throw new IllegalArgumentException(ActivityMessage.EDITING_CREATOR.toString());
+        }
+
+        Profile editor = getModelObjectById(profileRepo, editorId);
+        Profile edited = getModelObjectById(profileRepo, editedId);
+        String message;
+        String activityName = membership.getActivity().getActivityName();
+        if (editorId.equals(editedId)) {
+            message = String.format("%s left the activity %s", edited.getFirstAndLastName(), activityName);
+        } else {
+            message = String.format("%s removed %s from the activity %s", editor.getFirstAndLastName(),
+                    edited.getFirstAndLastName(), activityName);
+        }
+        notificationService.createNotification(type, membership.getActivity(), editor, message);
+
+        membershipRepo.deleteActivityMembershipByProfileIdAndActivityId(editedId, activityId);
     }
 
     /**
@@ -213,14 +309,15 @@ public class ActivityService {
      * Checks if the activity exists in the repository, checks if profile has membership,
      * deletes the membership if profile has membership
      *
-     * @param profileId the profile which membership needs to be removed
+     * @param profileId  the profile which membership needs to be removed
      * @param activityId the specified activity
      * @return true if membership was found and deleted, false otherwise
      */
     public boolean removeMembership(Long profileId, Long activityId) {
+        //Check against other service method in merge - This seems to be a double-up with removeUserRoleFromActivity
         if (activityRepo.existsById(activityId)) {
             for (ActivityMembership membership : membershipRepo.findAll()) {
-                if (membership.getActivity().getId() == activityId && membership.getProfile().getId().equals( profileId)) {
+                if (membership.getActivity().getId() == activityId && membership.getProfile().getId().equals(profileId)) {
                     membershipRepo.delete(membership);
                     membership.getProfile().removeActivity(membership);
                     return true;
@@ -228,21 +325,6 @@ public class ActivityService {
             }
         }
         return false;
-    }
-
-    /**
-     * Returns all activities associated with the given profile.
-     *
-     * @param profileId The ID of the profile whose activities are being retrieved.
-     * @return A list of the given profile's activities.
-     */
-    public List<Activity> getActivitiesByProfileId(Long profileId) {
-        Profile profile = profileRepo.findAllById(profileId).get(0);
-        List<Activity> userActivities = new ArrayList<>();
-        for (ActivityMembership activityMembership : profile.getActivities()) {
-            userActivities.add(activityMembership.getActivity());
-        }
-        return userActivities;
     }
 
     /**
@@ -265,6 +347,7 @@ public class ActivityService {
 
     /**
      * Returns all the activities with privacy level of 2. Aka returns all public activities.
+     *
      * @param request contains the count and start index for pagination
      * @return list of activities
      */
@@ -275,7 +358,9 @@ public class ActivityService {
 
     /**
      * Returns all the activities that the user is a creator or organiser of.
-//     * @param request contains the count and start index for pagination
+     * @param count the number of activities to return. The function may return less if the last page is returned.
+     * @param authLevel the user's authorisation level.
+     * @param startIndex the index of an items to be returned; the page containing this item is returned.
      * @param profileId the id of the user we want to check is the creator or organiser of an activity
      * @return list of activities
      */
@@ -292,30 +377,23 @@ public class ActivityService {
         return userActivities.subList(Math.min(userActivities.size(), startIndex), Math.min(userActivities.size(), count + startIndex));
     }
 
-//    List<Activity> userActivities = new ArrayList<>();
-//    Page<ActivityMembership> memberships = membershipRepo.findMyActivityMembershipsByProfileId(profileId, request);
-//        for (ActivityMembership membership: memberships) {
-//        userActivities.add(membership.getActivity());
-//    }
-//        return userActivities;
-//
-
     /**
      * Returns all the new activities for the user to discover.
-     * @param profileId refers to id of the user we want to check
+     *
+     * @param profileId  refers to id of the user we want to check
      * @param startIndex used to sublist the activities returned such that the startIndex is the lower limit.
-     * @param count used to sublist the activities returned such that the startIndex+count is the upper limit.
+     * @param count      used to sublist the activities returned such that the startIndex+count is the upper limit.
      * @return list of activities the user has no current association with.
      */
     public List<Activity> getNewActivities(Long profileId, Integer startIndex, Integer count, Integer authLevel) {
         List<Activity> activities = new ArrayList<>();
         List<Activity> results = authLevel < 2 ? activityRepo.findAll() : activityRepo.findAllByPrivacyLevel(2);
-        if (results!= null) {
-            for (Activity activity: results) {
+        if (results != null) {
+            for (Activity activity : results) {
                 boolean profileAssociated = false;
-                for (ActivityMembership am: activity.getMembers()) {
+                for (ActivityMembership am : activity.getMembers()) {
                     if (am.getProfile().getId().equals(profileId)) {
-                        profileAssociated=true;
+                        profileAssociated = true;
                     }
                 }
                 if (!profileAssociated) {
@@ -323,7 +401,7 @@ public class ActivityService {
                 }
             }
         }
-        return activities.subList(Math.min(activities.size(), startIndex), Math.min(activities.size(), startIndex+count));
+        return activities.subList(Math.min(activities.size(), startIndex), Math.min(activities.size(), startIndex + count));
     }
 
 
@@ -372,15 +450,11 @@ public class ActivityService {
     }
 
     /**
-     * Checks if an activity is valid by checking all fields and throws an exception otherwise.
-     *
-     * @param activity the activity to check the fields of.
-     */
-    /**
      * Return an activity by activity id.
      *
      * Return an activity by activity id and profile id based on the privacy activity and role of the user.
-     * @param profileId The ID of the profile that is requesting the Activity
+     *
+     * @param profileId  The ID of the profile that is requesting the Activity
      * @param activityId The ID of the activity that is being retrieved
      * @return An activity object. If it does not exist or the user is not authorized returns null.
      */
@@ -391,10 +465,9 @@ public class ActivityService {
                 return activity.get();
             }
             Optional<ActivityMembership> activityMembership = membershipRepo.findByActivity_IdAndProfile_Id(activityId, profileId);
-            if (activity.get().getPrivacyLevel().equals(2)){
+            if (activity.get().getPrivacyLevel().equals(2)) {
                 return activity.get();
-            }
-            else if (activityMembership.isPresent()) {
+            } else if (activityMembership.isPresent()) {
                 boolean roleIsCreator = activityMembership.get().getRole().equals(ActivityMembership.Role.CREATOR);
                 if (activity.get().getPrivacyLevel().equals(1) || roleIsCreator) {
                     return activity.get();
@@ -437,7 +510,7 @@ public class ActivityService {
     }
 
     /**
-     * Assigns the given role to the user for an activity.
+     * Assigns the given role to the user for an activity and creates notification for role change.
      *
      * @param activityId   the id of the activity we want to assign the role for.
      * @param profileId    the id of the user we want to assign the role to.
@@ -458,8 +531,14 @@ public class ActivityService {
         membershipRepo.save(activityMembership);
         profile.addActivity(activityMembership);
         activity.addMember(activityMembership);
+
+        NotificationType notificationType = NotificationService.getTypeForAddingRole(role);
+        notificationService.createNotification(notificationType, activity, profile,
+                profile.getFullName() + " changed role to " + activityRole + " for activity " + activity.getActivityName() + ".");
+
         profileRepo.save(profile);
     }
+
 
     /**
      * Returns a simplified list of users with roles in an activity
@@ -496,16 +575,24 @@ public class ActivityService {
      * @param privacy    a string defining the privacy level.
      * @param activityId the id of the activity to edit.
      */
-    public void editActivityPrivacy(String privacy, Long activityId) {
+    public void editActivityPrivacy(String privacy, Long activityId, Long profileId) {
         Optional<Activity> optionalActivity = activityRepo.findById(activityId);
         if (optionalActivity.isEmpty()) {
             throw new IllegalArgumentException(ActivityMessage.ACTIVITY_NOT_FOUND.getMessage());
-        } else {
-            int privacyLevel = determinePrivacyLevel(privacy);
-            Activity activity = optionalActivity.get();
-            activity.setPrivacyLevel(privacyLevel);
-            activityRepo.save(activity);
         }
+        int privacyLevel = determinePrivacyLevel(privacy);
+        Activity activity = optionalActivity.get();
+        activity.setPrivacyLevel(privacyLevel);
+        activityRepo.save(activity);
+        Profile editor = null;
+        Optional<Profile> optionalEditor = profileRepo.findById(profileId);
+        if (optionalEditor.isPresent()) {
+            editor = optionalEditor.get();
+        }
+        notificationService.createNotification(NotificationType.ACTIVITY_PRIVACY_CHANGED,
+                activity,
+                editor,
+                "Activity " + activity.getActivityName() +"'s privacy level has been changed to " + privacy);
     }
 
     /**
@@ -514,44 +601,59 @@ public class ActivityService {
      * @param activities a list of normal activity objects to be simplified
      * @return a list of simplified activities
      */
-    public static List<SimplifiedActivity> createSimplifiedActivities(Map<Activity, ActivityMembership.Role> activities) {
-        List<SimplifiedActivity> simplifiedActivities = new ArrayList<>();
-        activities.forEach((k, v) -> simplifiedActivities.add(new SimplifiedActivity(k)));
-        return simplifiedActivities;
+    public static List<ActivityLocationResponse> createActivityLocationResponse(List<Activity> activities) {
+        List<ActivityLocationResponse> activityLocationResponse = new ArrayList<>();
+        activities.forEach(activity -> activityLocationResponse.add(new ActivityLocationResponse(activity)));
+        return activityLocationResponse;
     }
 
     /**
      * Sets the role of an activity member to the given role. Profiles cannot be set as creators, and creators
      * cannot have their role changed for that activity.
      *
-     * @param profileBeingEditedId  The ID of the profile whose role is being changed
-     * @param profileDoingEditingId The ID of the profile who is doing the editing
+     * @param editedId  The ID of the profile whose role is being changed
+     * @param editorId The ID of the profile who is doing the editing
      * @param activityId            the ID of the activity
      * @param newRole               The role the member is being changed to
      * @throws IllegalArgumentException if the parameters do not match the database constraints (e.g. no profile with
      *                                  that id exists, or the given profile isn't a member of that activity), or if the profile is being set to or from
      *                                  the Creator role.
      */
-    public void setProfileRole(long profileBeingEditedId, long profileDoingEditingId, long activityId, ActivityMembership.Role newRole) {
+    public void setProfileRole(long editedId, long editorId, long activityId, ActivityMembership.Role newRole) {
         if (newRole.equals(ActivityMembership.Role.CREATOR)) {
             throw new IllegalArgumentException(ActivityResponseMessage.EDITING_CREATOR.toString());
         }
 
-        if (!canChangeRole(profileDoingEditingId, profileBeingEditedId, activityId, newRole)) {
+        if (!canChangeRole(editorId, editedId, activityId, newRole)) {
             throw new IllegalArgumentException(ActivityResponseMessage.INVALID_PERMISSION.toString());
         }
 
-        Optional<ActivityMembership> optionalMembership = membershipRepo.findByActivity_IdAndProfile_Id(activityId, profileBeingEditedId);
+        Optional<ActivityMembership> optionalMembership = membershipRepo.findByActivity_IdAndProfile_Id(activityId, editedId);
         if (optionalMembership.isEmpty()) {
-            throw new IllegalArgumentException(ActivityResponseMessage.INVALID_MEMBERSHIP.toString());
+            throw new NoSuchElementException(ActivityResponseMessage.INVALID_MEMBERSHIP.toString());
         }
 
         ActivityMembership membership = optionalMembership.get();
         if (membership.getRole() == ActivityMembership.Role.CREATOR) {
             throw new IllegalArgumentException(ActivityResponseMessage.EDITING_CREATOR.toString());
         }
+        NotificationType type = NotificationService.getTypeForAddingRole(newRole);
+        String message;
+        String template;
+        Activity activity = getModelObjectById(activityRepo, activityId);
+        Profile editor = getModelObjectById(profileRepo, editorId);
+        Profile edited = getModelObjectById(profileRepo, editedId);
+        String roleName = StringUtils.capitalize(newRole.toString().toLowerCase());
+        if (editedId == editorId) {
+            template = "%s changed their role in %s to %s.";
+        } else {
+            template = "%s had their role in %s changed to %s.";
+        }
+        message = String.format(template, edited.getFirstAndLastName(), activity.getActivityName(), roleName);
+
         membership.setRole(newRole);
         membershipRepo.save(membership);
+        notificationService.createNotification(type, activity, editor, message);
     }
 
 
@@ -564,22 +666,6 @@ public class ActivityService {
     public Page<Activity> getAllActivities(Pageable request) {
 
         return activityRepo.findAll(request);
-    }
-
-    /**
-     * Returns a map of activities alongside the user's role in that activity.
-     *
-     * @param request   A page request containing the index and size of the page to be returned.
-     * @param profileId The user's profile id
-     * @return A map of the activities and the role that the user has with that activity.
-     */
-    public Map<Activity, ActivityMembership.Role> getUsersActivities(Pageable request, Long profileId) {
-        Page<ActivityMembership> memberships = membershipRepo.findAllByProfileId(profileId, request);
-        Map<Activity, ActivityMembership.Role> activityRoleMap = new HashMap<>();
-        for (ActivityMembership membership : memberships.getContent()) {
-            activityRoleMap.put(membership.getActivity(), membership.getRole());
-        }
-        return activityRoleMap;
     }
 
     /**
@@ -616,17 +702,17 @@ public class ActivityService {
                 isCreatorOrOrganiser = true;
             }
         }
-        if (newRole != null) {
-            if (newRole.equals(ActivityMembership.Role.ORGANISER)) {
-                return isAdmin || isCreatorOrOrganiser;
-            }
+        if (ActivityMembership.Role.ORGANISER.equals(newRole)) {
+            return isAdmin || isCreatorOrOrganiser;
+        } else {
+            return isAdmin || isCreatorOrOrganiser || profileBeingEditedId == profileDoingEditingId;
         }
-        return isAdmin || isCreatorOrOrganiser || profileBeingEditedId == profileDoingEditingId;
     }
 
     /**
      * Adds the members to the activity under the given roles. If the member is already a role, their role is changed.
-     * @param members list of MembersRequest objects which contain member emails and their associated roles.
+     *
+     * @param members    list of MembersRequest objects which contain member emails and their associated roles.
      * @param activityId id referring to the activity.
      * @throws IllegalArgumentException when activity or email is not found.
      */
@@ -636,7 +722,7 @@ public class ActivityService {
             throw new IllegalArgumentException(ActivityMessage.ACTIVITY_NOT_FOUND.getMessage());
         }
         Map<Profile, String> profiles = new HashMap<>();
-        for (MembersRequest member: members) {
+        for (MembersRequest member : members) {
             List<Profile> profilesWithEmail = profileRepo.findByPrimaryEmail(member.getEmail());
             if (!profilesWithEmail.isEmpty()) {
                 profiles.put(profilesWithEmail.get(0), member.getRole());
@@ -645,7 +731,7 @@ public class ActivityService {
             }
         }
         Activity activity = optionalActivity.get();
-        for (Map.Entry<Profile, String> entry: profiles.entrySet()) {
+        for (Map.Entry<Profile, String> entry : profiles.entrySet()) {
             Profile profile = entry.getKey();
             String roleName = entry.getValue();
             Optional<ActivityMembership> optionalMembership = membershipRepo.findByActivity_IdAndProfile_Id(profile.getId(), activityId);
@@ -665,7 +751,9 @@ public class ActivityService {
     }
 
     /**
-     * Saves the given participation details of a user who participated in a specific activity to the repository.
+     * Saves the given participation details of a user who participated in a specific activity to the repository and
+     * creates notification of this new participation result.
+     *
      * @param activityId    The ID of the activity
      * @param profileId     The ID of the profile
      * @param participation The participation being saved. The participation's activity and profile fields will be
@@ -681,11 +769,15 @@ public class ActivityService {
         profile.addParticipation(participation);
         profileRepo.save(profile);
         activity.addParticipation(participation);
+        notificationService.createNotification(NotificationType.PARTICIPANT_CREATED, activity, profile,
+                profile.getFullName() + " added participation results to an activity called " + activity.getActivityName() + ".\n" +
+                        "Outcome: " + participation.getOutcome() + "\nDetails: " + participation.getDetails());
         activityRepo.save(activity);
     }
 
     /**
-     * Updates the fields of an existing participation
+     * Updates the fields of an existing participation and creates notification that participation result was edited.
+     *
      * @param activityId      The ID of the activity
      * @param profileId       The ID of the profile
      * @param participationId The ID of the participation being changed
@@ -698,15 +790,21 @@ public class ActivityService {
         if (participationResult.isEmpty()) {
             throw new IllegalArgumentException(ActivityParticipationMessage.PARTICIPATION_NOT_FOUND.toString());
         }
+        Profile profile = profileRepo.getOne(profileId);
+        Activity activity = activityRepo.getOne(activityId);
         ActivityParticipation dbParticipation = participationResult.get();
         dbParticipation.updateActivityParticipation(participation);
         participationRepo.save(dbParticipation);
+        notificationService.createNotification(NotificationType.PARTICIPATION_EDITED, activity, profile,
+                profile.getFullName() + " edited participation results of activity called " + activity.getActivityName() + ".\n" +
+                        "Outcome:" + participation.getOutcome() + "\nDetails: " + participation.getDetails());
     }
 
     /**
      * Checks if an activity and profile exists
+     *
      * @param activityId The ID of the activity
-     * @param profileId The ID of the profile
+     * @param profileId  The ID of the profile
      * @throws IllegalArgumentException If no profile or activity with the given ID exists in the repository
      */
     public void checkParticipationHelper(long activityId, long profileId) {
@@ -722,6 +820,7 @@ public class ActivityService {
 
     /**
      * Checks if a participation exists
+     *
      * @param participationId the ID of the participation
      * @throws IllegalArgumentException If no such participation exists
      */
@@ -730,10 +829,12 @@ public class ActivityService {
         if (participationResult.isEmpty()) {
             throw new IllegalArgumentException(ActivityParticipationMessage.PARTICIPATION_NOT_FOUND.toString());
         }
+
     }
 
     /**
      * Deletes the participation of a user in a particular activity
+     *
      * @param activityId      The ID of the activity
      * @param profileId       The ID of the profile
      * @param participationId The ID of the participation being deleted
@@ -771,9 +872,10 @@ public class ActivityService {
 
     /**
      * Retrieves a list of all participations for the given activity.
+     *
      * @param activityId The ID of the activity.
-     * @throws IllegalArgumentException if no activity with that ID exists.
      * @return A list of that activity's participations.
+     * @throws IllegalArgumentException if no activity with that ID exists.
      */
     public List<ActivityParticipation> readParticipationsFromActivity(long activityId) {
         if (!activityRepo.existsById(activityId)) {
@@ -784,31 +886,50 @@ public class ActivityService {
 
 
     /**
-     * Method to clear all memberships that have a specified role and return an appropriate http response
-     * @param activityId the ID of the activity being cleared
+     * Method to clear all memberships that have a specified role
+     *
+     * @param activityId  the ID of the activity being cleared
      * @param roleToClear the ENUM String of the role to clear
      */
-    public void clearActivityRoleList(Long activityId, String roleToClear) {
+    public void clearActivityRoleList(Long editorID, Long activityId, String roleToClear) {
         List<ActivityMemberProfileResponse> memberships = getActivityMembers(activityId);
         for (ActivityMemberProfileResponse membership : memberships) {
             if (membership.getRole().name().equals(roleToClear)) {
-                removeMembership(membership.getId(), activityId);
+                removeUserRoleFromActivity(editorID, membership.getId(), activityId);
             }
         }
     }
 
     /**
      * Gets a users role in an activity if it exists
-     * @param profileId the id of the profile
+     *
+     * @param profileId  the id of the profile
      * @param activityId the id of the activity
      * @return the role of the user in the activity if they have one
      */
-    public String getSingleActivityMembership(Long profileId, Long activityId){
+    public String getSingleActivityMembership(Long profileId, Long activityId) {
         Optional<ActivityMembership> optionalActivityMembership = membershipRepo.findByActivity_IdAndProfile_Id(activityId, profileId);
-        if(optionalActivityMembership.isEmpty()){
+        if (optionalActivityMembership.isEmpty()) {
             throw new NoSuchElementException();
         }
         return optionalActivityMembership.get().getRole().name().toLowerCase();
+    }
+
+    /**
+     * Wrapper method for getting a generic object from a repository.
+     * @param repository The repository the object is being retrieved from.
+     * @param id         The id of the object.
+     * @param <T>        The type of the object.
+     * @return the object from the repository with the given ID.
+     * @throws NoSuchElementException if no object with that ID exists in the repository.
+     */
+    private <T> T getModelObjectById(JpaRepository<T, Long> repository, Long id) {
+        Optional<T> optional = repository.findById(id);
+        if (optional.isPresent()) {
+            return optional.get();
+        } else {
+            throw new NoSuchElementException();
+        }
     }
 }
 

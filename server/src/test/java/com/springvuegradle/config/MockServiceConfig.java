@@ -1,9 +1,7 @@
 package com.springvuegradle.config;
 
-import com.springvuegradle.service.SecurityService;
+import com.springvuegradle.service.*;
 import com.springvuegradle.utilities.JwtUtil;
-import com.springvuegradle.service.ActivityService;
-import com.springvuegradle.service.ProfileService;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -22,6 +20,12 @@ public class MockServiceConfig {
 
     @Bean
     @Primary
+    public ActivitySearchService mockActivitySearchService() {
+        return Mockito.mock(ActivitySearchService.class);
+    }
+
+    @Bean
+    @Primary
     public SecurityService mockSecurityService() {
         return Mockito.mock(SecurityService.class);
     }
@@ -30,6 +34,12 @@ public class MockServiceConfig {
     @Primary
     public ProfileService mockProfileService() {
         return Mockito.mock(ProfileService.class);
+    }
+
+    @Bean
+    @Primary
+    public NotificationService mockNotificationService() {
+        return  Mockito.mock(NotificationService.class);
     }
 
     @Bean

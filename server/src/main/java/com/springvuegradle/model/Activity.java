@@ -38,7 +38,15 @@ public class Activity {
 
     private OffsetDateTime endTime;
 
+    @NotNull
     private String location;
+
+    @Column
+    private Double latitude;
+
+    @Column
+    private Double longitude;
+
 
     /**
      * Holds the privacy level of the activity.
@@ -54,18 +62,21 @@ public class Activity {
     /**
      * Each activity object can have multiple activities.
      */
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinTable(name = "activity_activity_type",
             inverseJoinColumns = @JoinColumn(name = "activity_type_id", referencedColumnName = "id"),
             joinColumns = @JoinColumn(name = "activity_id", referencedColumnName = "id"))
     private Set<ActivityType> activityTypes;
 
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "activity")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "activity")
     private Set<ActivityMembership> members;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "activity")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "activity")
     private Set<ActivityParticipation> activityParticipations = new HashSet<>();
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "activity")
+    private Set<Notification> notifications = new HashSet<>();
 
     public Activity(){}
 
@@ -77,7 +88,9 @@ public class Activity {
             @JsonProperty("continuous") Boolean continuous,
             @JsonProperty("start_time") String startTime,
             @JsonProperty("end_time") String endTime,
-            @JsonProperty("location") String location){
+            @JsonProperty("location") String location,
+            @JsonProperty("latitude") Double latitude,
+            @JsonProperty("longitude") Double longitude){
         this.activityName = activityName;
         this.description = description;
         this.activityTypes = new HashSet<>();
@@ -99,8 +112,11 @@ public class Activity {
             this.endTime = FormatHelper.parseOffsetDateTime(endTime);
         }
         this.location = location;
+        this.latitude = latitude;
+        this.longitude = longitude;
         this.members = new HashSet<>();
     }
+
 
     public void update(Activity activity) {
         this.activityName = activity.activityName;
@@ -109,6 +125,8 @@ public class Activity {
         this.startTime = activity.startTime;
         this.endTime = activity.endTime;
         this.location = activity.location;
+        this.latitude = activity.latitude;
+        this.longitude = activity.longitude;
         Set<ActivityType> removals = new HashSet<>(this.activityTypes);
         removals.removeAll(activity.activityTypes);
         for (ActivityType removal: removals) {
@@ -185,9 +203,19 @@ public class Activity {
         return location;
     }
 
+
+    public Double getLongitude(){
+        return longitude;
+    }
+
     public void setLocation(String location) {
         this.location = location;
     }
+
+    public void setLatitude(Double latitude) { this.latitude = latitude; }
+
+
+    public void setLongitude(Double longitude) { this.longitude = longitude; }
 
     @JsonIgnore
     public Set<ActivityMembership> getMembers() {
@@ -200,6 +228,10 @@ public class Activity {
             result.add(activityType.getActivityTypeName());
         }
         return result;
+    }
+
+    public Set<ActivityType> getActivityTypeObjects(){
+        return this.activityTypes;
     }
 
     @JsonIgnore
@@ -282,5 +314,26 @@ public class Activity {
             return creator.getId();
         }
         return null;
+    }
+
+    @JsonIgnore
+    public Set<Notification> getNotifications() {
+        return Collections.unmodifiableSet(notifications);
+    }
+
+    public void setNotifications(Set<Notification> notifications) {
+        this.notifications = notifications;
+    }
+
+    public void addNotification(Notification notification) {
+        this.notifications.add(notification);
+    }
+
+    public void removeNotification(Notification notification) {
+        this.notifications.remove(notification);
+    }
+
+    public Double getLatitude() {
+        return latitude;
     }
 }

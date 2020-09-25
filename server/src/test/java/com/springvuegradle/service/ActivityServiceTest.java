@@ -2,14 +2,17 @@ package com.springvuegradle.service;
 
 import com.springvuegradle.controller.ActivityController;
 import com.springvuegradle.dto.ActivityRoleCountResponse;
+import com.springvuegradle.dto.responses.ActivityMemberProfileResponse;
 import com.springvuegradle.enums.ActivityMessage;
 import com.springvuegradle.enums.ActivityPrivacy;
-import com.springvuegradle.model.*;
-import com.springvuegradle.dto.responses.ActivityMemberProfileResponse;
+import com.springvuegradle.enums.ActivityResponseMessage;
+import com.springvuegradle.enums.NotificationType;
 import com.springvuegradle.model.*;
 import com.springvuegradle.repositories.*;
+import com.springvuegradle.utilities.ActivityTestUtils;
 import com.springvuegradle.utilities.FormatHelper;
 import com.springvuegradle.utilities.InitialDataHelper;
+import com.springvuegradle.utilities.ProfileTestUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,15 +20,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.util.StringUtils;
 
 import java.security.AccessControlException;
 import java.util.*;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
@@ -48,6 +51,10 @@ class ActivityServiceTest {
     EmailRepository emailRepository;
     @Autowired
     ActivityParticipationRepository activityParticipationRepository;
+    @Autowired
+    NotificationRepository notificationRepository;
+    @Autowired
+    PassportCountryRepository passportCountryRepository;
 
     /**
      * Needs to be run before each test to create new test profiles and repositories.
@@ -62,12 +69,13 @@ class ActivityServiceTest {
      */
     @AfterEach
     void tearDown() {
-        activityMembershipRepository.deleteAll();
         emailRepository.deleteAll();
+        notificationRepository.deleteAll();
+        activityMembershipRepository.deleteAll();
         profileRepository.deleteAll();
         activityRepository.deleteAll();
         typeRepository.deleteAll();
-
+        passportCountryRepository.deleteAll();
     }
 
     /**
@@ -112,7 +120,8 @@ class ActivityServiceTest {
         Long activityId = activityRepository.getLastInsertedId();
         Activity expectedActivity = createNormalActivityKaikoura(), actualActivity = null;
         Activity activityBefore = activityRepository.findById(activityId).get();
-        service.update(expectedActivity, activityId);
+        Profile profile = profileRepository.save(createNormalProfileBen());
+        service.update(expectedActivity, activityId, profile.getId());
         Optional<Activity> result = activityRepository.findById(activityId);
         if (result.isPresent()) {
             actualActivity = result.get();
@@ -124,28 +133,68 @@ class ActivityServiceTest {
     }
 
     /**
+     * Test to edit the location of an existing activity
+     **/
+    @Test
+    void updateActivityLocationTest() {
+        Activity originalActivity = ActivityTestUtils.createNormalActivity();
+        Activity updatedActivity = ActivityTestUtils.createDifferentLocationActivity();
+        double originalLatitude = originalActivity.getLatitude();
+        double originalLongitude = originalActivity.getLongitude();
+
+        activityRepository.save(originalActivity);
+        Long activityId = activityRepository.getLastInsertedId();
+        Profile profile = profileRepository.save(createNormalProfileBen());
+        //update Activity in repo with new location, latitude and longitude
+        service.update(updatedActivity, activityId, profile.getId());
+
+        Activity result = activityRepository.findById(activityId).get();
+        double updatedLatitude = result.getLatitude();
+        double updatedLongitude = result.getLongitude();
+
+        assertNotEquals(originalLatitude, updatedLatitude);
+        assertNotEquals(originalLongitude, updatedLongitude);
+    }
+
+    @Test
+    void updateActivityDurationToContinuous() {
+        Profile profile = profileRepository.save(ProfileTestUtils.createProfileNoPassportCountry());
+        Activity activity = activityRepository.save(ActivityTestUtils.createNormalActivity());
+        service.update(
+                ActivityTestUtils.updateNormalActivity(
+                        "default",
+                        "default",
+                        null,
+                        true,
+                        "default",
+                        "default",
+                        "default",
+                        100.00,
+                        100.00),
+                activity.getId(),
+                profile.getId());
+        Activity result = activityRepository.getOne(activity.getId());
+        assertEquals(true, result.getContinuous());
+    }
+
+    /**
      * Test to edit an activity which doesn't already exist
      **/
     @Test
     void updateActivityNotInDatabaseThrowsException() {
-        assertThrows(IllegalArgumentException.class, ()-> service.update(createNormalActivityKaikoura(), 0L));
+        Profile profile = profileRepository.save(createNormalProfileBen());
+        assertThrows(IllegalArgumentException.class, () -> service.update(createNormalActivityKaikoura(), 0L, profile.getId()));
     }
 
-    /**
-     * Test to create an activity with no name
-     **/
     @Test
     void updateActivityWithBlankNameTest() {
-        activityRepository.save(createNormalActivitySilly());
-        Long activityId = activityRepository.getLastInsertedId();
-        Activity expectedActivity = createNormalActivitySilly(), actualActivity = null;
-        Optional<Activity> result = activityRepository.findById(activityId);
-        if (result.isPresent()) {
-            actualActivity = result.get();
-        } else {
-            fail("Error: original activity is missing");
-        }
-        assertEquals(expectedActivity, actualActivity);
+        Profile profile = profileRepository.save(ProfileTestUtils.createProfileNoPassportCountry());
+        Activity activity = activityRepository.save(ActivityTestUtils.createNormalActivitySilly());
+        assertThrows(IllegalArgumentException.class, () ->
+                service.update(
+                        ActivityTestUtils.createNormalActivitySillyNoActivityName(),
+                        activity.getId(),
+                        profile.getId()));
     }
 
     /**
@@ -153,16 +202,22 @@ class ActivityServiceTest {
      **/
     @Test
     void updateActivityWithDurationAndNoStartDateTest() {
-        activityRepository.save(createNormalActivitySilly());
-        Long activityId = activityRepository.getLastInsertedId();
-        Activity expectedActivity = createNormalActivitySilly(), actualActivity = null;
-        Optional<Activity> result = activityRepository.findById(activityId);
-        if (result.isPresent()) {
-            actualActivity = result.get();
-        } else {
-            fail("Error: original activity is missing");
-        }
-        assertEquals(expectedActivity, actualActivity);
+        Profile profile = profileRepository.save(ProfileTestUtils.createProfileNoPassportCountry());
+        Activity activity = activityRepository.save(ActivityTestUtils.createNormalActivity());
+        assertThrows(IllegalArgumentException.class, () ->
+                service.update(
+                        ActivityTestUtils.updateNormalActivity(
+                                "default",
+                                "default",
+                                null,
+                                false,
+                                null,
+                                "default",
+                                "default",
+                                100.00,
+                                100.00),
+                        activity.getId(),
+                        profile.getId()));
     }
 
     /**
@@ -170,16 +225,22 @@ class ActivityServiceTest {
      **/
     @Test
     void updateActivityWithDurationAndNoEndDateTest() {
-        activityRepository.save(createNormalActivitySilly());
-        Long activityId = activityRepository.getLastInsertedId();
-        Activity expectedActivity = createNormalActivitySilly(), actualActivity = null;
-        Optional<Activity> result = activityRepository.findById(activityId);
-        if (result.isPresent()) {
-            actualActivity = result.get();
-        } else {
-            fail("Error: original activity is missing");
-        }
-        assertEquals(expectedActivity, actualActivity);
+        Profile profile = profileRepository.save(ProfileTestUtils.createProfileNoPassportCountry());
+        Activity activity = activityRepository.save(ActivityTestUtils.createNormalActivity());
+        assertThrows(IllegalArgumentException.class, () ->
+                service.update(
+                        ActivityTestUtils.updateNormalActivity(
+                                "default",
+                                "default",
+                                null,
+                                false,
+                                "default",
+                                null,
+                                "default",
+                                100.00,
+                                100.00),
+                        activity.getId(),
+                        profile.getId()));
     }
 
     /**
@@ -187,16 +248,22 @@ class ActivityServiceTest {
      **/
     @Test
     void updateActivityWithMisorderedDateThrowsExceptionTest() {
-        activityRepository.save(createNormalActivitySilly());
-        Long activityId = activityRepository.getLastInsertedId();
-        Activity expectedActivity = createNormalActivitySilly(), actualActivity = null;
-        Optional<Activity> result = activityRepository.findById(activityId);
-        if (result.isPresent()) {
-            actualActivity = result.get();
-        } else {
-            fail("Error: original activity is missing");
-        }
-        assertEquals(expectedActivity, actualActivity);
+        Profile profile = profileRepository.save(ProfileTestUtils.createProfileNoPassportCountry());
+        Activity activity = activityRepository.save(ActivityTestUtils.createNormalActivity());
+        assertThrows(IllegalArgumentException.class, () ->
+                service.update(
+                        ActivityTestUtils.updateNormalActivity(
+                                "default",
+                                "default",
+                                null,
+                                false,
+                                "2020-03-20T08:00:00+1300",
+                                "2020-02-20T08:00:00+1300",
+                                "default",
+                                100.00,
+                                100.00),
+                        activity.getId(),
+                        profile.getId()));
     }
 
     /**
@@ -204,16 +271,22 @@ class ActivityServiceTest {
      **/
     @Test
     void updateActivityWithInvalidActivityTypesThrowsExceptionTest() {
-        activityRepository.save(createNormalActivitySilly());
-        Long activityId = activityRepository.getLastInsertedId();
-        Activity expectedActivity = createNormalActivitySilly(), actualActivity = null;
-        Optional<Activity> result = activityRepository.findById(activityId);
-        if (result.isPresent()) {
-            actualActivity = result.get();
-        } else {
-            fail("Error: original activity is missing");
-        }
-        assertEquals(expectedActivity, actualActivity);
+        Profile profile = profileRepository.save(ProfileTestUtils.createProfileNoPassportCountry());
+        Activity activity = activityRepository.save(ActivityTestUtils.createNormalActivity());
+        assertThrows(IllegalArgumentException.class, () ->
+                service.update(
+                        ActivityTestUtils.updateNormalActivity(
+                                "default",
+                                "default",
+                                new String[]{"Invalid Activity"},
+                                false,
+                                "default",
+                                "default",
+                                "default",
+                                100.00,
+                                100.00),
+                        activity.getId(),
+                        profile.getId()));
     }
 
     /**
@@ -221,16 +294,22 @@ class ActivityServiceTest {
      **/
     @Test
     void updateActivityWithNoActivityTypesTest() {
-        activityRepository.save(createNormalActivitySilly());
-        Long activityId = activityRepository.getLastInsertedId();
-        Activity expectedActivity = createNormalActivitySilly(), actualActivity = null;
-        Optional<Activity> result = activityRepository.findById(activityId);
-        if (result.isPresent()) {
-            actualActivity = result.get();
-        } else {
-            fail("Error: original activity is missing");
-        }
-        assertEquals(expectedActivity, actualActivity);
+        Profile profile = profileRepository.save(ProfileTestUtils.createProfileNoPassportCountry());
+        Activity activity = activityRepository.save(ActivityTestUtils.createNormalActivity());
+        assertThrows(IllegalArgumentException.class, () ->
+                service.update(
+                        ActivityTestUtils.updateNormalActivity(
+                                "default",
+                                "default",
+                                new String[]{null},
+                                false,
+                                "default",
+                                "default",
+                                "default",
+                                100.00,
+                                100.00),
+                        activity.getId(),
+                        profile.getId()));
     }
 
     /**
@@ -238,8 +317,10 @@ class ActivityServiceTest {
      **/
     @Test
     void deleteActivitySuccessTest() {
+        Profile profile = profileRepository.save(createNormalProfileBen());
         Activity activity = activityRepository.save(createNormalActivityKaikoura());
-        service.delete(activity.getId());
+        activityMembershipRepository.save(new ActivityMembership(activity, profile, ActivityMembership.Role.CREATOR));
+        service.delete(activity.getId(), profile.getId());
         assertEquals(0, activityRepository.count());
     }
 
@@ -264,16 +345,78 @@ class ActivityServiceTest {
      * Test to remove a profiles membership from an activity which they are not a part of
      */
     @Test
-    void removeActivityMemberShipFailTest() {
+    void removeMembershipWhereMembershipDoesNotExistThrowsExceptionTest() {
         Activity activity = activityRepository.save(createNormalActivityKaikoura());
         Profile bennyBoi = createNormalProfileBen();
         profileRepository.save(bennyBoi);
         Profile johnnyBoi = createNormalProfileJohnny();
         profileRepository.save(johnnyBoi);
-        ActivityMembership testMemberShip = new ActivityMembership(activity, bennyBoi, ActivityMembership.Role.PARTICIPANT);
+        ActivityMembership testMemberShip = new ActivityMembership(activity, bennyBoi, ActivityMembership.Role.ORGANISER);
         activityMembershipRepository.save(testMemberShip);
-        assertThrows(AccessControlException.class, () -> service.removeUserRoleFromActivity(bennyBoi.getId(), johnnyBoi.getId(), activity.getId()));
+        assertThrows(NoSuchElementException.class, () -> service.removeUserRoleFromActivity(bennyBoi.getId(), johnnyBoi.getId(), activity.getId()));
         assertEquals(1, activityMembershipRepository.count());
+    }
+
+    @Test
+    void removeMembershipWhenEditedIsOrganiserSucceedsTest() {
+        Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        Profile bennyBoi = createNormalProfileBen();
+        profileRepository.save(bennyBoi);
+        Profile johnnyBoi = createNormalProfileJohnny();
+        profileRepository.save(johnnyBoi);
+        ActivityMembership bennyMembership = new ActivityMembership(activity, bennyBoi, ActivityMembership.Role.ORGANISER);
+        activityMembershipRepository.save(bennyMembership);
+        ActivityMembership johnnyMemberShip = new ActivityMembership(activity, johnnyBoi, ActivityMembership.Role.ORGANISER);
+        activityMembershipRepository.save(johnnyMemberShip);
+
+        service.removeUserRoleFromActivity(bennyBoi.getId(), johnnyBoi.getId(), activity.getId());
+        assertEquals(1, activityMembershipRepository.count());
+    }
+
+    @Test
+    void removeMembershipWhenMemberIsCreatorThrowsExceptionTest() {
+        Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        Profile bennyBoi = createNormalProfileBen();
+        profileRepository.save(bennyBoi);
+        Profile johnnyBoi = createNormalProfileJohnny();
+        profileRepository.save(johnnyBoi);
+        ActivityMembership bennyMembership = new ActivityMembership(activity, bennyBoi, ActivityMembership.Role.ORGANISER);
+        activityMembershipRepository.save(bennyMembership);
+        ActivityMembership johnnyMemberShip = new ActivityMembership(activity, johnnyBoi, ActivityMembership.Role.CREATOR);
+        activityMembershipRepository.save(johnnyMemberShip);
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                service.removeUserRoleFromActivity(bennyBoi.getId(), johnnyBoi.getId(), activity.getId()));
+        assertEquals(exception.getMessage(), ActivityMessage.EDITING_CREATOR.toString());
+        assertEquals(2, activityMembershipRepository.count());
+    }
+
+    @Test
+    void removeMembershipWhenUnauthorisedThrowsExceptionTest() {
+        Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        Profile bennyBoi = createNormalProfileBen();
+        profileRepository.save(bennyBoi);
+        Profile johnnyBoi = createNormalProfileJohnny();
+        profileRepository.save(johnnyBoi);
+        ActivityMembership bennyMembership = new ActivityMembership(activity, bennyBoi, ActivityMembership.Role.PARTICIPANT);
+        activityMembershipRepository.save(bennyMembership);
+        ActivityMembership johnnyMemberShip = new ActivityMembership(activity, johnnyBoi, ActivityMembership.Role.CREATOR);
+        activityMembershipRepository.save(johnnyMemberShip);
+
+        AccessControlException exception = assertThrows(AccessControlException.class, () ->
+                service.removeUserRoleFromActivity(bennyBoi.getId(), johnnyBoi.getId(), activity.getId()));
+    }
+
+    @Test
+    void removeMembershipWhenRemovingSelfSucceedsTest() {
+        Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        Profile bennyBoi = createNormalProfileBen();
+        profileRepository.save(bennyBoi);
+        ActivityMembership bennyMembership = new ActivityMembership(activity, bennyBoi, ActivityMembership.Role.FOLLOWER);
+        activityMembershipRepository.save(bennyMembership);
+
+        service.removeUserRoleFromActivity(bennyBoi.getId(), bennyBoi.getId(), activity.getId());
+        assertEquals(0, activityMembershipRepository.count());
     }
 
     /**
@@ -281,7 +424,7 @@ class ActivityServiceTest {
      **/
     @Test
     void deleteActivityDoesNotExistTest() {
-        assertFalse(service.delete((long) 1));
+        assertFalse(service.delete((long) 1, (long) 2));
     }
 
     /**
@@ -311,7 +454,7 @@ class ActivityServiceTest {
         activity.setPrivacyLevel(0);
         service.addActivityRole(activity.getId(), profile.getId(), "ORGANISER");
         Activity activityResult = service.getActivityByActivityId(profile.getId(), activity.getId(), profile.getAuthLevel());
-        assertEquals(null, activityResult);
+        assertNull(activityResult);
     }
 
     /**
@@ -326,7 +469,7 @@ class ActivityServiceTest {
         activity.setPrivacyLevel(0);
         service.addActivityRole(activity.getId(), profile.getId(), "PARTICIPANT");
         Activity activityResult = service.getActivityByActivityId(profile.getId(), activity.getId(), profile.getAuthLevel());
-        assertEquals(null, activityResult);
+        assertNull(activityResult);
     }
 
     /**
@@ -341,7 +484,7 @@ class ActivityServiceTest {
         activity.setPrivacyLevel(0);
         service.addActivityRole(activity.getId(), profile.getId(), "FOLLOWER");
         Activity activityResult = service.getActivityByActivityId(profile.getId(), activity.getId(), profile.getAuthLevel());
-        assertEquals(null, activityResult);
+        assertNull(activityResult);
     }
 
     /**
@@ -355,7 +498,7 @@ class ActivityServiceTest {
         Activity activity = activityRepository.save(createNormalActivity());
         activity.setPrivacyLevel(0);
         Activity activityResult = service.getActivityByActivityId(profile.getId(), activity.getId(), profile.getAuthLevel());
-        assertEquals(null, activityResult);
+        assertNull(activityResult);
     }
 
     /**
@@ -437,7 +580,7 @@ class ActivityServiceTest {
         Activity activity = activityRepository.save(createNormalActivity());
         activity.setPrivacyLevel(1);
         Activity activityResult = service.getActivityByActivityId(profile.getId(), activity.getId(), profile.getAuthLevel());
-        assertEquals(null, activityResult);
+        assertNull(activityResult);
     }
 
     /**
@@ -497,7 +640,7 @@ class ActivityServiceTest {
     }
 
     /**
-     *  Tests activity cannot be fetched with an invalid activity id.
+     * Tests activity cannot be fetched with an invalid activity id.
      */
     @Test
     void getActivityByInvalidActivityIdTest() {
@@ -538,7 +681,8 @@ class ActivityServiceTest {
     @Test
     void editActivityPrivacyToPublicTest() {
         Activity activity = activityRepository.save(createNormalActivity());
-        service.editActivityPrivacy("public", activity.getId());
+        Profile profile = profileRepository.save(createNormalProfileBen());
+        service.editActivityPrivacy("public", activity.getId(), profile.getId());
         assertEquals(2, activity.getPrivacyLevel());
     }
 
@@ -548,7 +692,8 @@ class ActivityServiceTest {
     @Test
     void editActivityPrivacyToFriendsTest() {
         Activity activity = activityRepository.save(createNormalActivity());
-        service.editActivityPrivacy("restricted", activity.getId());
+        Profile profile = profileRepository.save(createNormalProfileBen());
+        service.editActivityPrivacy("restricted", activity.getId(), profile.getId());
         assertEquals(1, activity.getPrivacyLevel());
     }
 
@@ -558,7 +703,8 @@ class ActivityServiceTest {
     @Test
     void editActivityPrivacyToPrivateTest() {
         Activity activity = activityRepository.save(createNormalActivity());
-        service.editActivityPrivacy("private", activity.getId());
+        Profile profile = profileRepository.save(createNormalProfileBen());
+        service.editActivityPrivacy("private", activity.getId(), profile.getId());
         assertEquals(0, activity.getPrivacyLevel());
     }
 
@@ -637,14 +783,14 @@ class ActivityServiceTest {
         profileRepository.save(benny);
         Activity activity = createNormalActivity();
         activity.setPrivacyLevel(0);
-        controller.createActivity(benny.getId(), activity, null, true);;
+        controller.createActivity(benny.getId(), activity, null, true);
         List<Activity> list = service.getActivitiesByProfileIdByRole(benny.getId(), ActivityMembership.Role.CREATOR, startIndex, count, benny.getAuthLevel());
         assertEquals(1, list.size());
     }
 
     /**
      * Tests when attempting to get public activities that a user is a CREATOR of still works.
-     Public activities can be seen by all users with a role in the activity.
+     * Public activities can be seen by all users with a role in the activity.
      */
     @Test
     void getActivitiesByIdByRolePublicCreatorTest() {
@@ -665,7 +811,8 @@ class ActivityServiceTest {
     @Test
     void getPublicActivitiesSuccessTest() {
         Activity activity = activityRepository.save(createNormalActivity());
-        service.editActivityPrivacy("public", activity.getId());
+        Profile profile = profileRepository.save(createNormalProfileBen());
+        service.editActivityPrivacy("public", activity.getId(), profile.getId());
         assertEquals(1, service.getActivitiesWithPrivacyLevel(ActivityPrivacy.PUBLIC).size());
     }
 
@@ -675,7 +822,8 @@ class ActivityServiceTest {
     @Test
     void getPrivateActivitiesSuccessTest() {
         Activity activity = activityRepository.save(createNormalActivity());
-        service.editActivityPrivacy("private", activity.getId());
+        Profile profile = profileRepository.save(createNormalProfileBen());
+        service.editActivityPrivacy("private", activity.getId(), profile.getId());
         assertEquals(1, service.getActivitiesWithPrivacyLevel(ActivityPrivacy.PRIVATE).size());
     }
 
@@ -685,9 +833,11 @@ class ActivityServiceTest {
     @Test
     void getFriendsActivitiesSuccessTest() {
         Activity activity = activityRepository.save(createNormalActivity());
-        service.editActivityPrivacy("restricted", activity.getId());
+        Profile profile = profileRepository.save(createNormalProfileBen());
+        service.editActivityPrivacy("restricted", activity.getId(), profile.getId());
         assertEquals(1, service.getActivitiesWithPrivacyLevel(ActivityPrivacy.FRIENDS).size());
     }
+
 
     /**
      * Test getting all activities that are shared with friends only.
@@ -695,7 +845,8 @@ class ActivityServiceTest {
     @Test
     void getActivitiesDifferentPrivacyLevelTest() {
         Activity activity = activityRepository.save(createNormalActivity());
-        service.editActivityPrivacy("restricted", activity.getId());
+        Profile profile = profileRepository.save(createNormalProfileBen());
+        service.editActivityPrivacy("restricted", activity.getId(), profile.getId());
         assertTrue(service.getActivitiesWithPrivacyLevel(ActivityPrivacy.PUBLIC).isEmpty());
     }
 
@@ -705,40 +856,43 @@ class ActivityServiceTest {
     @Test
     void editInvalidPrivacyActivitiesTest() {
         Activity activity = activityRepository.save(createNormalActivity());
-        assertThrows(IllegalArgumentException.class, ()->service.editActivityPrivacy("everyone", activity.getId()));
+        Profile profile = profileRepository.save(createNormalProfileBen());
+        assertThrows(IllegalArgumentException.class, () -> service.editActivityPrivacy("everyone", activity.getId(), profile.getId()));
     }
+
     /**
      * Ensures an activity with no relationships throws an exception
      */
     @Test
-    void getActivityRoleCountWithZeroRolesTest(){
+    void getActivityRoleCountWithZeroRolesTest() {
         Activity activity = activityRepository.save(createNormalActivity());
-        assertThrows(IllegalArgumentException.class, ()->service.getRoleCounts(activity.getId()));
+        assertThrows(IllegalArgumentException.class, () -> service.getRoleCounts(activity.getId()));
     }
+
     /**
      * Ensures a non existent activity throws an exception
      */
     @Test
-    void getActivityRoleCountOfNonExistentActivityTest(){
-        assertThrows(IllegalArgumentException.class, ()->service.getRoleCounts(-1));
+    void getActivityRoleCountOfNonExistentActivityTest() {
+        assertThrows(IllegalArgumentException.class, () -> service.getRoleCounts(-1));
     }
 
     /**
      * Ensures an activity with a creator returns the correct number
      */
     @Test
-    void getActivityRoleCountWithCreatorTest(){
+    void getActivityRoleCountWithCreatorTest() {
         Activity activity = activityRepository.save(createNormalActivityKaikoura());
         Profile creator = profileRepository.save(createNormalProfileBen());
         activityMembershipRepository.save(new ActivityMembership(activity, creator, ActivityMembership.Role.CREATOR));
-        assertEquals(new ActivityRoleCountResponse(0, 0 ,0), service.getRoleCounts(activity.getId()));
+        assertEquals(new ActivityRoleCountResponse(0, 0, 0), service.getRoleCounts(activity.getId()));
     }
 
     /**
      * Ensures an activity with multiple roles returns the correct number
      */
     @Test
-    void getActivityRoleCountWithMultipleRolesTest(){
+    void getActivityRoleCountWithMultipleRolesTest() {
         Activity activity = activityRepository.save(createNormalActivityKaikoura());
         Profile creator = profileRepository.save(createNormalProfileBen());
         Profile follower = profileRepository.save(createNormalProfileBen());
@@ -762,16 +916,16 @@ class ActivityServiceTest {
         ActivityMembership followerMembership = new ActivityMembership(activity, followerJohnny, ActivityMembership.Role.FOLLOWER);
         activityMembershipRepository.save(creatorMembership);
         activityMembershipRepository.save(followerMembership);
-        assertThrows(IllegalArgumentException.class, ()-> service.setProfileRole(followerBen.getId(), followerJohnny.getId(), activity.getId(), ActivityMembership.Role.ORGANISER));
+        assertThrows(IllegalArgumentException.class, () -> service.setProfileRole(followerBen.getId(), followerJohnny.getId(), activity.getId(), ActivityMembership.Role.ORGANISER));
     }
 
     /**
      * Tests that an exception error is thrown when attempting to change a role of a non existent user.
      */
     @Test
-    void setProfileRoleForNonexistentMembershipThrowsIllegalArgumentExceptionTest() {
+    void setProfileRoleForNonexistentProfileThrowsNoSuchElementExceptionTest() {
         Profile editor = profileRepository.save(createNormalProfileBen());
-        assertThrows(IllegalArgumentException.class, ()-> service.setProfileRole(0, editor.getId(), 3, ActivityMembership.Role.FOLLOWER));
+        assertThrows(IllegalArgumentException.class, () -> service.setProfileRole(0, editor.getId(), 3, ActivityMembership.Role.FOLLOWER));
     }
 
     /**
@@ -796,11 +950,70 @@ class ActivityServiceTest {
         }
     }
 
+    @Test
+    void setProfileRoleWhenProfileIsNotAnActivityMemberThrowsNoSuchElementExceptionTest() {
+        Profile creator = profileRepository.save(createNormalProfileBen());
+        Profile follower = profileRepository.save(createNormalProfileJohnny());
+        Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        ActivityMembership creatorMembership = new ActivityMembership(activity, creator, ActivityMembership.Role.CREATOR);
+        activityMembershipRepository.save(creatorMembership);
+
+        assertThrows(NoSuchElementException.class, () ->
+                service.setProfileRole(follower.getId(), creator.getId(), activity.getId(), ActivityMembership.Role.PARTICIPANT));
+    }
+
+    @Test
+    void setProfileRoleWhenChangingOwnActivityMembershipCreatesCorrectNotificationTest() {
+        Profile follower = profileRepository.save(createNormalProfileJohnny());
+        Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        ActivityMembership followerMembership = new ActivityMembership(activity, follower, ActivityMembership.Role.FOLLOWER);
+        activityMembershipRepository.save(followerMembership);
+
+        String followerName = follower.getFirstAndLastName();
+        String roleName = StringUtils.capitalize(ActivityMembership.Role.PARTICIPANT.toString().toLowerCase());
+        String message = String.format("%s changed their role in %s to %s.", followerName, activity.getActivityName(), roleName);
+        NotificationType type = NotificationService.getTypeForAddingRole(ActivityMembership.Role.PARTICIPANT);
+
+        service.setProfileRole(follower.getId(), follower.getId(), activity.getId(), ActivityMembership.Role.PARTICIPANT);
+        Notification expectedNotification = new Notification(message, activity, follower, type);
+        Optional<Notification> result = notificationRepository.findById(notificationRepository.getLastInsertedId());
+        if (result.isEmpty()) {
+            fail("Test notification could not be found");
+        } else {
+            assertTrue(expectedNotification.equalsExceptTimestamp(result.get()));
+        }
+    }
+
+    @Test
+    void setProfileRoleWhenChangingAnotherMembersActivityMembershipCreatesCorrectNotificationTest() {
+        Profile creator = profileRepository.save(createNormalProfileBen());
+        Profile follower = profileRepository.save(createNormalProfileJohnny());
+        Activity activity = activityRepository.save(createNormalActivityKaikoura());
+        ActivityMembership creatorMembership = new ActivityMembership(activity, creator, ActivityMembership.Role.CREATOR);
+        ActivityMembership followerMembership = new ActivityMembership(activity, follower, ActivityMembership.Role.FOLLOWER);
+        activityMembershipRepository.save(creatorMembership);
+        activityMembershipRepository.save(followerMembership);
+
+        String followerName = follower.getFirstAndLastName();
+        String roleName = StringUtils.capitalize(ActivityMembership.Role.PARTICIPANT.toString().toLowerCase());
+        String message = String.format("%s had their role in %s changed to %s.", followerName, activity.getActivityName(), roleName);
+        NotificationType type = NotificationService.getTypeForAddingRole(ActivityMembership.Role.PARTICIPANT);
+
+        service.setProfileRole(follower.getId(), creator.getId(), activity.getId(), ActivityMembership.Role.PARTICIPANT);
+        Notification expectedNotification = new Notification(message, activity, creator, type);
+        Optional<Notification> result = notificationRepository.findById(notificationRepository.getLastInsertedId());
+        if (result.isEmpty()) {
+            fail("Test notification could not be found");
+        } else {
+            assertTrue(expectedNotification.equalsExceptTimestamp(result.get()));
+        }
+    }
+
     /**
      * Tests that setting a role to an ORGANISER as an ADMIN works.
      */
     @Test
-    void setProfileRoleToOrganiserAsAdmin() {
+    void setProfileRoleToOrganiserAsAdminSucceedsTest() {
         Profile admin = profileRepository.save(createNormalProfileBen());
         admin.setAuthLevel(1);
         Profile follower = profileRepository.save(createNormalProfileJohnny());
@@ -816,7 +1029,7 @@ class ActivityServiceTest {
      * Tests that setting a role to an ORGANISER as a CREATOR works.
      */
     @Test
-    void setProfileRoleToOrganiserAsCreator() {
+    void setProfileRoleToOrganiserAsCreatorSucceedsTest() {
         Profile creator = profileRepository.save(createNormalProfileBen());
         Profile follower = profileRepository.save(createNormalProfileJohnny());
         Activity activity = activityRepository.save(createNormalActivityKaikoura());
@@ -830,7 +1043,7 @@ class ActivityServiceTest {
     }
 
     /**
-     *  Tests that setting a profile role to CREATOR as an invalid profile doesn't work.
+     * Tests that setting a profile role to CREATOR as an invalid profile doesn't work.
      */
     @Test
     void setProfileRoleToCreatorThrowsIllegalArgumentExceptionTest() {
@@ -842,7 +1055,7 @@ class ActivityServiceTest {
         activityMembershipRepository.save(creatorMembership);
         activityMembershipRepository.save(followerMembership);
 
-        assertThrows(IllegalArgumentException.class, ()-> service.setProfileRole(follower.getId(), 1, activity.getId(), ActivityMembership.Role.CREATOR));
+        assertThrows(IllegalArgumentException.class, () -> service.setProfileRole(follower.getId(), 1, activity.getId(), ActivityMembership.Role.CREATOR));
     }
 
     /**
@@ -855,9 +1068,8 @@ class ActivityServiceTest {
         ActivityMembership creatorMembership = new ActivityMembership(activity, creator, ActivityMembership.Role.CREATOR);
         activityMembershipRepository.save(creatorMembership);
 
-        assertThrows(IllegalArgumentException.class, ()-> service.setProfileRole(creator.getId(), creator.getId(), activity.getId(), ActivityMembership.Role.FOLLOWER));
+        assertThrows(IllegalArgumentException.class, () -> service.setProfileRole(creator.getId(), creator.getId(), activity.getId(), ActivityMembership.Role.FOLLOWER));
     }
-
 
 
     @Test
@@ -901,7 +1113,7 @@ class ActivityServiceTest {
         emailRepository.save(new Email("ben11@hotmail.com", true, followerOne));
         emailRepository.save(new Email("ben12@hotmail.com", true, followerTwo));
         emailRepository.save(new Email("ben13@hotmail.com", true, organiser));
-        emailRepository.save(new Email("ben14@hotmail.com", true, participant));;
+        emailRepository.save(new Email("ben14@hotmail.com", true, participant));
         ActivityMembership creatorMembership = new ActivityMembership(activity, creator, ActivityMembership.Role.CREATOR);
         ActivityMembership followerOneMembership = new ActivityMembership(activity, followerOne, ActivityMembership.Role.FOLLOWER);
         ActivityMembership followerTwoMembership = new ActivityMembership(activity, followerTwo, ActivityMembership.Role.FOLLOWER);
@@ -910,7 +1122,7 @@ class ActivityServiceTest {
         List<ActivityMembership> memberships = Arrays.asList(creatorMembership, followerOneMembership, followerTwoMembership, organiserMembership, participantMembership);
         activityMembershipRepository.saveAll(memberships);
         List<ActivityMemberProfileResponse> response = new ArrayList<>();
-        for(ActivityMembership membership: memberships){
+        for (ActivityMembership membership : memberships) {
             response.add(new ActivityMemberProfileResponse(membership.getProfile().getId(), membership.getProfile().getFirstname(), membership.getProfile().getLastname(), membership.getProfile().getPrimary_email(), membership.getRole()));
         }
         assertEquals(response, service.getActivityMembers(activity.getId()));
@@ -943,13 +1155,9 @@ class ActivityServiceTest {
         expectedProfiles.add(followerTwo);
         Page<Profile> actualProfiles = service.getActivityMembersByRole(activity.getId(), ActivityMembership.Role.FOLLOWER, pageable);
         assertTrue(expectedProfiles.containsAll(actualProfiles.getContent()));
-        assertEquals(expectedProfiles.size(),actualProfiles.getSize());
+        assertEquals(expectedProfiles.size(), actualProfiles.getSize());
     }
 
-    @Test
-    void deleteMembersFromActivityAsAdminTest(){
-
-    }
 
     @Test
     void getActivityMembersByRoleWithPaginationNormalTest() {
@@ -993,12 +1201,12 @@ class ActivityServiceTest {
     }
 
     @Test
-    void clearRolesOfActivityThatDoesntExistThrowsExceptionTest(){
-        assertThrows(IllegalArgumentException.class, ()-> service.clearActivityRoleList(915730971l, "FOLLOWER"));
+    void clearRolesOfActivityThatDoesntExistThrowsExceptionTest() {
+        assertThrows(IllegalArgumentException.class, () -> service.clearActivityRoleList(1l, 915730971L, "FOLLOWER"));
     }
 
     /**
-     *  Tests you can get an participation object that exists in the database using the readParticipation method.
+     * Tests you can get an participation object that exists in the database using the readParticipation method.
      */
     @Test
     void successfullyReadParticipationWhereParticipationExistsTest() {
@@ -1007,26 +1215,102 @@ class ActivityServiceTest {
         assertEquals(participation, service.readParticipation(participation.getId()));
     }
 
+    @Test
+    void getActivityTypesWithInvalidTypeThrowsExceptionTest() {
+        assertThrows(IllegalArgumentException.class, () -> service.getActivityTypesFromStringArray(new String[]{"beans"}));
+    }
+
+    @Test
+    void getActivityTypesWithEmptyArrayReturnsEmptyListTest() {
+        String[] emptyArray = {};
+        assertTrue(service.getActivityTypesFromStringArray(emptyArray).size() == 0);
+    }
+
+    @Test
+    void getActivityTypesWithSingleTypeTest() {
+        List<ActivityType> types = service.getActivityTypesFromStringArray(new String[]{"Tramping"});
+        assertTrue(types.size() == 1);
+        assertEquals("Tramping", types.get(0).getActivityTypeName());
+
+    }
+
+    @Test
+    void getActivityTypesWithMultipleTypesTest() {
+        List<ActivityType> types = service.getActivityTypesFromStringArray(new String[]{"Tramping", "Yoga"});
+        assertTrue(types.size() == 2);
+        assertEquals("Tramping", types.get(0).getActivityTypeName());
+        assertEquals("Yoga", types.get(1).getActivityTypeName());
+    }
+
+
+    @Test
+    void filterByActivityTypesWithEmptyTypeListTest() {
+        Activity activityOne = activityRepository.save(createNormalActivity());
+        Activity activityTwo = activityRepository.save(createNormalActivity());
+        assertEquals(service.filterActivitiesByActivityTypes(List.of(activityOne, activityTwo), new ArrayList<ActivityType>(), "all"), List.of(activityOne, activityTwo));
+    }
+
+    @Test
+    void filterByAllActivityTypesTest() {
+        Activity activityOne = activityRepository.save(createNormalActivity());
+        Activity activityTwo = activityRepository.save(createNormalActivity());
+        Activity activityThree = activityRepository.save(createNormalActivity());
+        ActivityType xbox = new ActivityType("xbox");
+        ActivityType playstation = new ActivityType("playstation");
+        typeRepository.save(xbox);
+        typeRepository.save(playstation);
+        activityOne.addActivityType(xbox);
+        activityOne.addActivityType(playstation);
+        activityTwo.addActivityType(xbox);
+        activityRepository.save(activityOne);
+        activityRepository.save(activityTwo);
+        ArrayList<ActivityType> requiredActivityTypes = new ArrayList<>();
+        requiredActivityTypes.add(xbox);
+        requiredActivityTypes.add(playstation);
+        assertEquals(service.filterActivitiesByActivityTypes(List.of(activityOne, activityTwo, activityThree), requiredActivityTypes, "all"), List.of(activityOne));
+    }
+
+    @Test
+    void filterByAnyActivityTypeTest() {
+        Activity activityOne = activityRepository.save(createNormalActivity());
+        Activity activityTwo = activityRepository.save(createNormalActivity());
+        Activity activityThree = activityRepository.save(createNormalActivity());
+        ActivityType xbox = new ActivityType("xbox");
+        ActivityType playstation = new ActivityType("playstation");
+        typeRepository.save(xbox);
+        typeRepository.save(playstation);
+        activityOne.addActivityType(xbox);
+        activityOne.addActivityType(playstation);
+        activityTwo.addActivityType(xbox);
+        activityRepository.save(activityOne);
+        activityRepository.save(activityTwo);
+        ArrayList<ActivityType> requiredActivityTypes = new ArrayList<>();
+        requiredActivityTypes.add(xbox);
+        requiredActivityTypes.add(playstation);
+        assertEquals(service.filterActivitiesByActivityTypes(List.of(activityOne, activityTwo, activityThree), requiredActivityTypes, "any"), List.of(activityOne, activityTwo));
+    }
+
     /**
-     *  Tests the readParticipation method that it throws an error when a participation with the given id does not exist
-     *  in the database.
+     * Tests the readParticipation method that it throws an error when a participation with the given id does not exist
+     * in the database.
      */
     @Test
     void readParticipationWhereParticipationDoesNotExistThrowsError1Test() {
-        assertThrows(IllegalArgumentException.class, ()->service.readParticipation((long)1));
+        assertThrows(IllegalArgumentException.class, () -> service.readParticipation((long) 1));
     }
+
     @Test
     void readParticipationWhereParticipationDoesNotExistThrowsError2Test() {
         ActivityParticipation participation = createNormalParticipationWithoutProfileActivity();
         activityParticipationRepository.save(participation);
-        assertThrows(IllegalArgumentException.class, ()->service.readParticipation(participation.getId()+1));
+        assertThrows(IllegalArgumentException.class, () -> service.readParticipation(participation.getId() + 1));
     }
 
     /**
      * Example participations to use in tests
      */
 
-    static ActivityParticipation createNormalParticipationWithoutProfileActivity() {
+    public static ActivityParticipation createNormalParticipationWithoutProfileActivity() {
         return new ActivityParticipation("The final score was 2 - 1.", "University Wins", "2020-02-20T08:00:00+1300",
                 "2020-02-20T10:15:00+1300");
     }
@@ -1035,18 +1319,19 @@ class ActivityServiceTest {
      * Example activities to use in tests
      **/
 
-    static Activity createNormalActivity() {
+    public static Activity createNormalActivity() {
         return new Activity("Kaikoura Coast Track race", "A big and nice race on a lovely peninsula",
-                new String[]{"Tramping", "Hiking"}, false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ");
+                new String[]{"Tramping", "Hiking"}, false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ", 100.00, 100.00);
     }
 
-    private Activity createNormalActivityKaikoura() {
-        Activity activity =  new Activity("Kaikoura Coast Track race", "A big and nice race on a lovely peninsula",
+    public Activity createNormalActivityKaikoura() {
+        Activity activity = new Activity("Kaikoura Coast Track race", "A big and nice race on a lovely peninsula",
                 new String[]{"Hiking"}, false, "2020-02-20T08:00:00+1300",
-                "2020-02-20T08:00:00+1300", "Kaikoura, NZ");
+                "2020-02-20T08:00:00+1300", "Kaikoura, NZ", 100.00, 100.00);
         Set<ActivityType> updatedActivityType = new HashSet<>();
-        for(ActivityType activityType : activity.retrieveActivityTypes()){
-            List<ActivityType> resultActivityTypes = typeRepository.findByActivityTypeName(activityType.getActivityTypeName());{
+        for (ActivityType activityType : activity.retrieveActivityTypes()) {
+            List<ActivityType> resultActivityTypes = typeRepository.findByActivityTypeName(activityType.getActivityTypeName());
+            {
                 updatedActivityType.add(resultActivityTypes.get(0));
             }
         }
@@ -1056,66 +1341,24 @@ class ActivityServiceTest {
 
     private Activity createNormalActivitySilly() {
         return new Activity("Wibble", "A bald man", new String[]{"Hockey"}, true,
-                "2020-02-20T08:00:00+1300","2020-02-20T08:00:00+1300", "K2");
+                "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "K2", 100.00, 100.00);
     }
 
-    private Activity createBadActivityNoName() {
-        Activity activity = createNormalActivityKaikoura();
-        activity.setActivityName(null);
-        return activity;
-    }
-
-    private Activity createBadActivityBlankName() {
-        Activity activity = createNormalActivityKaikoura();
-        activity.setActivityName("");
-        return activity;
-    }
-
-    private Activity createBadActivityDurationAndNoStartDate() {
-        Activity activity = createNormalActivityKaikoura();
-        activity.setStartTime(null);
-        return activity;
-    }
-
-    private Activity createBadActivityDurationAndNoEndDate() {
-        Activity activity = createNormalActivityKaikoura();
-        activity.setEndTime(null);
-        return activity;
-    }
-
-    private Activity createBadActivityMisorderedDates() {
-        Activity activity = createNormalActivityKaikoura();
-        activity.setEndTime(FormatHelper.parseOffsetDateTime("2020-01-20T08:00:00+1300"));
-        return activity;
-    }
-
-    private Activity createBadActivityNoActivityTypes() {
-        return new Activity("", "A big and nice race on a lovely peninsula",null, false,
-                "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ");
-    }
-
-    private Activity createBadActivityEmptyActivityTypes() {
-        return new Activity("", "A big and nice race on a lovely peninsula", new String[]{},
-                false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ");
-    }
-
-    private Activity createBadActivityInvalidActivityTypes() {
-        return new Activity("", "A big and nice race on a lovely peninsula", new String[]{"nugts"},
-                false, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "Kaikoura, NZ");
-    }
 
     /**
      * Saves original activity to repo, then applies update and returns the updated activity.
+     *
      * @param original the original activity to save to the repo
-     * @param update the update to be applied to the original activity
+     * @param update   the update to be applied to the original activity
      * @return The updated activity from repository
      */
     private Activity updateAndGetResult(Activity original, Activity update) {
         activityRepository.save(original);
         Long activityId = activityRepository.getLastInsertedId();
         Activity actualActivity = null;
+        Profile profile = profileRepository.save(createNormalProfileBen());
 
-        service.update(update, activityId);
+        service.update(update, activityId, profile.getId());
         Optional<Activity> result = activityRepository.findById(activityId);
         if (result.isPresent()) {
             actualActivity = result.get();
@@ -1125,22 +1368,21 @@ class ActivityServiceTest {
         return actualActivity;
     }
 
-
-    static Profile createNormalProfileBen() {
+    public static Profile createNormalProfileBen() {
 
         return new Profile(null, "Ben", "Sales", "James", "Ben10", "ben10@hotmail.com", new String[]{"additional@email.com"}, "hushhush",
                 "Wooooooow", new GregorianCalendar(1999, Calendar.NOVEMBER,
                 28), "male", 1, new String[]{}, new String[]{});
     }
 
-    static Profile createNormalProfileBen(String email) {
+    public static Profile createNormalProfileBen(String email) {
 
         return new Profile(null, "Ben", "Sales", "James", "Ben10", email, new String[]{"additional@email.com"}, "hushhush",
                 "Wooooooow", new GregorianCalendar(1999, Calendar.NOVEMBER,
                 28), "male", 1, new String[]{}, new String[]{});
     }
 
-    static Profile createNormalProfileJohnny() {
+    public static Profile createNormalProfileJohnny() {
         return new Profile(null, "Johnny", "Quick", "Jones", "Jim-Jam", "jimjam@hotmail.com", new String[]{"additional@email.com"}, "hushhush",
                 "The quick brown fox jumped over the lazy dog.", new GregorianCalendar(1999, Calendar.NOVEMBER,
                 28), "male", 1, new String[]{}, new String[]{});
@@ -1149,7 +1391,7 @@ class ActivityServiceTest {
     /**
      * @return a valid profile object.
      */
-    static Profile createNormalProfileMim() {
+    public static Profile createNormalProfileMim() {
         return new Profile(null, "Mim", "Benson", "Jack", "Jacky", "jacky@google.com", new String[]{"additionaldoda@email.com"}, "jacky'sSecuredPwd",
                 "Jacky loves to ride his bike on crazy mountains.", new GregorianCalendar(1985, Calendar.DECEMBER,
                 20), "male", 1, new String[]{}, new String[]{});

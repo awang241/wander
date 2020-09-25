@@ -1,12 +1,11 @@
 package com.springvuegradle.model;
 
-import javax.persistence.*;
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.springvuegradle.utilities.FormatHelper;
 
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
 import java.util.Objects;
@@ -24,7 +23,7 @@ public class ActivityParticipation {
     /**
      * Each activity participation object is associated with one and only one profile object.
      */
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "profile_id")
     @JsonBackReference(value = "profile")
     private Profile profile;
@@ -32,15 +31,15 @@ public class ActivityParticipation {
     /**
      * Each activity participation object is associated with one and only one activity object.
      */
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "activity_id")
     @JsonBackReference(value = "activity")
     private Activity activity;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     private ActivityMembership activityMembership;
 
-    private String details;
+    private String details = "No details added";
 
     @NotNull
     private String outcome;

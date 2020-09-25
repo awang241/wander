@@ -1,6 +1,7 @@
 package gradle.cucumber.steps;
 
 import com.springvuegradle.Application;
+import com.springvuegradle.controller.ActivityController;
 import com.springvuegradle.controller.LoginController;
 import com.springvuegradle.controller.Profile_Controller;
 import com.springvuegradle.dto.requests.LoginRequest;
@@ -8,9 +9,9 @@ import com.springvuegradle.dto.responses.LoginResponse;
 import com.springvuegradle.dto.responses.ProfileSearchResponse;
 import com.springvuegradle.dto.responses.ProfileSummary;
 import com.springvuegradle.enums.EmailResponseMessage;
-import com.springvuegradle.model.PassportCountry;
-import com.springvuegradle.model.Profile;
+import com.springvuegradle.model.*;
 import com.springvuegradle.repositories.*;
+import com.springvuegradle.service.NotificationService;
 import com.springvuegradle.service.SecurityService;
 import com.springvuegradle.service.ProfileService;
 import com.springvuegradle.utilities.*;
@@ -44,12 +45,15 @@ public class ProfileTestSteps{
     }
 
     private Profile_Controller profileController;
+    private ActivityController activityController;
     private LoginController loginController;
     private ResponseEntity<String> createProfileResponse;
     private ResponseEntity<LoginResponse> loginResponse;
     private ResponseEntity<ProfileSearchResponse> searchResponse;
     private Map<ResponseType, ResponseEntity<?>> responses;
     private String dbPassword;
+    private Long profileId = null;
+    private Long activityId = null;
 
     @Autowired
     private ProfileService profileService;
@@ -72,21 +76,27 @@ public class ProfileTestSteps{
     private ProfileLocationRepository profileLocationRepository;
     @Autowired
     private SecurityService securityService;
+    @Autowired
+    private NotificationRepository notificationRepo;
+    @Autowired
+    private NotificationService notificationService;
+    @Autowired
+    private ActivityTypeRepository typeRepository;
 
     @Before
     public void setUp() {
         loginController = new LoginController(jwtUtil, eRepo);
         profileController = new Profile_Controller(profileService, repo, pcRepo, eRepo, aRepo, activityRepo, profileLocationRepository,
-                jwtUtil, securityService);
+                notificationService, jwtUtil, securityService);
         createProfileResponse = null;
         loginResponse = null;
         responses = new HashMap<>();
         searchResponse = null;
         dbPassword = null;
         eRepo.deleteAll();
+        notificationRepo.deleteAll();
         membershipRepo.deleteAll();
         activityRepo.deleteAll();
-
         aRepo.deleteAll();
         repo.deleteAll();
         Profile steve = createProfileSteve("steve@google.com", "12345678");
@@ -414,6 +424,11 @@ public class ProfileTestSteps{
     public void iReceiveAResponseWithTheDetailsOfTheProfileWithTheEmail(String typeName, String email) {
         ResponseType type = ResponseType.valueOf(typeName);
         assertEquals(repo.findByEmail(email).iterator().next(), responses.get(type).getBody());
+    }
+
+    static Activity createNormalActivity(String title) {
+        return new Activity(title, "description doesn't matter atm",
+                new String[]{"Running"}, true, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "UC, CHCH, NZ", 100.0, 100.0);
     }
 
 }

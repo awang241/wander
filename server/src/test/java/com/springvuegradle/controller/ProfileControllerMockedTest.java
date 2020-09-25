@@ -1,11 +1,13 @@
 package com.springvuegradle.controller;
 
 import com.springvuegradle.dto.requests.EditAuthLevelRequest;
+import com.springvuegradle.dto.responses.NotificationsResponse;
 import com.springvuegradle.enums.ProfileErrorMessage;
 import com.springvuegradle.model.Profile;
 import com.springvuegradle.model.ProfileSearchCriteria;
-import com.springvuegradle.model.ProfileTestUtils;
+import com.springvuegradle.utilities.ProfileTestUtils;
 import com.springvuegradle.repositories.*;
+import com.springvuegradle.service.NotificationService;
 import com.springvuegradle.utilities.JwtUtil;
 import com.springvuegradle.config.MockServiceConfig;
 import com.springvuegradle.dto.responses.ProfileSearchResponse;
@@ -47,6 +49,10 @@ class ProfileControllerMockedTest {
     JwtUtil mockJwt;
     @Autowired
     Profile_Controller profileController;
+    @Autowired
+    ProfileRepository mockProfileRepo;
+    @Autowired
+    NotificationService notificationService;
 
     Profile jimmy, jimmyAlternate, maurice;
 
@@ -188,5 +194,50 @@ class ProfileControllerMockedTest {
         Mockito.when(mockService.checkEmailExistsInDB(mockEmail)).thenReturn(false);
         boolean actualResponse = profileController.verifyEmailExists(mockEmail);
         assertEquals(false, actualResponse);
+    }
+
+    @Test
+    void getNotificationsWithPaginationSuccessTest() {
+        long mockId = 10;
+        int mockCount = 10;
+        int mockStartIndex = 0;
+        String mockToken = "babababa";
+        Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
+        Mockito.when(notificationService.getSortedNotifications(mockId, mockCount, mockStartIndex)).thenReturn(null);
+        ResponseEntity<NotificationsResponse> actualResponse = profileController.getNotifications(mockToken, mockId, mockCount, mockStartIndex);
+        assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
+    }
+
+    @Test
+    void getNotificationsInvalidCountTest() {
+        long mockId = 10;
+        int mockCount = 0;
+        int mockStartIndex = 0;
+        String mockToken = "babababa";
+        Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
+        ResponseEntity<NotificationsResponse> actualResponse = profileController.getNotifications(mockToken, mockId, mockCount, mockStartIndex);
+        assertEquals(HttpStatus.BAD_REQUEST, actualResponse.getStatusCode());
+    }
+
+    @Test
+    void getNotificationsInvalidTokenTest() {
+        long mockId = 10;
+        int mockCount = 10;
+        int mockStartIndex = 0;
+        String mockToken = "invalud";
+        Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(false);
+        ResponseEntity<NotificationsResponse> actualResponse = profileController.getNotifications(mockToken, mockId, mockCount, mockStartIndex);
+        assertEquals(HttpStatus.FORBIDDEN, actualResponse.getStatusCode());
+    }
+
+    @Test
+    void getNotificationsBlankTokenTest() {
+        long mockId = 10;
+        int mockCount = 10;
+        int mockStartIndex = 0;
+        String mockToken = "";
+        Mockito.when(mockJwt.validateToken(mockToken)).thenReturn(true);
+        ResponseEntity<NotificationsResponse> actualResponse = profileController.getNotifications(mockToken, mockId, mockCount, mockStartIndex);
+        assertEquals(HttpStatus.UNAUTHORIZED, actualResponse.getStatusCode());
     }
 }

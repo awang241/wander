@@ -24,6 +24,8 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.junit.jupiter.api.AfterEach;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -68,7 +70,16 @@ public class ActivityTestSteps {
     @Autowired
     ActivityService activityService;
 
+    @Autowired
+    NotificationRepository notificationRepository;
+
     private Profile profile;
+
+    private String location;
+
+    private Double latitude;
+
+    private Double longitude;
 
     private LoginResponse loginResponse;
 
@@ -79,6 +90,7 @@ public class ActivityTestSteps {
     private ResponseEntity<String> responseEntity;
 
     private Activity activity;
+
 
     private SimplifiedActivitiesResponse simplifiedActivitiesResponse;
 
@@ -103,7 +115,7 @@ public class ActivityTestSteps {
     @And("I create a continuous activity with the title {string} and the location {string}")
     public void i_create_a_continuous_activity_with_the_title_with_the_activity_type_and_the_location(String title, String location) {
         typeRepository.save(new ActivityType("Running"));
-        assertEquals(201, activityController.createActivity(jwtUtil.extractId(loginResponse.getToken()), activity = createNormalActivity(title, location), loginResponse.getToken()).getStatusCodeValue());
+        assertEquals(201, activityController.createActivity(jwtUtil.extractId(loginResponse.getToken()), activity = createNormalActivity(title), loginResponse.getToken()).getStatusCodeValue());
     }
 
     @And("An activity with the title {string} exists")
@@ -114,7 +126,10 @@ public class ActivityTestSteps {
     @When("I choose to delete the activity")
     public void i_choose_to_delete_the_activity() {
         Long activityId = activityRepository.getLastInsertedId();
-        responseEntity = activityController.deleteActivity(loginResponse.getToken(), jwtUtil.extractId(loginResponse.getToken()), activityId);
+        PageRequest pageable = PageRequest.of(0, 1);
+        Page<ActivityMembership> page = membershipRepository.findByActivityAndRole(activityId, ActivityMembership.Role.CREATOR, pageable);
+        Profile creator = page.getContent().get(0).getProfile();
+        responseEntity = activityController.deleteActivity(loginResponse.getToken(), creator.getId(), activityId);
     }
 
     @Then("The activity no longer exists")
@@ -139,7 +154,11 @@ public class ActivityTestSteps {
     @When("I choose to edit the activity by changing the title to {string}")
     public void i_choose_to_edit_the_activity_by_changing_the_title_to(String title) {
         activity.setActivityName(title);
-        responseEntity = activityController.updateActivity(activity, loginResponse.getToken(), jwtUtil.extractId(loginResponse.getToken()), activityRepository.getLastInsertedId());
+        Long activityId = activityRepository.getLastInsertedId();
+        PageRequest pageable = PageRequest.of(0, 1);
+        Page<ActivityMembership> page = membershipRepository.findByActivityAndRole(activityId, ActivityMembership.Role.CREATOR, pageable);
+        Profile creator = page.getContent().get(0).getProfile();
+        responseEntity = activityController.updateActivity(activity, loginResponse.getToken(), creator.getId(), activityId);
 
     }
 
@@ -213,10 +232,16 @@ public class ActivityTestSteps {
                 28), "male", 1, new String[]{}, new String[]{});
     }
 
-    static Activity createNormalActivity(String title, String location) {
+    static Activity createNormalActivity(String title) {
         return new Activity(title, "description doesn't matter atm",
-                new String[]{"Running"}, true, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", location);
+                new String[]{"Running"}, true, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "UC, CHCH, NZ", 100.0, 100.0);
     }
+
+    static Activity createNormalActivity(String title, String location, Double latitude, Double longitude) {
+        return new Activity(title, "description doesn't matter atm",
+                new String[]{"Running"}, true, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", location, latitude, longitude);
+    }
+
 
     @And("I am a {string} of this activity")
     public void iAmAOfThisActivity(String roleString) {
@@ -244,7 +269,7 @@ public class ActivityTestSteps {
     public void i_create_the_following_activities_making_them_public(io.cucumber.datatable.DataTable activityNames) {
         typeRepository.save(new ActivityType("Running"));
         for (String activityName: activityNames.asList()) {
-            assertEquals(201, activityController.createActivity(jwtUtil.extractId(loginResponse.getToken()), activity = createNormalActivity(activityName, "Christchurch"), loginResponse.getToken()).getStatusCodeValue());
+            assertEquals(201, activityController.createActivity(jwtUtil.extractId(loginResponse.getToken()), activity = createNormalActivity(activityName), loginResponse.getToken()).getStatusCodeValue());
             assertEquals(200, activityController.editActivityPrivacy(new PrivacyRequest("public"), loginResponse.getToken(), loginResponse.getUserId(), activityRepository.getLastInsertedId()).getStatusCodeValue());
         }
     }
@@ -253,7 +278,7 @@ public class ActivityTestSteps {
     public void i_create_the_following_activities_making_them_public_and_the_account_with_email_an_organiser_of_each(String email, io.cucumber.datatable.DataTable activityNames) {
         Long profileId = profileRepository.findByEmail(email).get(0).getId();
         for (String activityName: activityNames.asList()) {
-            assertEquals(201, activityController.createActivity(jwtUtil.extractId(loginResponse.getToken()), activity = createNormalActivity(activityName, "Christchurch"), loginResponse.getToken()).getStatusCodeValue());
+            assertEquals(201, activityController.createActivity(jwtUtil.extractId(loginResponse.getToken()), activity = createNormalActivity(activityName), loginResponse.getToken()).getStatusCodeValue());
             assertEquals(200, activityController.editActivityPrivacy(new PrivacyRequest("public"), loginResponse.getToken(), loginResponse.getUserId(), activityRepository.getLastInsertedId()).getStatusCodeValue());
             assertEquals(201, activityController.addActivityRole(loginResponse.getToken(), profileId, activityRepository.getLastInsertedId(), new ActivityRoleUpdateRequest("organiser")).getStatusCodeValue());
         }
@@ -320,9 +345,11 @@ public class ActivityTestSteps {
     public void anActivityExistsInTheDatabaseWithParticipantsFollowersAndOrganisers(int numParticipants, int numFollowers, int numOrganisers) {
         List<ActivityMembership.Role> roles = Arrays.asList(ActivityMembership.Role.PARTICIPANT, ActivityMembership.Role.FOLLOWER, ActivityMembership.Role.ORGANISER);
         int[] numRoles = {numParticipants, numFollowers, numOrganisers};
-        activity = createNormalActivity("Cool activity", "Christchurch");
+        activity = createNormalActivity("Cool activity");
         activityRepository.save(activity);
+        membershipRepository.save(new ActivityMembership(activity, profile, ActivityMembership.Role.CREATOR));
         List<ActivityMemberProfileResponse> activityMemberProfileResponseList = new ArrayList<>();
+        activityMemberProfileResponseList.add(new ActivityMemberProfileResponse(profile.getId(), profile.getFirstname(), profile.getLastname(), profile.getPrimary_email(), ActivityMembership.Role.CREATOR));
         for(int i = 0; i < roles.size(); i++){
             for(int j = 0; j < numRoles[i]; j++){
                 Profile newProfile = createNormalProfile("email"+j+i, "password");
@@ -345,7 +372,7 @@ public class ActivityTestSteps {
 
     @When("I remove all {string}s from the activity")
     public void iRemoveAllSFromTheActivity(String role) {
-        activityService.clearActivityRoleList(activity.getId(), role);
+        activityService.clearActivityRoleList(profile.getId(), activity.getId(), role);
     }
 
     @Then("The amount of {string}s of the activity is {int}")
@@ -359,6 +386,64 @@ public class ActivityTestSteps {
         }
         else if(role.equals("ORGANISER")) {
             assertEquals(roleCount, roleCounts.getOrganisers());
+        }
+    }
+
+    @When("I create a continuous activity with location {string} and the latitude {double} and the longitude {double}")
+    public void iCreateAContinuousActivityWithLocationAndTheLatitudeAndTheLongitude(String location, Double latitude, Double longitude) {
+        this.location = location;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        typeRepository.save(new ActivityType("Running"));
+        assertEquals(201, activityController.createActivity(jwtUtil.extractId(loginResponse.getToken()), activity = createNormalActivity("Cool activity", location, latitude, longitude), loginResponse.getToken()).getStatusCodeValue());
+    }
+
+    @Then("The activities location and latitude and longitude will be stored")
+    public void theActivitiesLocationAndLatitudeAndLongitudeWillBeStored() {
+        List<Activity> activities = activityRepository.findAll();
+        assertEquals(activities.get(0).getLatitude(), this.latitude);
+        assertEquals(activities.get(0).getLongitude(), this.longitude);
+        assertEquals(activities.get(0).getLocation(), this.location);
+    }
+
+    @When("I choose to edit the activity by changing the location to {string} and its latitude to {double} and longitude to {double}")
+    public void iChooseToEditTheActivityByChangingTheLocationToAndItsLatitudeToAndLongitudeTo(String location, Double latitude, Double longitude) {
+        activity.setLatitude(latitude);
+        activity.setLongitude(longitude);
+        activity.setLocation(location);
+        Long activityId = activityRepository.getLastInsertedId();
+        PageRequest pageable = PageRequest.of(0, 1);
+        Page<ActivityMembership> page = membershipRepository.findByActivityAndRole(activityId, ActivityMembership.Role.CREATOR, pageable);
+        Profile creator = page.getContent().get(0).getProfile();
+        responseEntity = activityController.updateActivity(activity, loginResponse.getToken(), creator.getId(), activityId);
+    }
+
+    @When("I delete the profile with the email {string}")
+    public void i_delete_the_profile_with_the_email(String email) {
+        assertEquals(200, profileController.deleteProfile(loginResponse.getToken(), profileRepository.findByEmail(email).get(0).getId()).getStatusCodeValue());
+    }
+
+    @Then("The profile is deleted")
+    public void the_profile_is_deleted() {
+        assertFalse(profileRepository.existsById(profile.getId()));
+    }
+
+    @Then("The activity is deleted")
+    public void the_activity_is_deleted() {
+        assertFalse(activityRepository.existsById(activity.getId()));
+    }
+
+    @Then("The membership is deleted")
+    public void the_membership_is_deleted() {
+        assertEquals(0, membershipRepository.findActivityMembershipsByActivity_Id(activity.getId()).size());
+    }
+
+    @Then("No notifications are shared with the deleted user")
+    public void no_notifications_are_shared_with_the_deleted_user() {
+        List<Notification> notifications = notificationRepository.findAll();
+        assertEquals(1, notifications.size());
+        for (Notification notification: notifications) {
+            assertNull(notification.getEditorId());
         }
     }
 }

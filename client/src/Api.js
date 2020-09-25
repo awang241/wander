@@ -36,6 +36,7 @@ export default {
   editActivityRestrictedUsers: (userId, activityId, token, users) => localAxiosInstance.put('profiles/' + userId + '/activities/' + activityId + '/visibility', users, {headers: {"authorization":token}}),
 
 // All get API requests
+  getNotifications: (userId, token, parameters) => localAxiosInstance.get(`profiles/${userId}/notifications`, {headers: {"authorization":token}, params: parameters}),
   getActivity: (activityId, token) => localAxiosInstance.get('activities/' + activityId,{headers: {"authorization":token}}),
   getActivitiesList: () => localAxiosInstance.get('activities'),
   getAllActivityMembers: (activityId, token) => localAxiosInstance.get(`/activities/${activityId}/members`, {headers: {"authorization": token}}),
@@ -49,8 +50,9 @@ export default {
   getNextActivities: (userId, token, parameters = {}) => localAxiosInstance.get('/profiles/' + userId + '/activities', {headers: {"authorization":token}, params: parameters}),
   getActivityParticipation: (userId, activityId, token, participationId) => localAxiosInstance.get('/profiles/'+ userId + '/activities/' + activityId + '/participation/' + participationId, {headers: {'authorization': token}}),
   getAllActivityParticipations: (activityId, token) => localAxiosInstance.get('activities/' + activityId + '/participations', {headers: {'authorization': token}}),
-  getMyActivityRole: (activityId, token) => localAxiosInstance.get('activities/' + activityId + '/myRole',{headers: {'authorization': token}}),
   getSingleUserActivityRole: (userId, activityId, token) => localAxiosInstance.get(`/profiles/${userId}/activities/${activityId}/role`, {headers: {"authorization":token}}),
+  getActivitiesByLocation: (token, parameters = {}) => localAxiosInstance.get('activities/distance', {headers: {"authorization": token}, params: parameters}),
+  getActivitiesByName: (token, parameters = {}) => localAxiosInstance.get('activitiesSearch/', {headers: {"authorization":token}, params: parameters}),
 
 
   // All login/logout API requests

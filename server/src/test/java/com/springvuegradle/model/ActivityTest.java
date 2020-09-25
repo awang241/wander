@@ -23,7 +23,7 @@ public class ActivityTest {
                 "Steve@test.com", extraEmails, "987654321", "Here to run some tests!", calendar1,
                 "Male", 2, passportCountries, activityTypes);
         this.activity = new Activity("City to Surf", "15km walk/jog/run.", activityTypes, true,
-                "2020-02-20T08:00:00+1300","2020-02-20T08:00:00+1300", "Christchurch");
+                "2020-02-20T08:00:00+1300","2020-02-20T08:00:00+1300", "Christchurch", 100.0, 100.0);
     }
 
     /**

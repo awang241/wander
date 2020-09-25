@@ -28,21 +28,6 @@ public interface ProfileRepository extends JpaRepository<Profile, Long>, JpaSpec
     @Query("SELECT p FROM Profile p WHERE p.authLevel = :auth_level")
     List<Profile> findByAuthLevel(@Param("auth_level") Integer authLevel);
 
-    @Query("SELECT p FROM Profile p WHERE p.id = :id")
-    List<Profile> findAllById(@Param("id") Long id);
-
-    @Query("SELECT p FROM Profile p WHERE p.authLevel > :auth_level")
-    List<Profile> findAllBelowAuthlevel(@Param("auth_level") Integer authLevel);
-
     @Query("SELECT p FROM Profile p JOIN ActivityMembership am ON p = am.profile WHERE am.activity.id = :id AND am.role = :role")
     Page<Profile> findByActivityAndRole(@Param("id") long activityId, @Param("role") ActivityMembership.Role role, Pageable pageable);
-
-    @Query(value = "SELECT p FROM Profile p WHERE p.firstname = :firstname and " +
-            "(p.middlename = :middlename or :middlename is null) and p.lastname = :lastname" )
-    List<Profile> findAllByName(@Param("firstname") String firstname, @Param("middlename") String middlename,
-                                @Param("lastname") String lastname, Pageable pageable);
-
-    List<Profile> findAllByLastname(@Param("lastname") String lastName, Pageable pageable);
-
-    List<Profile> findAllByNickname(@Param("nickname") String nickname, Pageable pageable);
 }

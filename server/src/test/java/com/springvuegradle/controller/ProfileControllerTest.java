@@ -9,6 +9,7 @@ import com.springvuegradle.repositories.*;
 import com.springvuegradle.dto.requests.ChangePasswordRequest;
 import com.springvuegradle.dto.requests.EmailAddRequest;
 import com.springvuegradle.dto.requests.EmailUpdateRequest;
+import com.springvuegradle.utilities.ProfileLocationTestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -336,7 +337,7 @@ class ProfileControllerTest {
         long profileId = repo.findByPrimaryEmail(originalProfile.getPrimary_email()).get(0).getId();
         Profile expectedProfile = repo.findById(profileId).get();
 
-        assertEquals(expectedProfile.getActivityTypes().size(), 3, "Check profile saved successfully");
+        assertEquals(3, expectedProfile.getActivityTypes().size(), "Check profile saved successfully");
     }
 
     /**
@@ -784,9 +785,9 @@ class ProfileControllerTest {
     void addLocationTest(){
         Profile testProfile = createNormalProfileJimmy();
 
-        ProfileLocation location = new ProfileLocation("New Zealand", "Christchurch", "Canterbury");
+        ProfileLocation location = ProfileLocationTestUtils.createValidProfileLocation();
         testProfile.setLocation(location);
-        ProfileLocation updatedLocation = new ProfileLocation("New Zealand", "Christchurch", "Canterbury");
+        ProfileLocation updatedLocation = ProfileLocationTestUtils.createValidProfileLocation();
 
         profileController.createProfile(testProfile);
         assertEquals(testProfile.getProfileLocation(), updatedLocation);
@@ -809,16 +810,16 @@ class ProfileControllerTest {
         expectedProfile.setPassports(realPassports);
         updateData.setPassports(realPassports);
 
-        ProfileLocation location = new ProfileLocation("New Zealand", "Christchurch", "Canterbury");
+        ProfileLocation location = ProfileLocationTestUtils.createValidProfileLocation();
         testProfile.setLocation(location);
-        ProfileLocation updatedLocation = new ProfileLocation("New Zealand", "Christchurch", "Canterbury");
+        ProfileLocation updatedLocation = ProfileLocationTestUtils.createUpdatedProfileLocation();
         expectedProfile.setLocation(updatedLocation);
         updateData.setLocation(updatedLocation);
 
         profileController.createProfile(testProfile);
         ResponseEntity<String> actualResponse = profileController.updateProfile(updateData, testProfile.getId());
 
-        Profile updatedProfile = repo.findById(testProfile.getId()).get();
+        repo.findById(testProfile.getId()).get();
         assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
     }
 
@@ -839,14 +840,14 @@ class ProfileControllerTest {
         expectedProfile.setPassports(realPassports);
         updateData.setPassports(realPassports);
 
-        ProfileLocation location = new ProfileLocation("New Zealand", "Christchurch", "Canterbury");
+        ProfileLocation location = ProfileLocationTestUtils.createValidProfileLocation();
         testProfile.setLocation(location);
-        ProfileLocation updatedLocation = new ProfileLocation("New Zealand", "Christchurch", "Canterbury");
+        ProfileLocation updatedLocation = ProfileLocationTestUtils.createUpdatedProfileLocation();
         expectedProfile.setLocation(updatedLocation);
         updateData.setLocation(updatedLocation);
 
         profileController.createProfile(testProfile);
-        ResponseEntity<String> actualResponse = profileController.updateProfile(updateData, testProfile.getId());
+        profileController.updateProfile(updateData, testProfile.getId());
 
         Profile updatedProfile = repo.findById(testProfile.getId()).get();
         assertEquals(expectedProfile.getProfileLocation(), updatedProfile.getProfileLocation(), "Check profile updated");

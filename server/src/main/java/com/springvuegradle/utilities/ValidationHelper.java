@@ -5,12 +5,13 @@ import com.springvuegradle.model.PassportCountry;
 import com.springvuegradle.model.Profile;
 import com.springvuegradle.repositories.PassportCountryRepository;
 import com.springvuegradle.repositories.ProfileRepository;
-
 import java.io.IOException;
-import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class ValidationHelper {
 
@@ -38,8 +39,6 @@ public class ValidationHelper {
         try (java.io.InputStream in = new java.net.URL("https://restcountries.eu/rest/v2/all?fields=name;numericCode").openStream()) {
             String data = new String(in.readAllBytes());
             countries.addAll(Arrays.asList(mapper.readValue(data, PassportCountry[].class)));
-        } catch(ConnectException e) {
-            throw e;
         }
         return countries;
     }
