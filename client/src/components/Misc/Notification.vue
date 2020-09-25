@@ -9,8 +9,8 @@
               v-if="notification.activityId !== null"
               id="viewButton"
               class="is-pulled-right"
-              @click="goToActivity(notification.activityId)"
-              type="is-primary">
+              type="is-text"
+              @click="goToActivity(notification.activityId)">
         View Activity
       </b-button>
     </div>
@@ -145,7 +145,7 @@
   }
 
   #viewButton {
-    margin: 0.5rem;
+    margin: 1rem;
   }
 
 </style>

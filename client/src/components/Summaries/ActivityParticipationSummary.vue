@@ -4,8 +4,8 @@
             <h4><strong>{{result.name}}</strong></h4>
             <p class="outcome">{{result.outcome}}</p>
             <div v-if="result.start_time != null">
-                <p>Start Time: {{dateFormat(result.start_time)}}</p>
-                <p>End Time: {{dateFormat(result.end_time)}}</p>
+                <p>Start Time: {{dateTimeFormat(result.start_time)}}</p>
+                <p>End Time: {{dateTimeFormat(result.end_time)}}</p>
             </div>
 
             <p>{{result.details}}</p>
