@@ -23,8 +23,9 @@ describe('AddActivity.vue', () => {
         expect(wrapper.vm.validateActivity()).toBeFalsy();
     });
     test('Valid continous activity passes checks', () =>{
-        wrapper.vm.activity.chosenActivityTypes = ["Hiking"]
-        wrapper.vm.isContinous = true
+        wrapper.vm.activity.chosenActivityTypes = ["Hiking"];
+        wrapper.vm.isContinous = true;
+        wrapper.vm.activityLocationLatLong = {lat: 46.10, lng: -99.99};
         expect(wrapper.vm.validateActivity()).toBeTruthy();
     })
     test('Adding activity type with no name', () => {
