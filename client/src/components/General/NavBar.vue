@@ -29,8 +29,7 @@
                     </b-button>
                     <b-button  @click="goToSearch"
                                v-if="store.getters.getAuthenticationLevel > 1 && store.getters.getAuthenticationStatus"
-                               class="navbarButton">
-                        <b-icon icon="envelope" style="color: #38eeff"></b-icon>
+                               class="navbarButton" icon-left="search">
                         Search
                     </b-button>
                     <b-button  @click="goToAdminDashboard"

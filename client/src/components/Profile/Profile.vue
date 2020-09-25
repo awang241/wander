@@ -75,8 +75,8 @@
                             <div v-if="profile.passports != null && profile.passports.length">
                                 <br>
                                 <h3 class="title is-4">
-                                    <i class="fas fa-globe-asia iconPadding" style="font-size: 1.3em; color: #00d927"></i>
-                                    Countries</h3>
+                                  <b-icon icon="globe-asia" style="color: #38C7FF;" custom-size="3x"></b-icon>
+                                   Countries</h3>
                                 <table class="table-profile">
                                     <caption hidden>Table of Passport countries for profile</caption>
                                     <tr>
@@ -91,7 +91,7 @@
                             <div v-if="profile.activities != null && profile.activities.length">
                                 <br>
                                 <h3 class="title is-4">
-                                    <i class="fas fa-heartbeat iconPadding" style="font-size: 1.3em; color:  #ff3838"></i>
+                                  <b-icon icon="heartbeat" style="color: #38C7FF;" custom-size="3x"></b-icon>
                                     Activity Types</h3>
                                 <table class="table-profile">
                                     <caption hidden>Table of activity types for profile</caption>

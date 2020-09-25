@@ -9,10 +9,10 @@ import store from './store'
 import './veeValidateErrorMessages'
 
 import {library} from '@fortawesome/fontawesome-svg-core'
-import {faEllipsisV, faPlus, faMinus, faEnvelope, faUserShield, faRunning, faUser, faSignOutAlt, faKey, faHome, faPlusCircle, faUserEdit, faUniversalAccess, faPassport, faHeartbeat, faMapMarkerAlt, faChevronLeft, faSignInAlt} from '@fortawesome/free-solid-svg-icons'
+import {faEllipsisV, faPlus, faMinus, faEnvelope, faSearch, faUserShield, faRunning, faUser, faSignOutAlt, faKey, faHome, faPlusCircle, faUserEdit, faUniversalAccess, faPassport, faHeartbeat, faMapMarkerAlt, faChevronLeft, faSignInAlt, faGlobeAsia} from '@fortawesome/free-solid-svg-icons'
 import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
 
-library.add(faEllipsisV, faPlus, faMinus, faEnvelope, faUserShield, faRunning, faUser, faSignOutAlt, faKey, faHome, faPlusCircle, faUserEdit, faUniversalAccess, faPassport, faHeartbeat, faMapMarkerAlt, faChevronLeft, faSignInAlt);
+library.add(faEllipsisV, faPlus, faMinus, faEnvelope, faSearch, faUserShield, faRunning, faUser, faSignOutAlt, faKey, faHome, faPlusCircle, faUserEdit, faUniversalAccess, faPassport, faHeartbeat, faMapMarkerAlt, faChevronLeft, faSignInAlt, faGlobeAsia);
 Vue.component('vue-fontawesome', FontAwesomeIcon);
 
 Vue.use(Buefy, {
