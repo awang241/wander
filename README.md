@@ -84,7 +84,7 @@ JsonWebToken is licensed under the MIT License
 Copyright (c) 2015 Auth0, Inc  
 `[SEE ABOVE]`  
 
-#### Vue FortAwesome
+##### Vue FortAwesome
 Vue FortAwesome is licensed under the MIT License
 `[SEE ABOVE]`  
 
