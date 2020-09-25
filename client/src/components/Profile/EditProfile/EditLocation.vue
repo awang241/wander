@@ -11,7 +11,7 @@
              :location-choice-coordinates="profileLocationLatLong"
              v-on:locationChoiceChanged="updateLocation"
              ref="map"
-             :default_height="600"></MapPane>
+             :default_height="600" :default_width="1260"></MapPane>
     <br>
     <div class="row">
       <br>

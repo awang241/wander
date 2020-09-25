@@ -12,10 +12,22 @@ body {
     margin-top: 60px;
     border-radius: 10px;
     position: center;
+    margin-bottom: 50px;
+}
+
+.navbarButton {
+    /*border-radius: 90%;*/
+    border: none;
+    background: none;
 }
 
 button:hover {
-    background-color: #38b6ff;
+    background-color: #b3ddf8;
+    color: #111111;
+}
+
+.iconPadding {
+    padding-right: 5px;
 }
 
 

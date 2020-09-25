@@ -445,6 +445,5 @@ public class ActivityTestSteps {
         for (Notification notification: notifications) {
             assertNull(notification.getEditorId());
         }
-
     }
 }

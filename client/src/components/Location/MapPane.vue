@@ -33,7 +33,12 @@
             },
             default_height: {
                 type: Number
+            },
+            markerEnabled: {
+              type: Boolean,
+              default: true
             }
+
         },
 
         data() {
@@ -55,8 +60,6 @@
                     icon: 'http://labs.google.com/ridefinder/images/mm_20_blue.png'
                   },
                 }
-
-
             }
         },
 
@@ -110,7 +113,7 @@
                     zoom: DEFAULT_ZOOM,
                     center: this.locationChoiceCoordinates ? this.locationChoiceCoordinates : DEFAULT_LOCATION,
                 });
-                if (this.markerEnabled == true) {
+                if (this.markerEnabled) {
                     this.google.maps.event.addListener(this.map, 'click', e => {
                         this.setLocationWithMarker(e.latLng);
                     })
@@ -186,7 +189,7 @@
             openActivityModal(id) {
                 this.$buefy.modal.open({
                     parent: this,
-                    props: {idProp: id, viewingThroughModal: true},
+                    props: {idProp: Number(id), viewingThroughModal: true},
                     component: ViewActivity,
                     trapFocus: true,
                     scroll: "clip"

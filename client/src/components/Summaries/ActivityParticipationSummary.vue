@@ -18,11 +18,11 @@
 <script>
     import toastMixin from "../../mixins/toastMixin";
     import store from "../../store";
-    import ViewActivity from "../Activities/ViewActivity";
+    import dateTimeMixin from "../../mixins/dateTimeMixin";
 
     export default {
         name: "ActivityParticipationSummary",
-        mixins: [toastMixin],
+        mixins: [toastMixin, dateTimeMixin],
         data() {
             return {
                 resultData: {},
@@ -41,7 +41,7 @@
         },
         methods: {
             dateFormat(date) {
-                return ViewActivity.methods.dateFormat(date);
+                return this.dateFormat(date);
             }
         }
 

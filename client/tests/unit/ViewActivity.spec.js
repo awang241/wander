@@ -1,6 +1,6 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils'
-import ViewActivity from "../../src/components/Activities/ViewActivity";
+import {shallowMount, createLocalVue} from '@vue/test-utils'
 import VueRouter from 'vue-router'
+import ViewActivity from "../../src/components/Activities/ViewActivity";
 
 const localVue = createLocalVue()
 localVue.use(VueRouter)
@@ -17,7 +17,8 @@ beforeEach(() => {
                 hasShareAndEditPermissions() {
                     return false
                 }
-            }
+            },
+            props: {idProp: 3}
         }
     );
     adminWrapper = shallowMount(ViewActivity, {
@@ -27,7 +28,8 @@ beforeEach(() => {
                 hasShareAndEditPermissions() {
                     return true
                 }
-            }
+            },
+            props: {idProp: 3}
         }
     );
 
