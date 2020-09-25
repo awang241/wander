@@ -220,8 +220,6 @@ public class ActivityService {
             throw new IllegalArgumentException(ActivityMessage.EDITING_CREATOR.toString());
         }
 
-        membershipRepo.deleteActivityMembershipByProfileIdAndActivityId(editedId, activityId);
-
         NotificationType type;
         switch (membership.getRole()) {
             case FOLLOWER:
@@ -248,6 +246,8 @@ public class ActivityService {
                     edited.getFirstAndLastName(), activityName);
         }
         notificationService.createNotification(type, membership.getActivity(), editor, message);
+
+        membershipRepo.deleteActivityMembershipByProfileIdAndActivityId(editedId, activityId);
     }
 
     /**
