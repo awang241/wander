@@ -75,7 +75,7 @@
             deleteActivity(id) {
                 Api.deleteActivity(store.getters.getUserId, localStorage.getItem('authToken'), id)
                     .then(() => {
-                        this.$parent.removeActivityFromList(id);
+                        this.$parent.$parent.$parent.$parent.removeActivityFromList(id);
                         this.warningToast("Activity deleted");
                     })
                     .catch(() => this.warningToast("Error occurred while deleting Activity."));
