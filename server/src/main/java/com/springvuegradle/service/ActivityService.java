@@ -175,18 +175,28 @@ public class ActivityService {
      */
     public boolean delete(Long activityId, Long profileId) {
         if (activityRepo.existsById(activityId)) {
-            for (ActivityMembership membership : membershipRepo.findAll()) {
-                if (membership.getActivity().getId() == activityId) {
-                    Profile profile = membership.getProfile();
-                    membershipRepo.delete(membership);
-                    profile.removeActivity(membership);
-                }
-            }
             Profile profile = getModelObjectById(profileRepo, profileId);
             Activity activity = getModelObjectById(activityRepo, activityId);
             notificationService.createNotification(NotificationType.ACTIVITY_REMOVED, activity, profile,
                     profile.getFullName() + " deleted an activity called " + activity.getActivityName() + ".");
             notificationService.detachActivityFromNotifications(activity);
+
+            for (ActivityMembership membership : membershipRepo.findAll()) {
+                if (membership.getActivity().getId() == activityId) {
+                    Profile profile1 = membership.getProfile();
+                    membershipRepo.delete(membership);
+                    profile1.removeActivity(membership);
+                    membershipRepo.deleteActivityMembershipByProfileIdAndActivityId(profile1.getId(), activityId);
+                }
+            }
+            for (ActivityParticipation participation : participationRepo.findAll()) {
+                if (participation.getActivity().getId() == activityId) {
+                    Profile profile2 = participation.getProfile();
+                    participationRepo.delete(participation);
+                    profile2.removeParticipation(participation);
+                }
+            }
+
             for (ActivityType activityType : typeRepo.findAll()) {
                 if (activityType.getActivities().contains(activity)) {
                     activityType.removeActivity(activity);

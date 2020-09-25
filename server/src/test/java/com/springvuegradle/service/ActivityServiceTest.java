@@ -174,8 +174,6 @@ class ActivityServiceTest {
                 activity.getId(),
                 profile.getId());
         Activity result = activityRepository.getOne(activity.getId());
-        System.out.println(result.getContinuous());
-        System.out.println(result.getActivityName());
         assertEquals(true, result.getContinuous());
     }
 

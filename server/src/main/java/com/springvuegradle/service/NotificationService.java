@@ -41,7 +41,7 @@ public class NotificationService {
      */
     public void createNotification(NotificationType notificationType, Activity activity, Profile notificationCreator, String message){
         Notification notification = new Notification(message, activity, notificationCreator, notificationType);
-        for(ActivityMembership membership: activity.getMembers()){
+        for (ActivityMembership membership: activity.getMembers()) {
             notification.addRecipient(membership.getProfile());
         }
         activity.addNotification(notification);
@@ -59,6 +59,15 @@ public class NotificationService {
         for (Notification notification: activity.getNotifications()) {
             if (notification.getActivityId().equals(activity.getId())) {
                 notification.setActivity(null);
+                notificationRepo.save(notification);
+            }
+        }
+    }
+
+    public void detachProfileFromNotifications(Profile profile) {
+        for (Notification notification: profile.getNotifications()) {
+            if (notification.getEditorId().equals(profile.getId())) {
+                notification.setEditor(null);
                 notificationRepo.save(notification);
             }
         }

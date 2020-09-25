@@ -30,7 +30,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.awt.print.Pageable;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -70,6 +69,9 @@ public class ActivityTestSteps {
 
     @Autowired
     ActivityService activityService;
+
+    @Autowired
+    NotificationRepository notificationRepository;
 
     private Profile profile;
 
@@ -113,7 +115,7 @@ public class ActivityTestSteps {
     @And("I create a continuous activity with the title {string} and the location {string}")
     public void i_create_a_continuous_activity_with_the_title_with_the_activity_type_and_the_location(String title, String location) {
         typeRepository.save(new ActivityType("Running"));
-        assertEquals(201, activityController.createActivity(jwtUtil.extractId(loginResponse.getToken()), activity = createNormalActivity(title, location), loginResponse.getToken()).getStatusCodeValue());
+        assertEquals(201, activityController.createActivity(jwtUtil.extractId(loginResponse.getToken()), activity = createNormalActivity(title), loginResponse.getToken()).getStatusCodeValue());
     }
 
     @And("An activity with the title {string} exists")
@@ -230,7 +232,7 @@ public class ActivityTestSteps {
                 28), "male", 1, new String[]{}, new String[]{});
     }
 
-    static Activity createNormalActivity(String title, String location) {
+    static Activity createNormalActivity(String title) {
         return new Activity(title, "description doesn't matter atm",
                 new String[]{"Running"}, true, "2020-02-20T08:00:00+1300", "2020-02-20T08:00:00+1300", "UC, CHCH, NZ", 100.0, 100.0);
     }
@@ -267,7 +269,7 @@ public class ActivityTestSteps {
     public void i_create_the_following_activities_making_them_public(io.cucumber.datatable.DataTable activityNames) {
         typeRepository.save(new ActivityType("Running"));
         for (String activityName: activityNames.asList()) {
-            assertEquals(201, activityController.createActivity(jwtUtil.extractId(loginResponse.getToken()), activity = createNormalActivity(activityName, "Christchurch"), loginResponse.getToken()).getStatusCodeValue());
+            assertEquals(201, activityController.createActivity(jwtUtil.extractId(loginResponse.getToken()), activity = createNormalActivity(activityName), loginResponse.getToken()).getStatusCodeValue());
             assertEquals(200, activityController.editActivityPrivacy(new PrivacyRequest("public"), loginResponse.getToken(), loginResponse.getUserId(), activityRepository.getLastInsertedId()).getStatusCodeValue());
         }
     }
@@ -276,7 +278,7 @@ public class ActivityTestSteps {
     public void i_create_the_following_activities_making_them_public_and_the_account_with_email_an_organiser_of_each(String email, io.cucumber.datatable.DataTable activityNames) {
         Long profileId = profileRepository.findByEmail(email).get(0).getId();
         for (String activityName: activityNames.asList()) {
-            assertEquals(201, activityController.createActivity(jwtUtil.extractId(loginResponse.getToken()), activity = createNormalActivity(activityName, "Christchurch"), loginResponse.getToken()).getStatusCodeValue());
+            assertEquals(201, activityController.createActivity(jwtUtil.extractId(loginResponse.getToken()), activity = createNormalActivity(activityName), loginResponse.getToken()).getStatusCodeValue());
             assertEquals(200, activityController.editActivityPrivacy(new PrivacyRequest("public"), loginResponse.getToken(), loginResponse.getUserId(), activityRepository.getLastInsertedId()).getStatusCodeValue());
             assertEquals(201, activityController.addActivityRole(loginResponse.getToken(), profileId, activityRepository.getLastInsertedId(), new ActivityRoleUpdateRequest("organiser")).getStatusCodeValue());
         }
@@ -343,9 +345,11 @@ public class ActivityTestSteps {
     public void anActivityExistsInTheDatabaseWithParticipantsFollowersAndOrganisers(int numParticipants, int numFollowers, int numOrganisers) {
         List<ActivityMembership.Role> roles = Arrays.asList(ActivityMembership.Role.PARTICIPANT, ActivityMembership.Role.FOLLOWER, ActivityMembership.Role.ORGANISER);
         int[] numRoles = {numParticipants, numFollowers, numOrganisers};
-        activity = createNormalActivity("Cool activity", "Christchurch");
+        activity = createNormalActivity("Cool activity");
         activityRepository.save(activity);
+        membershipRepository.save(new ActivityMembership(activity, profile, ActivityMembership.Role.CREATOR));
         List<ActivityMemberProfileResponse> activityMemberProfileResponseList = new ArrayList<>();
+        activityMemberProfileResponseList.add(new ActivityMemberProfileResponse(profile.getId(), profile.getFirstname(), profile.getLastname(), profile.getPrimary_email(), ActivityMembership.Role.CREATOR));
         for(int i = 0; i < roles.size(); i++){
             for(int j = 0; j < numRoles[i]; j++){
                 Profile newProfile = createNormalProfile("email"+j+i, "password");
@@ -414,4 +418,32 @@ public class ActivityTestSteps {
         responseEntity = activityController.updateActivity(activity, loginResponse.getToken(), creator.getId(), activityId);
     }
 
+    @When("I delete the profile with the email {string}")
+    public void i_delete_the_profile_with_the_email(String email) {
+        assertEquals(200, profileController.deleteProfile(loginResponse.getToken(), profileRepository.findByEmail(email).get(0).getId()).getStatusCodeValue());
+    }
+
+    @Then("The profile is deleted")
+    public void the_profile_is_deleted() {
+        assertFalse(profileRepository.existsById(profile.getId()));
+    }
+
+    @Then("The activity is deleted")
+    public void the_activity_is_deleted() {
+        assertFalse(activityRepository.existsById(activity.getId()));
+    }
+
+    @Then("The membership is deleted")
+    public void the_membership_is_deleted() {
+        assertEquals(0, membershipRepository.findActivityMembershipsByActivity_Id(activity.getId()).size());
+    }
+
+    @Then("No notifications are shared with the deleted user")
+    public void no_notifications_are_shared_with_the_deleted_user() {
+        List<Notification> notifications = notificationRepository.findAll();
+        assertEquals(1, notifications.size());
+        for (Notification notification: notifications) {
+            assertNull(notification.getEditorId());
+        }
+    }
 }
