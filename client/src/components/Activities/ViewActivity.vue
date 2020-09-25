@@ -137,7 +137,7 @@
                              v-for="organiser in members.organiser"
                              :key="organiser.id">
                             <ProfileSummary class="flex-item" :profile="organiser">
-                                <template v-if="hasCreatorPermissions" #options>
+                                <template v-if="hasCreatorPermissions || hasOrganiserPermissions" #options>
                                     <b-dropdown aria-role="list" class="is-pulled-right" position="is-bottom-left">
                                         <b-icon icon="ellipsis-v" slot="trigger"/>
                                         <b-dropdown-item @click="changeRole(organiser.id, roles.ORGANISER, roles.PARTICIPANT)">Change to Participant</b-dropdown-item>
@@ -166,7 +166,7 @@
                                  v-for="participant in members.participant"
                                  :key="participant.id">
                                 <ProfileSummary class="flex-item" :profile="participant">
-                                    <template v-if="hasCreatorPermissions" #options>
+                                    <template v-if="hasCreatorPermissions || hasOrganiserPermissions" #options>
                                         <b-dropdown aria-role="list" class="is-pulled-right" position="is-bottom-left">
                                             <b-icon icon="ellipsis-v" slot="trigger"/>
                                             <b-dropdown-item @click="changeRole(participant.id, roles.PARTICIPANT, roles.ORGANISER)">Change to Organiser</b-dropdown-item>
