@@ -88,6 +88,10 @@ Copyright (c) 2015 Auth0, Inc
 Vue FortAwesome is licensed under the MIT License
 `[SEE ABOVE]`  
 
+##### Vue Resizable
+Vue Resizable is licensed under the MIT License
+`[SEE ABOVE]`  
+
   
 ### Reference
 - [Spring Boot Docs](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/)
