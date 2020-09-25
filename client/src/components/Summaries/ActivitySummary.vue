@@ -22,7 +22,6 @@
                         <b-icon icon="ellipsis-v" slot="trigger"></b-icon>
                         <b-dropdown-item aria-role="listitem" @click="goToActivity(activity)">View activity</b-dropdown-item>
                         <b-dropdown-item aria-role="listitem" @click="editActivity(activity)">Edit activity </b-dropdown-item>
-                        <b-dropdown-item aria-role="listitem" @click="deleteActivity(activity.id)">Delete activity</b-dropdown-item>
                     </b-dropdown>
                     <b-button v-else type="is-text" @click="goToActivity(activity)">View activity</b-button>
                 </template>
@@ -71,14 +70,6 @@
             },
             goToActivity(activity) {
                 router.push({path: 'Activities/' + activity.id})
-            },
-            deleteActivity(id) {
-                Api.deleteActivity(store.getters.getUserId, localStorage.getItem('authToken'), id)
-                    .then(() => {
-                        this.$parent.removeActivityFromList(id);
-                        this.warningToast("Activity deleted");
-                    })
-                    .catch(() => this.warningToast("Error occurred while deleting Activity."));
             },
             dateFormat(date) {
                 return this.dateFormat(date);
