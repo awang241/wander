@@ -83,6 +83,11 @@ Copyright (c) 2015 Auth0, Inc
 JsonWebToken is licensed under the MIT License   
 Copyright (c) 2015 Auth0, Inc  
 `[SEE ABOVE]`  
+
+### Vue FortAwesome
+Vue FortAwesome is licensed under the MIT License
+`[SEE ABOVE]`  
+
   
 ### Reference
 - [Spring Boot Docs](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/)
