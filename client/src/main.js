@@ -9,10 +9,10 @@ import store from './store'
 import './veeValidateErrorMessages'
 
 import {library} from '@fortawesome/fontawesome-svg-core'
-import {faEllipsisV, faPlus, faMinus} from '@fortawesome/free-solid-svg-icons'
+import {faEllipsisV, faPlus, faMinus, faEnvelope, faUserShield, faRunning, faUser, faSignOutAlt, faKey, faHome, faPlusCircle, faUserEdit, faUniversalAccess, faPassport, faHeartbeat, faMapMarkerAlt, faChevronLeft, faSignInAlt} from '@fortawesome/free-solid-svg-icons'
 import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
 
-library.add(faEllipsisV, faPlus, faMinus);
+library.add(faEllipsisV, faPlus, faMinus, faEnvelope, faUserShield, faRunning, faUser, faSignOutAlt, faKey, faHome, faPlusCircle, faUserEdit, faUniversalAccess, faPassport, faHeartbeat, faMapMarkerAlt, faChevronLeft, faSignInAlt);
 Vue.component('vue-fontawesome', FontAwesomeIcon);
 
 Vue.use(Buefy, {

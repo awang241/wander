@@ -5,15 +5,15 @@
     <h3 class="title is-4">Profile Settings</h3>
     <div class="tabs is-centered">
       <ul>
-        <li :class="{'is-active': tabIndex === 0}"><a v-on:click="setTabIndex(0)"><i class="fas fa-user iconPadding" style="font-size: 1.3em"></i>Basic Info</a></li>
-        <li :class="{'is-active': tabIndex === 1}"><a v-on:click="setTabIndex(1)"><i class="fas fa-key iconPadding" style="font-size: 1.3em"></i>Change Password</a></li>
-        <li :class="{'is-active': tabIndex === 2}"><a v-on:click="setTabIndex(2)"><i class="fas fa-passport iconPadding" style="font-size: 1.3em"></i>Passport Countries</a></li>
-        <li :class="{'is-active': tabIndex === 3}"><a v-on:click="setTabIndex(3)"><i class="fas fa-heartbeat iconPadding" style="font-size: 1.3em"></i>Activity Types</a></li>
-        <li :class="{'is-active': tabIndex === 4}"><a v-on:click="setTabIndex(4)"><i class="fas fa-envelope iconPadding" style="font-size: 1.3em"></i>Emails</a></li>
-        <li :class="{'is-active': tabIndex === 5}"><a v-on:click="setTabIndex(5)"><i class="fas fa-map-marker-alt iconPadding" style="font-size: 1.3em"></i>Location</a></li>
+        <li :class="{'is-active': tabIndex === 0}"><a v-on:click="setTabIndex(0)"><b-icon icon="user" style="color: #38C7FF"></b-icon>Basic Info</a></li>
+        <li :class="{'is-active': tabIndex === 1}"><a v-on:click="setTabIndex(1)"><b-icon icon="key" style="color: #38C7FF"></b-icon>Change Password</a></li>
+        <li :class="{'is-active': tabIndex === 2}"><a v-on:click="setTabIndex(2)"><b-icon icon="passport" style="color: #38C7FF"></b-icon>Passport Countries</a></li>
+        <li :class="{'is-active': tabIndex === 3}"><a v-on:click="setTabIndex(3)"><b-icon icon="heartbeat" style="color: #38C7FF"></b-icon>Activity Types</a></li>
+        <li :class="{'is-active': tabIndex === 4}"><a v-on:click="setTabIndex(4)"><b-icon icon="envelope" style="color: #38C7FF"></b-icon>Emails</a></li>
+        <li :class="{'is-active': tabIndex === 5}"><a v-on:click="setTabIndex(5)"><b-icon icon="map-marker-alt" style="color: #38C7FF"></b-icon>Location</a></li>
         <li v-if="$store.getters.getAuthenticationLevel > 0 && !editingThroughDashboard">
             <a @click="changeToProfile">
-              <i class="fas fa-chevron-left iconPadding" style="font-size: 1.3em"></i>
+              <b-icon icon="chevron-left" style="color: #38C7FF"></b-icon>
                 Back to Profile
             </a>
         </li>

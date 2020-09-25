@@ -19,8 +19,8 @@
                 <div>
                     <b-button v-if="viewingOwnProfile"
                               @click="editProfile"
-                              type="is-primary">
-                        <i class="fas fa-user-edit iconPadding" style="font-size: 1.3em"></i>
+                              type="is-primary"
+                              icon-left="user-edit">
                         Edit Profile
                     </b-button>
                 </div>
@@ -34,7 +34,7 @@
                 <div class="card">
                     <div class="card-content">
                         <h3 class="title is-4">
-                            <i class="fas fa-universal-access" style="font-size: 1.3em; color: #384cff"></i>
+                            <b-icon icon="universal-access" style="color: #38C7FF;" custom-size="3x"></b-icon>
                             Basic information</h3>
 
                         <div class="content">
