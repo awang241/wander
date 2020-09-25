@@ -1,7 +1,7 @@
 <template>
     <div class="container containerColor">
         <row>
-            <h1 class="title" > <i class="fas fa-home" style="font-size: 1.8em; color: #38b6ff"></i> Home</h1>
+            <h1 class="title" > <b-icon icon="home" style="color: #38eeff"></b-icon> Home</h1>
         </row>
         <hr>
 
